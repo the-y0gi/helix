@@ -1,0 +1,1 @@
+export const CommonPagesStyles:string = "md:px-39 px-4 w-full"
