@@ -3,9 +3,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type SignUpProps, SignUpSchema } from "@/schema/auth";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth.store";
+import { toast } from "sonner";
+
 export const useSignUp = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const navigate = useRouter();
+  const { userSignup, verifyOTP } = useAuthStore();
+
   const methods = useForm<SignUpProps>({
     resolver: zodResolver(SignUpSchema),
     defaultValues: {
@@ -15,29 +20,42 @@ export const useSignUp = () => {
     },
     mode: "onChange",
   });
+
   const onHandleSubmit = methods.handleSubmit(async (data) => {
     setLoading(true);
     try {
-      console.log(data);
+      const result = await verifyOTP({ email: data.email, otp: data.otp });
+      if (result.success) {
+        toast.success(result.message || "Account created successfully!");
+        // Redirect or close dialog
+      } else {
+        toast.error(result.message || "Failed to verify OTP");
+      }
     } catch (error) {
+      toast.error("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
   });
-  const onGenerateOtp = (
+
+  const onGenerateOtp = async (
     email: string,
     password: string,
     onNext: React.Dispatch<React.SetStateAction<number>>,
   ) => {
-    setLoading(true)
+    setLoading(true);
     try {
-      console.log(email , password);
-      
-      onNext((prev) => prev + 1);
+      const result = await userSignup({ email, password });
+      if (result.success) {
+        toast.success(result.message || "OTP sent to your email");
+        onNext((prev) => prev + 1);
+      } else {
+        toast.error(result.message || "Failed to send OTP");
+      }
     } catch (error) {
-      
-    }finally{
-      setLoading(false)
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 

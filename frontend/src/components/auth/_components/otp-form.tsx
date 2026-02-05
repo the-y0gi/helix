@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Card,
@@ -6,52 +6,44 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
+} from "@/components/ui/field";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
-} from "@/components/ui/input-otp"
-import { useAuthForm } from "@/context/auth/auth-form-provider"
-import ButtonHandler from "./buttonhandler"
+} from "@/components/ui/input-otp";
+import { useAuthForm } from "@/context/auth/auth-form-provider";
+import ButtonHandler from "./buttonhandler";
 
-import { useFormContext, type UseFormReturn } from "react-hook-form"
-import type { SignUpProps } from "@/schema/auth"
-import { useEffect } from "react"
+import { useFormContext, type UseFormReturn } from "react-hook-form";
+import type { SignUpProps } from "@/schema/auth";
+import { useEffect } from "react";
 
 type OTPFormProps = React.ComponentProps<typeof Card> & {
-  onOTP: string
-  methods: UseFormReturn<SignUpProps>
-  setOnOTP: React.Dispatch<React.SetStateAction<string>>
-}
+  onOTP: string;
+  methods: UseFormReturn<SignUpProps>;
+  setOnOTP: React.Dispatch<React.SetStateAction<string>>;
+};
 
-const OTP_LENGTH = 4
+const OTP_LENGTH = 4;
 
-export function OTPForm({
-  onOTP,
-  methods,
-  setOnOTP,
-  ...props
-}: OTPFormProps) {
-  const { setValue } = useFormContext<SignUpProps>()
-  const { currentStep, setCurrentStep } = useAuthForm()
+export function OTPForm({ onOTP, methods, setOnOTP, ...props }: OTPFormProps) {
+  const { setValue } = useFormContext<SignUpProps>();
+  const { currentStep, setCurrentStep } = useAuthForm();
 
   // ✅ update form value safely
   useEffect(() => {
-    setValue("otp", onOTP)
-  }, [onOTP, setValue])
+    setValue("otp", onOTP);
+  }, [onOTP, setValue]);
 
   return (
-    <Card
-      {...props}
-      className="w-full max-w-md mx-auto rounded-2xl shadow-sm"
-    >
+    <Card {...props} className="w-full max-w-md mx-auto rounded-2xl shadow-sm">
       <CardHeader className="text-center space-y-2">
         <CardTitle className="text-xl font-semibold">
           Enter verification code
@@ -107,15 +99,26 @@ export function OTPForm({
 
           <FieldDescription className="text-center text-sm">
             Didn&apos;t receive the code?{" "}
-            <a
-              href="#"
+            <button
+              type="button"
+              onClick={async () => {
+                const { toast } = await import("sonner");
+                const { useAuthStore } = await import("@/store/auth.store");
+                const email = methods.getValues("email");
+                const result = await useAuthStore.getState().resendOTP(email);
+                if (result.success) {
+                  toast.success(result.message || "OTP resent successfully");
+                } else {
+                  toast.error(result.message || "Failed to resend OTP");
+                }
+              }}
               className="font-medium underline underline-offset-4 hover:text-primary"
             >
               Resend
-            </a>
+            </button>
           </FieldDescription>
         </FieldGroup>
       </CardContent>
     </Card>
-  )
+  );
 }
