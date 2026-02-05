@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { ChevronLeft, ChevronRight, MapPin } from "lucide-react"
 import { destinations } from "@/constants/constants"
 import Image, { StaticImageData } from "next/image"
+import { useRouter } from "next/navigation"
 
 type Item = {
   title: string
@@ -17,6 +18,8 @@ type Props = {
 }
 
 export const OnlyCarousel = ({ type }: Props) => {
+const navigate = useRouter();
+
   const values: Item[] =
     type === "cabs" || type === "hotels" ? destinations : []
 
@@ -26,7 +29,6 @@ export const OnlyCarousel = ({ type }: Props) => {
   const [canRight, setCanRight] = useState(true)
 
   const CARD_WIDTH = 220 + 16
-
   const scroll = (dir: "left" | "right") => {
     scrollRef.current?.scrollBy({
       left: dir === "left" ? -CARD_WIDTH : CARD_WIDTH,
@@ -78,32 +80,42 @@ export const OnlyCarousel = ({ type }: Props) => {
           scrollbar-hide
         "
       >
-        {values.map((item, i) => (
-          <a
-            key={i}
-            href={item.href ?? "#"}
-            className="min-w-[220px] snap-start"
-          >
-            <div className="aspect-[4/3] overflow-hidden rounded-xl">
-              <Image
-                width={220}
-                height={150}
-                src={item.image}
-                alt={item.title}
-                className="h-full w-full object-cover transition-transform hover:scale-105"
-              />
-            </div>
-
-            <div className="mt-2">
-              <h3 className="text-sm font-medium">{item.title}</h3>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <MapPin className="h-3 w-3" />
-                {item.location}
-              </div>
-            </div>
-          </a>
-        ))}
+        {values.map((item, i)=>{
+          return <Card key={i} item={item} onClick={() => navigate.push(item.href || `/hotels/${i}`)}/>
+        })}
       </div>
     </div>
   )
 }
+
+type CardProps = {
+  item: Item
+  onClick: () => void
+}
+
+const Card = React.memo(({ item, onClick }: CardProps) => {
+  return (
+    <button
+      onClick={onClick}
+      className="min-w-[220px] snap-start text-left"
+    >
+      <div className="aspect-[4/3] overflow-hidden rounded-xl">
+        <Image
+          width={220}
+          height={150}
+          src={item.image}
+          alt={item.title}
+          className="h-full w-full object-cover transition-transform hover:scale-105"
+        />
+      </div>
+
+      <div className="mt-2">
+        <h3 className="text-sm font-medium">{item.title}</h3>
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <MapPin className="h-3 w-3" />
+          {item.location}
+        </div>
+      </div>
+    </button>
+  )
+})

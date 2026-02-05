@@ -141,7 +141,6 @@
 
   }
 
-
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -179,4 +178,21 @@
     rgba(255, 255, 255, 0.6),
     rgba(255, 255, 255, 0.3)
   );
+}
+html {
+  overflow-y: scroll;   /* or overflow-y: auto; if you prefer */
+}
+
+/* Or more precise (recommended for Next.js / shadcn apps) */
+#__next {
+  overflow-y: scroll;
+}
+/* Hide scrollbar but keep scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none;     /* IE and Edge */
+  scrollbar-width: none;        /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;                /* Chrome, Safari */
 }

@@ -53,17 +53,23 @@ export function Sign_in_hover({
 }) {
   return (
     <AuthContextProvider>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant={variant}>{tag}</Button>
-        </DialogTrigger>
-        <DialogContent className="md:w-[425px] p-0 rounded-2xl overflow-hidden pb-4 w-[300px]">
-          <VisuallyHidden>
-            <DialogTitle className="sr-only">Login</DialogTitle>
-          </VisuallyHidden>
-          {tag === "Log-in" ? <SignInForm /> : <SignupForm />}
-        </DialogContent>
-      </Dialog>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant={variant} className="w-full flex justify-start">{tag}</Button>
+      </DialogTrigger>
+      <DialogContent className="md:w-[425px] p-0 rounded-2xl overflow-hidden pb-4 w-[300px]">
+        <VisuallyHidden>
+          <DialogTitle className="sr-only">Login</DialogTitle>
+        </VisuallyHidden>
+        {tag === "Log-in" ? (
+          <SignInForm />
+        ) : (
+          
+            <SignupForm />
+          
+        )}
+      </DialogContent>
+    </Dialog>
     </AuthContextProvider>
   );
 }

@@ -1,59 +1,102 @@
-"use client"
-import {
-  Menubar,
-  MenubarContent,
-  MenubarGroup,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarTrigger,
-} from "@/components/ui/menubar"
-import { AnimatedThemeTogglerDemo } from "./ui/theme-toggle"
-import { IconMenu3 } from "@tabler/icons-react"
-import { Sign_in_hover } from "./auth/_components/sign-in-hover"
-import { usePathname, useRouter } from "next/navigation"
-import { toast } from "sonner"
+"use client";
 
-export function NavMenuBar() {
+import { AnimatedThemeTogglerDemo } from "./ui/theme-toggle";
+import { Sign_in_hover } from "./auth/_components/sign-in-hover";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from "react";
+
+export function MenuBar() {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    } else {
+      document.body.style.paddingRight = "";
+    }
+  }, [open]);
   const navigate = useRouter();
   const pathname = usePathname();
-  const handelnavigate = (path:string)=>{
-    if(pathname === path){
-      return
+  const handelnavigate = (path: string) => {
+    if (pathname === path) {
+      return;
     }
-    toast.success("Redirecting...")
-    navigate.push(path)
-  }
+    toast.success("Redirecting...");
+    navigate.push(path);
+  };
   return (
-    <Menubar >
-      <MenubarMenu>
-        <MenubarTrigger>
-            <IconMenu3/>
-        </MenubarTrigger>
-        <MenubarContent>
-          <MenubarGroup>
-            <MenubarItem className="flex items-center px-5" onClick={()=>handelnavigate("/")}>home</MenubarItem>
-            <MenubarItem className="flex items-center px-5" onClick={()=>handelnavigate("/profile")}>profile</MenubarItem>
-          </MenubarGroup>
-          <MenubarSeparator />
+    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
+      <DropdownMenuTrigger asChild>
+    <Button variant="ghost" className="p-0 rounded-full">
+      <div className="w-12 h-12 rounded-full overflow-hidden border border-zinc-400 hover:border-orange-400 transition">
+        <img src="/girl.png" alt="Profile" className="w-full h-full object-cover" />
+      </div>
+    </Button>
+  </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-40 mr-10  border-0" align="start">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => handelnavigate("/profile")}>
+            Profile
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handelnavigate("/")}>
+            Home
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            Settings
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            <AnimatedThemeTogglerDemo />
+          </DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem>Email</DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
           
-          <MenubarGroup className="flex items-center px-5">
-            {/* <MenubarItem ><ThemeToggle /></MenubarItem> */}
-             <AnimatedThemeTogglerDemo/>
-          </MenubarGroup>
-          <MenubarSeparator />
-
-          <MenubarGroup>
-            <MenubarItem className="flex items-center px-5" asChild><Sign_in_hover tag="Log-in" variant="ghost"/></MenubarItem>
-            <MenubarItem className="flex items-center px-5" asChild><Sign_in_hover tag="Sign-up" variant="ghost"/></MenubarItem>
-            <MenubarItem className="flex items-center px-5" asChild><h1 className="font-bold ">
-                Log out</h1></MenubarItem>
-          </MenubarGroup>
-        </MenubarContent>
-      </MenubarMenu>
-      
-      
-      
-    </Menubar>
-  )
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem asChild>
+            <Sign_in_hover tag="Log-in" variant="ghost" />
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Sign_in_hover tag="Sign-up" variant="ghost" />
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            Log out
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
