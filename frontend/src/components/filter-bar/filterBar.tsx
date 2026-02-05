@@ -59,7 +59,7 @@ export const PagesFilterBarButtons = ({
           onClick={() => navigate.push(link || "/")}
           variant={"ghost"}
           className={cn(
-            "mt-2 flex h-12 w-full items-center justify-center rounded-full bg-primary text-white md:mt-0 md:h-9 md:w-9",
+            "mt-2 flex h-12 w-full items-center justify-center rounded-full bg-primary text-white md:mt-0 md:h-12 md:w-12",
           )}
         >
           <IconSearch size={20} />
