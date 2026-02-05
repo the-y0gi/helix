@@ -5,23 +5,39 @@ const logger = require("../utils/logger");
 exports.protect = async (req, res, next) => {
   try {
     let token;
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
+
+    if (req.headers.authorization?.startsWith("Bearer")) {
       token = req.headers.authorization.split(" ")[1];
     }
 
     if (!token) {
-      return res.status(401).json({ message: "Not authorized, please login" });
+      return res.status(401).json({
+        success: false,
+        message: "Not authorized, no token provided",
+      });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
 
-    req.user = await User.findById(decoded.id).select("-otp");
+    const currentUser = await User.findById(decoded.id);
+
+    if (!currentUser) {
+      return res.status(401).json({
+        success: false,
+        message: "The user belonging to this token no longer exists",
+      });
+    }
+
+    req.user = currentUser;
     next();
   } catch (error) {
-    logger.error("Auth Middleware Error", error);
-    res.status(401).json({ message: "Token is invalid or expired" });
+    logger.error("Auth Middleware Error:", error.message);
+
+    const message =
+      error.name === "TokenExpiredError"
+        ? "Token expired, please login again"
+        : "Invalid token, authorization denied";
+
+    return res.status(401).json({ success: false, message });
   }
 };
