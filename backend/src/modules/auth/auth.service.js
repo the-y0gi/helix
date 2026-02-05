@@ -5,7 +5,7 @@ const { sendOTPEmail } = require("../../shared/utils/sendEmail");
 
 // Helper to generate 6-digit OTP and its hash
 const generateOTP = async () => {
-  const otp = crypto.randomInt(100000, 999999).toString();
+  const otp = crypto.randomInt(1000, 9999).toString();
   const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
   return { otp, otpExpires };
 };

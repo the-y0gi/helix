@@ -39,43 +39,55 @@ router.patch("/reset-password", authLimiter, authController.resetPassword);
 router.patch("/change-password", protect, authController.changePassword);
 
 //--social auth
-//Google
+// Google
 router.get(
   "/google",
   passport.authenticate("google", {
     scope: ["profile", "email"],
     session: false,
-  }),
+  })
 );
+
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "/login",
+    failureRedirect: `${process.env.FRONTEND_URL}/login`,
     session: false,
   }),
-  authController.socialAuthSuccess,
+  authController.socialAuthSuccess
 );
 
-//Facebook
+// Facebook
 router.get(
   "/facebook",
-  passport.authenticate("facebook", { scope: ["email"], session: false }),
+  passport.authenticate("facebook", {
+    scope: ["email"],
+    session: false,
+  })
 );
+
 router.get(
   "/facebook/callback",
   passport.authenticate("facebook", {
-    failureRedirect: "/login",
+    failureRedirect: `${process.env.FRONTEND_URL}/login`,
     session: false,
   }),
-  authController.socialAuthSuccess,
+  authController.socialAuthSuccess
 );
 
-//Apple
-router.get("/apple", passport.authenticate("apple", { session: false }));
+// Apple
+router.get(
+  "/apple",
+  passport.authenticate("apple", { session: false })
+);
+
 router.post(
   "/apple/callback",
-  passport.authenticate("apple", { failureRedirect: "/login", session: false }),
-  authController.socialAuthSuccess,
+  passport.authenticate("apple", {
+    failureRedirect: `${process.env.FRONTEND_URL}/login`,
+    session: false,
+  }),
+  authController.socialAuthSuccess
 );
 
 module.exports = router;
