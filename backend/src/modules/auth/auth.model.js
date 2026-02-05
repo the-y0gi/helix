@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
-    //Basic Info - Only Email is Required initially
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -10,93 +10,59 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-
-    //Roles for RBAC (User, Vendor, Admin)
+    password: {
+      type: String,
+      select: false,
+      minlength: [8, "Password must be at least 8 characters"],
+    },
     role: {
       type: String,
       enum: ["user", "vendor", "admin"],
       default: "user",
     },
-
-    //Profile fields - User can add these later
-    firstName: {
-      type: String,
-      trim: true,
-    },
-    lastName: {
-      type: String,
-      trim: true,
-    },
-    phoneNumber: {
-      type: String,
-      trim: true,
-    },
+    firstName: { type: String, trim: true },
+    lastName: { type: String, trim: true },
+    phoneNumber: { type: String, trim: true },
     gender: {
       type: String,
       enum: ["male", "female", "other"],
       default: "other",
     },
-    dob: {
-      type: Date,
-    },
-    country: {
-      type: String,
-      default: "India",
-    },
-    avatar: {
-      type: String,
-    }, 
-    address: {
-      type: String,
-      trim: true,
-    },
-    zipcCode: {
-      type: String,
-      trim: true,
-    },
-
-    // Auth Providers - For Google, Facebook, Apple
+    dob: { type: Date },
+    country: { type: String, default: "India" },
+    avatar: { type: String },
+    address: { type: String, trim: true },
+    zipcCode: { type: String, trim: true },
     providers: {
       local: {
-        isVerified: {
-          type: Boolean,
-          default: false,
-        },
+        isVerified: { type: Boolean, default: false },
       },
-      google: {
-        id: { type: String },
-        email: { type: String },
-      },
-      facebook: {
-        id: { type: String },
-        email: { type: String },
-      },
-      apple: {
-        id: { type: String },
-        email: { type: String },
-      },
+      google: { id: String, email: String },
+      facebook: { id: String, email: String },
+      apple: { id: String, email: String },
     },
-
-    // OTP Logic
-    otp: {
-      type: String,//hashed otp
-      select: false,
-    },
-    otpExpires: {
-      type: Date,
-      select: false,
-    },
-
-    // Account Status
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+    otp: { type: String, select: false },
+    otpExpires: { type: Date, select: false },
+    isActive: { type: Boolean, default: true },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
+
+// Hash password before saving if modified
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+
+  try {
+    this.password = await bcrypt.hash(this.password, 12);
+  } catch (error) {
+    throw error;
+  }
+});
+
+// Instance method to compare password
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;
