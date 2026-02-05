@@ -2,45 +2,40 @@ const User = require("./auth.model");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const logger = require("../../shared/utils/logger");
-const sendEmail = require("../../shared/utils/sendEmail");
+const { sendOTPEmail } = require("../../shared/utils/sendEmail");
 
 //Generate and Send OTP
 exports.requestOTP = async (email) => {
   try {
-   const otp = crypto.randomInt(1000, 10000).toString();
+    const otp = crypto.randomInt(1000, 10000).toString();
 
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedOTP = await bcrypt.hash(otp, salt);
-
+    const hashedOTP = await bcrypt.hash(otp, 10);
     const otpExpires = Date.now() + 10 * 60 * 1000;
 
-    const user = await User.findOneAndUpdate(
+    await User.findOneAndUpdate(
       { email },
       {
         otp: hashedOTP,
         otpExpires,
-        $setOnInsert: { role: "user", "providers.local.isVerified": false },
+        $setOnInsert: {
+          role: "user",
+          "providers.local.isVerified": false,
+        },
       },
       { upsert: true, new: true },
     );
 
-    logger.info(`OTP generated for: ${email}`);
-
-    console.log(`[DEV ONLY] OTP for ${email} is: ${otp}`);
-
-    const message = `Your Helix verification code is ${otp}. It is valid for 10 minutes.`;
+    console.log(`[DEV] Helix OTP for ${email}: ${otp}`);
 
     //in future we can use queue system to send emails
-    await sendEmail({
-      email: email,
-      subject: "Helix OTP Verification",
-      message: message,
-      html: `<b>Your OTP is ${otp}</b>`,
-    });
-    return { success: true, message: "OTP sent to your email" };
+    await sendOTPEmail(email, otp);
+
+    return {
+      success: true,
+      message: "OTP sent to your email",
+    };
   } catch (error) {
-    logger.error("Error in requestOTP Service", error);
+    console.error("requestOTP failed:", error.message);
     throw error;
   }
 };
