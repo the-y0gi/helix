@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("./auth.controller");
+const passport = require("passport");
 
 //Route: /api/v1/auth/request-otp
 router.post("/request-otp", authController.requestOTP);
@@ -8,7 +9,7 @@ router.post("/request-otp", authController.requestOTP);
 //Route: /api/v1/auth/verify-otp
 router.post("/verify-otp", authController.verifyOTP);
 
-//--social auth --
+//--social auth 
 //Google
 router.get(
   "/google",
