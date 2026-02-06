@@ -10,8 +10,7 @@ const generateOTP = async () => {
   return { otp, otpExpires };
 };
 
-
-exports.signup = async (email, password) => {
+exports.signup = async (email, password,role) => {
   try {
     let user = await User.findOne({ email });
 
@@ -25,7 +24,7 @@ exports.signup = async (email, password) => {
       user = new User({
         email,
         password,
-        role: "user",
+        role:role || "user",
         otp,
         otpExpires,
         providers: {
@@ -108,7 +107,6 @@ exports.verifyOTP = async (email, inputOTP) => {
   }
 };
 
-
 exports.forgotPassword = async (email) => {
   try {
     const { otp, otpExpires } = await generateOTP();
@@ -134,7 +132,7 @@ exports.resetPassword = async (email, otp, newPassword) => {
       throw new Error("Invalid or expired OTP");
     }
 
-    user.password = newPassword; 
+    user.password = newPassword;
     user.otp = undefined;
     user.otpExpires = undefined;
     await user.save();

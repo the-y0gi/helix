@@ -45,8 +45,8 @@ exports.socialAuthSuccess = async (req, res) => {
 
 exports.signup = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const result = await authService.signup(email, password);
+    const { email, password,role } = req.body;
+    const result = await authService.signup(email, password,role);
     res.status(201).json({ success: true, message: result.message });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
