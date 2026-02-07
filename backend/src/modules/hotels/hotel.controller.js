@@ -63,7 +63,15 @@ exports.getHotel = async (req, res, next) => {
 // Update hotel details (Only for the owner vendor)
 exports.updateHotel = async (req, res, next) => {
   try {
-    const hotel = await hotelService.updateHotel(req.params.id, req.body);
+    const vendor = await Vendor.findOne({ userId: req.user._id });
+
+    if (!vendor) throw new Error("Vendor profile not found");
+
+    const hotel = await hotelService.updateHotel(
+      req.params.id,
+      vendor._id,
+      req.body,
+    );
 
     res.status(200).json({
       success: true,
@@ -75,6 +83,7 @@ exports.updateHotel = async (req, res, next) => {
     next(error);
   }
 };
+
 
 // Search nearby hotels based on coordinates (Geospatial API)
 exports.getNearbyHotels = async (req, res, next) => {
