@@ -1,41 +1,3 @@
-// const express = require("express");
-// const cors = require("cors");
-// const helmet = require("helmet");
-// const morgan = require("morgan");
-// const authRoutes = require("./modules/auth/auth.routes");
-// const userRoutes = require("./modules/users/user.routes");
-// const { errorHandler } = require("./shared/middlewares/errorHandler");
-// const passport = require("passport");
-
-// require("./shared/config/passport");
-
-// const app = express();
-
-// // Middlewares
-// app.use(helmet());
-// app.use(cors(
-//   {
-//     origin: "http://localhost:3000",
-//     credentials: true,
-//   }
-// ));
-// app.use(passport.initialize());
-
-// app.use(express.json());
-
-// if (process.env.NODE_ENV === "development") {
-//   app.use(morgan("dev"));
-// }
-
-// app.get("/health", (req, res) => res.status(200).send("API is running..."));
-
-// app.use("/api/v1/auth", authRoutes);
-// app.use("/api/v1/users", userRoutes);
-
-// app.use(errorHandler);
-
-// module.exports = app;
-
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -47,7 +9,12 @@ const authRoutes = require("./modules/auth/auth.routes");
 const userRoutes = require("./modules/users/user.routes");
 const hotelRoutes = require("./modules/hotels/hotel.routes");
 const roomRoutes = require("./modules/rooms/room.routes");
+const roomTypeRoutes = require("./modules/rooms/roomType.routes");
+const availabilityRoutes = require("./modules/availability/availability.routes");
 const vendorRoutes = require("./modules/vendors/vendor.routes");
+const policyRoutes = require("./modules/policies/policy.routes");
+const bookingRoutes = require("./modules/bookings/booking.routes");
+const reviewRoutes = require("./modules/reviews/review.routes");
 
 const { errorHandler } = require("./shared/middlewares/errorHandler");
 require("./shared/config/passport");
@@ -87,7 +54,12 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/hotels", hotelRoutes);
 app.use("/api/v1/rooms", roomRoutes);
+app.use("/api/v1/room-types", roomTypeRoutes);
+app.use("/api/v1/availability", availabilityRoutes);
 app.use("/api/v1/vendors", vendorRoutes);
+app.use("/api/v1/policies", policyRoutes);
+app.use("/api/v1/bookings", bookingRoutes);
+app.use("/api/v1/reviews", reviewRoutes);
 
 app.use(errorHandler);
 
