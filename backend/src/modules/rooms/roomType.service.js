@@ -28,7 +28,6 @@ exports.getRoomTypesByHotel = async (hotelId) => {
   }
 };
 
-
 exports.updateRoomType = async (roomTypeId, hotelId, updateData) => {
   try {
     const existingRoomType = await RoomType.findOne({
@@ -43,7 +42,7 @@ exports.updateRoomType = async (roomTypeId, hotelId, updateData) => {
       if (existingRoomType.images?.length > 0) {
         for (const img of existingRoomType.images) {
           await cloudinary.uploader.destroy(img.public_id, {
-            resource_type: "auto",
+            resource_type: img.resource_type || "image",
           });
         }
       }
@@ -52,7 +51,7 @@ exports.updateRoomType = async (roomTypeId, hotelId, updateData) => {
     const updatedRoomType = await RoomType.findOneAndUpdate(
       { _id: roomTypeId, hotelId },
       updateData,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     return updatedRoomType;

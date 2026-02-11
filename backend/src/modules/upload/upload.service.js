@@ -2,21 +2,6 @@ const cloudinary = require("../../shared/config/cloudinary");
 
 exports.uploadFiles = async (files, folder = "general") => {
   try {
-    const uploadPromises = files.map((file) =>
-      cloudinary.uploader.upload_stream(
-        {
-          folder,
-          resource_type: "auto",
-          quality: "auto",
-          fetch_format: "auto",
-        },
-        (error, result) => {
-          if (error) throw error;
-          return result;
-        },
-      ),
-    );
-
     const results = await Promise.all(
       files.map(
         (file) =>
@@ -50,6 +35,6 @@ exports.uploadFiles = async (files, folder = "general") => {
 
 exports.deleteFile = async (publicId) => {
   return await cloudinary.uploader.destroy(publicId, {
-    resource_type: "auto",
+    resource_type: "image",
   });
 };
