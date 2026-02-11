@@ -1,52 +1,33 @@
 import { amenityIconMap } from "@/components/ui/icons";
 import React from "react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-type Props = {};
-const amenities = [
-  {
-    name: "Breakfast",
-    icon: "breakfast",
-  },
-  {
-    name: "Free WiFi",
-    icon: "wifi",
-  },
-  {
-    name: "Sea View",
-    icon: "ac",
-  },
-  {
-    name: "No Smoking",
-    icon: "no_smoking",
-  },
-  {
-    name: "Air Conditioner",
-    icon: "sea_view",
-  },
-];
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-const AmenitiesValues = (props: Props) => {
+type Props = {
+  amenities: string[];
+};
+
+const AmenitiesValues = ({ amenities }: Props) => {
   return (
-    <Card className='md:w-1/2 flx flex-col gap-10 bg-transparent border-none shadow-none'>
-        <CardHeader>
-            <h3 className='text-xl font-bold'>Amenities</h3>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-10">
-            {amenities.map((amenity) => {
-          const Icon = amenityIconMap[amenity.icon];
+    <Card className="w-full bg-transparent border-none shadow-none">
+      <CardHeader>
+        <h3 className="text-xl font-bold">Amenities</h3>
+      </CardHeader>
+      <CardContent className="flex flex-wrap gap-4">
+        {amenities.map((amenity) => {
+          const iconKey = amenity.toLowerCase().replace(/\s+/g, "_");
+          const Icon = amenityIconMap[iconKey] || amenityIconMap["breakfast"]; // Fallback
           return (
             <div
-              key={amenity.name}
-              className="inline-flex items-center gap-1.5 text-xs bg-card px-2.5 py-1 rounded-full "
+              key={amenity}
+              className="inline-flex items-center gap-1.5 text-sm bg-muted px-4 py-2 rounded-full "
             >
-              {Icon && <Icon className="h-3 w-3" />}
-              <span>{amenity.name}</span>
+              {Icon && <Icon className="h-4 w-4" />}
+              <span>{amenity}</span>
             </div>
           );
         })}
-        </CardContent>
+      </CardContent>
     </Card>
-    
   );
 };
 
