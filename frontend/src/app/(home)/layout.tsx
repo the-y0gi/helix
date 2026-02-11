@@ -1,7 +1,12 @@
-import NavWrapper from "@/components/navbar/nav.wraper";
+'use client'
+// import NavWrapper from "@/components/navbar/nav.wraper";
 import { cn } from "@/lib/utils";
 import { CommonPagesStyles } from "@/styles/commonpages-styles";
+import dynamic from "next/dynamic";
 import React from "react";
+const NavWrapper = dynamic(() => import("@/components/navbar/nav.wraper"), {
+  ssr: false,
+});
 
 type Props = {};
 

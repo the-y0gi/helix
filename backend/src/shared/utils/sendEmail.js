@@ -1,32 +1,39 @@
-const nodemailer = require('nodemailer');
-const logger = require('./logger');
+require("dotenv").config();
+const nodemailer = require("nodemailer");
+const logger = require("./logger");
 
-const sendEmail = async (options) => {
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+const sendOTPEmail = async (email, otp) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
     const mailOptions = {
-      from: `Helix Support <${process.env.EMAIL_USER}>`,
-      to: options.email,
-      subject: options.subject,
-      text: options.message,
-      html: options.html, 
+      from: `"Helix Support" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Verify Your Email for Helix – OTP Inside",
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>Welcome to Helix 🚀</h2>
+          <p>Your One-Time Password (OTP) is:</p>
+          <h1 style="letter-spacing: 3px;">${otp}</h1>
+          <p>This OTP is valid for 10 minutes.</p>
+          <p>If you did not request this, please ignore.</p>
+          <br/>
+          <p>— Team Helix</p>
+        </div>
+      `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    
-    logger.info(`Email sent: ${info.messageId}`);
-    return info;
-  } catch (error) {
-    logger.error("Error in sendEmail Utility", error);
-    throw new Error("Email could not be sent");
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    logger.error("Helix email send failed:", err.message);
+    throw err;
   }
 };
 
-module.exports = sendEmail;
+module.exports = { sendOTPEmail };

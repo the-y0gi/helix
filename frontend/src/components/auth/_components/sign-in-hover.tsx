@@ -55,7 +55,7 @@ export function Sign_in_hover({
     <AuthContextProvider>
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={variant}>{tag}</Button>
+        <Button variant={variant} className="w-full flex justify-start">{tag}</Button>
       </DialogTrigger>
       <DialogContent className="md:w-[425px] p-0 rounded-2xl overflow-hidden pb-4 w-[300px]">
         <VisuallyHidden>
@@ -77,14 +77,17 @@ const ConnectWithMedia = [
   {
     title: "Facebook",
     icon: <IconBrandFacebookFilled />,
+    url: "/auth/facebook",
   },
   {
     title: "Google",
     icon: <IconBrandGoogleFilled />,
+    url: "/auth/google",
   },
   {
     title: "Apple",
     icon: <IconBrandAppleFilled />,
+    url: "/auth/apple",
   },
 ];
 
@@ -95,7 +98,7 @@ export function SignupForm({
   const { currentStep, setCurrentStep } = useAuthForm();
   const { loading, methods, onHandleSubmit } = useSignUp();
   const [onOTP, setOnOTP] = React.useState<string>("");
-  
+
   return (
     <Form {...methods}>
       <form onSubmit={onHandleSubmit}>
@@ -104,7 +107,7 @@ export function SignupForm({
             {currentStep === 1 && (
               <div className={cn("flex flex-col   ", className)} {...props}>
                 <div className="top-0 flex bg-card flx justify-center items-center w-full py-3">
-                  Log in or Sign up 
+                  Log in or Sign up
                 </div>
 
                 <FieldGroup className="p-5 px-10">
@@ -180,7 +183,14 @@ export function SignupForm({
                   <FieldSeparator>Or</FieldSeparator>
                   <Field className="grid gap-2 sm:grid-cols-1 md:px-10">
                     {ConnectWithMedia.map((item, i) => (
-                      <Button variant="outline" type="button" key={i}>
+                      <Button
+                        variant="outline"
+                        type="button"
+                        key={i}
+                        onClick={() => {
+                          window.location.href = `http://localhost:5000/api/v1${item.url}`;
+                        }}
+                      >
                         {item.icon}
                         Continue with {item.title}
                       </Button>
@@ -201,7 +211,9 @@ export function SignupForm({
               </div>
             )}
 
-            {currentStep === 2 && <OTPForm methods={methods} onOTP={onOTP} setOnOTP={setOnOTP} />}
+            {currentStep === 2 && (
+              <OTPForm methods={methods} onOTP={onOTP} setOnOTP={setOnOTP} />
+            )}
           </div>
         </Loader>
       </form>
@@ -271,7 +283,14 @@ export function SignInForm({
             <FieldSeparator>Or</FieldSeparator>
             <Field className="grid gap-2 sm:grid-cols-1 md:px-10">
               {ConnectWithMedia.map((item, i) => (
-                <Button variant="outline" type="button" key={i}>
+                <Button
+                  variant="outline"
+                  type="button"
+                  key={i}
+                  onClick={() => {
+                    window.location.href = `http://localhost:5000/api/v1${item.url}`;
+                  }}
+                >
                   {item.icon}
                   Continue with {item.title}
                 </Button>

@@ -33,3 +33,5 @@ public/uploads/
 
 *.sqlite
 *.db
+
+../BACKEND_DEVELOPER_DOC.md
