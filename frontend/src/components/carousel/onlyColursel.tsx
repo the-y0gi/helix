@@ -1,54 +1,76 @@
-"use client"
+"use client";
 
-import React, { useEffect, useRef, useState } from "react"
-import { ChevronLeft, ChevronRight, MapPin } from "lucide-react"
-import { destinations } from "@/constants/constants"
-import Image, { StaticImageData } from "next/image"
-import { useRouter } from "next/navigation"
+import React, { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { destinations } from "@/constants/constants";
+import Image, { StaticImageData } from "next/image";
+import { useRouter } from "next/navigation";
+
+import { Hotel } from "@/types";
+import { getHotels } from "@/services/hotel.service";
 
 type Item = {
-  title: string
-  location: string
-  image: string | StaticImageData
-  href?: string
-}
+  title: string;
+  location: string;
+  image: string | StaticImageData;
+  href?: string;
+};
 
 type Props = {
-  type: "cabs" | "adventures" | "tours" | "bikes" | "hotels"
-}
+  type: "cabs" | "adventures" | "tours" | "bikes" | "hotels";
+};
 
 export const OnlyCarousel = ({ type }: Props) => {
-const navigate = useRouter();
+  const navigate = useRouter();
 
-  const values: Item[] =
-    type === "cabs" || type === "hotels" ? destinations : []
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const scrollRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (type === "hotels") {
+      setLoading(true);
+      getHotels()
+        .then((hotels) => {
+          const mappedItems: Item[] = hotels.map((hotel) => ({
+            title: hotel.name,
+            location: `${hotel.city}, India`, // Adjust as needed
+            image: hotel.images?.[0]?.url || "", // Use first image
+            href: `/hotels/${hotel._id}`,
+          }));
+          setItems(mappedItems);
+        })
+        .finally(() => setLoading(false));
+    } else if (type === "cabs") {
+      setItems(destinations);
+    }
+  }, [type]);
 
-  const [canLeft, setCanLeft] = useState(false)
-  const [canRight, setCanRight] = useState(true)
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const CARD_WIDTH = 220 + 16
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(true);
+
+  const CARD_WIDTH = 220 + 16;
   const scroll = (dir: "left" | "right") => {
     scrollRef.current?.scrollBy({
       left: dir === "left" ? -CARD_WIDTH : CARD_WIDTH,
       behavior: "smooth",
-    })
-  }
+    });
+  };
 
   useEffect(() => {
-    const el = scrollRef.current
-    if (!el) return
+    const el = scrollRef.current;
+    if (!el) return;
 
     const update = () => {
-      setCanLeft(el.scrollLeft > 0)
-      setCanRight(el.scrollLeft + el.clientWidth < el.scrollWidth)
-    }
+      setCanLeft(el.scrollLeft > 0);
+      setCanRight(el.scrollLeft + el.clientWidth < el.scrollWidth);
+    };
 
-    update()
-    el.addEventListener("scroll", update)
-    return () => el.removeEventListener("scroll", update)
-  }, [])
+    update();
+    el.addEventListener("scroll", update);
+    return () => el.removeEventListener("scroll", update);
+  }, []);
 
   return (
     <div className="relative">
@@ -80,25 +102,32 @@ const navigate = useRouter();
           scrollbar-hide
         "
       >
-        {values.map((item, i)=>{
-          return <Card key={i} item={item} onClick={() => navigate.push(item.href || `/hotels/${i}`)}/>
-        })}
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          items.map((item, i) => {
+            return (
+              <Card
+                key={i}
+                item={item}
+                onClick={() => navigate.push(item.href || `/hotels/${i}`)}
+              />
+            );
+          })
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 type CardProps = {
-  item: Item
-  onClick: () => void
-}
+  item: Item;
+  onClick: () => void;
+};
 
 const Card = React.memo(({ item, onClick }: CardProps) => {
   return (
-    <button
-      onClick={onClick}
-      className="min-w-[220px] snap-start text-left"
-    >
+    <button onClick={onClick} className="min-w-[220px] snap-start text-left">
       <div className="aspect-[4/3] overflow-hidden rounded-xl">
         <Image
           width={220}
@@ -117,5 +146,5 @@ const Card = React.memo(({ item, onClick }: CardProps) => {
         </div>
       </div>
     </button>
-  )
-})
+  );
+});
