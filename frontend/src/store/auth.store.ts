@@ -25,6 +25,9 @@ interface AuthStates {
     otp: string;
   }) => Promise<{ success: boolean; message: string }>;
   resendOTP: (email: string) => Promise<{ success: boolean; message: string }>;
+  updateUser: (
+    data: Partial<User>,
+  ) => Promise<{ success: boolean; message: string }>;
 }
 
 interface Login_signup_Data {
@@ -101,6 +104,25 @@ export const useAuthStore = create<AuthStates>()((set, get) => ({
       return {
         success: false,
         message: error.response?.data?.message || "Failed to resend OTP",
+      };
+    }
+  },
+
+  updateUser: async (data: Partial<User>) => {
+    try {
+      const res = await axiosApi.patch("/users/update-me", data);
+      if (res.data.success) {
+        set({ currUser: res.data.data });
+        return { success: true, message: "Profile updated successfully" };
+      }
+      return {
+        success: false,
+        message: res.data.message || "Failed to update profile",
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to update profile",
       };
     }
   },
