@@ -49,6 +49,7 @@ const roomTypeSchema = new mongoose.Schema(
       {
         url: String,
         public_id: String,
+        resource_type: String,
       },
     ],
 

@@ -140,7 +140,7 @@ exports.updateHotel = async (hotelId, vendorId, updateData) => {
       if (existingHotel.images?.length > 0) {
         for (const img of existingHotel.images) {
           await cloudinary.uploader.destroy(img.public_id, {
-            resource_type: "auto",
+            resource_type: img.resource_type || "image",
           });
         }
       }
