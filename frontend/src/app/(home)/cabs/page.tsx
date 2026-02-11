@@ -1,11 +1,9 @@
 import { cn } from '@/lib/utils'
-import { CommonPagesStyles } from '@/styles/commonpages-styles'
 import React, { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import MainFramePage from '../../../components/frame-pages/MainFramePage'
 import type { CityTrends } from '@/types'
 
-type Props = {}
 type HitelProps = {
   className?: string;
 };

@@ -5,7 +5,9 @@ import React, { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { TabsContent } from "@/components/ui/tabscn"
 import { useProfileSidebar } from "../../../providers/ProfileSidebarProvider"
-import { PersonProfilePersonalData } from "./_components/personal_data"
+import { PersonProfilePersonalData } from "./_components/personal_data/personal_data"
+import Settings from "./_components/settings/settings"
+import PaymentPage from "./_components/payment/payment"
 
 type ProfileTabKey =
   | "personal_data"
@@ -21,11 +23,11 @@ type ProfileTabKey =
 
 const content: Record<ProfileTabKey, React.ReactNode> = {
   personal_data: <PersonProfilePersonalData/>,
-  payment: <p>Payment Content</p>,
+  payment: <PaymentPage/>,
   wishlist: <p>Wishlist Content</p>,
   support: <p>Support Content</p>,
   reviews: <p>Reviews Content</p>,
-  settings: <p>Settings Content</p>,
+  settings: <Settings/>,
   all: <p>All Trips</p>,
   active: <p>Active Trips</p>,
   completed: <p>Completed Trips</p>,

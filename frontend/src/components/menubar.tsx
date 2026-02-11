@@ -67,7 +67,7 @@ export function MenuBar() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <AnimatedThemeTogglerDemo />
           </DropdownMenuItem>
           <DropdownMenuSub>

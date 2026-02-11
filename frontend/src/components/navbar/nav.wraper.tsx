@@ -8,9 +8,12 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
-const MenuBar = dynamic(() => import("../menubar").then(mod => ({ default: mod.MenuBar })), {
-  ssr: false,
-});
+const MenuBar = dynamic(
+  () => import("../menubar").then((mod) => ({ default: mod.MenuBar })),
+  {
+    ssr: false,
+  },
+);
 const pagesNames = pages.map((page) => page.link.split("/")[1]);
 const NavWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = usePathname();
@@ -26,7 +29,8 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
     <div className="min-h-screen flex flex-col">
       <div
         className={cn(
-          "fixed top-0 left-0 z-50 w-full bg-card   flex flex-col justify-center",
+          "fixed top-0 left-0 z-50 w-full bg-card   flex flex-col justify-center bg-gradient-to-br from-zinc-100 to-transparent dark:bg-gradient-to-br dark:from-zinc-700 dark:to-transparent backdrop-blur-lg border-b border-gray-300 dark:border-gray-700",
+          "",
           shouldShowNavbar ? "h-30" : "h-40",
         )}
       >

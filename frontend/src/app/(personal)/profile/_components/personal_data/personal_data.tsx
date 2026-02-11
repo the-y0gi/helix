@@ -1,7 +1,7 @@
 'use client'
 import { FieldGroup, FieldSet, FieldSeparator, Field, FieldLabel } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
-import { DatePickerSimple } from "./date-picker";
+import { DatePickerSimple } from "../date-picker";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -69,18 +69,7 @@ export function UserProfileFields() {
                    {/* <DatePickerSimple/> */}
                 <Field>
                   <FieldLabel>Country</FieldLabel>
-                  <Select>
-                    <SelectTrigger className="bg-background">
-                      <SelectValue placeholder="Select a country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="us">United States</SelectItem>
-                      <SelectItem value="uk">United Kingdom</SelectItem>
-                      <SelectItem value="ca">Canada</SelectItem>
-                      <SelectItem value="au">Australia</SelectItem>
-                      <SelectItem value="de">Germany</SelectItem>
-                    </SelectContent>
-                  </Select>
+                 <CpontrySelector/>
                 </Field>
               </div>
               <div className="md:flex justify-between items-center gap-5">
@@ -90,7 +79,7 @@ export function UserProfileFields() {
                 </Field>
                 <Field>
                   <FieldLabel>zip code</FieldLabel>
-                <Input placeholder="Enter your zip code" />
+                <Input placeholder="Enter your zip code " />
                 </Field>
               </div>
             </FieldGroup>
@@ -119,8 +108,8 @@ export const UserProfileUpdateForm = ({ className }: { className?: string }) => 
 };
 export const PersonProfilePersonalData = ({ className }: { className?: string }) => {
     return <PersonalData className="w-full"
-    avatat={<ProfileAvatar className="rounded-xl shadow-sm " />}
-    form={<UserProfileUpdateForm className="rounded-xl shadow-sm p-3 " />}/>
+    avatat={<ProfileAvatar className="rounded-xl shadow-sm border border-border" />}
+    form={<UserProfileUpdateForm className="rounded-xl shadow-sm p-3  border border-border " />}/>
 }
 const PersonalData = ({
   avatat,
@@ -140,10 +129,11 @@ const PersonalData = ({
 };
 import Image from "next/image";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import CpontrySelector from "./country";
 
 const ProfileAvatar = ({ className }: { className?: string }) => {
   return (
-    <div className={cn("flex items-center gap-3 px-2 py-3 w-full", className)}>
+    <div className={cn("flex items-center gap-3 px-2 py-3 w-full ", className)}>
       <Image
         src="/girl.png"
         alt="user"

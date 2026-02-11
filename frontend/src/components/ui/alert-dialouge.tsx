@@ -26,7 +26,7 @@ export function AlertOverlay({trigger, title , description , canecelTitle , cont
       <AlertDialogTrigger asChild>
         <Button variant={variant} >{trigger}</Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent >
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>
@@ -35,7 +35,7 @@ export function AlertOverlay({trigger, title , description , canecelTitle , cont
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{canecelTitle}</AlertDialogCancel>
-          <AlertDialogAction onClick={handelSumbit}>{continueTitle}</AlertDialogAction>
+          <AlertDialogAction onClick={handelSumbit} variant={variant}>{continueTitle}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
