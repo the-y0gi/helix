@@ -8,6 +8,7 @@ interface User {
   isVerified: boolean;
   firstName?: string;
   lastName?: string;
+  avatar?: string;
 }
 
 interface AuthStates {
@@ -28,6 +29,9 @@ interface AuthStates {
   updateUser: (
     data: Partial<User>,
   ) => Promise<{ success: boolean; message: string }>;
+  uploadFile: (
+    file: File,
+  ) => Promise<{ success: boolean; url?: string; message: string }>;
 }
 
 interface Login_signup_Data {
@@ -123,6 +127,36 @@ export const useAuthStore = create<AuthStates>()((set, get) => ({
       return {
         success: false,
         message: error.response?.data?.message || "Failed to update profile",
+      };
+    }
+  },
+
+  uploadFile: async (file: File) => {
+    const formData = new FormData();
+    formData.append("files", file);
+    formData.append("folder", "profiles");
+
+    try {
+      const res = await axiosApi.post("/uploads", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (res.data.success) {
+        return {
+          success: true,
+          url: res.data.files[0].url,
+          message: "File uploaded successfully",
+        };
+      }
+      return {
+        success: false,
+        message: res.data.message || "Upload failed",
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Upload failed",
       };
     }
   },

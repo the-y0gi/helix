@@ -264,17 +264,73 @@ const PersonalData = ({
 };
 
 const ProfileAvatar = ({ className }: { className?: string }) => {
-  const { currUser } = useAuthStore();
+  const { currUser, uploadFile, updateUser } = useAuthStore();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = React.useState(false);
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const result = await uploadFile(file);
+      if (result.success && result.url) {
+        const updateResult = await updateUser({ avatar: result.url });
+        if (updateResult.success) {
+          toast.success("Profile image updated");
+        } else {
+          toast.error(updateResult.message);
+        }
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error("Failed to upload image");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div className={cn("flex items-center gap-3 px-2 py-3 w-full ", className)}>
-      <Image
-        src={currUser?.avatar || "/girl.png"}
-        alt="user"
-        width={100}
-        height={100}
-        className="rounded-full object-cover"
-      />
+      <div className="relative group cursor-pointer" onClick={handleImageClick}>
+        <Image
+          src={currUser?.avatar || "/girl.png"}
+          alt="user"
+          width={100}
+          height={100}
+          className={cn(
+            "rounded-full object-cover w-[100px] h-[100px] transition-opacity",
+            uploading ? "opacity-50" : "group-hover:opacity-75",
+          )}
+        />
+        {uploading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        )}
+        {!uploading && (
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="bg-black/50 text-white text-xs px-2 py-1 rounded">
+              Update
+            </span>
+          </div>
+        )}
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="hidden"
+          accept="image/*"
+          onChange={handleFileChange}
+        />
+      </div>
       <div>
         <p className="text-xl font-medium">
           {currUser
