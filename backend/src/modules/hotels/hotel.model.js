@@ -41,10 +41,13 @@ const hotelSchema = new mongoose.Schema(
       },
     },
 
-    images: {
-      type: [String],
-      required: true,
-    },
+images: [
+  {
+    url: String,
+    public_id: String,
+  },
+],
+
 
     amenities: {
       type: [String],

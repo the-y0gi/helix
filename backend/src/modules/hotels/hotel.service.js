@@ -1,6 +1,7 @@
 const Hotel = require("./hotel.model");
 const logger = require("../../shared/utils/logger");
 const mongoose = require("mongoose");
+const cloudinary = require("../../shared/config/cloudinary");
 
 // Create a new hotel
 exports.createHotel = async (hotelData) => {
@@ -124,17 +125,33 @@ exports.getHotelById = async (hotelId) => {
   }
 };
 // Update hotel details
+
 exports.updateHotel = async (hotelId, vendorId, updateData) => {
   try {
-    const hotel = await Hotel.findOneAndUpdate(
+    const existingHotel = await Hotel.findOne({
+      _id: hotelId,
+      vendorId,
+    });
+
+    if (!existingHotel) throw new Error("Hotel not found or unauthorized");
+
+    if (updateData.images && updateData.images.length > 0) {
+      if (existingHotel.images?.length > 0) {
+        for (const img of existingHotel.images) {
+          await cloudinary.uploader.destroy(img.public_id, {
+            resource_type: "auto",
+          });
+        }
+      }
+    }
+
+    const updatedHotel = await Hotel.findOneAndUpdate(
       { _id: hotelId, vendorId },
       updateData,
       { new: true, runValidators: true },
     );
 
-    if (!hotel) throw new Error("Hotel not found or unauthorized");
-
-    return hotel;
+    return updatedHotel;
   } catch (error) {
     logger.error("Service Error: updateHotel", error);
     throw error;

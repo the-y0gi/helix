@@ -15,7 +15,7 @@ const vendorRoutes = require("./modules/vendors/vendor.routes");
 const policyRoutes = require("./modules/policies/policy.routes");
 const bookingRoutes = require("./modules/bookings/booking.routes");
 const reviewRoutes = require("./modules/reviews/review.routes");
-
+const uploadRoutes = require("./modules/upload/upload.routes");
 const { errorHandler } = require("./shared/middlewares/errorHandler");
 require("./shared/config/passport");
 
@@ -60,6 +60,7 @@ app.use("/api/v1/vendors", vendorRoutes);
 app.use("/api/v1/policies", policyRoutes);
 app.use("/api/v1/bookings", bookingRoutes);
 app.use("/api/v1/reviews", reviewRoutes);
+app.use("/api/v1/uploads", uploadRoutes);
 
 app.use(errorHandler);
 

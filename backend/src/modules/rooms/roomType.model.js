@@ -45,7 +45,12 @@ const roomTypeSchema = new mongoose.Schema(
     },
 
     amenities: [String],
-    images: [String],
+    images: [
+      {
+        url: String,
+        public_id: String,
+      },
+    ],
 
     totalRooms: {
       type: Number,
