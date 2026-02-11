@@ -1,4 +1,5 @@
 const Hotel = require("./hotel.model");
+const RoomType = require("../rooms/roomType.model");
 const logger = require("../../shared/utils/logger");
 const mongoose = require("mongoose");
 const cloudinary = require("../../shared/config/cloudinary");
