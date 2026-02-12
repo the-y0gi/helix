@@ -7,10 +7,35 @@ export interface Tabs {
 export interface HotelImage {
   url: string;
   public_id: string;
+  resource_type?: string;
+  _id?: string;
+}
+
+export interface RoomType {
+  _id: string;
+  hotelId: string;
+  name: string;
+  description: string;
+  basePrice: number;
+  discountPrice: number;
+  capacity: {
+    adults: number;
+    children: number;
+  };
+  bedType: string;
+  roomSizeSqm: number;
+  viewType: string;
+  amenities: string[];
+  images: string[];
+  totalRooms: number;
+  isActive: boolean;
+  availableRooms: number;
+  finalPrice: number;
 }
 
 export interface Hotel {
   _id: string;
+  vendorId?: string;
   name: string;
   description: string;
   address: string;
@@ -24,6 +49,11 @@ export interface Hotel {
   rating: number;
   numReviews: number;
   isFeatured: boolean;
+  isActive?: boolean;
+  distanceFromCenter?: string;
+  roomTypes: RoomType[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CityTrends {

@@ -1,134 +1,121 @@
-
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabscn";
-import { HotelRoomCard, type RoomCardProps } from "./room-card";
-const data: { beds: number }[] = [
-  {
-    beds: 1,
-  },
-  {
-    beds: 2,
-  },
-  {
-    beds: 3,
-  },
-];
-export function RoomsBedTabs() {
+import { HotelRoomCard } from "./room-card";
+import { RoomType } from "@/types";
+
+export function RoomsBedTabs({ roomTypes }: { roomTypes: RoomType[] }) {
+
+  const capacities = Array.from(
+    new Set(roomTypes.map((r) => r.capacity.adults)),
+  ).sort((a, b) => a - b);
+
   return (
     <Tabs defaultValue="all" className="w-full">
       <TabsList className="bg-transparent gap-4">
-        <TabsTrigger
-          className="rounded-full w-20 bg-card w-[400px]"
-          value="all"
-        >
-          All Beds
+        <TabsTrigger className="rounded-full bg-card min-w-[100px]" value="all">
+          All Rooms
         </TabsTrigger>
-        {data.map((bed) => (
+        {capacities.map((cap) => (
           <TabsTrigger
-            className="rounded-full w-20 bg-card"
-            key={bed.beds}
-            value={bed.beds.toString()}
+            className="rounded-full bg-card min-w-[100px]"
+            key={cap}
+            value={cap.toString()}
           >
-            {bed.beds} Beds
+            {cap} Adults
           </TabsTrigger>
         ))}
       </TabsList>
+
       <TabsContent value="all" className="w-full flex flex-col gap-4">
-        {[...Array(10)].map((_, i) => (
+        {roomTypes.map((room) => (
           <HotelRoomCard
-          key={i}
-          id={i.toString()}
-            title="Superior Twin Room"
-            imageUrl="/img1.png"
-            originalPrice={350}
-            discountedPrice={290}
-            totalPrice={1450}
-            nights={5}
-            rating={5.0}
-            reviewCount={1260}
-            dubleBeds={2}
+            key={room._id}
+            id={room._id}
+            title={room.name}
+            imageUrl={room.images[0] || "/img1.png"} 
+            originalPrice={room.basePrice}
+            discountedPrice={room.discountPrice}
+            totalPrice={room.finalPrice} 
+            nights={1} 
+            rating={5.0} 
+            reviewCount={0}
+            dubleBeds={room.bedType.toLowerCase().includes("double") ? 1 : 0}
             beds={
-                Math.floor(Math.random() * 4)%4 + 1
+              room.bedType.toLowerCase().includes("king") ||
+              room.bedType.toLowerCase().includes("queen")
+                ? 1
+                : room.capacity.adults
             }
-            guests={2}
-            size={30}
-            amenities={[
-              {
-                name: "Breakfast",
-                icon: "breakfast"
-              },
-              {
-                name: "Free WiFi",
-                icon: "wifi"
-              },
-              {
-                name: "Sea View",
-                icon: "ac"
-              },
-              {
-                name: "No Smoking",
-                icon: "no_smoking"
-              },
-              {
-                name: "Air Conditioner",
-                icon: "sea_view"
-              },
-            ]}
-            roomsLeft={2}
-            discountPercent={10}
+            guests={room.capacity.adults + room.capacity.children}
+            size={room.roomSizeSqm}
+            amenities={room.amenities.map((a) => ({
+              name: a,
+              icon: a.toLowerCase().replace(/\s+/g, "_"),
+            }))}
+            roomsLeft={room.availableRooms}
+            discountPercent={
+              room.basePrice > room.discountPrice
+                ? Math.round(
+                    ((room.basePrice - room.discountPrice) / room.basePrice) *
+                      100,
+                  )
+                : 0
+            }
           />
         ))}
       </TabsContent>
-      {data.map((bed,i) => (
-        <TabsContent key={bed.beds} value={bed.beds.toString()} className="w-full flex flex-col gap-4">
-           {[...Array(10)].map((_, i) => (
-          <HotelRoomCard
-          key={i}
-          id={i.toString()}
-            title="Superior Twin Room"
-            imageUrl="/img1.png"
-            originalPrice={350}
-            discountedPrice={290}
-            totalPrice={1450}
-            nights={5}
-            rating={5.0}
-            reviewCount={1260}
-            dubleBeds={2}
-            beds={
-                Math.floor(Math.random() * 4)%4 + 1
-            }
-            guests={2}
-            size={30}
-            amenities={[
-              {
-                name: "Breakfast",
-                icon: "breakfast"
-              },
-              {
-                name: "Free WiFi",
-                icon: "wifi"
-              },
-              {
-                name: "Sea View",
-                icon: "ac"
-              },
-              {
-                name: "No Smoking",
-                icon: "no_smoking"
-              },
-              {
-                name: "Air Conditioner",
-                icon: "sea_view"
-              },
-            ]}
-            roomsLeft={2}
-            discountPercent={10}
-          />
-        ))}
+
+      {capacities.map((cap) => (
+        <TabsContent
+          key={cap}
+          value={cap.toString()}
+          className="w-full flex flex-col gap-4"
+        >
+          {roomTypes
+            .filter((r) => r.capacity.adults === cap)
+            .map((room) => (
+              <HotelRoomCard
+                key={room._id}
+                id={room._id}
+                title={room.name}
+                imageUrl={room.images[0] || "/img1.png"}
+                originalPrice={room.basePrice}
+                discountedPrice={room.discountPrice}
+                totalPrice={room.finalPrice}
+                nights={1}
+                rating={5.0}
+                reviewCount={0}
+                dubleBeds={
+                  room.bedType.toLowerCase().includes("double") ? 1 : 0
+                }
+                beds={
+                  room.bedType.toLowerCase().includes("king") ||
+                  room.bedType.toLowerCase().includes("queen")
+                    ? 1
+                    : room.capacity.adults
+                }
+                guests={room.capacity.adults + room.capacity.children}
+                size={room.roomSizeSqm}
+                amenities={room.amenities.map((a) => ({
+                  name: a,
+                  icon: a.toLowerCase().replace(/\s+/g, "_"),
+                }))}
+                roomsLeft={room.availableRooms}
+                discountPercent={
+                  room.basePrice > room.discountPrice
+                    ? Math.round(
+                        ((room.basePrice - room.discountPrice) /
+                          room.basePrice) *
+                          100,
+                      )
+                    : 0
+                }
+              />
+            ))}
         </TabsContent>
       ))}
     </Tabs>

@@ -104,29 +104,96 @@ exports.getAllHotels = async (query = {}) => {
 };
 
 // Get a single hotel by its ID
-exports.getHotelById = async (hotelId) => {
+exports.getHotelById = async (hotelId, checkIn, checkOut) => {
   if (!mongoose.Types.ObjectId.isValid(hotelId)) {
     throw new Error("Invalid hotel id");
   }
 
-  try {
-    const hotel = await Hotel.findOne({
-      _id: hotelId,
-      isActive: true,
-    })
-      .populate("vendorId", "businessName")
-      .lean();
+  const startDate = new Date(checkIn);
+  const endDate = new Date(checkOut);
 
-    if (!hotel) throw new Error("Hotel not found");
+  const result = await Hotel.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(hotelId),
+        isActive: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "roomtypes",
+        let: { hotelId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$hotelId", "$$hotelId"] },
+              isActive: true,
+            },
+          },
+          {
+            $lookup: {
+              from: "availabilities",
+              let: { roomTypeId: "$_id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$roomTypeId", "$$roomTypeId"] },
+                    date: { $gte: startDate, $lt: endDate },
+                  },
+                },
+              ],
+              as: "availabilityData",
+            },
+          },
+          {
+            $addFields: {
+              availableRooms: {
+                $cond: [
+                  { $gt: [{ $size: "$availabilityData" }, 0] },
+                  { $min: "$availabilityData.availableRooms" },
+                  0,
+                ],
+              },
+              priceOverride: {
+                $first: "$availabilityData.priceOverride",
+              },
+            },
+          },
+          {
+            $addFields: {
+              finalPrice: {
+                $cond: [
+                  { $ifNull: ["$priceOverride", false] },
+                  "$priceOverride",
+                  {
+                    $cond: [
+                      { $gt: ["$discountPrice", 0] },
+                      "$discountPrice",
+                      "$basePrice",
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+          {
+            $project: {
+              availabilityData: 0,
+              priceOverride: 0,
+            },
+          },
+        ],
+        as: "roomTypes",
+      },
+    },
+  ]);
 
-    return hotel;
-  } catch (error) {
-    logger.error("Service Error: getHotelById", error);
-    throw error;
-  }
+  if (!result.length) throw new Error("Hotel not found");
+
+  return result[0];
 };
-// Update hotel details
 
+// Update hotel details
 exports.updateHotel = async (hotelId, vendorId, updateData) => {
   try {
     const existingHotel = await Hotel.findOne({
