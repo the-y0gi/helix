@@ -48,14 +48,19 @@ exports.getHotels = async (req, res, next) => {
 //Get a single hotel by ID for the details page
 exports.getHotel = async (req, res, next) => {
   try {
-    const hotel = await hotelService.getHotelById(req.params.id);
+    const { checkIn, checkOut } = req.query;
+
+    const hotel = await hotelService.getHotelById(
+      req.params.id,
+      checkIn,
+      checkOut
+    );
 
     res.status(200).json({
       success: true,
       data: hotel,
     });
   } catch (error) {
-    logger.error("Controller Error: getHotel", error);
     next(error);
   }
 };

@@ -12,7 +12,7 @@ import { LayoutGridDemo } from "./imsges";
 import { Hotel } from "@/types";
 
 const Rooms = ({ hotel }: { hotel: Hotel }) => {
-  return <RoomsBedTabs />;
+  return <RoomsBedTabs roomTypes={hotel.roomTypes || []} />;
 };
 const Location = ({ hotel }: { hotel: Hotel }) => {
   return <MapLocation address={hotel.address} map="/map.png" />;

@@ -9,7 +9,7 @@ export function LayoutGridDemo({ images }: { images: HotelImage[] }) {
     id: index + 1,
     content: <Skeleton index={index} />,
     className: index === 0 || index === 3 ? "md:col-span-2" : "col-span-1",
-    thumbnail: img.url,
+    thumbnail: typeof img === "string" ? img : img.url,
   }));
 
   return (
