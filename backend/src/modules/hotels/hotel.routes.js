@@ -7,6 +7,8 @@ const { authorize } = require("../../shared/middlewares/roleMiddleware");
 //public routes
 router.get("/", hotelController.getHotels);
 
+router.get("/search", hotelController.searchHotels);
+
 router.get("/nearby", hotelController.getNearbyHotels);
 router.get("/:id", hotelController.getHotel);
 

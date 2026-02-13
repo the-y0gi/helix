@@ -115,3 +115,18 @@ exports.getNearbyHotels = async (req, res, next) => {
     next(error);
   }
 };
+
+// Search hotels in destination
+exports.searchHotels = async (req, res, next) => {
+  try {
+    const hotels = await hotelService.searchHotels(req.query);
+
+    res.status(200).json({
+      success: true,
+      count: hotels.length,
+      data: hotels,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
