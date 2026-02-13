@@ -23,18 +23,36 @@ exports.createBooking = async (req, res, next) => {
 //Get logged-in user's bookings
 exports.getMyBookings = async (req, res, next) => {
   try {
-    const bookings = await bookingService.getUserBookings(req.user._id);
+    const bookings = await bookingService.getUserBookings(req.user.id);
 
     res.status(200).json({
       success: true,
       count: bookings.length,
       data: bookings,
     });
-  } catch (error) {
+  } catch (err) {
     logger.error("Controller Error: getMyBookings", error);
-    next(error);
+    next(err);
   }
 };
+
+//get booking detail by id
+exports.getBookingById = async (req, res, next) => {
+  try {
+    const booking = await bookingService.getBookingDetail(
+      req.params.id,
+      req.user.id
+    );
+
+    res.status(200).json({
+      success: true,
+      data: booking,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 //Cancel Booking
 exports.cancelBooking = async (req, res, next) => {
@@ -54,3 +72,4 @@ exports.cancelBooking = async (req, res, next) => {
     next(error);
   }
 };
+
