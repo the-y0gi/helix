@@ -83,13 +83,80 @@ exports.createBooking = async (data) => {
 //Get bookings for logged-in user
 exports.getUserBookings = async (userId) => {
   try {
-    return await Booking.find({ userId })
-      .populate("hotelId", "name city")
-      .populate("roomTypeId", "name")
-      .sort("-createdAt")
+    const bookings = await Booking.find({ userId })
+      .populate({
+        path: "hotelId",
+        select: "name images",
+      })
+      .sort({ createdAt: -1 })
       .lean();
+
+    return bookings.map((booking) => ({
+      _id: booking._id,
+      bookingReference: booking.bookingReference,
+      hotelName: booking.hotelId?.name,
+      thumbnail: booking.hotelId?.images?.[0]?.url || null,
+      checkIn: booking.checkIn,
+      checkOut: booking.checkOut,
+      guests: booking.guests,
+      status: booking.status,
+      totalAmount: booking.totalAmount,
+    }));
   } catch (error) {
     logger.error("Service Error: getUserBookings", error);
+    throw error;
+  }
+};
+
+//Get booking detail by id
+exports.getBookingDetail = async (bookingId, userId) => {
+  try {
+    const booking = await Booking.findOne({
+      _id: bookingId,
+      userId,
+    })
+      .populate("hotelId", "name address location images")
+      .populate("roomTypeId", "name amenities bedType roomSizeSqm")
+      .lean();
+
+    if (!booking) throw new Error("Booking not found");
+
+    return {
+      bookingReference: booking.bookingReference,
+
+      status: booking.status,
+      paymentStatus: booking.paymentStatus,
+
+      hotel: {
+        name: booking.hotelId.name,
+        address: booking.hotelId.address,
+        coordinates: booking.hotelId.location?.coordinates,
+        thumbnail: booking.hotelId.images?.[0]?.url || null,
+      },
+
+      room: {
+        name: booking.roomTypeId.name,
+        amenities: booking.roomTypeId.amenities,
+        bedType: booking.roomTypeId.bedType,
+        roomSizeSqm: booking.roomTypeId.roomSizeSqm,
+      },
+
+      checkIn: booking.checkIn,
+      checkOut: booking.checkOut,
+      nights: booking.nights,
+      roomsBooked: booking.roomsBooked,
+      guests: booking.guests,
+
+      priceBreakdown: {
+        pricePerNight: booking.pricePerNight,
+        taxAmount: booking.taxAmount,
+        cleaningFee: booking.cleaningFee,
+        discountAmount: booking.discountAmount,
+        totalAmount: booking.totalAmount,
+      },
+    };
+  } catch (error) {
+    logger.error("Service Error: getBookingDetail", error);
     throw error;
   }
 };
