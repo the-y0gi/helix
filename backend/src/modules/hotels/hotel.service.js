@@ -245,3 +245,141 @@ exports.findNearbyHotels = async (lng, lat, maxDistance = 5000) => {
     throw error;
   }
 };
+
+
+exports.searchHotels = async (query = {}) => {
+  const {
+    destination,
+    checkIn,
+    checkOut,
+    adults = 1,
+    children = 0,
+    page = 1,
+    limit = 10,
+  } = query;
+
+  if (!checkIn || !checkOut)
+    throw new Error("checkIn and checkOut are required");
+
+  const startDate = new Date(checkIn);
+  const endDate = new Date(checkOut);
+
+  const nights =
+    (endDate - startDate) / (1000 * 60 * 60 * 24);
+
+  const skip = (page - 1) * limit;
+
+  const pipeline = [
+    {
+      $match: {
+        isActive: true,
+        ...(destination && { city: destination }),
+      },
+    },
+
+    {
+      $lookup: {
+        from: "roomtypes",
+        localField: "_id",
+        foreignField: "hotelId",
+        as: "roomTypes",
+      },
+    },
+
+    { $unwind: "$roomTypes" },
+
+    // Capacity filter
+    {
+      $match: {
+        "roomTypes.capacity.adults": { $gte: Number(adults) },
+        "roomTypes.capacity.children": { $gte: Number(children) },
+        "roomTypes.isActive": true,
+      },
+    },
+
+    {
+      $lookup: {
+        from: "availabilities",
+        let: { roomTypeId: "$roomTypes._id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$roomTypeId", "$$roomTypeId"] },
+              date: { $gte: startDate, $lt: endDate },
+            },
+          },
+        ],
+        as: "availabilityData",
+      },
+    },
+
+    // Ensure availability for ALL selected nights
+    {
+      $addFields: {
+        validDateCount: { $size: "$availabilityData" },
+        minAvailableRooms: {
+          $cond: [
+            { $gt: [{ $size: "$availabilityData" }, 0] },
+            { $min: "$availabilityData.availableRooms" },
+            0,
+          ],
+        },
+      },
+    },
+
+    {
+      $match: {
+        validDateCount: nights,
+        minAvailableRooms: { $gt: 0 },
+      },
+    },
+
+    // Price calculation
+    {
+      $addFields: {
+        effectivePrice: {
+          $cond: [
+            { $gt: ["$roomTypes.discountPrice", 0] },
+            "$roomTypes.discountPrice",
+            "$roomTypes.basePrice",
+          ],
+        },
+      },
+    },
+
+    // Group back to hotel
+    {
+      $group: {
+        _id: "$_id",
+        name: { $first: "$name" },
+        city: { $first: "$city" },
+        rating: { $first: "$rating" },
+        numReviews: { $first: "$numReviews" },
+        isFeatured: { $first: "$isFeatured" },
+        images: { $first: "$images" },
+        startingPrice: { $min: "$effectivePrice" },
+        availableRooms: { $min: "$minAvailableRooms" },
+      },
+    },
+
+    {
+      $addFields: {
+        totalNights: nights,
+        totalPrice: { $multiply: ["$startingPrice", nights] },
+        thumbnail: { $arrayElemAt: ["$images.url", 0] },
+      },
+    },
+
+    {
+      $project: {
+        images: 0,
+      },
+    },
+
+    { $sort: { isFeatured: -1, rating: -1 } },
+    { $skip: skip },
+    { $limit: Number(limit) },
+  ];
+
+  return await Hotel.aggregate(pipeline);
+};
