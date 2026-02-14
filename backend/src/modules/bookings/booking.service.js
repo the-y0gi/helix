@@ -2,6 +2,50 @@ const Booking = require("./booking.model");
 const Availability = require("../availability/availability.model");
 const mongoose = require("mongoose");
 const logger = require("../../shared/utils/logger");
+const Payment = require("../payments/payment.model");
+const razorpay = require("../../shared/config/razorpay");
+
+//restore availability function
+async function restoreAvailability(booking, session) {
+  const currentDate = new Date(booking.checkIn);
+
+  while (currentDate < booking.checkOut) {
+    await Availability.findOneAndUpdate(
+      {
+        roomTypeId: booking.roomTypeId,
+        date: new Date(currentDate),
+      },
+      { $inc: { availableRooms: booking.roomsBooked } },
+      { session }
+    );
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+}
+
+//process refund function
+async function processRefund(booking, session) {
+  const payment = await Payment.findById(booking.paymentId).session(session);
+
+  if (!payment || payment.status !== "captured")
+    throw new Error("Payment not eligible for refund");
+
+  const refund = await razorpay.payments.refund(
+    payment.razorpayPaymentId,
+    {
+      amount: booking.refundAmount * 100, // Razorpay expects paise
+    }
+  );
+
+  payment.status = "refunded";
+  payment.refundStatus = "processed";
+  payment.refundAmount = booking.refundAmount;
+  payment.razorpayRefundId = refund.id;
+  payment.refundedAt = new Date();
+
+  await payment.save({ session });
+}
+
 
 //Create Booking (TRANSACTION SAFE)
 exports.createBooking = async (data) => {
@@ -17,60 +61,91 @@ exports.createBooking = async (data) => {
       checkOut,
       guests,
       totalAmount,
+      roomsBooked = 1,
     } = data;
+
+    if (!checkIn || !checkOut)
+      throw new Error("Check-in and Check-out dates are required");
 
     const start = new Date(checkIn);
     const end = new Date(checkOut);
 
-    // generate date list (checkIn inclusive, checkOut exclusive)
+    if (start >= end)
+      throw new Error("Check-out must be after check-in");
+
+    //normalize dates to midnight UTC
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+
+    //Generate date list (checkIn inclusive, checkOut exclusive)
     const dates = [];
     for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
-      dates.push(new Date(d));
+      const normalizedDate = new Date(d);
+      normalizedDate.setHours(0, 0, 0, 0);
+      dates.push(normalizedDate);
     }
 
-    //LOCK availability for each date
+    if (!dates.length)
+      throw new Error("Invalid booking date range");
+
+    //LOCK availability safely for each date
     for (const date of dates) {
       const updated = await Availability.findOneAndUpdate(
         {
           roomTypeId,
           date,
-          availableRooms: { $gte: 1 },
+          availableRooms: { $gte: roomsBooked },
         },
         {
-          $inc: { availableRooms: -1 },
+          $inc: { availableRooms: -roomsBooked },
         },
-        { session },
+        {
+          session,
+          new: true,
+        }
       );
 
       if (!updated) {
         throw new Error(
-          `Room not available for date ${date.toISOString().split("T")[0]}`,
+          `Room not available for date ${date.toISOString().split("T")[0]}`
         );
       }
     }
 
-    // Create booking
-    const booking = await Booking.create(
+    //Calculate nights safely
+    const nights =
+      (end - start) / (1000 * 60 * 60 * 24);
+
+    //Generate booking reference
+    const bookingReference = `HLX-${Date.now()}-${Math.floor(
+      Math.random() * 1000
+    )}`;
+
+    //Create booking
+    const [booking] = await Booking.create(
       [
         {
           userId,
           hotelId,
           roomTypeId,
-          checkIn,
-          checkOut,
+          bookingReference,
+          checkIn: start,
+          checkOut: end,
+          nights,
           guests,
+          roomsBooked,
           totalAmount,
-          status: "confirmed",
-          paymentStatus: "paid", // payment getway integration pending in future.
+          status: "confirmed", 
+          paymentStatus: "paid", //this will be changed when razorpay integration is done.
         },
       ],
-      { session },
+      { session }
     );
 
     await session.commitTransaction();
     session.endSession();
 
-    return booking[0];
+    return booking;
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -79,6 +154,7 @@ exports.createBooking = async (data) => {
     throw error;
   }
 };
+
 
 //Get bookings for logged-in user
 exports.getUserBookings = async (userId) => {
@@ -161,8 +237,8 @@ exports.getBookingDetail = async (bookingId, userId) => {
   }
 };
 
-//Cancel Booking (ROLLBACK availability)
-exports.cancelBooking = async (bookingId, userId) => {
+//Cancel Booking (with manual or automatic refund)
+exports.cancelBooking = async (bookingId, userId, mode = "manual") => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -170,40 +246,118 @@ exports.cancelBooking = async (bookingId, userId) => {
     const booking = await Booking.findOne({
       _id: bookingId,
       userId,
-      status: "confirmed",
     }).session(session);
 
-    if (!booking) throw new Error("Booking not found or not cancellable");
+    if (!booking) throw new Error("Booking not found");
 
-    const start = new Date(booking.checkIn);
-    const end = new Date(booking.checkOut);
+    if (booking.status !== "confirmed")
+      throw new Error("Only confirmed bookings can be cancelled");
 
-    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
-      await Availability.findOneAndUpdate(
-        {
-          roomTypeId: booking.roomTypeId,
-          date: new Date(d),
-        },
-        {
-          $inc: { availableRooms: 1 },
-        },
-        { session },
-      );
+    if (booking.checkIn <= new Date())
+      throw new Error("Cannot cancel past or ongoing bookings");
+
+    //calculate Refund
+    const now = new Date();
+    const daysBeforeCheckIn =
+      (booking.checkIn - now) / (1000 * 60 * 60 * 24);
+
+    let refundPercentage = 0;
+
+    if (
+      now - booking.createdAt <= 24 * 60 * 60 * 1000 &&
+      daysBeforeCheckIn >= 7
+    ) {
+      refundPercentage = 100;
+    } else if (daysBeforeCheckIn >= 30) {
+      refundPercentage = 100;
+    } else if (daysBeforeCheckIn >= 15) {
+      refundPercentage = 50;
+    } else {
+      refundPercentage = 0;
     }
 
-    booking.status = "cancelled";
-    booking.paymentStatus = "failed";
+    const refundAmount =
+      (booking.totalAmount * refundPercentage) / 100;
+
+    booking.refundPercentage = refundPercentage;
+    booking.refundAmount = refundAmount;
+    booking.refundRequestedAt = now;
+
+    if (mode === "automatic") {
+      //Restore availability immediately
+      await restoreAvailability(booking, session);
+
+      booking.status = "cancelled";
+      booking.refundStatus = "processed";
+      booking.cancelledAt = now;
+      booking.paymentStatus = "refunded";
+
+      await processRefund(booking, session);
+
+      booking.refundProcessedAt = new Date();
+    } else {
+      // Manual mode
+      booking.status = "cancellation_requested";
+      booking.refundStatus = "pending";
+    }
+
     await booking.save({ session });
 
     await session.commitTransaction();
     session.endSession();
 
     return booking;
-  } catch (error) {
+  } catch (err) {
     await session.abortTransaction();
     session.endSession();
+    logger.error("Service Error: cancelBooking", err);
+    throw err;
+  }
+};
 
-    logger.error("Service Error: cancelBooking", error);
-    throw error;
+
+//admin approve or reject refund request
+exports.adminHandleRefund = async (bookingId, action) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const booking = await Booking.findById(bookingId).session(session);
+
+    if (!booking)
+      throw new Error("Booking not found");
+
+    if (booking.status !== "cancellation_requested")
+      throw new Error("No cancellation pending");
+
+    if (action === "approve") {
+      await restoreAvailability(booking, session);
+
+      booking.status = "cancelled";
+      booking.refundStatus = "approved";
+      booking.cancelledAt = new Date();
+
+      await processRefund(booking, session);
+
+      booking.paymentStatus = "refunded";
+      booking.refundProcessedAt = new Date();
+    }
+
+    if (action === "reject") {
+      booking.status = "confirmed";
+      booking.refundStatus = "rejected";
+    }
+
+    await booking.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return booking;
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    logger.error("Service Error: adminHandleRefund", err);
+    throw err;
   }
 };

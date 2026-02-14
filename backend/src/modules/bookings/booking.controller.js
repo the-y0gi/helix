@@ -54,22 +54,39 @@ exports.getBookingById = async (req, res, next) => {
 };
 
 
-//Cancel Booking
+//User cancel
 exports.cancelBooking = async (req, res, next) => {
   try {
     const booking = await bookingService.cancelBooking(
       req.params.id,
-      req.user._id,
+      req.user.id,
+      req.body.mode //automatic or manual
     );
 
     res.status(200).json({
       success: true,
-      message: "Booking cancelled successfully",
       data: booking,
     });
-  } catch (error) {
-    logger.error("Controller Error: cancelBooking", error);
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
+
+//Admin approve/reject refund request
+exports.handleRefund = async (req, res, next) => {
+  try {
+    const booking = await bookingService.adminHandleRefund(
+      req.params.id,
+      req.body.action //approve | reject
+    );
+
+    res.status(200).json({
+      success: true,
+      data: booking,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 

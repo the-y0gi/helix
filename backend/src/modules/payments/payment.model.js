@@ -19,6 +19,7 @@ const paymentSchema = new mongoose.Schema(
     razorpayOrderId: {
       type: String,
       required: true,
+      unique: true, //infuture may be removed.
       index: true,
     },
 
@@ -72,7 +73,7 @@ const paymentSchema = new mongoose.Schema(
 
     refundStatus: {
       type: String,
-      enum: ["none", "pending", "processed", "failed"],
+      enum: ["none", "initiated", "pending", "processed", "failed"],
       default: "none",
     },
 
@@ -84,7 +85,7 @@ const paymentSchema = new mongoose.Schema(
     },
 
     metadata: {
-      type: Object, // store raw razorpay response if needed
+      type: Object, 
     },
   },
   { timestamps: true }

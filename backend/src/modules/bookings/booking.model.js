@@ -81,7 +81,13 @@ const bookingSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "confirmed", "cancelled", "completed"],
+      enum: [
+        "pending",
+        "confirmed",
+        "cancellation_requested",
+        "cancelled",
+        "completed",
+      ],
       default: "pending",
       index: true,
     },
@@ -93,15 +99,42 @@ const bookingSchema = new mongoose.Schema(
     },
 
     paymentId: {
-      type: String,
+      type: mongoose.Schema.ObjectId,
+      ref: "Payment",
     },
+
+    refundPercentage: {
+      type: Number,
+      default: 0,
+    },
+
+    refundAmount: {
+      type: Number,
+      default: 0,
+    },
+
+    refundStatus: {
+      type: String,
+      enum: [
+        "none",
+        "pending", //waiting for admin approval
+        "approved",
+        "rejected",
+        "processed",
+      ],
+      default: "none",
+    },
+
+    refundRequestedAt: Date,
+    refundProcessedAt: Date,
 
     cancelledAt: Date,
     cancellationReason: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 bookingSchema.index({ userId: 1, createdAt: -1 });
+bookingSchema.index({ hotelId: 1, checkIn: 1 });
 
 module.exports = mongoose.model("Booking", bookingSchema);
