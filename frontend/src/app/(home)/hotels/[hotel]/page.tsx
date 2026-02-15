@@ -22,7 +22,9 @@ const HotelDetails = ({ className }: HotelDetailsProps) => {
   React.useEffect(() => {
     if (hotelId && typeof hotelId === "string") {
       getHotelById(hotelId)
-        .then((data) => setHotel(data))
+        .then((data) => setHotel(data)).then(() => {
+          console.log(hotel);
+        })
         .finally(() => setLoading(false));
     }
   }, [hotelId]);

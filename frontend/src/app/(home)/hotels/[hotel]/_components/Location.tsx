@@ -7,7 +7,7 @@ type Props = {
 };
 const MapLocation = ({ address, map }: Props) => {
   return (
-    <Card className="w-full bg-transparent border-none shadow-none">
+    <Card className="w-full  bg-transparent border-none shadow-none">
       <CardHeader>
         <h3 className="text-xl font-bold">Location</h3>
         <p className="text-sm text-muted-foreground">{address}</p>

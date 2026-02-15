@@ -87,9 +87,7 @@ export function HotelRoomCard({
               variant="secondary"
               className="bg-white/90 backdrop-blur-sm text-black font-medium px-2.5 py-1 flex items-center gap-1"
             >
-              <span className="text-green-600 font-bold">
-                {rating.toFixed(1)}
-              </span>
+
               <span className="text-xs text-muted-foreground">
                 · {reviewCount.toLocaleString()} reviews
               </span>

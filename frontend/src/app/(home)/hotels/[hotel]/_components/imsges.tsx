@@ -3,6 +3,7 @@ import { LayoutGrid } from "@/components/ui/layout-grid";
 import React, { useState, useRef, useEffect } from "react";
 
 import { HotelImage } from "@/types";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export function LayoutGridDemo({ images }: { images: HotelImage[] }) {
   const mappedCards = images.slice(0, 4).map((img, index) => ({
@@ -13,9 +14,10 @@ export function LayoutGridDemo({ images }: { images: HotelImage[] }) {
   }));
 
   return (
-    <div className="h-[600px] py-10 w-full">
+    <div className="h-[600px] py-2 w-full">
       <LayoutGrid cards={mappedCards.length > 0 ? mappedCards : defaultCards} />
     </div>
+
   );
 }
 

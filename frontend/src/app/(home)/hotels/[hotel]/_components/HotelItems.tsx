@@ -8,9 +8,9 @@ import React from "react";
 import { TabsLine } from "./tabs";
 import { RoomsBedTabs } from "./rooms";
 
-const Rooms = () => {
-  <RoomsBedTabs />;
-};
+// const Rooms = () => {
+//   <RoomsBedTabs />;
+// };
 
 import { Hotel } from "@/types";
 
@@ -57,19 +57,23 @@ const HotelItems = ({ hotel }: HotelItemsProps) => {
               id: 1,
             },
             {
+              title: "description",
               id: 2,
-              title: "amenities",
             },
             {
               id: 3,
-              title: "location",
+              title: "amenities",
             },
             {
               id: 4,
-              title: "rooms",
+              title: "location",
             },
             {
               id: 5,
+              title: "rooms",
+            },
+            {
+              id: 6,
               title: "reviews",
             },
           ]}
