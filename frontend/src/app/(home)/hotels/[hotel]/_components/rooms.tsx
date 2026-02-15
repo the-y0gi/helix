@@ -5,8 +5,22 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabscn";
 import { HotelRoomCard } from "./room-card";
-import { RoomType } from "@/types";
+import { Hotel, RoomType } from "@/types";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
+export const RoomsMain = ({ hotel }: { hotel: Hotel }) => {
+  return (
+    <Card className="w-full bg-transparent border-none shadow-none">
+      <CardHeader>
+        <h3 className="text-xl font-bold"> Rooms</h3>
+      </CardHeader>
+      <CardContent className="flex flex-wrap gap-4">
+        <RoomsBedTabs roomTypes={hotel.roomTypes || []} />
+      </CardContent>
+    </Card>
+  );
+};
 export function RoomsBedTabs({ roomTypes }: { roomTypes: RoomType[] }) {
 
   const capacities = Array.from(
@@ -14,65 +28,29 @@ export function RoomsBedTabs({ roomTypes }: { roomTypes: RoomType[] }) {
   ).sort((a, b) => a - b);
 
   return (
-    <Tabs defaultValue="all" className="w-full">
-      <TabsList className="bg-transparent gap-4">
-        <TabsTrigger className="rounded-full bg-card min-w-[100px]" value="all">
+    <div defaultValue="all" className="w-full">
+      <div className="bg-transparent gap-4 flex gap-3 py-2 px-4">
+        <Button className=" rounded-full bg-card min-w-[100px] border border-border justify-center items-center cursor-pointer" variant="ghost">
           All Rooms
-        </TabsTrigger>
+        </Button>
         {capacities.map((cap) => (
-          <TabsTrigger
-            className="rounded-full bg-card min-w-[100px]"
+          <Button
+            variant="ghost"
+            className="rounded-full bg-card min-w-[100px] border border-border justify-center items-center cursor-pointer"
             key={cap}
-            value={cap.toString()}
-          >
-            {cap} Adults
-          </TabsTrigger>
-        ))}
-      </TabsList>
 
-      <TabsContent value="all" className="w-full flex flex-col gap-4">
-        {roomTypes.map((room) => (
-          <HotelRoomCard
-            key={room._id}
-            id={room._id}
-            title={room.name}
-            imageUrl={room.images[0] || "/img1.png"} 
-            originalPrice={room.basePrice}
-            discountedPrice={room.discountPrice}
-            totalPrice={room.finalPrice} 
-            nights={1} 
-            rating={5.0} 
-            reviewCount={0}
-            dubleBeds={room.bedType.toLowerCase().includes("double") ? 1 : 0}
-            beds={
-              room.bedType.toLowerCase().includes("king") ||
-              room.bedType.toLowerCase().includes("queen")
-                ? 1
-                : room.capacity.adults
-            }
-            guests={room.capacity.adults + room.capacity.children}
-            size={room.roomSizeSqm}
-            amenities={room.amenities.map((a) => ({
-              name: a,
-              icon: a.toLowerCase().replace(/\s+/g, "_"),
-            }))}
-            roomsLeft={room.availableRooms}
-            discountPercent={
-              room.basePrice > room.discountPrice
-                ? Math.round(
-                    ((room.basePrice - room.discountPrice) / room.basePrice) *
-                      100,
-                  )
-                : 0
-            }
-          />
+          >
+            {cap} {cap === 1 ? "adult" : "adults"}
+          </Button>
         ))}
-      </TabsContent>
+      </div>
+
+
 
       {capacities.map((cap) => (
-        <TabsContent
+        <div
           key={cap}
-          value={cap.toString()}
+
           className="w-full flex flex-col gap-4"
         >
           {roomTypes
@@ -94,7 +72,7 @@ export function RoomsBedTabs({ roomTypes }: { roomTypes: RoomType[] }) {
                 }
                 beds={
                   room.bedType.toLowerCase().includes("king") ||
-                  room.bedType.toLowerCase().includes("queen")
+                    room.bedType.toLowerCase().includes("queen")
                     ? 1
                     : room.capacity.adults
                 }
@@ -108,16 +86,16 @@ export function RoomsBedTabs({ roomTypes }: { roomTypes: RoomType[] }) {
                 discountPercent={
                   room.basePrice > room.discountPrice
                     ? Math.round(
-                        ((room.basePrice - room.discountPrice) /
-                          room.basePrice) *
-                          100,
-                      )
+                      ((room.basePrice - room.discountPrice) /
+                        room.basePrice) *
+                      100,
+                    )
                     : 0
                 }
               />
             ))}
-        </TabsContent>
+        </div>
       ))}
-    </Tabs>
+    </div>
   );
 }

@@ -26,6 +26,8 @@ import CpontrySelector from "./country";
 
 export function UserProfileFields() {
   const { currUser, updateUser } = useAuthStore();
+  console.log(currUser);
+  
   const [loading, setLoading] = React.useState(false);
 
   const {
@@ -64,6 +66,8 @@ export function UserProfileFields() {
   const onHandleSubmit = handleSubmit(async (data) => {
     setLoading(true);
     try {
+      console.log(data);
+      
       const result = await updateUser(data);
       if (result.success) {
         toast.success(result.message);
@@ -235,7 +239,7 @@ export const PersonProfilePersonalData = ({
 }) => {
   return (
     <PersonalData
-      className="w-full"
+      className="w-full "
       avatat={
         <ProfileAvatar className="rounded-xl shadow-sm border border-border" />
       }
@@ -256,7 +260,7 @@ const PersonalData = ({
   form: React.ReactNode;
 }) => {
   return (
-    <div className={cn("flex flex-col gap-4", cc)}>
+    <div className={cn("flex flex-col gap-4 w-full", cc)}>
       {avatat}
       {form}
     </div>

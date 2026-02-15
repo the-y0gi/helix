@@ -43,7 +43,7 @@ export default function Page({ className }: { className?: string }) {
   ]
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-full flex", className)}>
       <ErrorBoundary fallback={<p>error</p>}>
         <Suspense fallback={<p>loading</p>}>
           {tabValues.map((value) => (

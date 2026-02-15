@@ -9,6 +9,12 @@ interface User {
   firstName?: string;
   lastName?: string;
   avatar?: string;
+  phoneNumber?:string;
+  gender?:string;
+  country?:string;
+  address?:string;
+  zipCode?:string
+
 }
 
 interface AuthStates {
