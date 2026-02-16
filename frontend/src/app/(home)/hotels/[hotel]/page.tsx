@@ -7,7 +7,8 @@ import HotelItems from "./_components/HotelItems";
 import { ScrollToTop } from "../../../../../scrolltoto";
 
 import { useParams } from "next/navigation";
-import { getHotelById } from "@/services/hotel.service";
+
+import { useHotelQuery } from "@/services/querys";
 import { Hotel } from "@/types";
 
 type HotelDetailsProps = {
@@ -16,18 +17,9 @@ type HotelDetailsProps = {
 
 const HotelDetails = ({ className }: HotelDetailsProps) => {
   const { hotel: hotelId } = useParams();
-  const [hotel, setHotel] = React.useState<Hotel | null>(null);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    if (hotelId && typeof hotelId === "string") {
-      getHotelById(hotelId)
-        .then((data) => setHotel(data)).then(() => {
-          console.log(hotel);
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [hotelId]);
+  const { data: hotel, isLoading: loading } = useHotelQuery({
+    hotelId: Array.isArray(hotelId) ? hotelId[0] : (hotelId || ""),
+  });
 
   if (loading) return <p>Loading...</p>;
   if (!hotel) return <p>Hotel not found</p>;

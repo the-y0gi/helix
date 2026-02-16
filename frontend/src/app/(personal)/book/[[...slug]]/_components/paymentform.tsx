@@ -9,14 +9,66 @@ import { Mail, Phone, PlusIcon } from "lucide-react"
 import { usePaymentsContext } from '@/context/payments-form-provider'
 import { cn } from '@/lib/utils'
 import React from 'react'
-import BookingCard from "@/app/(home)/hotels/[hotel]/_components/tabs"
+import BookingCard, { VisitorsMembers } from "@/app/(home)/hotels/[hotel]/_components/tabs"
 import { IconTrash } from "@tabler/icons-react"
 import { Hotel } from "@/types"
-import { getHotelById } from "@/services/hotel.service"
+
 import { ScrollToTop } from "../../../../../../scrolltoto"
+import { useHotelQuery } from "@/services/querys"
+import { PhoneInput } from "./phoneinput"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { useRouter } from "next/navigation"
+import { useForm, UseFormReturn } from "react-hook-form"
 
 type Props = {}
 
+
+
+export const BookingForm = ({ slug }: { slug: string }) => {
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const navigate = useRouter();
+  const { date, guests } = useHotelStore()
+  const methods = useForm<PaymentProps>({
+    resolver: zodResolver(PaymentSchema),
+    defaultValues: {
+      dates: {
+        checkin: date?.from?.toISOString() || "",
+        checkout: date?.to?.toISOString() || ""
+      },
+      guests: {
+        adults: guests?.adults || 0,
+        children: guests?.children || 0
+      },
+      guestInformation: [],
+      specialRequest: "",
+      rooms: []
+
+    },
+    mode: "onChange",
+  });
+
+  const onSubmit = (data: PaymentProps) => {
+    console.log(data);
+  };
+  return (
+
+    <Form {...methods}>
+      <form onSubmit={methods.handleSubmit(onSubmit)}>
+
+        <StepsView />
+        <div className="flex flex-col lg:flex-row lg:gap-8 xl:gap-12">
+          <PaymentForm methods={methods} />
+
+          <aside className="hidden  lg:block lg:w-[320px] xl:w-[360px] flex-shrink-0 pt-6 lg:pt-10">
+            <div className="sticky top-24 lg:top-28 z-10">
+              <BookingDetailsCard hotelid={slug[0]} />
+            </div>
+          </aside>
+        </div>
+      </form>
+    </Form>
+  )
+}
 export const StepsView = (props: Props) => {
   // const { currentstep, setCurrentStep } = usePaymentsContext()
 
@@ -30,11 +82,11 @@ export const StepsView = (props: Props) => {
 }
 
 
-export const PaymentForm = () => {
+export const PaymentForm = ({ methods }: { methods: UseFormReturn<PaymentProps> }) => {
   const { currentstep, setCurrentStep } = usePaymentsContext()
   switch (currentstep) {
     case 2:
-      return <BookingDetails />
+      return <BookingDetails methods={methods} />
 
       break;
 
@@ -54,53 +106,45 @@ export const FinalStep = () => {
   )
 }
 export const BookingDetailsCard = ({ hotelid: hotelId }: { hotelid: string }) => {
-  const [hotel, setHotel] = React.useState<Hotel | null>(null);
-  const [loading, setLoading] = React.useState(true);
-  const { setCurrentStep } = usePaymentsContext()
-  React.useEffect(() => {
-    if (!hotelId) return;
-    if (hotelId && typeof hotelId === "string") {
-      getHotelById(hotelId)
-        .then((data) => setHotel(data)).then(() => {
-          console.log(hotel);
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [hotelId]);
-
-  if (loading) return <p>Loading...</p>;
-  if (!hotel) return <p>Hotel not found</p>;
 
   return (
     <div className="flex flex-col gap-5">
-      <BookingCard hotel={hotel} />
-      <Button onClick={() => setCurrentStep(3)}>Next</Button>
+      <BookingCard />
+      <Button type="submit">Pay</Button>
     </div>
   )
 }
-export function BookingDetails() {
+
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PaymentProps, PaymentSchema } from "@/schema/payment.schema"
+import { useHotelStore } from "@/store/hotel.store"
+import { Field, FieldGroup } from "@/components/ui/field"
+
+export function BookingDetails({ methods }: { methods: UseFormReturn<PaymentProps> }) {
+
   return (
+
     <main className="flex-1 min-w-0 py-6 lg:py-10 space-y-10 lg:space-y-16 w-full">
       <div className="max-w-2xl w-full space-y-6  flex flex-col gap-1 py-10">
-        <TripSummaryCard />
+        <TripSummaryCard methods={methods} />
         <Separator />
-        <GuestInfoCard />
+        <GuestInfoCard methods={methods} />
         <Separator />
-        <SpecialRequestCard />
+        <SpecialRequestCard methods={methods} />
         <Separator />
         <AddOnsCard />
         <Separator />
         <CancellationPolicyCard />
       </div>
     </main>
-
-
-
   )
 }
 
-
-function TripSummaryCard() {
+import { format } from "date-fns";
+function TripSummaryCard({ methods }: { methods: UseFormReturn<PaymentProps> }) {
+  const checkin = methods.getValues("dates.checkin");
+  const checkout = methods.getValues("dates.checkout");
   return (
     <Card className="shadow-sm bg-background">
       <CardHeader>
@@ -110,33 +154,68 @@ function TripSummaryCard() {
 
       <CardContent className="space-y-4">
         <div className="flex justify-between">
-          <div>
-            <p className="font-medium">Dates</p>
-            <p className="text-muted-foreground text-sm">Jul 10–14</p>
-          </div>
-          <Button variant="link" size="sm">Edit</Button>
+
+          <p className="font-medium">Dates</p>
+          <p className="text-muted-foreground text-sm">
+            {checkin ? format(new Date(checkin), "yyyy-MM-dd") : "—"} -{" "}
+            {checkout ? format(new Date(checkout), "yyyy-MM-dd") : "—"}
+          </p>
+          <DialougeEditDates methods={methods} trigger="Edit" content={<div>sdsd</div>} />
+
         </div>
 
         <div className="flex justify-between">
           <div>
             <p className="font-medium">Guests</p>
-            <p className="text-muted-foreground text-sm">1 guest</p>
+            <p className="text-muted-foreground text-sm">{methods.getValues("guests.adults")} adults {methods.getValues("guests.children")} children</p>
           </div>
-          <Button variant="link" size="sm">Edit</Button>
+
         </div>
+
       </CardContent>
     </Card>
   )
 }
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 
-function GuestInfoCard() {
-  const [guests, setGuests] = React.useState<{
-    firstname: string,
-    lastname: string,
+export function DialougeEditDates({ methods, trigger, content }: { methods: UseFormReturn<PaymentProps>, trigger: string, content: React.ReactNode }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" className="text-xs">{trigger}</Button>
+      </DialogTrigger>
+      <DialogContent className=" w-[800px] max-w-[800px] border-none flex flex-col gap-4 ">
+        <DialogTitle>Edit Dates</DialogTitle>
+        <DialogDescription>
+          Edit your dates and guests
+        </DialogDescription>
+        <div className="flex gap-4">
+          <HotelCalender className="p-4" methods={methods} />
+          <VisitorsMembers showCalendar={false} methods={methods} />
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
-    email: string
-    phone: string
-  }[]>([])
+function GuestInfoCard({ methods }: { methods: UseFormReturn<PaymentProps> }) {
+  const { control } = methods;
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "guestInformation",
+  });
+
   return (
     <Card className="shadow-sm bg-background">
       <CardHeader>
@@ -148,38 +227,114 @@ function GuestInfoCard() {
 
       <CardContent className="space-y-6">
         <div className="flex justify-end">
-          <Button onClick={() => setGuests([...guests, { firstname: "", lastname: "", email: "", phone: "" }])}>
+          <Button
+            type="button"
+            onClick={() =>
+              append({
+                firstname: "",
+                lastname: "",
+                email: "",
+                phone: "",
+              })
+            }
+          >
             <PlusIcon className="mr-2 h-4 w-4" /> Add Guest
           </Button>
         </div>
 
-        {guests.map((guest, index) => <div className="space-y-4" key={index}>
-          <span>
-            <IconTrash onClick={() => setGuests(guests.filter((_, i) => i !== index))} className="mr-2 h-4 w-4" />
-          </span>
-          <p className="font-medium text-sm">Guest {index + 1}</p>
-          <div className="grid grid-cols-2 gap-4">
-            <Input placeholder="First Name" value={guest.firstname} onChange={(e) => setGuests((prev) => {
-              const newGuests = [...prev]
-              newGuests[index] = { ...guest, firstname: e.target.value }
-              return newGuests
-            })} />
-            <Input placeholder="Last Name" value={guest.lastname} onChange={(e) => setGuests((prev) => {
-              const newGuests = [...prev]
-              newGuests[index] = { ...guest, lastname: e.target.value }
-              return newGuests
-            })} />
+        {fields.map((field, index) => (
+          <div className="space-y-4 border p-4 rounded-lg" key={field.id}>
+            <div className="flex justify-between items-center">
+              <p className="font-medium text-sm">Guest {index + 1}</p>
+              <IconTrash
+                onClick={() => remove(index)}
+                className="h-4 w-4 cursor-pointer text-destructive"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+
+              <Field>
+                <FormField
+                  control={control}
+                  name={`guestInformation.${index}.firstname`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="First Name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Field>
+
+              <Field>
+                <FormField
+                  control={control}
+                  name={`guestInformation.${index}.lastname`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Last Name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Field>
+
+              <Field className="col-span-2">
+                <FormField
+                  control={control}
+                  name={`guestInformation.${index}.email`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Enter email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Field>
+
+              <Field className="col-span-2">
+                <FormField
+                  control={control}
+                  name={`guestInformation.${index}.phone`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone</FormLabel>
+                      <FormControl>
+                        <PhoneInput
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Field>
+
+            </div>
           </div>
-        </div>)}
-
-
-
+        ))}
       </CardContent>
     </Card>
-  )
+  );
 }
 
-function SpecialRequestCard() {
+
+function SpecialRequestCard({ methods }: { methods: UseFormReturn<PaymentProps> }) {
   return (
     <Card className="shadow-sm bg-background">
       <CardHeader>
@@ -195,11 +350,15 @@ function SpecialRequestCard() {
         <Textarea
           placeholder="Let the property know if there’s anything they can assist you with."
           className="min-h-[120px]"
+          {...methods.register("specialRequest")}
         />
       </CardContent>
     </Card>
   )
 }
+import { useFieldArray } from "react-hook-form";
+import { HotelCalender } from "@/app/(home)/hotels/[hotel]/_components/calander-booking"
+
 function AddOnsCard() {
   return (
     <Card className="shadow-sm bg-background">
