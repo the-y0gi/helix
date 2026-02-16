@@ -6,8 +6,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { addDays } from "date-fns"
 import { type DateRange } from "react-day-picker"
 import { useHotelStore } from "@/store/hotel.store"
+import { UseFormReturn } from "react-hook-form"
+import { PaymentProps } from "@/schema/payment.schema"
 
-export function BookingCalender({ className, setDateRange, dateRange }: { className?: string, setDateRange: (dateRange: DateRange | undefined) => void, dateRange: DateRange | undefined }) {
+export function BookingCalender({ className, setDateRange, dateRange, methods }: { className?: string, setDateRange: (dateRange: DateRange | undefined) => void, dateRange: DateRange | undefined, methods?: UseFormReturn<PaymentProps> }) {
 
 
     return (
@@ -17,7 +19,13 @@ export function BookingCalender({ className, setDateRange, dateRange }: { classN
                     mode="range"
                     defaultMonth={dateRange?.from}
                     selected={dateRange}
-                    onSelect={setDateRange}
+                    onSelect={(dateRange) => {
+                        setDateRange(dateRange)
+                        methods?.setValue("dates", {
+                            checkin: dateRange?.from?.toISOString() || "",
+                            checkout: dateRange?.to?.toISOString() || ""
+                        })
+                    }}
                     numberOfMonths={2}
                     disabled={(date) =>
                         date > new Date() || date < new Date("1900-01-01")
@@ -27,9 +35,9 @@ export function BookingCalender({ className, setDateRange, dateRange }: { classN
         </Card>
     )
 }
-export const HotelCalender = ({ className }: { className?: string }) => {
-    const { checkIn, setCheckIn } = useHotelStore()
+export const HotelCalender = ({ className, methods }: { className?: string, methods?: UseFormReturn<PaymentProps> }) => {
+    const { date, setDate } = useHotelStore()
     return (
-        <BookingCalender setDateRange={setCheckIn} dateRange={checkIn} className={className} />
+        <BookingCalender setDateRange={setDate} dateRange={date} className={className} methods={methods} />
     );
 }

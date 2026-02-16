@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 import { Hotel } from "@/types";
 import { getHotels } from "@/services/hotel.service";
+import { useHotelsQuery } from "@/services/querys";
 
 type Item = {
   title: string;
@@ -23,27 +24,21 @@ type Props = {
 export const OnlyCarousel = ({ type }: Props) => {
   const navigate = useRouter();
 
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { data: hotels, isLoading } = useHotelsQuery();
 
-  useEffect(() => {
-    if (type === "hotels") {
-      setLoading(true);
-      getHotels()
-        .then((hotels) => {
-          const mappedItems: Item[] = hotels.map((hotel) => ({
-            title: hotel.name,
-            location: `${hotel.city}, India`, // Adjust as needed
-            image: hotel.images?.[0]?.url || "", // Use first image
-            href: `/hotels/${hotel._id}`,
-          }));
-          setItems(mappedItems);
-        })
-        .finally(() => setLoading(false));
-    } else if (type === "cabs") {
-      setItems(destinations);
-    }
-  }, [type]);
+  const items: Item[] =
+    type === "hotels" && hotels
+      ? hotels.map((hotel) => ({
+        title: hotel.name,
+        location: `${hotel.city}, India`,
+        image: hotel.images?.[0]?.url || "",
+        href: `/hotels/${hotel._id}`,
+      }))
+      : type === "cabs"
+        ? destinations
+        : [];
+
+  // if (isLoading) return <p>Loading...</p>;
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -102,7 +97,7 @@ export const OnlyCarousel = ({ type }: Props) => {
           scrollbar-hide
         "
       >
-        {loading ? (
+        {isLoading ? (
           <p>Loading...</p>
         ) : (
           items.map((item, i) => {

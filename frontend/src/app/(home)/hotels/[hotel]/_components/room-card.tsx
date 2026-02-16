@@ -9,14 +9,12 @@ import {
 import {
   BedDouble,
   Users,
-  Wifi,
-  Utensils,
   Square,
-  Wind,
-  Ban,
-  type LucideIcon,
   Bed,
 } from "lucide-react";
+import { amenityIconMap } from "@/components/ui/icons";
+import { useRouter } from "next/navigation";
+import { useHotelStore } from "@/store/hotel.store";
 
 export interface RoomCardProps {
   id: string;
@@ -39,10 +37,11 @@ export interface RoomCardProps {
   roomsLeft: number;
   discountPercent?: number;
 }
-import { amenityIconMap } from "@/components/ui/icons";
+
 export function HotelRoomCard({
   title = "Superior Twin Room",
   imageUrl,
+  id,
   originalPrice = 350,
   discountedPrice = 290,
   totalPrice = 1450,
@@ -57,122 +56,138 @@ export function HotelRoomCard({
   roomsLeft = 2,
   discountPercent = 10,
 }: RoomCardProps) {
+  const router = useRouter();
+  const { setHotel } = useHotelStore();
+
+  const handleReserve = () => {
+    setHotel({
+      id: id,
+      image: imageUrl,
+      name: title,
+      rating: rating,
+      price: discountedPrice,
+      reviewCount: reviewCount,
+      totalPrice: totalPrice,
+    });
+    router.push(`/book/${id}`);
+  };
+
   return (
-    <Card className="w-full flex flex-row h-[240px] gap-2 py-2 justify-between">
-      <div className="md:h-full md:w-1/3 px-2">
-        <div className="h-full  w-full flex justify-center">
-          <img
-            src={imageUrl}
-            alt={title}
-            className="object-cover w-full rounded-2xl"
-          />
-        </div>
+    <Card className="w-full flex flex-col md:flex-row overflow-hidden border-border bg-card hover:shadow-md transition-shadow">
+      <div className="w-full md:w-[300px] lg:w-[340px] shrink-0 h-48 md:h-auto relative">
+        <img
+          src={imageUrl}
+          alt={title}
+          className="w-full h-full object-cover rounded-r-lg"
+        />
+        {roomsLeft <= 3 && (
+          <Badge className="absolute top-0 left-0 bg-red-400 hover:bg-red-600 text-white border-0 shadow-sm rounded-sm">
+            Only {roomsLeft} room{roomsLeft > 1 ? "s" : ""} left!
+          </Badge>
+        )}
       </div>
 
-      <div className="flex md:flex-col gap-1">
-        <CardHeader className="pb-3 pt-4 flex gap-4 ">
-          <div className="flex justify-between items-start gap-3">
-            <h3 className="font-semibold text-lg leading-tight">{title}</h3>
+      <div className="flex flex-1 flex-col md:flex-row">
+        <div className="flex-1 p-5 flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-bold text-xl leading-tight text-foreground">{title}</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="secondary" className="text-xs font-normal">
+                    {rating} ★
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    ({reviewCount.toLocaleString()} reviews)
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className=" top-3 left-3 flex flex-col gap-2">
-            {roomsLeft <= 3 && (
-              <Badge className="font-semibold text-red-300 bg-transparent">
-                Only {roomsLeft} room{roomsLeft > 1 ? "s" : ""} left!
-              </Badge>
+
+          <div className="flex flex-wrap gap-4 text-sm text-foreground/80">
+            <div className="flex items-center gap-1.5">
+              <Square className="h-4 w-4 text-muted-foreground" />
+              <span>{size} m²</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <span>{guests} guest{guests > 1 ? "s" : ""}</span>
+            </div>
+            {(beds > 0 || dubleBeds > 0) && (
+              <div className="flex items-center gap-1.5">
+                <Bed className="h-4 w-4 text-muted-foreground" />
+                <span>
+                  {[
+                    beds > 0 ? `${beds} Single` : null,
+                    dubleBeds > 0 ? `${dubleBeds} Double` : null
+                  ].filter(Boolean).join(" & ")} Bed{beds + dubleBeds > 1 ? "s" : ""}
+                </span>
+              </div>
             )}
           </div>
 
-          <div className=" top-3 right-3">
-            <Badge
-              variant="secondary"
-              className="bg-white/90 backdrop-blur-sm text-black font-medium px-2.5 py-1 flex items-center gap-1"
-            >
-
-              <span className="text-xs text-muted-foreground">
-                · {reviewCount.toLocaleString()} reviews
-              </span>
-            </Badge>
+          <div className="flex flex-wrap gap-2 mt-auto">
+            {amenities.slice(0, 5).map((amenity) => {
+              const Icon = amenityIconMap[amenity.icon];
+              return (
+                <Badge
+                  key={amenity.name}
+                  variant="outline"
+                  className="px-2 py-1 h-auto font-normal text-muted-foreground bg-muted/30 gap-1.5"
+                >
+                  {Icon && <Icon className="h-3 w-3" />}
+                  {amenity.name}
+                </Badge>
+              );
+            })}
+            {amenities.length > 5 && (
+              <Badge variant="outline" className="px-2 py-1 h-auto font-normal text-muted-foreground bg-muted/30">
+                +{amenities.length - 5} more
+              </Badge>
+            )}
           </div>
-        </CardHeader>
+        </div>
 
-        <CardContent className="pb-4 space-y-3 text-sm">
-          {/* Icons row */}
-          <div className="flex flex-wrap gap-x-4 gap-y-2 text-muted-foreground">
-            <div className="flex items-center flex-col gap-1.5">
-              <Bed className="h-4 w-4" />
-              <span>{beds} single bed</span>
-            </div>
-            <div className="flex items-center flex-col gap-1.5">
-              <BedDouble className="h-4 w-4" />
-              <span>{dubleBeds} double bed</span>
-            </div>
-            <div className="flex items-center flex-col gap-1.5">
-              <Users className="h-4 w-4" />
-              <span>{guests} persons</span>
-            </div>
-          </div>
+        <div className="hidden md:block w-px bg-border my-4" />
 
-          {/* Amenities */}
-          <div className="w-full flex flex-col gap-2">
-            <p>Details</p>
-            <div className="flex flex-wrap gap-2">
-              {amenities.map((amenity) => {
-                const Icon = amenityIconMap[amenity.icon];
-                return (
-                  <div
-                    key={amenity.name}
-                    className="inline-flex items-center gap-1.5 text-xs bg-muted/60 px-2.5 py-1 rounded-full border border-zinc-400"
-                  >
-                    {Icon && <Icon className="h-3 w-3" />}
-                    <span>{amenity.name}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Square className="h-4 w-4" />
-            <span>{size} m²</span>
-          </div>
-        </CardContent>
-      </div>
-      <div className="h-full w-px bg-zinc-300" />
-
-      <CardFooter className="pt-1   flex flex-col gap-5 justify-end items-end ">
-        {discountPercent && (
-          <Badge className="bg-green-400 hover:bg-green-600 text-white">
-            {discountPercent}% off
-          </Badge>
-        )}
-        <div className="text-right shrink-0">
-          {discountedPrice ? (
-            <>
-              <p className="text-xs text-muted-foreground line-through">
+        <div className="p-5 md:w-[240px] shrink-0 flex flex-col justify-between items-end bg-muted/10">
+          <div className="text-right space-y-1">
+            {discountPercent && (
+              <Badge className="bg-green-600 hover:bg-green-700 text-white border-0">
+                {discountPercent}% OFF
+              </Badge>
+            )}
+            <div className="mt-2">
+              <span className="text-muted-foreground text-sm line-through decoration-muted-foreground/50">
                 ${originalPrice}
-              </p>
-              <p className="text-2xl font-bold text-primary leading-none">
+              </span>
+              <div className="text-2xl font-bold text-primary">
                 ${discountedPrice}
-              </p>
-            </>
-          ) : (
-            <p className="text-2xl font-bold text-primary">${originalPrice}</p>
-          )}
-          <span className="text-muted-foreground text-xs">
-            {" "}
-            × {nights} night{nights > 1 ? "s" : ""}
-          </span>
-        </div>
-        <div className="flex flex-col items-end">
-          <div className="text-sm">
-            <span className="font-medium">Total: </span>
-            <span className="font-bold">${totalPrice}</span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              for {nights} night{nights > 1 ? "s" : ""}
+            </p>
+            <div className="text-sm font-medium mt-1 text-foreground/80">
+              Total: ${totalPrice.toLocaleString()}
+            </div>
           </div>
 
-          <Button size="lg" className="font-semibold px-8">
-            Reserve
-          </Button>
+          <div className="w-full mt-4">
+            <Button
+              size="lg"
+              className="w-full font-semibold shadow-sm"
+              onClick={handleReserve}
+            >
+              Reserve
+            </Button>
+            <p className="text-[10px] text-center text-muted-foreground mt-2">
+              Includes taxes & fees
+            </p>
+          </div>
         </div>
-      </CardFooter>
+      </div>
     </Card>
   );
 }

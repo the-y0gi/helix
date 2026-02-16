@@ -8,8 +8,18 @@ import { HotelRoomCard } from "./room-card";
 import { Hotel, RoomType } from "@/types";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import { useHotelStore } from "@/store/hotel.store";
+import { useRoomsQuery } from "@/services/querys";
 
 export const RoomsMain = ({ hotel }: { hotel: Hotel }) => {
+  const { hotel: currentHotel, setHotel, hotel: hotelData, guests, date } = useHotelStore();
+
+  useEffect(() => {
+    if (currentHotel.id !== hotel._id) {
+      setHotel({ ...currentHotel, id: hotel._id });
+    }
+  }, [hotel._id, currentHotel, setHotel]);
   return (
     <Card className="w-full bg-transparent border-none shadow-none">
       <CardHeader>
@@ -22,6 +32,15 @@ export const RoomsMain = ({ hotel }: { hotel: Hotel }) => {
   );
 };
 export function RoomsBedTabs({ roomTypes }: { roomTypes: RoomType[] }) {
+  const { hotel: hotelData, guests, date } = useHotelStore();
+  // const { data: newRoomsData, refetch, isLoading, isError, isRefetching } = useRoomsQuery({
+  //   hotelId: hotelData.id,
+  //   checkIn: date?.from,
+  //   checkOut: date?.to,
+  //   adults: guests.adults,
+  //   children: guests.children,
+  // })
+
 
   const capacities = Array.from(
     new Set(roomTypes.map((r) => r.capacity.adults)),

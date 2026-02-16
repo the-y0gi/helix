@@ -3,15 +3,123 @@ import {
   Utensils,
   Wind,
   Ban,
-  Waves
+  Waves,
+  Dumbbell,
+  Sparkles,
+  Car,
+  Shirt,
+  Bell,
+  ConciergeBell,
+  Briefcase,
+  Bus,
+  Baby,
+  Umbrella,
+  Tv,
+  Coffee,
+  Lock,
+  Refrigerator,
+  DoorOpen,
+  ArrowUpDown,
+  Accessibility,
+  Martini,
+  Plane,
+  Speaker,
+  Bath,
+  Map,
+  Users,
+  CreditCard,
+  Building,
+  Activity,
+  Trees,
+  CloudSun,
+  Laptop,
+  Luggage,
+  Clock,
+  Thermometer,
+  Snowflake,
+  VolumeX,
+  Key,
+  Armchair,
+  ShowerHead,
+  CigaretteOff
 } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";
 
 export const amenityIconMap: Record<string, LucideIcon> = {
+  // Food & Drink
   breakfast: Utensils,
+  restaurant: Utensils,
+  bar: Martini,
+  coffee: Coffee,
+  room_service: Bell,
+  minibar: Refrigerator,
+  kitchen: Utensils,
+  kitchenette: Utensils,
+
+  // Connectivity & Business
   wifi: Wifi,
+  free_wifi: Wifi,
+  business_center: Briefcase,
+  meeting_rooms: Users,
+  workspace: Laptop,
+  desk: Laptop,
+
+  // Comfort & Climate
   ac: Wind,
+  air_conditioning: Snowflake, // Or Wind
+  heating: Thermometer,
+  soundproof_rooms: VolumeX,
+  fan: Wind,
+
+  // Rules & Access
   no_smoking: Ban,
+  non_smoking_rooms: CigaretteOff,
+  pets_allowed: Activity,
+  wheelchair_accessible: Accessibility,
+  elevator: ArrowUpDown,
+  lift: ArrowUpDown,
+  private_entrance: Key,
+  "24_hour_front_desk": Clock,
+  luggage_storage: Luggage,
+
+  // Facilities
+  pool: Waves,
+  swimming_pool: Waves,
+  gym: Dumbbell,
+  fitness_center: Dumbbell,
+  spa: Sparkles,
+  wellness_center: Sparkles,
+  parking: Car,
+  free_parking: Car,
+  laundry: Shirt,
+  daily_housekeeping: Sparkles,
+  dry_cleaning: Shirt,
+  concierge: ConciergeBell,
+
+  // Room Features
+  tv: Tv,
+  flat_screen_tv: Tv,
+  safe: Lock,
+  safety_deposit_box: Lock,
+  balcony: DoorOpen,
+  terrace: CloudSun,
   sea_view: Waves,
+  garden_view: Trees,
+  city_view: Building,
+  mountain_view: Trees,
+  private_bathroom: Bath,
+  shower: ShowerHead,
+  bath: Bath,
+  sofa: Armchair,
+  seating_area: Armchair,
+  wardrobe_or_closet: Shirt,
+
+  // Transport
+  shuttle: Bus,
+  airport_shuttle: Plane,
+
+  // Family
+  family_rooms: Baby,
+  kids_club: Activity,
 };
