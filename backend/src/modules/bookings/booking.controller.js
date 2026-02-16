@@ -4,14 +4,14 @@ const logger = require("../../shared/utils/logger");
 //Create Booking
 exports.createBooking = async (req, res, next) => {
   try {
-    const booking = await bookingService.createBooking({
-      ...req.body,
-      userId: req.user._id,
-    });
+    const booking = await bookingService.createBooking(
+      req.body,
+      req.user._id
+    );
 
     res.status(201).json({
       success: true,
-      message: "Booking confirmed",
+      message: "Booking Created Payment Pending",
       data: booking,
     });
   } catch (error) {
