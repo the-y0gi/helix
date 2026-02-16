@@ -44,6 +44,48 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
 
+    primaryGuest: {
+      firstName: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      lastName: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      email: {
+        type: String,
+        required: true,
+        lowercase: true,
+        trim: true,
+      },
+      phoneNumber: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+    },
+
+    additionalGuests: {
+      type: [
+        {
+          firstName: {
+            type: String,
+            required: true,
+            trim: true,
+          },
+          lastName: {
+            type: String,
+            required: true,
+            trim: true,
+          },
+        },
+      ],
+      default: [],
+    },
+
     guests: {
       adults: { type: Number, required: true },
       children: { type: Number, default: 0 },

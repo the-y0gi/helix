@@ -5,6 +5,9 @@ const logger = require("../../shared/utils/logger");
 const Payment = require("../payments/payment.model");
 const razorpay = require("../../shared/config/razorpay");
 
+const crypto = require("crypto");
+const RoomType = require("../rooms/roomType.model");
+
 //restore availability function
 async function restoreAvailability(booking, session) {
   const currentDate = new Date(booking.checkIn);
@@ -16,7 +19,7 @@ async function restoreAvailability(booking, session) {
         date: new Date(currentDate),
       },
       { $inc: { availableRooms: booking.roomsBooked } },
-      { session }
+      { session },
     );
 
     currentDate.setDate(currentDate.getDate() + 1);
@@ -30,12 +33,9 @@ async function processRefund(booking, session) {
   if (!payment || payment.status !== "captured")
     throw new Error("Payment not eligible for refund");
 
-  const refund = await razorpay.payments.refund(
-    payment.razorpayPaymentId,
-    {
-      amount: booking.refundAmount * 100, // Razorpay expects paise
-    }
-  );
+  const refund = await razorpay.payments.refund(payment.razorpayPaymentId, {
+    amount: booking.refundAmount * 100, // Razorpay expects paise
+  });
 
   payment.status = "refunded";
   payment.refundStatus = "processed";
@@ -46,82 +46,80 @@ async function processRefund(booking, session) {
   await payment.save({ session });
 }
 
-
-//Create Booking (TRANSACTION SAFE)
-exports.createBooking = async (data) => {
+// Create Booking + Razorpay Order
+exports.createBooking = async (data, userId) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
     const {
-      userId,
       hotelId,
       roomTypeId,
       checkIn,
       checkOut,
       guests,
-      totalAmount,
-      roomsBooked = 1,
+      roomsBooked,
+      primaryGuest,
+      additionalGuests = [],
     } = data;
 
-    if (!checkIn || !checkOut)
+    if (!checkIn || !checkOut) {
       throw new Error("Check-in and Check-out dates are required");
-
-    const start = new Date(checkIn);
-    const end = new Date(checkOut);
-
-    if (start >= end)
-      throw new Error("Check-out must be after check-in");
-
-    //normalize dates to midnight UTC
-    start.setHours(0, 0, 0, 0);
-    end.setHours(0, 0, 0, 0);
-
-    //Generate date list (checkIn inclusive, checkOut exclusive)
-    const dates = [];
-    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
-      const normalizedDate = new Date(d);
-      normalizedDate.setHours(0, 0, 0, 0);
-      dates.push(normalizedDate);
     }
 
-    if (!dates.length)
-      throw new Error("Invalid booking date range");
+    const startDate = new Date(checkIn);
+    const endDate = new Date(checkOut);
 
-    //LOCK availability safely for each date
-    for (const date of dates) {
-      const updated = await Availability.findOneAndUpdate(
-        {
-          roomTypeId,
-          date,
-          availableRooms: { $gte: roomsBooked },
-        },
-        {
-          $inc: { availableRooms: -roomsBooked },
-        },
-        {
-          session,
-          new: true,
-        }
-      );
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
 
-      if (!updated) {
-        throw new Error(
-          `Room not available for date ${date.toISOString().split("T")[0]}`
-        );
+    if (startDate >= endDate) {
+      throw new Error("Invalid check-in/check-out dates");
+    }
+
+    const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
+    if (nights <= 0) {
+      throw new Error("Invalid booking duration");
+    }
+
+    const rooms = roomsBooked && roomsBooked > 0 ? roomsBooked : 1;
+
+    if (!guests || !guests.adults || guests.adults <= 0) {
+      throw new Error("At least one adult guest is required");
+    }
+
+    if (additionalGuests.length !== guests.adults - 1) {
+      throw new Error("Additional guests count does not match adult count");
+    }
+
+    const roomType = await RoomType.findById(roomTypeId).session(session);
+    if (!roomType || !roomType.isActive) {
+      throw new Error("Room type not available");
+    }
+    const availabilityDocs = await Availability.find({
+      roomTypeId,
+      date: { $gte: startDate, $lt: endDate },
+    }).session(session);
+
+    if (availabilityDocs.length !== nights) {
+      throw new Error("Room not available for selected dates");
+    }
+
+    availabilityDocs.forEach((doc) => {
+      if (doc.availableRooms < rooms) {
+        throw new Error("Insufficient room availability");
       }
-    }
+    });
 
-    //Calculate nights safely
-    const nights =
-      (end - start) / (1000 * 60 * 60 * 24);
+    const pricePerNight =
+      roomType.discountPrice > 0 ? roomType.discountPrice : roomType.basePrice;
+
+    const totalAmount = pricePerNight * nights * rooms;
 
     //Generate booking reference
-    const bookingReference = `HLX-${Date.now()}-${Math.floor(
-      Math.random() * 1000
-    )}`;
+    const bookingReference =
+      "BK-" + crypto.randomBytes(6).toString("hex").toUpperCase();
 
-    //Create booking
     const [booking] = await Booking.create(
       [
         {
@@ -129,32 +127,59 @@ exports.createBooking = async (data) => {
           hotelId,
           roomTypeId,
           bookingReference,
-          checkIn: start,
-          checkOut: end,
+          checkIn: startDate,
+          checkOut: endDate,
           nights,
           guests,
-          roomsBooked,
+          roomsBooked: rooms,
+          primaryGuest,
+          additionalGuests,
+          pricePerNight,
           totalAmount,
-          status: "confirmed", 
-          paymentStatus: "paid", //this will be changed when razorpay integration is done.
+          status: "pending",
+          paymentStatus: "pending",
         },
       ],
-      { session }
+      { session },
     );
+
+    //create razorpay order
+    const razorpayOrder = await razorpay.orders.create({
+      amount: totalAmount * 100,
+      currency: "INR",
+      receipt: bookingReference,
+    });
+
+    const [payment] = await Payment.create(
+      [
+        {
+          bookingId: booking._id,
+          userId,
+          razorpayOrderId: razorpayOrder.id,
+          amountPaid: totalAmount,
+          status: "created",
+        },
+      ],
+      { session },
+    );
+
+    booking.paymentId = payment._id;
+    await booking.save({ session });
 
     await session.commitTransaction();
     session.endSession();
 
-    return booking;
-  } catch (error) {
+    return {
+      booking,
+      razorpayOrder,
+    };
+  } catch (err) {
     await session.abortTransaction();
     session.endSession();
-
-    logger.error("Service Error: createBooking", error);
-    throw error;
+    logger.error("Service Error: createBooking", err);
+    throw err;
   }
 };
-
 
 //Get bookings for logged-in user
 exports.getUserBookings = async (userId) => {
@@ -258,8 +283,7 @@ exports.cancelBooking = async (bookingId, userId, mode = "manual") => {
 
     //calculate Refund
     const now = new Date();
-    const daysBeforeCheckIn =
-      (booking.checkIn - now) / (1000 * 60 * 60 * 24);
+    const daysBeforeCheckIn = (booking.checkIn - now) / (1000 * 60 * 60 * 24);
 
     let refundPercentage = 0;
 
@@ -276,8 +300,7 @@ exports.cancelBooking = async (bookingId, userId, mode = "manual") => {
       refundPercentage = 0;
     }
 
-    const refundAmount =
-      (booking.totalAmount * refundPercentage) / 100;
+    const refundAmount = (booking.totalAmount * refundPercentage) / 100;
 
     booking.refundPercentage = refundPercentage;
     booking.refundAmount = refundAmount;
@@ -315,7 +338,6 @@ exports.cancelBooking = async (bookingId, userId, mode = "manual") => {
   }
 };
 
-
 //admin approve or reject refund request
 exports.adminHandleRefund = async (bookingId, action) => {
   const session = await mongoose.startSession();
@@ -324,8 +346,7 @@ exports.adminHandleRefund = async (bookingId, action) => {
   try {
     const booking = await Booking.findById(bookingId).session(session);
 
-    if (!booking)
-      throw new Error("Booking not found");
+    if (!booking) throw new Error("Booking not found");
 
     if (booking.status !== "cancellation_requested")
       throw new Error("No cancellation pending");
