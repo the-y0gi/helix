@@ -3,6 +3,7 @@ const Availability = require("../availability/availability.model");
 const mongoose = require("mongoose");
 const logger = require("../../shared/utils/logger");
 const Payment = require("../payments/payment.model");
+const Hotel = require("../hotels/hotel.model");
 const razorpay = require("../../shared/config/razorpay");
 
 const crypto = require("crypto");
@@ -78,12 +79,14 @@ exports.createBooking = async (data, userId) => {
     }
 
     const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
+
     if (nights <= 0) {
       throw new Error("Invalid booking duration");
     }
 
     const rooms = roomsBooked && roomsBooked > 0 ? roomsBooked : 1;
 
+    // ===== Guest Validation =====
     if (!guests || !guests.adults || guests.adults <= 0) {
       throw new Error("At least one adult guest is required");
     }
@@ -92,10 +95,23 @@ exports.createBooking = async (data, userId) => {
       throw new Error("Additional guests count does not match adult count");
     }
 
+    const hotel = await Hotel.findById(hotelId).session(session);
+    if (!hotel || !hotel.isActive) {
+      throw new Error("Hotel not available");
+    }
+
     const roomType = await RoomType.findById(roomTypeId).session(session);
     if (!roomType || !roomType.isActive) {
       throw new Error("Room type not available");
     }
+
+    if (
+      guests.adults > roomType.capacity.adults ||
+      guests.children > roomType.capacity.children
+    ) {
+      throw new Error("Guest count exceeds room capacity");
+    }
+
     const availabilityDocs = await Availability.find({
       roomTypeId,
       date: { $gte: startDate, $lt: endDate },
@@ -111,12 +127,17 @@ exports.createBooking = async (data, userId) => {
       }
     });
 
+    const priceOverride = availabilityDocs[0]?.priceOverride;
+
     const pricePerNight =
-      roomType.discountPrice > 0 ? roomType.discountPrice : roomType.basePrice;
+      priceOverride ??
+      (roomType.discountPrice > 0
+        ? roomType.discountPrice
+        : roomType.basePrice);
 
     const totalAmount = pricePerNight * nights * rooms;
 
-    //Generate booking reference
+    //Generate Booking Reference
     const bookingReference =
       "BK-" + crypto.randomBytes(6).toString("hex").toUpperCase();
 
@@ -143,7 +164,7 @@ exports.createBooking = async (data, userId) => {
       { session },
     );
 
-    //create razorpay order
+    //Create Razorpay Order
     const razorpayOrder = await razorpay.orders.create({
       amount: totalAmount * 100,
       currency: "INR",

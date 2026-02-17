@@ -19,13 +19,10 @@ const paymentSchema = new mongoose.Schema(
     razorpayOrderId: {
       type: String,
       required: true,
-      unique: true, //infuture may be removed.
-      index: true,
     },
 
     razorpayPaymentId: {
       type: String,
-      index: true,
     },
 
     razorpaySignature: {

@@ -7,7 +7,7 @@ const {authorize} = require("../../shared/middlewares/roleMiddleware");
 router.use(protect);
 
 router.post("/", controller.createBooking);
-router.get("/me", controller.getMyBookings);
+router.get("/my-bookings", controller.getMyBookings);
 router.get("/:id", controller.getBookingById);
 router.patch("/:id/cancel", controller.cancelBooking);
 

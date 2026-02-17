@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const Booking = require("../bookings/booking.model");
 const Payment = require("./payment.model");
 const Availability = require("../availability/availability.model");
+const Hotel = require("../hotels/hotel.model");
 const logger = require("../../shared/utils/logger");
 
 exports.verifyPayment = async (data) => {
@@ -24,7 +25,7 @@ exports.verifyPayment = async (data) => {
       throw new Error("Payment record not found");
     }
 
-    //Idempotency check
+    //Idempotency Check
     if (payment.isVerified && payment.status === "captured") {
       const existingBooking = await Booking.findById(payment.bookingId).session(
         session,
@@ -40,7 +41,6 @@ exports.verifyPayment = async (data) => {
       throw new Error("Invalid payment state");
     }
 
-    //Verify Razorpay signature
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
 
     const expectedSignature = crypto
@@ -69,10 +69,17 @@ exports.verifyPayment = async (data) => {
       throw new Error("Invalid booking state");
     }
 
+    if (payment.amountPaid !== booking.totalAmount) {
+      throw new Error("Payment amount mismatch");
+    }
+    const hotel = await Hotel.findById(booking.hotelId).session(session);
+    if (!hotel || !hotel.isActive) {
+      throw new Error("Hotel no longer available");
+    }
+
     const startDate = new Date(booking.checkIn);
     const endDate = new Date(booking.checkOut);
 
-    //Fetch availability docs
     const availabilityDocs = await Availability.find({
       roomTypeId: booking.roomTypeId,
       date: { $gte: startDate, $lt: endDate },
@@ -82,7 +89,6 @@ exports.verifyPayment = async (data) => {
       throw new Error("Availability mismatch for selected dates");
     }
 
-    //Atomic decrement
     for (const doc of availabilityDocs) {
       const result = await Availability.updateOne(
         {
