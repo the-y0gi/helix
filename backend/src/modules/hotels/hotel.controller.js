@@ -45,15 +45,17 @@ exports.getHotels = async (req, res, next) => {
   }
 };
 
-//Get a single hotel by ID for the details page
+// Get a single hotel by ID for the details page
 exports.getHotel = async (req, res, next) => {
   try {
-    const { checkIn, checkOut } = req.query;
+    const { checkIn, checkOut, adults, children } = req.query;
 
     const hotel = await hotelService.getHotelById(
       req.params.id,
       checkIn,
-      checkOut
+      checkOut,
+      Number(adults),
+      Number(children),
     );
 
     res.status(200).json({
@@ -88,7 +90,6 @@ exports.updateHotel = async (req, res, next) => {
     next(error);
   }
 };
-
 
 // Search nearby hotels based on coordinates (Geospatial API)
 exports.getNearbyHotels = async (req, res, next) => {

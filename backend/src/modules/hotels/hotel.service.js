@@ -103,16 +103,32 @@ exports.getAllHotels = async (query = {}) => {
   }
 };
 
-// Get a single hotel by its ID
-exports.getHotelById = async (hotelId, checkIn, checkOut) => {
+
+// Get a single hotel by its ID (User Side)
+exports.getHotelById = async (hotelId, checkIn, checkOut, adults, children) => {
   if (!mongoose.Types.ObjectId.isValid(hotelId)) {
     throw new Error("Invalid hotel id");
   }
 
-  const startDate = new Date(checkIn);
-  const endDate = new Date(checkOut);
+  const hasDates = checkIn && checkOut;
 
-  const result = await Hotel.aggregate([
+  let startDate, endDate, nights = 0;
+
+  if (hasDates) {
+    startDate = new Date(checkIn);
+    endDate = new Date(checkOut);
+
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+
+    if (startDate >= endDate) {
+      throw new Error("Invalid check-in/check-out dates");
+    }
+
+    nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
+  }
+
+  const pipeline = [
     {
       $match: {
         _id: new mongoose.Types.ObjectId(hotelId),
@@ -130,68 +146,93 @@ exports.getHotelById = async (hotelId, checkIn, checkOut) => {
               isActive: true,
             },
           },
-          {
-            $lookup: {
-              from: "availabilities",
-              let: { roomTypeId: "$_id" },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: { $eq: ["$roomTypeId", "$$roomTypeId"] },
-                    date: { $gte: startDate, $lt: endDate },
-                  },
-                },
-              ],
-              as: "availabilityData",
-            },
-          },
-          {
-            $addFields: {
-              availableRooms: {
-                $cond: [
-                  { $gt: [{ $size: "$availabilityData" }, 0] },
-                  { $min: "$availabilityData.availableRooms" },
-                  0,
-                ],
-              },
-              priceOverride: {
-                $first: "$availabilityData.priceOverride",
-              },
-            },
-          },
-          {
-            $addFields: {
-              finalPrice: {
-                $cond: [
-                  { $ifNull: ["$priceOverride", false] },
-                  "$priceOverride",
-                  {
-                    $cond: [
-                      { $gt: ["$discountPrice", 0] },
-                      "$discountPrice",
-                      "$basePrice",
-                    ],
-                  },
-                ],
-              },
-            },
-          },
-          {
-            $project: {
-              availabilityData: 0,
-              priceOverride: 0,
-            },
-          },
         ],
         as: "roomTypes",
       },
     },
-  ]);
+  ];
 
-  if (!result.length) throw new Error("Hotel not found");
+  const result = await Hotel.aggregate(pipeline);
 
-  return result[0];
+  if (!result.length) {
+    throw new Error("Hotel not found");
+  }
+
+  const hotel = result[0];
+
+  // If no dates → return all room types with default pricing
+  if (!hasDates) {
+    hotel.roomTypes = hotel.roomTypes.map((room) => ({
+      ...room,
+      availableRooms: room.totalRooms,
+      finalPrice:
+        room.discountPrice > 0 ? room.discountPrice : room.basePrice,
+    }));
+
+    return hotel;
+  }
+
+  // If dates exist → fetch availability separately
+  const roomTypeIds = hotel.roomTypes.map((r) => r._id);
+
+  const availabilityDocs = await mongoose.model("Availability").find({
+    roomTypeId: { $in: roomTypeIds },
+    date: { $gte: startDate, $lt: endDate },
+  }).lean();
+
+  const availabilityMap = {};
+
+  for (const doc of availabilityDocs) {
+    const key = doc.roomTypeId.toString();
+    if (!availabilityMap[key]) {
+      availabilityMap[key] = [];
+    }
+    availabilityMap[key].push(doc);
+  }
+
+  hotel.roomTypes = hotel.roomTypes
+    .map((room) => {
+      const roomAvailabilities = availabilityMap[room._id.toString()] || [];
+
+      // Must have full date coverage
+      if (roomAvailabilities.length !== nights) {
+        return null;
+      }
+
+      const availableRooms = Math.min(
+        ...roomAvailabilities.map((d) => d.availableRooms)
+      );
+
+      const priceOverride = roomAvailabilities[0]?.priceOverride;
+
+      const finalPrice =
+        priceOverride ??
+        (room.discountPrice > 0
+          ? room.discountPrice
+          : room.basePrice);
+
+      return {
+        ...room,
+        availableRooms,
+        finalPrice,
+        nights,
+        totalPrice: finalPrice * nights,
+      };
+    })
+    .filter((room) => room !== null);
+
+  // Capacity filter (optional)
+  if (adults) {
+    hotel.roomTypes = hotel.roomTypes.filter(
+      (room) =>
+        room.capacity.adults >= adults &&
+        room.capacity.children >= (children || 0)
+    );
+  }
+
+  return hotel;
 };
+
 
 // Update hotel details
 exports.updateHotel = async (hotelId, vendorId, updateData) => {
