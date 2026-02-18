@@ -12,31 +12,72 @@ const roomTypeSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-    }, // Deluxe
-    description: String,
+      trim: true,
+    },
+
+    description: {
+      type: String,
+      trim: true,
+    },
 
     basePrice: {
       type: Number,
       required: true,
+      min: 0,
     },
+
     discountPrice: {
       type: Number,
       default: 0,
+      min: 0,
+      validate: {
+        validator: function (value) {
+          return value <= this.basePrice;
+        },
+        message: "Discount price cannot be greater than base price",
+      },
     },
 
     capacity: {
       adults: {
         type: Number,
         default: 2,
+        min: 0,
       },
       children: {
         type: Number,
         default: 0,
+        min: 0,
       },
     },
 
-    bedType: String,
-    roomSizeSqm: Number,
+    beds: {
+      type: [
+        {
+          type: {
+            type: String,
+            enum: ["single", "double", "king", "queen", "sofa"],
+            required: true,
+          },
+          quantity: {
+            type: Number,
+            required: true,
+            min: 1,
+          },
+        },
+      ],
+      validate: {
+        validator: function (value) {
+          return value.length > 0;
+        },
+        message: "At least one bed configuration is required",
+      },
+    },
+
+    roomSizeSqm: {
+      type: Number,
+      min: 0,
+    },
 
     viewType: {
       type: String,
@@ -45,6 +86,7 @@ const roomTypeSchema = new mongoose.Schema(
     },
 
     amenities: [String],
+
     images: [
       {
         url: String,
@@ -56,6 +98,7 @@ const roomTypeSchema = new mongoose.Schema(
     totalRooms: {
       type: Number,
       required: true,
+      min: 1,
     },
 
     isActive: {

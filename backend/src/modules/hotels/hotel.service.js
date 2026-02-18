@@ -3,6 +3,7 @@ const RoomType = require("../rooms/roomType.model");
 const logger = require("../../shared/utils/logger");
 const mongoose = require("mongoose");
 const cloudinary = require("../../shared/config/cloudinary");
+const Booking = require("../bookings/booking.model");
 
 // Create a new hotel
 exports.createHotel = async (hotelData) => {
@@ -104,134 +105,139 @@ exports.getAllHotels = async (query = {}) => {
 };
 
 
-// Get a single hotel by its ID (User Side)
-exports.getHotelById = async (hotelId, checkIn, checkOut, adults, children) => {
-  if (!mongoose.Types.ObjectId.isValid(hotelId)) {
-    throw new Error("Invalid hotel id");
-  }
-
-  const hasDates = checkIn && checkOut;
-
-  let startDate, endDate, nights = 0;
-
-  if (hasDates) {
-    startDate = new Date(checkIn);
-    endDate = new Date(checkOut);
-
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(0, 0, 0, 0);
-
-    if (startDate >= endDate) {
-      throw new Error("Invalid check-in/check-out dates");
-    }
-
-    nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
-  }
-
-  const pipeline = [
-    {
-      $match: {
-        _id: new mongoose.Types.ObjectId(hotelId),
-        isActive: true,
-      },
-    },
-    {
-      $lookup: {
-        from: "roomtypes",
-        let: { hotelId: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ["$hotelId", "$$hotelId"] },
-              isActive: true,
-            },
-          },
-        ],
-        as: "roomTypes",
-      },
-    },
-  ];
-
-  const result = await Hotel.aggregate(pipeline);
-
-  if (!result.length) {
-    throw new Error("Hotel not found");
-  }
-
-  const hotel = result[0];
-
-  // If no dates → return all room types with default pricing
-  if (!hasDates) {
-    hotel.roomTypes = hotel.roomTypes.map((room) => ({
-      ...room,
-      availableRooms: room.totalRooms,
-      finalPrice:
-        room.discountPrice > 0 ? room.discountPrice : room.basePrice,
-    }));
-
-    return hotel;
-  }
-
-  // If dates exist → fetch availability separately
-  const roomTypeIds = hotel.roomTypes.map((r) => r._id);
-
-  const availabilityDocs = await mongoose.model("Availability").find({
-    roomTypeId: { $in: roomTypeIds },
-    date: { $gte: startDate, $lt: endDate },
+// Get a single hotel detail by id
+exports.getHotelDetails = async (hotelId) => {
+  const hotel = await Hotel.findOne({
+    _id: hotelId,
+    isActive: true,
   }).lean();
 
-  const availabilityMap = {};
+  if (!hotel) throw new Error("Hotel not found");
 
-  for (const doc of availabilityDocs) {
-    const key = doc.roomTypeId.toString();
-    if (!availabilityMap[key]) {
-      availabilityMap[key] = [];
-    }
-    availabilityMap[key].push(doc);
-  }
+  const roomTypes = await RoomType.find({
+    hotelId,
+    isActive: true,
+  }).lean();
 
-  hotel.roomTypes = hotel.roomTypes
-    .map((room) => {
-      const roomAvailabilities = availabilityMap[room._id.toString()] || [];
+  return {
+    ...hotel,
+    roomTypes: roomTypes.map((room) => ({
+      ...room,
+      displayPrice:
+        room.discountPrice > 0 ? room.discountPrice : room.basePrice,
+    })),
+  };
+};
 
-      // Must have full date coverage
-      if (roomAvailabilities.length !== nights) {
-        return null;
+//availabile rooms in hotel
+exports.getHotelAvailability = async (
+  hotelId,
+  checkIn,
+  checkOut,
+  adults,
+  children
+) => {
+  if (!checkIn || !checkOut)
+    throw new Error("Check-in and check-out required");
+
+  const startDate = new Date(checkIn);
+  const endDate = new Date(checkOut);
+
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(0, 0, 0, 0);
+
+  if (startDate >= endDate)
+    throw new Error("Invalid date range");
+
+  const nights =
+    (endDate - startDate) / (1000 * 60 * 60 * 24);
+
+  const hotel = await Hotel.findOne({
+    _id: hotelId,
+    isActive: true,
+  }).lean();
+
+  if (!hotel) throw new Error("Hotel not found");
+
+  const roomTypes = await RoomType.find({
+    hotelId,
+    isActive: true,
+  }).lean();
+
+  const results = [];
+
+  for (const room of roomTypes) {
+    let minAvailable = room.totalRooms;
+    let totalPrice = 0;
+    let isAvailable = true;
+
+    for (let i = 0; i < nights; i++) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + i);
+
+      // Sum booked rooms
+      const booked = await Booking.aggregate([
+        {
+          $match: {
+            roomTypeId: room._id,
+            status: { $in: ["confirmed", "pending"] },
+            checkIn: { $lte: date },
+            checkOut: { $gt: date },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalBooked: { $sum: "$roomsBooked" },
+          },
+        },
+      ]);
+
+      const bookedCount = booked[0]?.totalBooked || 0;
+
+      const available =
+        room.totalRooms - bookedCount;
+
+      if (available <= 0) {
+        isAvailable = false;
+        break;
       }
 
-      const availableRooms = Math.min(
-        ...roomAvailabilities.map((d) => d.availableRooms)
-      );
+      minAvailable = Math.min(minAvailable, available);
 
-      const priceOverride = roomAvailabilities[0]?.priceOverride;
-
-      const finalPrice =
-        priceOverride ??
-        (room.discountPrice > 0
+      const price =
+        room.discountPrice > 0
           ? room.discountPrice
-          : room.basePrice);
+          : room.basePrice;
 
-      return {
-        ...room,
-        availableRooms,
-        finalPrice,
-        nights,
-        totalPrice: finalPrice * nights,
-      };
-    })
-    .filter((room) => room !== null);
+      totalPrice += price;
+    }
 
-  // Capacity filter (optional)
-  if (adults) {
-    hotel.roomTypes = hotel.roomTypes.filter(
-      (room) =>
-        room.capacity.adults >= adults &&
-        room.capacity.children >= (children || 0)
-    );
+    if (!isAvailable) continue;
+
+    if (adults || children) {
+      if (
+        room.capacity.adults < adults ||
+        room.capacity.children < (children || 0)
+      ) {
+        continue;
+      }
+    }
+
+    results.push({
+      ...room,
+      availableRooms: minAvailable,
+      nights,
+      totalPrice,
+    });
   }
 
-  return hotel;
+  return {
+    // ...hotel,
+    roomTypes: results,
+  };
 };
+
 
 
 // Update hotel details
