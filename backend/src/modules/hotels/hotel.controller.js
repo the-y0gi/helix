@@ -46,11 +46,26 @@ exports.getHotels = async (req, res, next) => {
 };
 
 // Get a single hotel by ID for the details page
-exports.getHotel = async (req, res, next) => {
+
+exports.getHotelDetails = async (req, res, next) => {
+  try {
+    const hotel = await hotelService.getHotelDetails(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      data: hotel,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//checking availability mode
+exports.getHotelAvailability = async (req, res, next) => {
   try {
     const { checkIn, checkOut, adults, children } = req.query;
 
-    const hotel = await hotelService.getHotelById(
+    const data = await hotelService.getHotelAvailability(
       req.params.id,
       checkIn,
       checkOut,
@@ -60,7 +75,7 @@ exports.getHotel = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: hotel,
+      data,
     });
   } catch (error) {
     next(error);

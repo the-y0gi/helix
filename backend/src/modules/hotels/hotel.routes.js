@@ -10,7 +10,9 @@ router.get("/", hotelController.getHotels);
 router.get("/search", hotelController.searchHotels);
 
 router.get("/nearby", hotelController.getNearbyHotels);
-router.get("/:id", hotelController.getHotel);
+router.get("/:id", hotelController.getHotelDetails);
+router.get("/:id/availability", hotelController.getHotelAvailability);
+
 
 //private: vendor routes
 router.use(protect);
