@@ -23,11 +23,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import CpontrySelector from "./country";
+import { useCurrentUser } from "@/services/querys";
+import { currentUser } from "@/services/user.service";
 
-export function UserProfileFields() {
-  const { currUser, updateUser } = useAuthStore();
-  console.log(currUser);
-  
+export function UserProfileFields({ currUser, refetch }: { currUser: any; refetch: () => void }) {
+  const { updateUser } = useAuthStore();
+  // console.log(currUser);
+
   const [loading, setLoading] = React.useState(false);
 
   const {
@@ -39,12 +41,12 @@ export function UserProfileFields() {
   } = useForm<UserUpdateProps>({
     resolver: zodResolver(UserUpdateSchema),
     defaultValues: {
-      firstName: currUser?.firstName || "",
-      lastName: currUser?.lastName || "",
-      phoneNumber: currUser?.phoneNumber || "",
-      gender: (currUser?.gender as "male" | "female" | "other") || "other",
-      country: currUser?.country || "India",
-      address: currUser?.address || "",
+      firstName: currUser?.data?.firstName || "",
+      lastName: currUser?.data?.lastName || "",
+      phoneNumber: currUser?.data?.phoneNumber || "",
+      gender: (currUser?.data?.gender as "male" | "female" | "other") || "other",
+      country: currUser?.data?.country || "India",
+      address: currUser?.data?.address || "",
       zipcCode: (currUser as any)?.zipcCode || "",
     },
   });
@@ -52,13 +54,13 @@ export function UserProfileFields() {
   useEffect(() => {
     if (currUser) {
       reset({
-        firstName: currUser.firstName || "",
-        lastName: currUser.lastName || "",
-        phoneNumber: currUser.phoneNumber || "",
-        gender: (currUser.gender as "male" | "female" | "other") || "other",
-        country: currUser.country || "India",
-        address: currUser.address || "",
-        zipcCode: (currUser as any).zipcCode || "",
+        firstName: currUser?.data?.firstName || "",
+        lastName: currUser?.data?.lastName || "",
+        phoneNumber: currUser?.data?.phoneNumber || "",
+        gender: (currUser?.data?.gender as "male" | "female" | "other") || "other",
+        country: currUser?.data?.country || "India",
+        address: currUser?.data?.address || "",
+        zipcCode: (currUser as any)?.data?.zipcCode || "",
       });
     }
   }, [currUser, reset]);
@@ -67,10 +69,11 @@ export function UserProfileFields() {
     setLoading(true);
     try {
       console.log(data);
-      
+
       const result = await updateUser(data);
       if (result.success) {
         toast.success(result.message);
+        refetch();
       } else {
         toast.error(result.message);
       }
@@ -117,7 +120,7 @@ export function UserProfileFields() {
                 <Field>
                   <FieldLabel>Email Address</FieldLabel>
                   <Input
-                    value={currUser?.email || ""}
+                    value={currUser?.data?.email || ""}
                     disabled
                     className="bg-muted cursor-not-allowed"
                   />
@@ -222,12 +225,16 @@ export function UserProfileFields() {
 
 export const UserProfileUpdateForm = ({
   className,
+  currUser,
+  refetch,
 }: {
   className?: string;
+  currUser: any;
+  refetch: () => void;
 }) => {
   return (
     <div className={cn(" w-full", className)}>
-      <UserProfileFields />
+      <UserProfileFields currUser={currUser} refetch={refetch} />
     </div>
   );
 };
@@ -237,14 +244,25 @@ export const PersonProfilePersonalData = ({
 }: {
   className?: string;
 }) => {
+  const { data: currUser, isLoading, isError, refetch } = useCurrentUser();
+
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Not authenticated</div>;
+  }
+
   return (
     <PersonalData
       className="w-full "
       avatat={
-        <ProfileAvatar className="rounded-xl shadow-sm border border-border" />
+        <ProfileAvatar className="rounded-xl shadow-sm border border-border" currUser={currUser} refetch={refetch} />
       }
       form={
-        <UserProfileUpdateForm className="rounded-xl shadow-sm p-3  border border-border " />
+        <UserProfileUpdateForm className="rounded-xl shadow-sm p-3  border border-border " currUser={currUser} refetch={refetch} />
       }
     />
   );
@@ -267,8 +285,8 @@ const PersonalData = ({
   );
 };
 
-const ProfileAvatar = ({ className }: { className?: string }) => {
-  const { currUser, uploadFile, updateUser } = useAuthStore();
+const ProfileAvatar = ({ className, currUser, refetch }: { className?: string; currUser: any; refetch: () => void }) => {
+  const { uploadFile, updateUser } = useAuthStore();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = React.useState(false);
 
@@ -289,6 +307,7 @@ const ProfileAvatar = ({ className }: { className?: string }) => {
         const updateResult = await updateUser({ avatar: result.url });
         if (updateResult.success) {
           toast.success("Profile image updated");
+          refetch();
         } else {
           toast.error(updateResult.message);
         }
@@ -301,12 +320,13 @@ const ProfileAvatar = ({ className }: { className?: string }) => {
       setUploading(false);
     }
   };
+  console.log(currUser);
 
   return (
     <div className={cn("flex items-center gap-3 px-2 py-3 w-full ", className)}>
       <div className="relative group cursor-pointer" onClick={handleImageClick}>
         <Image
-          src={currUser?.avatar || "/girl.png"}
+          src={currUser?.data?.avatar || "/user.png"}
           alt="user"
           width={100}
           height={100}
@@ -338,12 +358,12 @@ const ProfileAvatar = ({ className }: { className?: string }) => {
       <div>
         <p className="text-xl font-medium">
           {currUser
-            ? `${currUser.firstName || ""} ${currUser.lastName || ""}`.trim() ||
-              currUser.email
+            ? `${currUser.data.firstName || ""} ${currUser.data.lastName || ""}`.trim() ||
+            currUser.data.email
             : "Guest User"}
         </p>
         <p className="text-lg text-muted-foreground">
-          {currUser?.role || "User"}
+          {currUser?.data?.role || "User"}
         </p>
       </div>
     </div>

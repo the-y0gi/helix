@@ -5,12 +5,13 @@ import { LoginScshema, type LoginFormProps } from "@/schema/auth";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import { toast } from "sonner";
+import { useCurrentUser } from "@/services/querys";
 
 export const useLogin = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const navigate = useRouter();
   const { userLogin } = useAuthStore();
-
+  const { refetch, isLoading } = useCurrentUser();
   const methods = useForm<LoginFormProps>({
     resolver: zodResolver(LoginScshema),
     defaultValues: {
@@ -27,6 +28,7 @@ export const useLogin = () => {
       if (result.success) {
         toast.success(result.message || "Login successful!");
         // Redirect or close dialog
+        await refetch();
         navigate.push("/");
       } else {
         toast.error(result.message || "Login failed");

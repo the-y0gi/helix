@@ -5,6 +5,7 @@ import { type SignUpProps, SignUpSchema } from "@/schema/auth";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import { toast } from "sonner";
+import { useCurrentUser } from "@/services/querys";
 
 export const useSignUp = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -20,13 +21,14 @@ export const useSignUp = () => {
     },
     mode: "onChange",
   });
-
+  const { refetch, isLoading } = useCurrentUser();
   const onHandleSubmit = methods.handleSubmit(async (data) => {
     setLoading(true);
     try {
       const result = await verifyOTP({ email: data.email, otp: data.otp });
       if (result.success) {
         toast.success(result.message || "Account created successfully!");
+        await refetch();
         // Redirect or close dialog
       } else {
         toast.error(result.message || "Failed to verify OTP");

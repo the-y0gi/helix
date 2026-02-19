@@ -181,7 +181,7 @@ const ReviewCard = ({ name, date, review }: ReviewCardProps) => {
                         </div>
                     </div>
 
-                    <RattingBadge rating={5} variant="left" className="w-7 h-7" />
+                    <RattingBadge rating={5} variant="left" className="w-7 h-7 " />
                 </div>
 
                 <p className="text-sm text-muted-foreground">{review}</p>
