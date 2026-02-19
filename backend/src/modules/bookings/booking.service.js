@@ -86,7 +86,7 @@ exports.createBooking = async (data, userId) => {
 
     const rooms = roomsBooked && roomsBooked > 0 ? roomsBooked : 1;
 
-    // ===== Guest Validation =====
+    //Guest Validation
     if (!guests || !guests.adults || guests.adults <= 0) {
       throw new Error("At least one adult guest is required");
     }
@@ -117,24 +117,39 @@ exports.createBooking = async (data, userId) => {
       date: { $gte: startDate, $lt: endDate },
     }).session(session);
 
-    if (availabilityDocs.length !== nights) {
-      throw new Error("Room not available for selected dates");
+    for (let i = 0; i < nights; i++) {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(startDate.getDate() + i);
+
+      const dayDoc = availabilityDocs.find(
+        (doc) => doc.date.getTime() === currentDate.getTime(),
+      );
+
+      if (dayDoc) {
+        if (dayDoc.availableRooms < rooms) {
+          throw new Error(
+            `Insufficient availability on ${currentDate.toDateString()}`,
+          );
+        }
+        if (dayDoc.status === "booked" || dayDoc.status === "maintenance") {
+          throw new Error(
+            `Room is not available on ${currentDate.toDateString()}`,
+          );
+        }
+      } else {
+        if (roomType.totalRooms < rooms) {
+          throw new Error("Hotel is fully booked for the selected dates");
+        }
+      }
     }
 
-    availabilityDocs.forEach((doc) => {
-      if (doc.availableRooms < rooms) {
-        throw new Error("Insufficient room availability");
-      }
-    });
-
+    // 3. Price Calculation (Priority: Override > Discount > Base)
     const priceOverride = availabilityDocs[0]?.priceOverride;
-
     const pricePerNight =
       priceOverride ??
       (roomType.discountPrice > 0
         ? roomType.discountPrice
         : roomType.basePrice);
-
     const totalAmount = pricePerNight * nights * rooms;
 
     //Generate Booking Reference

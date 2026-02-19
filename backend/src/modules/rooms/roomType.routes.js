@@ -4,8 +4,6 @@ const controller = require("./roomType.controller");
 const { protect } = require("../../shared/middlewares/verifyToken");
 const { authorize } = require("../../shared/middlewares/roleMiddleware");
 
-// Public (user side)
-// router.get("/hotel/:hotelId", controller.getRoomTypesByHotel);
 
 // Vendor
 router.use(protect);

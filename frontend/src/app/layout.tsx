@@ -32,11 +32,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <MainProvider>
-          {children}
-
-        </MainProvider>
-         <Toaster/>
+        <MainProvider>{children}</MainProvider>
+        <Toaster />
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
       </body>
     </html>
   );
