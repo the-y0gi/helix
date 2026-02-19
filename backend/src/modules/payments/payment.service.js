@@ -5,6 +5,9 @@ const Payment = require("./payment.model");
 const Availability = require("../availability/availability.model");
 const Hotel = require("../hotels/hotel.model");
 const logger = require("../../shared/utils/logger");
+const {
+  sendBookingConfirmationEmail,
+} = require("../../shared/utils/sendEmail");
 
 exports.verifyPayment = async (data) => {
   const session = await mongoose.startSession();
@@ -77,32 +80,50 @@ exports.verifyPayment = async (data) => {
       throw new Error("Hotel no longer available");
     }
 
+    const RoomType = mongoose.model("RoomType");
+    const roomTypeData = await RoomType.findById(booking.roomTypeId).session(
+      session,
+    );
+
+    if (!roomTypeData) {
+      throw new Error("Room type definition not found");
+    }
+
     const startDate = new Date(booking.checkIn);
     const endDate = new Date(booking.checkOut);
 
-    const availabilityDocs = await Availability.find({
-      roomTypeId: booking.roomTypeId,
-      date: { $gte: startDate, $lt: endDate },
-    }).session(session);
+    for (let i = 0; i < booking.nights; i++) {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(startDate.getDate() + i);
+      currentDate.setHours(0, 0, 0, 0);
 
-    if (availabilityDocs.length !== booking.nights) {
-      throw new Error("Availability mismatch for selected dates");
-    }
-
-    for (const doc of availabilityDocs) {
       const result = await Availability.updateOne(
         {
-          _id: doc._id,
-          availableRooms: { $gte: booking.roomsBooked },
+          roomTypeId: booking.roomTypeId,
+          date: currentDate,
+          $or: [
+            { availableRooms: { $gte: booking.roomsBooked } },
+            { availableRooms: { $exists: false } },
+          ],
         },
         {
+          $setOnInsert: {
+            hotelId: booking.hotelId,
+            roomTypeId: booking.roomTypeId,
+            date: currentDate,
+            status: "available",
+            totalRooms: roomTypeData.totalRooms,
+          },
           $inc: { availableRooms: -booking.roomsBooked },
         },
-        { session },
+        {
+          session,
+          upsert: true,
+        },
       );
 
-      if (result.modifiedCount === 0) {
-        throw new Error("Rooms just sold out. Please try again.");
+      if (result.matchedCount === 0 && result.upsertedCount === 0) {
+        throw new Error("Rooms just sold out for specific dates.");
       }
     }
 
@@ -113,7 +134,19 @@ exports.verifyPayment = async (data) => {
 
     await session.commitTransaction();
     session.endSession();
-
+    try {
+      await sendBookingConfirmationEmail(booking.primaryGuest.email, {
+        customerName: booking.primaryGuest.name,
+        bookingId: booking.bookingReference,
+        hotelName: hotel.name,
+        roomName: roomTypeData.name,
+        checkIn: booking.checkIn,
+        checkOut: booking.checkOut,
+        amount: booking.totalAmount,
+      });
+    } catch (mailErr) {
+      logger.error("Booking Confirmation Email failed to send:", mailErr);
+    }
     return booking;
   } catch (err) {
     await session.abortTransaction();
