@@ -3,7 +3,7 @@
 
 export const SideBarFilter = () => {
   return (
-    <div className="flex flex-col gap-2 p-1 md:min-w-[270px] ">
+    <div className="flex flex-col gap-2 p-1 md:min-w-[270px] max-w-[270px]">
       <div className="w-full border border-gray-500/20 rounded-2xl flex justify-center items-center h-40">
         map image
       </div>

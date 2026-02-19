@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { IconHeadphones } from "@tabler/icons-react";
 import { Headset } from "lucide-react";
 import dynamic from "next/dynamic";
+import LOGO from "./logo";
 const MenuBar = dynamic(() => import("../menubar").then(mod => ({ default: mod.MenuBar })), {
   ssr: false,
 });
@@ -17,28 +18,22 @@ const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
     <div className="min-h-screen flex flex-col w-screen">
       <div
         className={cn(
-          "fixed top-0 left-0 z-50 w-full bg-card   flex flex-col justify-center h-30 bg-gradient-to-br from-zinc-200 to-transparent backdrop-blur-md dark:bg-gradient-to-br dark:from-zinc-700 dark:to-transparent backdrop-blur-lg border-b border-gray-300 dark:border-gray-700" ,
+          "fixed top-0 left-0 z-50 w-full bg-card   flex flex-col justify-center h-30 bg-gradient-to-br from-zinc-200 to-transparent backdrop-blur-md dark:bg-gradient-to-br dark:from-zinc-700 dark:to-transparent backdrop-blur-lg border-b border-gray-300 dark:border-gray-700",
         )}
       >
         <div className="flex items-center justify-between py-3 px-9">
-          <div className="h-12 w-[120px] p-2 rounded-full transition hover:scale-105">
-            <img
-              src="/logo.png"
-              alt="Company logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
+          <LOGO />
 
           <div className="hidden md:flex flex-col items-center gap-[5px] h-full justify-evenly">
           </div>
 
           <div className="flex gap-9 p-1 justify-center items-center">
             <div>
-              <Headset color="blue" size={25}/>
+              <Headset color="blue" size={25} />
             </div>
             <Suspense>
-            <MenuBar />
-          </Suspense>
+              <MenuBar />
+            </Suspense>
           </div>
         </div>
       </div>

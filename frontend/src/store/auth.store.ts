@@ -9,12 +9,11 @@ interface User {
   firstName?: string;
   lastName?: string;
   avatar?: string;
-  phoneNumber?:string;
-  gender?:string;
-  country?:string;
-  address?:string;
-  zipCode?:string
-
+  phoneNumber?: string;
+  gender?: string;
+  country?: string;
+  address?: string;
+  zipCode?: string;
 }
 
 interface AuthStates {
@@ -56,6 +55,8 @@ export const useAuthStore = create<AuthStates>()((set, get) => ({
       const res = await axiosApi.post("/auth/login", data);
       if (res.data.success) {
         set({ currUser: res.data.data.user });
+        const token = res.data.accessToken;
+        localStorage.setItem("accessToken", token);
         return { success: true, message: res.data.message };
       }
       return { success: false, message: res.data.message || "Login failed" };

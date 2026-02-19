@@ -1,9 +1,33 @@
+import { currentUser } from "./user.service";
 import { useQuery } from "@tanstack/react-query";
 import {
   getHotels,
   getHotelDetails,
   getHotelAvailability,
+  getTrips,
 } from "./hotel.service";
+export const useTripsQuery = () => {
+  return useQuery({
+    queryKey: ["trips"],
+    queryFn: () => getTrips(),
+    staleTime: 2000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: true,
+    retry: false, // optional
+  });
+};
+export const useCurrentUser = () => {
+  return useQuery({
+    queryKey: ["current_user"],
+    queryFn: currentUser,
+    staleTime: 2000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: true,
+    retry: false, // optional
+  });
+};
 
 export const useHotelsQuery = () => {
   return useQuery({
@@ -12,6 +36,8 @@ export const useHotelsQuery = () => {
     staleTime: 60 * 1000,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: true,
   });
 };
 
@@ -20,6 +46,9 @@ export const useHotelDetailsQuery = (hotelId: string) => {
     queryKey: ["hotel_details", hotelId],
     queryFn: () => getHotelDetails(hotelId),
     enabled: !!hotelId,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
     staleTime: 60 * 1000,
   });
 };

@@ -5,9 +5,11 @@ import { MobileNav } from "./mobile-nav/sheet-nav";
 import { Footer } from "../footer/FFooter";
 import { FindTabsNav } from "./filter-nav-bar/find-filter-bars";
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
+import { useCurrentUser } from "@/services/querys";
+import LOGO from "./logo";
 const MenuBar = dynamic(
   () => import("../menubar").then((mod) => ({ default: mod.MenuBar })),
   {
@@ -24,6 +26,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
     (segments.length === 1 && pagesNames.includes(segments[0])) ||
     segments.length === 0
   );
+  const navigate = useRouter()
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -46,13 +49,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
             }
           />
 
-          <div className="h-12 w-[120px] p-2 rounded-full transition hover:scale-105">
-            <img
-              src="/logo.png"
-              alt="Company logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
+          <LOGO />
 
           <div className="hidden md:flex flex-col items-center gap-[5px] h-full justify-evenly">
             {shouldShowNavbar ? (

@@ -8,6 +8,10 @@ import { useProfileSidebar } from "../../../providers/ProfileSidebarProvider"
 import { PersonProfilePersonalData } from "./_components/personal_data/personal_data"
 import Settings from "./_components/settings/settings"
 import PaymentPage from "./_components/payment/payment"
+import { AllReservations } from "./_components/trips/all"
+import { WishlistSection } from "./_components/wishlist/wish-list"
+import { ReviewList } from "./_components/reviews/my-reviews"
+// import { ActiveReservations, AllReservations, CancelledReservations, CompletedReservations } from "./_components/trips/all"
 
 type ProfileTabKey =
   | "personal_data"
@@ -22,16 +26,16 @@ type ProfileTabKey =
   | "cancelled"
 
 const content: Record<ProfileTabKey, React.ReactNode> = {
-  personal_data: <PersonProfilePersonalData/>,
-  payment: <PaymentPage/>,
-  wishlist: <p>Wishlist Content</p>,
+  personal_data: <PersonProfilePersonalData />,
+  payment: <PaymentPage />,
+  wishlist: <WishlistSection />,
   support: <p>Support Content</p>,
-  reviews: <p>Reviews Content</p>,
-  settings: <Settings/>,
-  all: <p>All Trips</p>,
-  active: <p>Active Trips</p>,
-  completed: <p>Completed Trips</p>,
-  cancelled: <p>Cancelled Trips</p>,
+  reviews: <ReviewList />,
+  settings: <Settings />,
+  all: <AllReservations variant={"all"} />,
+  active: <AllReservations variant={"active"} />,
+  completed: <AllReservations variant={"completed"} />,
+  cancelled: <AllReservations variant={"cancelled"} />,
 }
 
 export default function Page({ className }: { className?: string }) {
