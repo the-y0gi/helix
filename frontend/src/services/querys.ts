@@ -1,31 +1,30 @@
 import { useQuery } from "@tanstack/react-query";
-import { getHotelById, getHotels, getRoomsFromHotel } from "./hotel.service";
+import {
+  getHotels,
+  getHotelDetails,
+  getHotelAvailability,
+} from "./hotel.service";
 
 export const useHotelsQuery = () => {
   return useQuery({
     queryKey: ["hotels"],
-    queryFn: () => getHotels(),
+    queryFn: getHotels,
     staleTime: 60 * 1000,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
-};
-export const useHotelQuery = ({ hotelId }: { hotelId: string }) => {
-  return useQuery({
-    queryKey: ["hotel_by_id", hotelId],
-    queryFn: () => getHotelById(hotelId),
-    staleTime: 60 * 1000,
-    gcTime: 5 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    enabled: !!hotelId,
   });
 };
 
-export const useRoomsQuery = ({
+export const useHotelDetailsQuery = (hotelId: string) => {
+  return useQuery({
+    queryKey: ["hotel_details", hotelId],
+    queryFn: () => getHotelDetails(hotelId),
+    enabled: !!hotelId,
+    staleTime: 60 * 1000,
+  });
+};
+
+export const useHotelAvailabilityQuery = ({
   hotelId,
   checkIn,
   checkOut,
@@ -38,9 +37,11 @@ export const useRoomsQuery = ({
   adults: number;
   children: number;
 }) => {
+  const isBookingMode = !!checkIn && !!checkOut;
+
   return useQuery({
     queryKey: [
-      "rooms",
+      "hotel_availability",
       hotelId,
       checkIn?.toISOString(),
       checkOut?.toISOString(),
@@ -48,15 +49,14 @@ export const useRoomsQuery = ({
       children,
     ],
     queryFn: () =>
-      getRoomsFromHotel(
+      getHotelAvailability(
         hotelId,
-        checkIn?.toISOString() || "",
-        checkOut?.toISOString() || "",
+        checkIn!.toISOString(),
+        checkOut!.toISOString(),
         adults,
         children,
       ),
-
+    enabled: !!hotelId && isBookingMode,
     staleTime: 2000,
-    enabled: !!hotelId && !!checkIn && !!checkOut,
   });
 };

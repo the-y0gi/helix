@@ -13,8 +13,8 @@ export const PaymentSchema = z.object({
     z.object({
       firstname: z.string().min(1, "First name is required"),
       lastname: z.string().min(1, "Last name is required"),
-      email: z.string(),
-      phone: z.string().min(1, "Phone is required"),
+      email: z.string().email("Invalid email").optional().or(z.literal("")),
+      phone: z.string().optional().or(z.literal("")),
     }),
   ),
   specialRequest: z.string(),
