@@ -136,7 +136,7 @@ exports.verifyPayment = async (data) => {
     session.endSession();
     try {
       await sendBookingConfirmationEmail(booking.primaryGuest.email, {
-        customerName: booking.primaryGuest.name,
+        customerName: booking.primaryGuest.firstName,
         bookingId: booking.bookingReference,
         hotelName: hotel.name,
         roomName: roomTypeData.name,
