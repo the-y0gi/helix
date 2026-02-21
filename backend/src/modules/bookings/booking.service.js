@@ -252,7 +252,7 @@ exports.getBookingDetail = async (bookingId, userId) => {
       _id: bookingId,
       userId,
     })
-      .populate("hotelId", "name address location images")
+      .populate("hotelId", "name description address location images")
       .populate("roomTypeId", "name amenities bedType roomSizeSqm")
       .lean();
 
@@ -269,6 +269,7 @@ exports.getBookingDetail = async (bookingId, userId) => {
         address: booking.hotelId.address,
         coordinates: booking.hotelId.location?.coordinates,
         thumbnail: booking.hotelId.images?.[0]?.url || null,
+        description: booking.hotelId.description,
       },
 
       room: {
