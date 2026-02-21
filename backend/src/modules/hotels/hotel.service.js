@@ -4,6 +4,31 @@ const logger = require("../../shared/utils/logger");
 const mongoose = require("mongoose");
 const cloudinary = require("../../shared/config/cloudinary");
 const Booking = require("../bookings/booking.model");
+const Favorite = require("../favorites/favorite.model");
+
+//helper function to attach isFavorite flag to hotels
+const attachFavoriteFlag = async (hotels, userId) => {
+  if (!userId || hotels.length === 0) {
+    hotels.forEach((hotel) => (hotel.isFavorite = false));
+    return hotels;
+  }
+
+  const hotelIds = hotels.map((h) => h._id);
+
+  const favorites = await Favorite.find({
+    user: userId,
+    itemType: "hotel",
+    itemId: { $in: hotelIds },
+  }).select("itemId");
+
+  const favoriteSet = new Set(favorites.map((fav) => fav.itemId.toString()));
+
+  hotels.forEach((hotel) => {
+    hotel.isFavorite = favoriteSet.has(hotel._id.toString());
+  });
+
+  return hotels;
+};
 
 // Create a new hotel
 exports.createHotel = async (hotelData) => {
@@ -16,7 +41,7 @@ exports.createHotel = async (hotelData) => {
 };
 
 // Get all hotels Supports filters, city, featured, rating
-exports.getAllHotels = async (query = {}) => {
+exports.getAllHotels = async (query = {}, userId = null) => {
   try {
     const {
       city,
@@ -98,15 +123,17 @@ exports.getAllHotels = async (query = {}) => {
       .limit(Number(limit))
       .lean();
 
-    return hotels;
+    //add favorite flag to hotels
+    return await attachFavoriteFlag(hotels, userId);
+
+    // return hotels;
   } catch (error) {
     throw error;
   }
 };
 
-
 // Get a single hotel detail by id
-exports.getHotelDetails = async (hotelId) => {
+exports.getHotelDetails = async (hotelId, userId = null) => {
   const hotel = await Hotel.findOne({
     _id: hotelId,
     isActive: true,
@@ -119,8 +146,21 @@ exports.getHotelDetails = async (hotelId) => {
     isActive: true,
   }).lean();
 
+  let isFavorite = false;
+
+  if (userId) {
+    const favorite = await Favorite.findOne({
+      user: userId,
+      itemType: "hotel",
+      itemId: hotel._id,
+    }).select("_id");
+
+    isFavorite = !!favorite;
+  }
+
   return {
     ...hotel,
+    isFavorite,
     roomTypes: roomTypes.map((room) => ({
       ...room,
       displayPrice:
@@ -135,10 +175,9 @@ exports.getHotelAvailability = async (
   checkIn,
   checkOut,
   adults,
-  children
+  children,
 ) => {
-  if (!checkIn || !checkOut)
-    throw new Error("Check-in and check-out required");
+  if (!checkIn || !checkOut) throw new Error("Check-in and check-out required");
 
   const startDate = new Date(checkIn);
   const endDate = new Date(checkOut);
@@ -146,11 +185,9 @@ exports.getHotelAvailability = async (
   startDate.setHours(0, 0, 0, 0);
   endDate.setHours(0, 0, 0, 0);
 
-  if (startDate >= endDate)
-    throw new Error("Invalid date range");
+  if (startDate >= endDate) throw new Error("Invalid date range");
 
-  const nights =
-    (endDate - startDate) / (1000 * 60 * 60 * 24);
+  const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
   const hotel = await Hotel.findOne({
     _id: hotelId,
@@ -195,8 +232,7 @@ exports.getHotelAvailability = async (
 
       const bookedCount = booked[0]?.totalBooked || 0;
 
-      const available =
-        room.totalRooms - bookedCount;
+      const available = room.totalRooms - bookedCount;
 
       if (available <= 0) {
         isAvailable = false;
@@ -206,9 +242,7 @@ exports.getHotelAvailability = async (
       minAvailable = Math.min(minAvailable, available);
 
       const price =
-        room.discountPrice > 0
-          ? room.discountPrice
-          : room.basePrice;
+        room.discountPrice > 0 ? room.discountPrice : room.basePrice;
 
       totalPrice += price;
     }
@@ -237,8 +271,6 @@ exports.getHotelAvailability = async (
     roomTypes: results,
   };
 };
-
-
 
 // Update hotel details
 exports.updateHotel = async (hotelId, vendorId, updateData) => {
@@ -293,8 +325,7 @@ exports.findNearbyHotels = async (lng, lat, maxDistance = 5000) => {
   }
 };
 
-
-exports.searchHotels = async (query = {}) => {
+exports.searchHotels = async (query = {}, userId = null) => {
   const {
     destination,
     checkIn,
@@ -311,8 +342,7 @@ exports.searchHotels = async (query = {}) => {
   const startDate = new Date(checkIn);
   const endDate = new Date(checkOut);
 
-  const nights =
-    (endDate - startDate) / (1000 * 60 * 60 * 24);
+  const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
   const skip = (page - 1) * limit;
 
@@ -428,5 +458,7 @@ exports.searchHotels = async (query = {}) => {
     { $limit: Number(limit) },
   ];
 
-  return await Hotel.aggregate(pipeline);
+  const hotels = await Hotel.aggregate(pipeline);
+  const updatedHotels = await attachFavoriteFlag(hotels, userId);
+  return updatedHotels;
 };

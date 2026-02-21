@@ -32,7 +32,9 @@ exports.createHotel = async (req, res, next) => {
 // Get all hotels with filtering and pagination support
 exports.getHotels = async (req, res, next) => {
   try {
-    const hotels = await hotelService.getAllHotels(req.query);
+    const userId = req.user?._id || null;
+
+    const hotels = await hotelService.getAllHotels(req.query, userId);
 
     res.status(200).json({
       success: true,
@@ -49,7 +51,8 @@ exports.getHotels = async (req, res, next) => {
 
 exports.getHotelDetails = async (req, res, next) => {
   try {
-    const hotel = await hotelService.getHotelDetails(req.params.id);
+    const userId = req.user?._id || null;
+    const hotel = await hotelService.getHotelDetails(req.params.id, userId);
 
     res.status(200).json({
       success: true,
@@ -119,6 +122,7 @@ exports.getNearbyHotels = async (req, res, next) => {
       Number(lng),
       Number(lat),
       Number(distance) || 5000, // Default 5km
+      userId
     );
 
     res.status(200).json({
@@ -135,7 +139,8 @@ exports.getNearbyHotels = async (req, res, next) => {
 // Search hotels in destination
 exports.searchHotels = async (req, res, next) => {
   try {
-    const hotels = await hotelService.searchHotels(req.query);
+    const userId = req.user?._id || null;
+    const hotels = await hotelService.searchHotels(req.query, userId);
 
     res.status(200).json({
       success: true,
