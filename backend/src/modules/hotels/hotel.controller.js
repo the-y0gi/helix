@@ -136,6 +136,24 @@ exports.getNearbyHotels = async (req, res, next) => {
   }
 };
 
+//get auto-suggestions for search
+exports.getSuggestions = async (req, res, next) => {
+  try {
+    const { q } = req.query;
+
+    const suggestions = await hotelService.getSuggestions(q);
+
+    res.status(200).json({
+      success: true,
+      count: suggestions.length,
+      data: suggestions,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getSuggestions", error);
+    next(error);
+  }
+};
+
 // Search hotels in destination
 exports.searchHotels = async (req, res, next) => {
   try {
