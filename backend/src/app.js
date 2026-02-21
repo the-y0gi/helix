@@ -17,6 +17,7 @@ const bookingRoutes = require("./modules/bookings/booking.routes");
 const paymentRoutes = require("./modules/payments/payment.routes");
 const reviewRoutes = require("./modules/reviews/review.routes");
 const uploadRoutes = require("./modules/upload/upload.routes");
+const favoriteRoutes = require("./modules/favorites/favorite.routes");
 const { errorHandler } = require("./shared/middlewares/errorHandler");
 require("./shared/config/passport");
 
@@ -63,7 +64,7 @@ app.use("/api/v1/bookings", bookingRoutes);
 app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/reviews", reviewRoutes);
 app.use("/api/v1/uploads", uploadRoutes);
-
+app.use("/api/v1/favorites", favoriteRoutes);
 
 app.use(errorHandler);
 
