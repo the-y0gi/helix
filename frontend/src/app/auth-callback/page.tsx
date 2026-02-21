@@ -4,14 +4,18 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import { toast } from "sonner";
+import { useRoutingStore } from "@/store/routing.store";
+import { useAuthContext } from "@/providers/main-provider/AuthContextProvider";
 
 export default function AuthCallback() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
+  // console.log("this is next route",nextRoute);
+  
   useEffect(() => {
     const token = searchParams.get("token");
     const error = searchParams.get("error");
+  const nextRoute = localStorage.getItem("nextRoute"); 
 
     if (error) {
       toast.error("Authentication failed. Please try again.");
@@ -24,7 +28,7 @@ export default function AuthCallback() {
 
       // You can optionally fetch user data here using the token
       toast.success("Successfully logged in!");
-      router.push("/");
+      router.push(nextRoute || "/");
     } else {
       toast.error("No authentication token received");
       router.push("/");

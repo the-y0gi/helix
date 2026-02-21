@@ -17,6 +17,10 @@ interface User {
 }
 
 interface AuthStates {
+  loginBoxOpen: boolean;
+  setLoginBoxOpen: (open: boolean) => void;
+  signupBoxOpen: boolean;
+  setSignupBoxOpen: (open: boolean) => void;
   isLoging: boolean;
   isSiging: boolean;
   currUser: User | null;
@@ -45,6 +49,10 @@ interface Login_signup_Data {
 }
 
 export const useAuthStore = create<AuthStates>()((set, get) => ({
+  loginBoxOpen: false,
+  setLoginBoxOpen: (open: boolean) => set({ loginBoxOpen: open }),
+  signupBoxOpen: false,
+  setSignupBoxOpen: (open: boolean) => set({ signupBoxOpen: open }),
   isLoging: false,
   isSiging: false,
   currUser: null,

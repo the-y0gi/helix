@@ -38,38 +38,46 @@ import AuthContextProvider, {
 import ButtonHandler from "./buttonhandler";
 import { OTPForm } from "./otp-form";
 import { Loader } from "@/components/loader";
+import { useAuthStore } from "@/store/auth.store";
 export function Sign_in_hover({
+  forLike,
   tag,
   variant,
 }: {
+  forLike?: {
+    content: React.ReactNode;
+    id: string;
+  }
   tag?: "Log-in" | "Sign-up";
   variant?:
-    | "link"
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost";
+  | "link"
+  | "default"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost";
 }) {
   return (
     <AuthContextProvider>
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant={variant} className="w-full flex justify-start">{tag}</Button>
-      </DialogTrigger>
-      <DialogContent className="md:w-[425px] p-0 rounded-2xl overflow-hidden pb-4 w-[300px]">
-        <VisuallyHidden>
-          <DialogTitle className="sr-only">Login</DialogTitle>
-        </VisuallyHidden>
-        {tag === "Log-in" ? (
-          <SignInForm />
-        ) : (
-          
+      <Dialog>
+        <DialogTrigger asChild>
+          {forLike ? (
+            forLike.content
+          ) : (
+            <Button variant={variant} className="w-full flex justify-start">{tag}</Button>
+          )}
+        </DialogTrigger>
+        <DialogContent className="md:w-[425px] p-0 rounded-2xl overflow-hidden pb-4 w-[300px]">
+          <VisuallyHidden>
+            <DialogTitle className="sr-only">Login</DialogTitle>
+          </VisuallyHidden>
+          {tag === "Sign-up" ? (
             <SignupForm />
-          
-        )}
-      </DialogContent>
-    </Dialog>
+          ) : (
+            <SignInForm />
+          )}
+        </DialogContent>
+      </Dialog>
     </AuthContextProvider>
   );
 }

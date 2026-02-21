@@ -10,27 +10,27 @@ type HotelFramePageProps = {
   offers?: React.ReactNode;
   className?: string;
   popularTrends?: CityTrends[];
-  type:| "cabs" |"adventures" |"tours"|"bikes"| "hotels"
-  
+  type: | "cabs" | "adventures" | "tours" | "bikes" | "hotels"
+
 };
 import img2 from "@/assets/img3.jpg";
 import { ImagesSliderDemo } from "../addimage/middle-ads-image";
-const MainFramePage = ({ className, popularTrends, type }: HotelFramePageProps  ) => {
+const MainFramePage = ({ className, popularTrends, type }: HotelFramePageProps) => {
   return (
-    <div className={cn(className, "flex flex-col gap-y-10")}>
+    <div className={cn(className, "flex flex-col gap-y-5")}>
       {popularTrends?.map((city, i) => (
         <div key={i}>
-        
+
           <PopularDestinationCarousel
-            
+
             name={city.name}
             tagline={city.tagline}
             tabs={city.tabs}
             type={type}
-            
+
           />
           {i === 1 && (
-            <ImagesSliderDemo/>
+            <ImagesSliderDemo />
           )}
         </div>
       ))}

@@ -31,41 +31,41 @@ interface Review {
 
 
 const reviews: Review[] = [
-    // {
-    //     id: "1",
-    //     hotelName: "Via Golden Tulip Hotel",
-    //     image: "/room2.png",
-    //     date: "24 Oct 2024",
-    //     rating: 3.0,
-    //     status: "posted",
-    //     title: "Poor",
-    //     comment:
-    //         "It doesn’t have any daily cleaning or towel changing. It doesn’t have any liquid soap; it was empty.",
-    //     helpfulCount: 2,
-    //     propertyResponse:
-    //         "Thank you for your feedback. Our property is a short-let house, not a hotel...",
-    // },
-    // {
-    //     id: "2",
-    //     hotelName: "Via Forest Whisper Cabin",
-    //     image: "/room1.png",
-    //     date: "24 Jul 2023",
-    //     rating: 3.0,
-    //     status: "rejected",
-    //     title: "Poor",
-    //     comment: "Nothing was good. It was my worst experience.",
-    // },
-    // {
-    //     id: "3",
-    //     hotelName: "Via Golden Tulip Hotel",
-    //     image: "/room3.png",
-    //     date: "24 Jul 2023",
-    //     rating: 7.0,
-    //     status: "pending",
-    //     title: "Good",
-    //     comment: "The location was good. Overall decent stay.",
-    //     helpfulCount: 77,
-    // },
+    {
+        id: "1",
+        hotelName: "Via Golden Tulip Hotel",
+        image: "/room2.png",
+        date: "24 Oct 2024",
+        rating: 3.0,
+        status: "posted",
+        title: "Poor",
+        comment:
+            "It doesn’t have any daily cleaning or towel changing. It doesn’t have any liquid soap; it was empty.",
+        helpfulCount: 2,
+        propertyResponse:
+            "Thank you for your feedback. Our property is a short-let house, not a hotel...",
+    },
+    {
+        id: "2",
+        hotelName: "Via Forest Whisper Cabin",
+        image: "/room1.png",
+        date: "24 Jul 2023",
+        rating: 3.0,
+        status: "rejected",
+        title: "Poor",
+        comment: "Nothing was good. It was my worst experience.",
+    },
+    {
+        id: "3",
+        hotelName: "Via Golden Tulip Hotel",
+        image: "/room3.png",
+        date: "24 Jul 2023",
+        rating: 7.0,
+        status: "pending",
+        title: "Good",
+        comment: "The location was good. Overall decent stay.",
+        helpfulCount: 77,
+    },
 ]
 
 export function ReviewList() {

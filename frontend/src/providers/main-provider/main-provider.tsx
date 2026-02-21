@@ -7,6 +7,8 @@ import {
 import { ThemeProvider } from "./theme-provider";
 import MobileValueProvider from "@/context/mobile-value";
 import { NuqsAdapter } from "nuqs/adapters/react";
+import AuthContextProviderOfLogin from "./AuthContextProvider";
+// import AuthContextProvider from "./AuthContextProvider";
 const MainProvider = ({ children }: { children: React.ReactNode }) => {
   const queryClient = new QueryClient();
 
@@ -16,7 +18,9 @@ const MainProvider = ({ children }: { children: React.ReactNode }) => {
       <QueryClientProviderLib client={queryClient}>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
           <MobileValueProvider>
+            <AuthContextProviderOfLogin>
             {children}
+            </AuthContextProviderOfLogin>
           </MobileValueProvider>
         </ThemeProvider>
       </QueryClientProviderLib>

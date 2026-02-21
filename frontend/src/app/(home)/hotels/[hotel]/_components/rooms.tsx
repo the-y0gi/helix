@@ -322,33 +322,39 @@ import {
 import { HotelRoomCard } from "./room-card";
 import { RoomType } from "@/types";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useHotelContext } from "../_providers_context/hotel-contextProvider";
+import { useHotelStore } from "@/store/hotel.store";
 
 export const RoomsMain = ({
   hotelId,
-  rooms,
+  rooms:f,
   isBookingMode,
   isLoading,
 }: {
-  hotelId: string;
-  rooms: RoomType[];
-  isBookingMode: boolean;
-  isLoading: boolean;
+  hotelId: string
+  rooms: RoomType[]
+  isBookingMode: boolean
+  isLoading: boolean
 }) => {
+  const { rooms } = useHotelContext();
+  const roomTypes = rooms;
   return (
     <div id="rooms" className="w-full space-y-6 scroll-mt-24">
-      <div className="flex flex-col gap-1">
-        <h3 className="text-2xl font-bold text-slate-900">Available Rooms</h3>
-        <p className="text-sm text-slate-500">
+      {/* <div className="flex flex-col gap-1">
+        <h3 className="text-2xl font-bold text-foreground">
+          Available Rooms
+        </h3>
+        <p className="text-sm text-muted-foreground">
           Choose the best room that fits your needs
         </p>
-      </div>
+      </div> */}
 
       {isLoading && isBookingMode ? (
         <div className="flex flex-col gap-4">
           {[1, 2].map((i) => (
             <div
               key={i}
-              className="w-full h-[250px] bg-slate-100 animate-pulse rounded-3xl"
+              className="w-full h-[250px] bg-muted animate-pulse rounded-3xl"
             />
           ))}
         </div>
@@ -360,8 +366,8 @@ export const RoomsMain = ({
         />
       )}
     </div>
-  );
-};
+  )
+}
 
 export function RoomsBedTabs({
   roomTypes,
@@ -372,7 +378,10 @@ export function RoomsBedTabs({
   hotelId: string;
   isBookingMode: boolean;
 }) {
-  if (roomTypes.length === 0) {
+  
+
+
+  if (roomTypes?.length === 0) {
     return (
       <div className="p-10 border-2 border-dashed rounded-3xl text-center">
         <p className="text-slate-500 font-medium">
@@ -381,15 +390,17 @@ export function RoomsBedTabs({
       </div>
     );
   }
+  console.log(roomTypes);
 
   // Generate dynamic tabs based on bed counts
   const bedCounts = Array.from(
     new Set(
-      roomTypes.map((r) =>
+      roomTypes?.map((r) =>
         r.beds.reduce((acc, curr) => acc + curr.quantity, 0),
       ),
     ),
   ).sort((a, b) => a - b);
+
 
   return (
     <Tabs defaultValue="all" className="w-full">
@@ -414,7 +425,7 @@ export function RoomsBedTabs({
 
       {/* Tabs Content */}
       <TabsContent value="all" className="flex flex-col gap-6">
-        {roomTypes.map((room) => renderRoomCard(room, hotelId, isBookingMode))}
+        {roomTypes?.map((room) => renderRoomCard(room, hotelId, isBookingMode))}
       </TabsContent>
 
       {bedCounts.map((count) => (
@@ -424,7 +435,7 @@ export function RoomsBedTabs({
           className="flex flex-col gap-6"
         >
           {roomTypes
-            .filter(
+            ?.filter(
               (r) =>
                 r.beds.reduce((acc, curr) => acc + curr.quantity, 0) === count,
             )
@@ -474,6 +485,8 @@ export function RoomsBedTabs({
 // }
 
 function renderRoomCard(room: any, hotelId: string, isBookingMode: boolean) {
+  const { date } = useHotelStore();
+  const showReserveButton = !!date?.to && !!date?.from;
   const totalBeds = room.beds.reduce(
     (acc: number, curr: any) => acc + curr.quantity,
     0,
@@ -493,12 +506,13 @@ function renderRoomCard(room: any, hotelId: string, isBookingMode: boolean) {
   const discountPercent =
     originalPrice > currentNightlyPrice
       ? Math.round(
-          ((originalPrice - currentNightlyPrice) / originalPrice) * 100,
-        )
+        ((originalPrice - currentNightlyPrice) / originalPrice) * 100,
+      )
       : 0;
 
   return (
     <HotelRoomCard
+    showReserveButton={showReserveButton}
       key={room._id}
       hotelId={hotelId}
       id={room._id}

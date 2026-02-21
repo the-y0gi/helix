@@ -99,9 +99,11 @@
 "use client";
 
 import { IconHeart, IconShare, IconStarFilled } from "@tabler/icons-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { TabsLine } from "./tabs";
 import { Hotel, RoomType } from "@/types";
+import { handleCopy, LikeIcon } from "@/services/dailyfunctions";
+import { Sign_in_hover } from "@/components/auth/_components/sign-in-hover";
 
 type HotelItemsProps = {
   hotel: Hotel;
@@ -116,17 +118,24 @@ const HotelItems = ({
   isBookingMode,
   isAvailabilityLoading,
 }: HotelItemsProps) => {
+  const [hasToken, setHasToken] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accesstoken");
+    setHasToken(!!token);
+  }, []);
+
   return (
     <div className="flex flex-col gap-8 w-full">
-      {/* 1. Header Section: Title, Stars, and Action Icons */}
+      {/* Header */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground leading-tight">
               {hotel.name}
             </h1>
 
-            {/* Star Ratings */}
+            {/* Stars */}
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
                 <IconStarFilled
@@ -134,7 +143,7 @@ const HotelItems = ({
                   className={
                     i < Math.round(hotel.rating)
                       ? "text-yellow-400"
-                      : "text-slate-200"
+                      : "text-muted"
                   }
                   size={18}
                 />
@@ -142,30 +151,30 @@ const HotelItems = ({
             </div>
           </div>
 
-          {/* Action Buttons (Heart & Share) */}
+          {/* Actions */}
           <div className="flex items-center gap-2">
-            <button className="p-2.5 hover:bg-slate-50 rounded-full transition-all group">
-              <IconHeart
-                className="text-slate-400 group-hover:text-red-500 transition-colors"
-                size={24}
-              />
-            </button>
-            <button className="p-2.5 hover:bg-slate-50 rounded-full transition-all group">
+            <LikeIcon _id={hotel._id} />
+
+
+            <button
+              className="p-2.5 hover:bg-muted rounded-full transition-all group"
+              onClick={handleCopy}
+            >
               <IconShare
-                className="text-slate-400 group-hover:text-blue-500 transition-colors"
+                className="text-muted-foreground group-hover:text-primary transition-colors"
                 size={24}
               />
             </button>
           </div>
         </div>
 
-        {/* Location / Subtitle */}
-        <p className="text-sm font-medium text-slate-500 flex items-center gap-1">
+        {/* Location */}
+        <p className="text-sm font-medium text-muted-foreground">
           {hotel.address}, {hotel.city}
         </p>
       </div>
 
-      <div className="w-full border-t pt-2">
+      <div className="w-full border-t border-border pt-2">
         <TabsLine
           hotel={hotel}
           rooms={rooms}

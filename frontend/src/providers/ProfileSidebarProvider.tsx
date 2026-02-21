@@ -14,6 +14,7 @@ import {
 import { useQueryState } from "nuqs";
 import { Tabs, TabsTrigger } from "@/components/ui/tabscn";
 import TripsAccordion from "@/app/(personal)/profile/_components/trips_acordion";
+import { useCurrentUser } from "@/services/querys";
 
 type NavLink = {
   name: string;
@@ -42,11 +43,11 @@ export const trips = [
   { name: "Cancelled", value: "cancelled" },
 ];
 
-const sidebarData: SidebarContextValue = {
+let sidebarData: SidebarContextValue = {
   user: {
-    name: "ramkumar",
-    email: "ramkumar@gmail.com",
-    avatar: "/girl.png",
+    name: "user",
+    email: "user@gmail.com",
+    avatar: "/user.png",
   },
   navMain: [
     {
@@ -132,6 +133,7 @@ export const ProfileSidebarProvider = ({
   children: React.ReactNode;
   className?: string;
 }) => {
+  
   const [tab, setTab] = useQueryState("tab", {
     defaultValue: sidebarData.navMain[0].value,
     shallow: true,

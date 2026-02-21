@@ -359,6 +359,7 @@ import {
 import { CounterWithoutQuery } from "@/components/side-bar-filter/counter";
 import { PaymentProps } from "@/schema/payment.schema";
 import { UseFormReturn } from "react-hook-form";
+import { useHotelContext } from "../_providers_context/hotel-contextProvider";
 
 type TabKey =
   | "overview"
@@ -381,7 +382,7 @@ export function TabsLine({
   const content: Record<TabKey, React.ReactNode> = {
     overview: <LayoutGridDemo images={hotel.images} />,
     description: <Decription hotel={hotel} />,
-    location: <MapLocation address={hotel.address} map="/map.png" />,
+    location: <MapLocation address={hotel.address} cordinates={hotel.location.coordinates} map="/map.png" />,
     amenities: <AmenitiesValues amenities={hotel.amenities} />,
     reviews: <ReviewsMain hotel={hotel} />,
     rooms: (
@@ -472,6 +473,7 @@ function BookingCard({ rooms, isBookingMode, isLoading }: any) {
   const { date, guests } = useHotelStore();
   const [showCalendar, setShowCalendar] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { FetchRoomTypes } = useHotelContext();
 
   // NaN Fix: Validating prices
   const validPrices = rooms
@@ -508,81 +510,81 @@ function BookingCard({ rooms, isBookingMode, isLoading }: any) {
   }, [showCalendar]);
 
   return (
-    <Card className="border shadow-2xl rounded-[32px] bg-white overflow-visible relative">
+    <Card className="border border-border shadow-xl rounded-[32px] bg-background/50 text-foreground overflow-visible relative">
       <CardContent className="p-6 space-y-6">
+
         {/* Date Selection Box */}
         <div
           ref={containerRef}
-          className="relative rounded-2xl border border-slate-200 divide-x flex overflow-visible bg-white z-50"
+          className="relative rounded-2xl border border-border divide-x divide-border flex overflow-visible bg-background z-50"
         >
           {/* Check-in Box */}
           <div
-            className="flex-1 p-4 hover:bg-slate-50 cursor-pointer transition rounded-l-2xl"
+            className="flex-1 p-4 hover:bg-muted cursor-pointer transition rounded-l-2xl"
             onClick={handleToggleCalendar}
           >
-            <span className="text-[10px] uppercase font-black text-slate-400 block mb-1">
+            <span className="text-[10px] uppercase font-black text-muted-foreground block mb-1">
               Check-in
             </span>
-            <p className="text-sm font-bold text-slate-800">
+            <p className="text-sm font-bold text-foreground">
               {date?.from ? format(date.from, "dd/MM/yyyy") : "Add date"}
             </p>
           </div>
 
           {/* Check-out Box */}
           <div
-            className="flex-1 p-4 hover:bg-slate-50 cursor-pointer transition rounded-r-2xl"
+            className="flex-1 p-4 hover:bg-muted cursor-pointer transition rounded-r-2xl"
             onClick={handleToggleCalendar}
           >
-            <span className="text-[10px] uppercase font-black text-slate-400 block mb-1">
+            <span className="text-[10px] uppercase font-black text-muted-foreground block mb-1">
               Check-out
             </span>
-            <p className="text-sm font-bold text-slate-800">
+            <p className="text-sm font-bold text-foreground">
               {date?.to ? format(date.to, "dd/MM/yyyy") : "Add date"}
             </p>
           </div>
 
-          {/* Calendar Dropdown - High Z-Index & Absolute Positioning */}
           {showCalendar && (
             <div
-              className="absolute top-full left-0 right-0 mt-3 z-[1000] bg-white border shadow-2xl rounded-2xl p-2 min-w-[320px]"
-              style={{ filter: "drop-shadow(0 25px 25px rgb(0 0 0 / 0.15))" }}
-              onClick={(e) => e.stopPropagation()} // Calendar ke andar click se band na ho
+              className="absolute top-full left-0 right-0 mt-3 z-[1000] bg-background border border-border shadow-2xl rounded-2xl p-2 min-w-[320px]"
+              onClick={(e) => e.stopPropagation()}
             >
               <HotelCalender />
             </div>
           )}
         </div>
 
-        {/* Rooms & Guests Accordion */}
-        <div className="rounded-2xl border border-slate-200 p-1">
+        {/* Rooms & Guests */}
+        <div className="rounded-2xl border border-border p-1 bg-background">
           <VisitorsMembers showCalendar={showCalendar} />
         </div>
 
-        {/* Pricing Display */}
+        {/* Pricing */}
         <div className="py-2">
-          <p className="text-xs text-slate-400 font-bold uppercase mb-1">
+          <p className="text-xs text-muted-foreground font-bold uppercase mb-1">
             Prices
           </p>
           {isLoading ? (
-            <div className="animate-pulse h-8 w-32 bg-slate-100 rounded" />
+            <div className="animate-pulse h-8 w-32 bg-muted rounded" />
           ) : (
-            <p className="text-2xl font-black text-slate-900">
+            <p className="text-2xl font-black text-foreground">
               {minPrice > 0 ? `₹${minPrice} to ₹${maxPrice}` : "Select dates"}
             </p>
           )}
         </div>
 
         <Button
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold h-14 rounded-2xl text-lg shadow-lg shadow-orange-100 transition-all active:scale-[0.98]"
-          onClick={() => {
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-14 rounded-2xl text-lg shadow-lg transition-all active:scale-[0.98]"
+          onClick={async () => {
             const el = document.getElementById("rooms");
             if (el) el.scrollIntoView({ behavior: "smooth" });
+            await FetchRoomTypes();
           }}
         >
           Show Rooms
         </Button>
 
-        <p className="text-[11px] text-center text-slate-400 font-medium italic">
+        <p className="text-[11px] text-center text-muted-foreground font-medium italic">
           Best price guaranteed • No hidden fees
         </p>
       </CardContent>
@@ -601,7 +603,7 @@ export function VisitorsMembers({
     <Accordion
       type="single"
       collapsible
-      className="max-w-lg"
+      className="max-w-lg px-5"
       style={{ display: showCalendar ? "none" : "block" }}
     >
       <AccordionItem value="rooms and guests">

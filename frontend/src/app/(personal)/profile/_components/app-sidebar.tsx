@@ -8,9 +8,14 @@ import { IconLogout, IconSettings } from "@tabler/icons-react";
 import { AlertOverlay } from "@/components/ui/alert-dialouge";
 import { TabsTrigger } from "@/components/ui/tabscn";
 import TripsAccordion from "./trips_acordion";
+import { useLogout } from "@/services/dailyfunctions";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCurrentUser } from "@/services/querys";
 
 export function ProfileSidebar({ className }: { className?: string }) {
   const { navMain, user } = useProfileSidebar();
+  const { data: currUser, isLoading, isError, refetch } = useCurrentUser();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -23,14 +28,14 @@ export function ProfileSidebar({ className }: { className?: string }) {
     >
       <div className="flex items-center gap-3 px-2 py-3">
         <Image
-          src={user.avatar}
-          alt={user.name}
+          src={ currUser?.data?.avatar || user.avatar}
+          alt={currUser?.data?.name || user.name}
           width={40}
           height={40}
           className="rounded-full object-cover"
         />
         <div>
-          <p className="text-sm font-medium">{user.name}</p>
+          <p className="text-sm font-medium">{currUser?.data?.firstName}</p>
           <p className="text-xs text-muted-foreground">Customer Operations</p>
         </div>
       </div>
@@ -77,15 +82,23 @@ export function ProfileSidebar({ className }: { className?: string }) {
   );
 }
 
-const Logout = () => {
-  const handelLogout = () => {
-    console.log("logout");
+export const Logout = () => {
+  const queryClient = useQueryClient();
+
+
+  const navigate = useRouter();
+  const handleLogout = () => {
+
+    localStorage.removeItem("accessToken");
+
+    queryClient.removeQueries({ queryKey: ["current_user"] });
+    navigate.push("/");
   };
   return (
     <AlertOverlay
       trigger="Log out"
       variant="ghost"
-      handelSumbit={handelLogout}
+      handelSumbit={handleLogout}
       title="Logout"
       description="Are you sure to log-out"
       continueTitle="log-out"

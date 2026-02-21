@@ -7,7 +7,7 @@ import { BookingDetailsCard, BookingForm, PaymentForm, StepsView } from "./_comp
 
 type Props = {};
 
-const page = async ({ className, params }: { className?: string, params: Promise<{ slug: string }> }) => {
+const page = async ({ className, params }: { className?: string, params: Promise<{ slug: string[] }> }) => {
   const { slug } = await params
   console.log(slug);
   // const [hotel, setHotel] = React.useState<Hotel | null>(null);

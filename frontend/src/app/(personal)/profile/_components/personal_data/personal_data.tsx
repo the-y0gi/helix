@@ -320,7 +320,7 @@ const ProfileAvatar = ({ className, currUser, refetch }: { className?: string; c
       setUploading(false);
     }
   };
-  console.log(currUser);
+  // console.log(currUser);
 
   return (
     <div className={cn("flex items-center gap-3 px-2 py-3 w-full ", className)}>

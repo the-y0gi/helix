@@ -22,6 +22,11 @@ export interface RoomType {
     adults: number;
     children: number;
   };
+  beds: {
+    quantity: number;
+    type: string;
+    _id: string;
+  }[];
   bedType: string;
   roomSizeSqm: number;
   viewType: string;

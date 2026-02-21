@@ -30,6 +30,7 @@ export function BookingCalender({ className, setDateRange, dateRange, methods }:
                     disabled={(date) =>
                         date > new Date() || date < new Date("1900-01-01")
                     }
+                    className="border-none shadow-none"
                 />
             </CardContent>
         </Card>

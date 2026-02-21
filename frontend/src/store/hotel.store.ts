@@ -156,6 +156,7 @@ type HotelStoreProps = {
   city: string;
   date?: DateRange;
   guests: Guests;
+  wrap: boolean;
 
   selectedRoom: SelectedRoom;
 
@@ -165,6 +166,7 @@ type HotelStoreProps = {
   setCity: (city: string) => void;
   setDate: (date?: DateRange) => void;
   setGuests: (guests: Guests) => void;
+  setWrap: (wrap: boolean) => void;
 
   setSelectedRoom: (room: SelectedRoom) => void;
   clearSelectedRoom: () => void;
@@ -172,8 +174,7 @@ type HotelStoreProps = {
 
 export const useHotelStore = create<HotelStoreProps>((set, get) => ({
   city: "Goa",
-
-  date: undefined,
+  wrap: false,
 
   guests: {
     adults: 1,
@@ -182,17 +183,17 @@ export const useHotelStore = create<HotelStoreProps>((set, get) => ({
 
   selectedRoom: null,
 
-  get isBookingMode() {
-    const { date } = get();
-    return !!date?.from && !!date?.to;
-  },
+  date: undefined,
+  isBookingMode: false,
 
+  setWrap: (wrap) => set({ wrap }),
   setCity: (city) => set({ city }),
 
   setDate: (date) =>
     set((state) => ({
       date,
-      selectedRoom: null, // reset selected room when date changes
+      isBookingMode: !!date?.from && !!date?.to,
+      selectedRoom: null,
     })),
 
   setGuests: (guests) =>

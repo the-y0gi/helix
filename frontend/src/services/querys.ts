@@ -4,20 +4,34 @@ import {
   getHotels,
   getHotelDetails,
   getHotelAvailability,
-  getTrips,
 } from "./hotel.service";
-export const useTripsQuery = () => {
+import { getBookingById, getMyBookings } from "./booking.service";
+export const useBookingByIdQuery = ({ id }: { id: string }) => {
   return useQuery({
-    queryKey: ["trips"],
-    queryFn: () => getTrips(),
-    staleTime: 2000,
+    queryKey: ["booking_by_id", id],
+    queryFn: () => getBookingById(id),
+    staleTime: 10000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,
     retry: false, // optional
   });
 };
+export const useMyBookingsQuery = () => {
+  return useQuery({
+    queryKey: ["my_bookings"],
+    queryFn: () => getMyBookings(),
+    staleTime: 200000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: true,
+    retry: false, // optional
+  });
+};
+
 export const useCurrentUser = () => {
+  const token =
+    typeof window !== "undefined" && localStorage.getItem("accessToken");
   return useQuery({
     queryKey: ["current_user"],
     queryFn: currentUser,
@@ -25,6 +39,7 @@ export const useCurrentUser = () => {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,
+    enabled: !!token,
     retry: false, // optional
   });
 };
@@ -71,11 +86,11 @@ export const useHotelAvailabilityQuery = ({
   return useQuery({
     queryKey: [
       "hotel_availability",
-      hotelId,
-      checkIn?.toISOString(),
-      checkOut?.toISOString(),
-      adults,
-      children,
+      // hotelId,
+      // checkIn?.toISOString(),
+      // checkOut?.toISOString(),
+      // adults,
+      // children,
     ],
     queryFn: () =>
       getHotelAvailability(
@@ -86,6 +101,6 @@ export const useHotelAvailabilityQuery = ({
         children,
       ),
     enabled: !!hotelId && isBookingMode,
-    staleTime: 2000,
+    staleTime: Infinity,
   });
 };

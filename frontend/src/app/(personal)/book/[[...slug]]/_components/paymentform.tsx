@@ -5,10 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, Copy } from "lucide-react";
+import { useState } from "react";
 import { Mail, Phone, PlusIcon } from "lucide-react";
 import { usePaymentsContext } from "@/context/payments-form-provider";
 import { cn } from "@/lib/utils";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import BookingCard, {
   VisitorsMembers,
 } from "@/app/(home)/hotels/[hotel]/_components/tabs";
@@ -34,9 +37,13 @@ import { useForm, useFormContext, UseFormReturn } from "react-hook-form";
 type Props = {};
 
 export const BookingForm = ({ slug }: { slug: string[] }) => {
+  const { setCurrentStep, currentstep } = usePaymentsContext();
   const [loading, setLoading] = React.useState<boolean>(false);
   const navigate = useRouter();
   const { date, guests } = useHotelStore();
+  console.log("lalaal",date, guests);
+  const total = guests?.adults + guests?.children;
+  
   const methods = useForm<PaymentProps>({
     resolver: zodResolver(PaymentSchema),
     defaultValues: {
@@ -48,7 +55,12 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
         adults: guests?.adults || 0,
         children: guests?.children || 0,
       },
-      guestInformation: [],
+      guestInformation:  Array(total).fill({
+      firstname: "",
+      lastname: "",
+      email: "",
+      phone: "",
+    }),
       specialRequest: "",
       rooms: [],
     },
@@ -84,8 +96,10 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
       };
 
       const result = await createBooking(bookingData);
+      console.log("mohit rajput", result);
 
-      if (result.success) {
+
+      if (result?.success) {
         const { razorpayOrder, booking } = result.data;
 
         const options = {
@@ -105,7 +119,11 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
 
               if (verifyResult.success) {
                 toast.success("Payment successful! Booking confirmed.");
-                navigate.push("/personal/bookings"); // change is route a success page
+                console.log("verifyResult", verifyResult);
+
+                setCurrentStep((val) => val + 1);
+
+                // navigate.push("/personal/bookings"); // change is route a success page
               } else {
                 toast.error("Payment verification failed.");
               }
@@ -127,7 +145,9 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
       } else {
-        toast.error(result.message || "Failed to create booking.");
+        toast.error(
+          result?.message ||
+          "Failed to create booking.");
       }
     } catch (error: any) {
       console.error("Booking Error:", error);
@@ -145,11 +165,11 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
         <div className="flex flex-col lg:flex-row lg:gap-8 xl:gap-12">
           <PaymentForm methods={methods} />
 
-          <aside className="hidden  lg:block lg:w-[320px] xl:w-[360px] flex-shrink-0 pt-6 lg:pt-10">
+         {currentstep === 2 && <aside className="  lg:block lg:w-[320px] xl:w-[360px] flex-shrink-0 pt-6 lg:pt-10">
             <div className="sticky top-24 lg:top-28 z-10">
               <BookingDetailsCard hotelid={slug[0]} roomTypeId={slug[1]} />
             </div>
-          </aside>
+          </aside>}
         </div>
       </form>
     </Form>
@@ -184,13 +204,183 @@ export const PaymentForm = ({
 };
 export const FinalStep = () => {
   return (
-    <div>
+    <div className="w-full flex items-center justify-center">
       <ScrollToTop />
-      final
+      <PaymentSuccess
+  payment={{
+    razorpay_payment_id: "pay_N8x123abc456",
+    razorpay_order_id: "order_N8x123abc456",
+    razorpay_signature: "signature_example_123",
+    amount: 150000,
+    currency: "INR",
+    status: "Captured",
+    email: "mohit@email.com",
+    contact: "9876543210",
+    createdAt: new Date().toISOString(),
+  }}
+/>
     </div>
   );
 };
 
+
+
+interface Payment {
+  razorpay_payment_id: string
+  razorpay_order_id: string
+  razorpay_signature: string
+  amount: number
+  currency: string
+  status: string
+  email: string
+  contact: string
+  createdAt: string
+}
+
+interface PaymentSuccessProps {
+  payment: Payment
+}
+
+export default function PaymentSuccess({ payment }: PaymentSuccessProps) {
+  const formatAmount = (amount: number) => {
+    return (amount / 100).toLocaleString("en-IN", {
+      style: "currency",
+      currency: payment.currency || "INR",
+      minimumFractionDigits: 2,
+    })
+  }
+
+  const formatDate = (iso: string) => {
+    return new Date(iso).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    // you can add toast here
+  }
+  const navigate = useRouter()
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 md:p-6">
+      <div
+        className={cn(
+          "w-full max-w-6xl",
+          "bg-card text-card-foreground",
+          "border border-border rounded-xl shadow-xl",
+          "flex flex-col overflow-hidden",
+        )}
+        style={{ height: "600px" }}
+      >
+        {/* Header */}
+        <div className="bg-primary/10 border-b border-border px-6 py-7 md:px-10 md:py-8 shrink-0">
+          <div className="flex items-center justify-center gap-4">
+            <CheckCircle2 className="h-12 w-12 md:h-14 md:w-14 text-primary" />
+            <div className="text-center md:text-left">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+                Payment Successful
+              </h1>
+              <p className="mt-1.5 text-muted-foreground">
+                Thank you! Your payment has been processed.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 space-y-8 bg-background">
+          {/* Amount highlight */}
+          <Card className="bg-primary/5 border-primary/20 text-center">
+            <CardContent className="pt-8 pb-9">
+              <p className="text-muted-foreground text-lg mb-2">Amount Paid</p>
+              <p className="text-4xl md:text-5xl font-bold text-primary tracking-tight">
+                {formatAmount(payment.amount)}
+              </p>
+              <p className="mt-3 text-sm font-medium uppercase tracking-wider text-primary/80">
+                {payment.status}
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Details grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6 bg-background">
+            <InfoItem label="Payment ID" value={payment.razorpay_payment_id} copyable />
+            <InfoItem label="Order ID" value={payment.razorpay_order_id} copyable />
+            <InfoItem label="Signature" value={payment.razorpay_signature} copyable long />
+            <InfoItem label="Date & Time" value={formatDate(payment.createdAt)} />
+            <InfoItem label="Email" value={payment.email} />
+            <InfoItem label="Contact" value={payment.contact} />
+          </div>
+
+          <div className="text-center text-sm text-muted-foreground pt-4">
+            A receipt has been sent to <span className="font-medium">{payment.email}</span>
+          </div>
+        </div>
+
+        {/* Footer actions */}
+        <div className="border-t border-border bg-muted/40 px-6 py-6 md:px-10 md:py-7 flex flex-col sm:flex-row items-center justify-center gap-4 shrink-0">
+          <Button className="min-w-[180px]" size="lg">
+            Download Receipt
+          </Button>
+          <Button variant="outline" className="min-w-[180px]" size="lg" onClick={()=>navigate.push("/hotels")}>
+            Back to home
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+type InfoItemProps = {
+  label: string
+  value: string
+  copyable?: boolean
+  long?: boolean
+}
+
+function InfoItem({ label, value, copyable, long }: InfoItemProps) {
+  return (
+    <div className="bg-muted/40 rounded-lg border border-border p-4 hover:border-border/80 transition-colors">
+      <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1.5">
+        {label}
+      </dt>
+      <dd
+        className={cn(
+          "text-sm md:text-base break-all font-mono",
+          long && "line-clamp-2",
+        )}
+        title={value}
+      >
+        {value}
+      </dd>
+
+      {copyable && (
+        <button
+          onClick={() => navigator.clipboard.writeText(value)}
+          className="mt-2.5 text-xs text-primary hover:text-primary/80 flex items-center gap-1.5 transition-colors"
+          title="Copy to clipboard"
+        >
+          <Copy className="h-3.5 w-3.5" />
+          Copy
+        </button>
+      )}
+    </div>
+  )
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between items-center border rounded-md px-4 py-2 bg-background">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium break-all">{value}</span>
+    </div>
+  );
+}
 export const BookingDetailsCard = ({
   hotelid,
   roomTypeId,
@@ -389,6 +579,10 @@ function GuestInfoCard({ methods }: { methods: UseFormReturn<PaymentProps> }) {
     control,
     name: "guestInformation",
   });
+  const { date, guests } = useHotelStore();
+  
+  
+
 
   return (
     <Card className="shadow-sm bg-background">
@@ -401,7 +595,7 @@ function GuestInfoCard({ methods }: { methods: UseFormReturn<PaymentProps> }) {
 
       <CardContent className="space-y-6">
         <div className="flex justify-end">
-          <Button
+          {/* <Button
             type="button"
             onClick={() =>
               append({
@@ -413,7 +607,7 @@ function GuestInfoCard({ methods }: { methods: UseFormReturn<PaymentProps> }) {
             }
           >
             <PlusIcon className="mr-2 h-4 w-4" /> Add Guest
-          </Button>
+          </Button> */}
         </div>
         {fields.map((field, index) => (
           <div className="space-y-4 border p-4 rounded-lg" key={field.id}>
@@ -421,12 +615,12 @@ function GuestInfoCard({ methods }: { methods: UseFormReturn<PaymentProps> }) {
               <p className="font-medium text-sm">
                 {index === 0 ? "Primary Guest" : `Guest ${index + 1}`}
               </p>
-              {index !== 0 && (
+              {/* {index !== 0 && (
                 <IconTrash
                   onClick={() => remove(index)}
                   className="h-4 w-4 cursor-pointer text-destructive"
                 />
-              )}
+              )} */}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -595,7 +789,7 @@ export const HighLightBar = () => {
 
   return (
     <div className="flex w-full justify-center items-center">
-      {currentStep > 2 && (
+      {/* {currentStep > 2 && (
         <div
           className=" bg-muted rounded-md p-2 absolute left-20 cursor-pointer"
           onClick={() => {
@@ -604,7 +798,7 @@ export const HighLightBar = () => {
         >
           <p> {"<"} back</p>
         </div>
-      )}
+      )} */}
       {[1, 2, 3].map((step) => (
         <div key={step} className="flex items-center">
           <div
@@ -631,3 +825,4 @@ export const HighLightBar = () => {
     </div>
   );
 };
+
