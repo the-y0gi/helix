@@ -32,7 +32,7 @@ const hotelValidationSchema = z.object({
 
     amenities: z.array(z.string()).optional(),
 
-    distanceFromCenter: z.string().optional(),
+    distanceFromCenter: z.number().optional(),
   }),
 });
 

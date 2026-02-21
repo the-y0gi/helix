@@ -269,7 +269,7 @@ exports.getBookingDetail = async (bookingId, userId) => {
         address: booking.hotelId.address,
         coordinates: booking.hotelId.location?.coordinates,
         thumbnail: booking.hotelId.images?.[0]?.url || null,
-        description: booking.hotelId.description,
+        address: booking.hotelId.address,
       },
 
       room: {

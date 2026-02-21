@@ -41,6 +41,96 @@ exports.createHotel = async (hotelData) => {
 };
 
 // Get all hotels Supports filters, city, featured, rating
+// exports.getAllHotels = async (query = {}, userId = null) => {
+//   try {
+//     const {
+//       city,
+//       minRating,
+//       minPrice,
+//       maxPrice,
+//       amenities,
+//       minSize,
+//       maxSize,
+//       adults,
+//       children,
+//       lat,
+//       lng,
+//       maxDistance,
+//       page = 1,
+//       limit = 10,
+//     } = query;
+
+//     const skip = (page - 1) * limit;
+
+//     //RoomType Filters
+//     const roomTypeFilter = { isActive: true };
+
+//     if (minPrice || maxPrice) {
+//       roomTypeFilter.basePrice = {};
+//       if (minPrice) roomTypeFilter.basePrice.$gte = Number(minPrice);
+//       if (maxPrice) roomTypeFilter.basePrice.$lte = Number(maxPrice);
+//     }
+
+//     if (minSize || maxSize) {
+//       roomTypeFilter.roomSizeSqm = {};
+//       if (minSize) roomTypeFilter.roomSizeSqm.$gte = Number(minSize);
+//       if (maxSize) roomTypeFilter.roomSizeSqm.$lte = Number(maxSize);
+//     }
+
+//     if (adults) {
+//       roomTypeFilter["capacity.adults"] = { $gte: Number(adults) };
+//     }
+
+//     if (children) {
+//       roomTypeFilter["capacity.children"] = { $gte: Number(children) };
+//     }
+
+//     if (amenities) {
+//       roomTypeFilter.amenities = { $all: amenities.split(",") };
+//     }
+
+//     const matchingRoomTypes =
+//       await RoomType.find(roomTypeFilter).select("hotelId");
+
+//     const hotelIds = matchingRoomTypes.map((rt) => rt.hotelId);
+
+//     // Hotel Filters
+//     const hotelFilter = {
+//       _id: { $in: hotelIds },
+//       isActive: true,
+//     };
+
+//     if (city) hotelFilter.city = city;
+//     if (minRating) hotelFilter.rating = { $gte: Number(minRating) };
+
+//     // Geo Filter
+//     if (lat && lng) {
+//       hotelFilter.location = {
+//         $near: {
+//           $geometry: {
+//             type: "Point",
+//             coordinates: [Number(lng), Number(lat)],
+//           },
+//           $maxDistance: maxDistance ? Number(maxDistance) * 1000 : 100000,
+//         },
+//       };
+//     }
+
+//     const hotels = await Hotel.find(hotelFilter)
+//       .populate("vendorId", "businessName")
+//       .sort({ isFeatured: -1, rating: -1 })
+//       .skip(skip)
+//       .limit(Number(limit))
+//       .lean();
+
+//     //add favorite flag to hotels
+//     return await attachFavoriteFlag(hotels, userId);
+
+//     // return hotels;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 exports.getAllHotels = async (query = {}, userId = null) => {
   try {
     const {
@@ -60,23 +150,14 @@ exports.getAllHotels = async (query = {}, userId = null) => {
       limit = 10,
     } = query;
 
-    const skip = (page - 1) * limit;
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
 
-    //RoomType Filters
+    //roomType filter
     const roomTypeFilter = { isActive: true };
 
-    if (minPrice || maxPrice) {
-      roomTypeFilter.basePrice = {};
-      if (minPrice) roomTypeFilter.basePrice.$gte = Number(minPrice);
-      if (maxPrice) roomTypeFilter.basePrice.$lte = Number(maxPrice);
-    }
-
-    if (minSize || maxSize) {
-      roomTypeFilter.roomSizeSqm = {};
-      if (minSize) roomTypeFilter.roomSizeSqm.$gte = Number(minSize);
-      if (maxSize) roomTypeFilter.roomSizeSqm.$lte = Number(maxSize);
-    }
-
+    //Capacity
     if (adults) {
       roomTypeFilter["capacity.adults"] = { $gte: Number(adults) };
     }
@@ -85,16 +166,48 @@ exports.getAllHotels = async (query = {}, userId = null) => {
       roomTypeFilter["capacity.children"] = { $gte: Number(children) };
     }
 
-    if (amenities) {
-      roomTypeFilter.amenities = { $all: amenities.split(",") };
+    // room-size
+    if (minSize || maxSize) {
+      roomTypeFilter.roomSizeSqm = {};
+      if (minSize) roomTypeFilter.roomSizeSqm.$gte = Number(minSize);
+      if (maxSize) roomTypeFilter.roomSizeSqm.$lte = Number(maxSize);
     }
 
-    const matchingRoomTypes =
-      await RoomType.find(roomTypeFilter).select("hotelId");
+    //Effective Price Filter
+    if (minPrice || maxPrice) {
+      const priceCondition = [];
 
-    const hotelIds = matchingRoomTypes.map((rt) => rt.hotelId);
+      const min = minPrice ? Number(minPrice) : 0;
+      const max = maxPrice ? Number(maxPrice) : Infinity;
 
-    // Hotel Filters
+      //Discounted rooms
+      priceCondition.push({
+        discountPrice: { $gt: 0, $gte: min, $lte: max },
+      });
+
+      //Non-discount rooms
+      priceCondition.push({
+        discountPrice: 0,
+        basePrice: { $gte: min, $lte: max },
+      });
+
+      roomTypeFilter.$or = priceCondition;
+    }
+
+    //Amenities on roomType
+    if (amenities) {
+      const amenityArray = amenities.split(",");
+      roomTypeFilter.amenities = { $all: amenityArray };
+    }
+
+    //Get distinct hotelIds efficiently
+    const hotelIds = await RoomType.distinct("hotelId", roomTypeFilter);
+
+    if (hotelIds.length === 0) {
+      return [];
+    }
+
+    //hotel filter
     const hotelFilter = {
       _id: { $in: hotelIds },
       isActive: true,
@@ -102,6 +215,12 @@ exports.getAllHotels = async (query = {}, userId = null) => {
 
     if (city) hotelFilter.city = city;
     if (minRating) hotelFilter.rating = { $gte: Number(minRating) };
+
+    //Amenities on Hotel level
+    if (amenities) {
+      const amenityArray = amenities.split(",");
+      hotelFilter.amenities = { $all: amenityArray };
+    }
 
     // Geo Filter
     if (lat && lng) {
@@ -120,13 +239,10 @@ exports.getAllHotels = async (query = {}, userId = null) => {
       .populate("vendorId", "businessName")
       .sort({ isFeatured: -1, rating: -1 })
       .skip(skip)
-      .limit(Number(limit))
+      .limit(limitNum)
       .lean();
 
-    //add favorite flag to hotels
     return await attachFavoriteFlag(hotels, userId);
-
-    // return hotels;
   } catch (error) {
     throw error;
   }
@@ -323,6 +439,46 @@ exports.findNearbyHotels = async (lng, lat, maxDistance = 5000) => {
     logger.error("Service Error: findNearbyHotels", error);
     throw error;
   }
+};
+
+exports.getSuggestions = async (query) => {
+  if (!query || query.trim().length < 2) {
+    return [];
+  }
+
+  const results = await Hotel.find(
+    {
+      $text: { $search: query },
+      isActive: true,
+    },
+    {
+      score: { $meta: "textScore" },
+      name: 1,
+      city: 1,
+    }
+  )
+    .sort({ score: { $meta: "textScore" } })
+    .limit(8)
+    .lean();
+
+  // Unique city suggestions
+  const uniqueCities = [
+    ...new Set(results.map((hotel) => hotel.city)),
+  ].slice(0, 3);
+
+  const citySuggestions = uniqueCities.map((city) => ({
+    type: "city",
+    value: city,
+  }));
+
+  const hotelSuggestions = results.map((hotel) => ({
+    type: "hotel",
+    id: hotel._id,
+    name: hotel.name,
+    city: hotel.city,
+  }));
+
+  return [...citySuggestions, ...hotelSuggestions];
 };
 
 exports.searchHotels = async (query = {}, userId = null) => {

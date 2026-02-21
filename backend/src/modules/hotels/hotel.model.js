@@ -73,8 +73,10 @@ const hotelSchema = new mongoose.Schema(
       },
     },
 
-    distanceFromCenter: String,
-
+    distanceFromCenter: {
+      type: Number,
+      default: 0,
+    },
     rating: {
       type: Number,
       default: 0,
@@ -97,5 +99,20 @@ const hotelSchema = new mongoose.Schema(
 );
 
 hotelSchema.index({ location: "2dsphere" });
+
+hotelSchema.index(
+  {
+    name: "text",
+    city: "text",
+    description: "text",
+  },
+  {
+    weights: {
+      name: 5,
+      city: 3,
+      description: 1,
+    },
+  },
+);
 
 module.exports = mongoose.model("Hotel", hotelSchema);
