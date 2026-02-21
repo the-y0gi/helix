@@ -41,3 +41,30 @@ exports.protect = async (req, res, next) => {
     return res.status(401).json({ success: false, message });
   }
 };
+
+exports.optionalProtect = async (req, res, next) => {
+  try {
+    let token;
+
+    if (req.headers.authorization?.startsWith("Bearer")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (!token) {
+      return next(); //guest user, allow access
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+
+    const currentUser = await User.findById(decoded.id);
+
+    if (currentUser) {
+      req.user = currentUser;
+    }
+
+    next();
+  } catch (error) {
+    //If token invalid, treat as guest
+    next();
+  }
+};
