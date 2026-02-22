@@ -1,18 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
-export default function AuthCallback() {
+function AuthCallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // console.log("this is next route",nextRoute);
-  
+
   useEffect(() => {
     const token = searchParams.get("token");
     const error = searchParams.get("error");
-  const nextRoute = localStorage.getItem("nextRoute"); 
+    const nextRoute = localStorage.getItem("nextRoute");
 
     if (error) {
       toast.error("Authentication failed. Please try again.");
@@ -41,5 +40,21 @@ export default function AuthCallback() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function AuthCallback() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold mb-2">Loading...</h2>
+          </div>
+        </div>
+      }
+    >
+      <AuthCallbackHandler />
+    </Suspense>
   );
 }

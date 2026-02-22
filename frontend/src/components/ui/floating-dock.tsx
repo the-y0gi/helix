@@ -10,7 +10,7 @@ import {
 } from "motion/react";
 
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 export const FloatingDock = ({
   items,
@@ -36,7 +36,7 @@ const FloatingDockMobile = ({
   items: { title: string; icon: React.ReactNode; href: string }[];
   className?: string;
 }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   return (
     <div className={cn("relative block md:hidden", className)}>
@@ -64,7 +64,7 @@ const FloatingDockMobile = ({
                 transition={{ delay: (items.length - 1 - idx) * 0.05 }}
               >
                 <a
-                  onClick={()=>navigate(item.href)}
+                  onClick={() => router.push(item.href)}
                   key={item.title}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 dark:bg-neutral-900"
                 >
@@ -93,7 +93,7 @@ const FloatingDockDesktop = ({
   className?: string;
 }) => {
   let mouseX = useMotionValue(Infinity);
-   const navigate = useNavigate();
+  const router = useRouter();
   return (
     <motion.div
       onMouseMove={(e) => mouseX.set(e.pageX)}
@@ -104,14 +104,14 @@ const FloatingDockDesktop = ({
       )}
     >
       {items.map((item, i) => (
-       <div key={i} onClick={()=>navigate(item.href)} className="flex gap-3 rounded-r-3xl items-center">
-        
-
-        <IconContainer mouseX={mouseX} key={item.title} {...item} />
-        <span className="hidden lg:inline">{item.title}</span>
-
-        
-       </div>
+        <div
+          key={i}
+          onClick={() => router.push(item.href)}
+          className="flex gap-3 rounded-r-3xl items-center"
+        >
+          <IconContainer mouseX={mouseX} key={item.title} {...item} />
+          <span className="hidden lg:inline">{item.title}</span>
+        </div>
       ))}
     </motion.div>
   );
@@ -169,39 +169,33 @@ function IconContainer({
   });
 
   const [hovered, setHovered] = useState(false);
- const navigate = useNavigate();
+  const router = useRouter();
   return (
-    
+    <motion.div
+      ref={ref}
+      style={{ width, height }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="flex aspect-square items-center justify-center rounded-full bg-gray-200 dark:bg-neutral-800"
+    >
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: 2, x: "-50%" }}
+            className="absolute -top-8 left-1/2 w-fit rounded-md border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs whitespace-pre text-neutral-700 dark:border-neutral-900 dark:bg-neutral-800 dark:text-white"
+          >
+            {title}
+          </motion.div>
+        )}
+      </AnimatePresence>
       <motion.div
-        ref={ref}
-        style={{ width, height }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        className="flex aspect-square items-center justify-center rounded-full bg-gray-200 dark:bg-neutral-800"
+        style={{ width: widthIcon, height: heightIcon }}
+        className="flex items-center justify-center"
       >
-        <AnimatePresence>
-          {hovered && (
-            <motion.div
-              initial={{ opacity: 0, y: 10, x: "-50%" }}
-              animate={{ opacity: 1, y: 0, x: "-50%" }}
-              exit={{ opacity: 0, y: 2, x: "-50%" }}
-              className="absolute -top-8 left-1/2 w-fit rounded-md border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs whitespace-pre text-neutral-700 dark:border-neutral-900 dark:bg-neutral-800 dark:text-white"
-            >
-              {title}
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <motion.div
-          style={{ width: widthIcon, height: heightIcon }}
-          className="flex items-center justify-center"
-        >
-          {icon}
-        </motion.div>
-        
-        
-        
+        {icon}
       </motion.div>
-      
-    
+    </motion.div>
   );
 }

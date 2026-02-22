@@ -24,7 +24,13 @@ import {
 } from "@/components/ui/select";
 import { useCurrentUser } from "@/services/hotel/querys";
 
-export function UserProfileFields({ currUser, refetch }: { currUser: any; refetch: () => void }) {
+export function UserProfileFields({
+  currUser,
+  refetch,
+}: {
+  currUser: { data: any };
+  refetch: () => void;
+}) {
   const { updateUser } = useAuthStore();
   // console.log(currUser);
 
@@ -42,7 +48,8 @@ export function UserProfileFields({ currUser, refetch }: { currUser: any; refetc
       firstName: currUser?.data?.firstName || "",
       lastName: currUser?.data?.lastName || "",
       phoneNumber: currUser?.data?.phoneNumber || "",
-      gender: (currUser?.data?.gender as "male" | "female" | "other") || "other",
+      gender:
+        (currUser?.data?.gender as "male" | "female" | "other") || "other",
       country: currUser?.data?.country || "India",
       address: currUser?.data?.address || "",
       zipcCode: (currUser as any)?.zipcCode || "",
@@ -55,7 +62,8 @@ export function UserProfileFields({ currUser, refetch }: { currUser: any; refetc
         firstName: currUser?.data?.firstName || "",
         lastName: currUser?.data?.lastName || "",
         phoneNumber: currUser?.data?.phoneNumber || "",
-        gender: (currUser?.data?.gender as "male" | "female" | "other") || "other",
+        gender:
+          (currUser?.data?.gender as "male" | "female" | "other") || "other",
         country: currUser?.data?.country || "India",
         address: currUser?.data?.address || "",
         zipcCode: (currUser as any)?.data?.zipcCode || "",
@@ -227,7 +235,7 @@ export const UserProfileUpdateForm = ({
   refetch,
 }: {
   className?: string;
-  currUser: any;
+  currUser: { data: any };
   refetch: () => void;
 }) => {
   return (
@@ -244,7 +252,6 @@ export const PersonProfilePersonalData = ({
 }) => {
   const { data: currUser, isLoading, isError, refetch } = useCurrentUser();
 
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -257,10 +264,18 @@ export const PersonProfilePersonalData = ({
     <PersonalData
       className="w-full "
       avatat={
-        <ProfileAvatar className="rounded-xl shadow-sm border border-border" currUser={currUser} refetch={refetch} />
+        <ProfileAvatar
+          className="rounded-xl shadow-sm border border-border"
+          currUser={currUser}
+          refetch={refetch}
+        />
       }
       form={
-        <UserProfileUpdateForm className="rounded-xl shadow-sm p-3  border border-border " currUser={currUser} refetch={refetch} />
+        <UserProfileUpdateForm
+          className="rounded-xl shadow-sm p-3  border border-border "
+          currUser={currUser}
+          refetch={refetch}
+        />
       }
     />
   );
@@ -283,7 +298,15 @@ const PersonalData = ({
   );
 };
 
-const ProfileAvatar = ({ className, currUser, refetch }: { className?: string; currUser: any; refetch: () => void }) => {
+const ProfileAvatar = ({
+  className,
+  currUser,
+  refetch,
+}: {
+  className?: string;
+  currUser: { data: any };
+  refetch: () => void;
+}) => {
   const { uploadFile, updateUser } = useAuthStore();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = React.useState(false);
@@ -357,7 +380,7 @@ const ProfileAvatar = ({ className, currUser, refetch }: { className?: string; c
         <p className="text-xl font-medium">
           {currUser
             ? `${currUser.data.firstName || ""} ${currUser.data.lastName || ""}`.trim() ||
-            currUser.data.email
+              currUser.data.email
             : "Guest User"}
         </p>
         <p className="text-lg text-muted-foreground">

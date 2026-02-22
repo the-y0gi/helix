@@ -2,7 +2,7 @@ export interface Tabs {
   name: string;
   title?: string;
   value?: string;
-  content?: string | React.ReactNode 
+  content?: string | React.ReactNode;
 }
 export interface HotelImage {
   url: string;
@@ -31,11 +31,16 @@ export interface RoomType {
   roomSizeSqm: number;
   viewType: string;
   amenities: string[];
-  images: string[];
+  images: (string | { url: string })[];
   totalRooms: number;
   isActive: boolean;
   availableRooms: number;
   finalPrice: number;
+  displayPrice?: number;
+  totalPrice?: number;
+  nights?: number;
+  rating?: number;
+  numReviews?: number;
 }
 
 export interface Hotel {
@@ -59,7 +64,7 @@ export interface Hotel {
   roomTypes: RoomType[];
   createdAt?: string;
   updatedAt?: string;
-  isFavorite:boolean
+  isFavorite: boolean;
 }
 
 export interface CityTrends {

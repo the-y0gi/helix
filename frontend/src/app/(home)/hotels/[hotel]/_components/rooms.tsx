@@ -326,14 +326,14 @@ import { useHotelStore } from "@/store/hotel.store";
 
 export const RoomsMain = ({
   hotelId,
-  rooms:f,
+  rooms: f,
   isBookingMode,
   isLoading,
 }: {
-  hotelId: string
-  rooms: RoomType[]
-  isBookingMode: boolean
-  isLoading: boolean
+  hotelId: string;
+  rooms: RoomType[];
+  isBookingMode: boolean;
+  isLoading: boolean;
 }) => {
   const { rooms } = useHotelContext();
   // const roomTypes = rooms;
@@ -365,8 +365,8 @@ export const RoomsMain = ({
         />
       )}
     </div>
-  )
-}
+  );
+};
 
 export function RoomsBedTabs({
   roomTypes,
@@ -377,9 +377,6 @@ export function RoomsBedTabs({
   hotelId: string;
   isBookingMode: boolean;
 }) {
-  
-
-
   if (roomTypes?.length === 0) {
     return (
       <div className="p-10 border-2 border-dashed rounded-3xl text-center">
@@ -399,7 +396,6 @@ export function RoomsBedTabs({
       ),
     ),
   ).sort((a, b) => a - b);
-
 
   return (
     <Tabs defaultValue="all" className="w-full">
@@ -483,15 +479,19 @@ export function RoomsBedTabs({
 //   );
 // }
 
-export const renderRoomCard = (room: any, hotelId: string, isBookingMode: boolean) => {
-  const { date:d } = useHotelStore();
+export const renderRoomCard = (
+  room: RoomType,
+  hotelId: string,
+  isBookingMode: boolean,
+) => {
+  const { date: d } = useHotelStore();
   const showReserveButton = !!d?.to && !!d?.from;
   const totalBeds = room.beds.reduce(
-    (acc: number, curr: any) => acc + curr.quantity,
+    (acc: number, curr: { quantity: number }) => acc + curr.quantity,
     0,
   );
   const bedDescription = room.beds
-    .map((b: any) => `${b.quantity} ${b.type}`)
+    .map((b: { quantity: number; type: string }) => `${b.quantity} ${b.type}`)
     .join(", ");
 
   const currentNightlyPrice =
@@ -505,18 +505,22 @@ export const renderRoomCard = (room: any, hotelId: string, isBookingMode: boolea
   const discountPercent =
     originalPrice > currentNightlyPrice
       ? Math.round(
-        ((originalPrice - currentNightlyPrice) / originalPrice) * 100,
-      )
+          ((originalPrice - currentNightlyPrice) / originalPrice) * 100,
+        )
       : 0;
 
   return (
     <HotelRoomCard
-    showReserveButton={showReserveButton}
+      showReserveButton={showReserveButton}
       key={room._id}
       hotelId={hotelId}
       id={room._id}
       title={room.name}
-      imageUrl={room.images?.[0]?.url || "/img1.png"}
+      imageUrl={
+        typeof room.images?.[0] === "string"
+          ? room.images[0]
+          : room.images?.[0]?.url || "/img1.png"
+      }
       originalPrice={originalPrice}
       discountedPrice={currentNightlyPrice}
       totalPrice={room.totalPrice}
@@ -539,4 +543,4 @@ export const renderRoomCard = (room: any, hotelId: string, isBookingMode: boolea
       isBookingMode={isBookingMode}
     />
   );
-}
+};
