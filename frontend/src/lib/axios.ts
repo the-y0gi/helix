@@ -52,7 +52,8 @@ import axios from "axios";
 import { API_BASE_URL } from "@/config/env";
 
 export const axiosApi = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1`,
+
+  baseURL: `${ process.env.NEXT_PUBLIC_API_URL}/api/v1`,
 });
 
 axiosApi.interceptors.request.use((config) => {

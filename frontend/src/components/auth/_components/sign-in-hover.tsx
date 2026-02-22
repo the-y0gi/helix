@@ -194,7 +194,7 @@ export function SignupForm({
                         type="button"
                         key={i}
                         onClick={() => {
-                          window.location.href = `http://localhost:5000/api/v1${item.url}`;
+                          window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/v1${item.url}`;
                         }}
                       >
                         {item.icon}
@@ -294,7 +294,7 @@ export function SignInForm({
                   type="button"
                   key={i}
                   onClick={() => {
-                    window.location.href = `http://localhost:5000/api/v1${item.url}`;
+                    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/v1${item.url}`;
                   }}
                 >
                   {item.icon}
