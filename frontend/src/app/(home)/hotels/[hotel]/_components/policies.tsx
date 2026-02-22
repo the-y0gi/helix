@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
+import { useGetHotelPolicies } from "@/services/hotel/querys"
 import {
     DoorOpen,
     DoorClosed,
@@ -8,9 +9,19 @@ import {
     Moon,
     Cigarette,
     PawPrint,
+    Loader,
 } from "lucide-react"
 
-export function HotelPolicies() {
+export function HotelPolicies({id}: {id: string}) {
+    const {data,isLoading,isError} = useGetHotelPolicies(id)
+    if(isLoading){
+        return <Loader/>
+    }
+    if(isError){
+        return <div>Something went wrong</div>
+    }
+    console.log(data);
+    
     return (
         <div className="space-y-6">
             <div className="space-y-1.5">

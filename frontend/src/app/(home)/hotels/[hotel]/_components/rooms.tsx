@@ -321,7 +321,6 @@ import {
 } from "@/components/ui/tabscn";
 import { HotelRoomCard } from "./room-card";
 import { RoomType } from "@/types";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useHotelContext } from "../_providers_context/hotel-contextProvider";
 import { useHotelStore } from "@/store/hotel.store";
 
@@ -337,7 +336,7 @@ export const RoomsMain = ({
   isLoading: boolean
 }) => {
   const { rooms } = useHotelContext();
-  const roomTypes = rooms;
+  // const roomTypes = rooms;
   return (
     <div id="rooms" className="w-full space-y-6 scroll-mt-24">
       {/* <div className="flex flex-col gap-1">
@@ -484,9 +483,9 @@ export function RoomsBedTabs({
 //   );
 // }
 
-function renderRoomCard(room: any, hotelId: string, isBookingMode: boolean) {
-  const { date } = useHotelStore();
-  const showReserveButton = !!date?.to && !!date?.from;
+export const renderRoomCard = (room: any, hotelId: string, isBookingMode: boolean) => {
+  const { date:d } = useHotelStore();
+  const showReserveButton = !!d?.to && !!d?.from;
   const totalBeds = room.beds.reduce(
     (acc: number, curr: any) => acc + curr.quantity,
     0,

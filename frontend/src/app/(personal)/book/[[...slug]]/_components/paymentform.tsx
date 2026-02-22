@@ -5,23 +5,24 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Copy } from "lucide-react";
-import { useState } from "react";
-import { Mail, Phone, PlusIcon } from "lucide-react";
+import { useRef } from "react";
 import { usePaymentsContext } from "@/context/payments-form-provider";
 import { cn } from "@/lib/utils";
-import React, { useEffect, useMemo } from "react";
-import BookingCard, {
-  VisitorsMembers,
-} from "@/app/(home)/hotels/[hotel]/_components/tabs";
-import { IconTrash } from "@tabler/icons-react";
-import { Hotel } from "@/types";
+import React from "react";
+import { VisitorsMembers } from "@/app/(home)/hotels/[hotel]/_components/tabs";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PaymentProps, PaymentSchema } from "@/schema/payment.schema";
+import { Payment, useHotelStore } from "@/store/hotel.store";
+import { Field } from "@/components/ui/field";
 
 import { ScrollToTop } from "../../../../../../scrolltoto";
 // import { useHotelQuery } from "@/services/querys";
 import { PhoneInput } from "./phoneinput";
-import { createBooking, verifyPayment } from "@/services/booking.service";
+import {
+  createBooking,
+  verifyPayment,
+} from "@/services/booking/booking.service";
 import { toast } from "sonner";
 import {
   Form,
@@ -33,17 +34,37 @@ import {
 } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { useForm, useFormContext, UseFormReturn } from "react-hook-form";
-
-type Props = {};
-
+export interface GuestInfo {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+}
+export type BookingData = {
+  hotelId: string;
+  roomTypeId: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  roomsBooked: number;
+  primaryGuest: GuestInfo;
+  additionalGuests: GuestInfo[];
+  specialRequest?: string | null;
+};
 export const BookingForm = ({ slug }: { slug: string[] }) => {
+  const { setPayments } = useHotelStore();
   const { setCurrentStep, currentstep } = usePaymentsContext();
+
+
   const [loading, setLoading] = React.useState<boolean>(false);
+
+
+
   const navigate = useRouter();
   const { date, guests } = useHotelStore();
-  console.log("lalaal",date, guests);
+  console.log("lalaal", date, guests);
   const total = guests?.adults + guests?.children;
-  
+
   const methods = useForm<PaymentProps>({
     resolver: zodResolver(PaymentSchema),
     defaultValues: {
@@ -55,12 +76,12 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
         adults: guests?.adults || 0,
         children: guests?.children || 0,
       },
-      guestInformation:  Array(total).fill({
-      firstname: "",
-      lastname: "",
-      email: "",
-      phone: "",
-    }),
+      guestInformation: Array(total).fill({
+        firstname: "",
+        lastname: "",
+        email: "",
+        phone: "",
+      }),
       specialRequest: "",
       rooms: [],
     },
@@ -98,10 +119,23 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
       const result = await createBooking(bookingData);
       console.log("mohit rajput", result);
 
-
       if (result?.success) {
         const { razorpayOrder, booking } = result.data;
-
+        setPayments({
+          razorpay_order_id: razorpayOrder.id,
+          razorpay_payment_id: razorpayOrder.id,
+          razorpay_signature: razorpayOrder.receipt,
+          amount: razorpayOrder.amount,
+          currency: razorpayOrder.currency,
+          status: razorpayOrder.status,
+          firstname: booking.primaryGuest.firstName,
+          contact: booking.primaryGuest.phoneNumber,
+          lastname: booking.primaryGuest.lastName,
+          email: booking.primaryGuest.email,
+          phone: booking.primaryGuest.phoneNumber,
+          createdAt: booking.createdAt,
+        });
+setCurrentStep((val) => val + 1);
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
           amount: razorpayOrder.amount,
@@ -121,7 +155,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
                 toast.success("Payment successful! Booking confirmed.");
                 console.log("verifyResult", verifyResult);
 
-                setCurrentStep((val) => val + 1);
+               
 
                 // navigate.push("/personal/bookings"); // change is route a success page
               } else {
@@ -143,11 +177,10 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
         };
 
         const rzp = new (window as any).Razorpay(options);
-        rzp.open();
+        rzp.open()
+         
       } else {
-        toast.error(
-          result?.message ||
-          "Failed to create booking.");
+        toast.error(result?.message || "Failed to create booking.");
       }
     } catch (error: any) {
       console.error("Booking Error:", error);
@@ -162,20 +195,26 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
     <Form {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)}>
         <StepsView />
-        <div className="flex flex-col lg:flex-row lg:gap-8 xl:gap-12">
+        {!loading ?<div className="flex flex-col lg:flex-row lg:gap-8 xl:gap-12">
           <PaymentForm methods={methods} />
 
-         {currentstep === 2 && <aside className="  lg:block lg:w-[320px] xl:w-[360px] flex-shrink-0 pt-6 lg:pt-10">
-            <div className="sticky top-24 lg:top-28 z-10">
-              <BookingDetailsCard hotelid={slug[0]} roomTypeId={slug[1]} />
-            </div>
-          </aside>}
-        </div>
+          {currentstep === 2 && (
+            <aside className="  lg:block lg:w-[320px] xl:w-[360px] flex-shrink-0 pt-6 lg:pt-10">
+              <div className="sticky top-24 lg:top-28 z-10">
+                <BookingDetailsCard hotelid={slug[0]} roomTypeId={slug[1]} loading={loading}/>
+              </div>
+            </aside>
+          )}
+        </div>:(
+          <div className="w-full flex justify-center py-20">
+            <Spinner/>
+          </div>
+        )}
       </form>
     </Form>
   );
 };
-export const StepsView = (props: Props) => {
+export const StepsView = () => {
   // const { currentstep, setCurrentStep } = usePaymentsContext()
 
   return (
@@ -190,12 +229,12 @@ export const PaymentForm = ({
 }: {
   methods: UseFormReturn<PaymentProps>;
 }) => {
-  const { currentstep, setCurrentStep } = usePaymentsContext();
+  const { currentstep } = usePaymentsContext();
   switch (currentstep) {
     case 2:
       return <BookingDetails methods={methods} />;
 
-      break;
+      
 
     default:
       break;
@@ -203,52 +242,46 @@ export const PaymentForm = ({
   return <FinalStep />;
 };
 export const FinalStep = () => {
+  const { payments } = useHotelStore();
   return (
     <div className="w-full flex items-center justify-center">
       <ScrollToTop />
       <PaymentSuccess
-  payment={{
-    razorpay_payment_id: "pay_N8x123abc456",
-    razorpay_order_id: "order_N8x123abc456",
-    razorpay_signature: "signature_example_123",
-    amount: 150000,
-    currency: "INR",
-    status: "Captured",
-    email: "mohit@email.com",
-    contact: "9876543210",
-    createdAt: new Date().toISOString(),
-  }}
-/>
+        payment={{
+          razorpay_payment_id: payments.razorpay_payment_id,
+          razorpay_order_id: payments.razorpay_order_id,
+          razorpay_signature: payments.razorpay_signature,
+          amount: payments.amount,
+          currency: payments.currency,
+          status: payments.status,
+          email: payments.email,
+          contact: payments.contact,
+          createdAt: payments.createdAt,
+          firstname: payments.firstname,
+          lastname: payments.lastname,
+          phone: payments.phone,
+        }}
+      />
     </div>
   );
 };
 
-
-
-interface Payment {
-  razorpay_payment_id: string
-  razorpay_order_id: string
-  razorpay_signature: string
-  amount: number
-  currency: string
-  status: string
-  email: string
-  contact: string
-  createdAt: string
-}
-
 interface PaymentSuccessProps {
-  payment: Payment
+  payment: Payment;
 }
+import html2pdf from "html2pdf.js";
 
 export default function PaymentSuccess({ payment }: PaymentSuccessProps) {
+  const receiptRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
   const formatAmount = (amount: number) => {
     return (amount / 100).toLocaleString("en-IN", {
       style: "currency",
       currency: payment.currency || "INR",
       minimumFractionDigits: 2,
-    })
-  }
+    });
+  };
 
   const formatDate = (iso: string) => {
     return new Date(iso).toLocaleString("en-IN", {
@@ -258,14 +291,33 @@ export default function PaymentSuccess({ payment }: PaymentSuccessProps) {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
-    })
-  }
+    });
+  };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    // you can add toast here
-  }
-  const navigate = useRouter()
+  const handleDownload = async () => {
+    if (!receiptRef.current) {
+      console.warn("Receipt ref not found");
+      return;
+    }
+
+    try {
+      const opt = {
+        margin: 0.5,
+        type: "blob",
+        filename: "receipt.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: true }, // ← turn logging on temporarily
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+      } as const;
+
+      await html2pdf().set(opt).from(receiptRef.current).save();
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      alert(
+        "Could not generate PDF – please try again or screenshot the receipt.",
+      );
+    }
+  };
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 md:p-6">
       <div
@@ -293,7 +345,10 @@ export default function PaymentSuccess({ payment }: PaymentSuccessProps) {
         </div>
 
         {/* Main content */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 space-y-8 bg-background">
+        <div
+          className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 space-y-8 bg-background"
+          ref={receiptRef}
+        >
           {/* Amount highlight */}
           <Card className="bg-primary/5 border-primary/20 text-center">
             <CardContent className="pt-8 pb-9">
@@ -309,39 +364,73 @@ export default function PaymentSuccess({ payment }: PaymentSuccessProps) {
 
           {/* Details grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6 bg-background">
-            <InfoItem label="Payment ID" value={payment.razorpay_payment_id} copyable />
-            <InfoItem label="Order ID" value={payment.razorpay_order_id} copyable />
-            <InfoItem label="Signature" value={payment.razorpay_signature} copyable long />
-            <InfoItem label="Date & Time" value={formatDate(payment.createdAt)} />
+            <InfoItem
+              label="Payment ID"
+              value={payment.razorpay_payment_id}
+              copyable
+            />
+            <InfoItem
+              label="Order ID"
+              value={payment.razorpay_order_id}
+              copyable
+            />
+            <InfoItem
+              label="Signature"
+              value={payment.razorpay_signature}
+              copyable
+              long
+            />
+            <InfoItem
+              label="Date & Time"
+              value={formatDate(payment.createdAt)}
+            />
             <InfoItem label="Email" value={payment.email} />
-            <InfoItem label="Contact" value={payment.contact} />
+            <InfoItem label="Phone" value={payment.phone} />
           </div>
 
           <div className="text-center text-sm text-muted-foreground pt-4">
-            A receipt has been sent to <span className="font-medium">{payment.email}</span>
+            A receipt has been sent to{" "}
+            <span className="font-medium">{payment.email}</span>
           </div>
         </div>
 
         {/* Footer actions */}
         <div className="border-t border-border bg-muted/40 px-6 py-6 md:px-10 md:py-7 flex flex-col sm:flex-row items-center justify-center gap-4 shrink-0">
-          <Button className="min-w-[180px]" size="lg">
+          <Button
+            className="min-w-[180px]"
+            size="lg"
+            // onClick={handleDownload}
+          >
             Download Receipt
           </Button>
-          <Button variant="outline" className="min-w-[180px]" size="lg" onClick={()=>navigate.push("/hotels")}>
+          <Button
+            variant="outline"
+            className="min-w-[180px]"
+            size="lg"
+            onClick={(e) => {
+              e.stopPropagation();
+
+              router.push("/");
+
+              // setPayments(null as unknown as Payment);
+              console.log("payment cleared");
+              
+            }}
+          >
             Back to home
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 type InfoItemProps = {
-  label: string
-  value: string
-  copyable?: boolean
-  long?: boolean
-}
+  label: string;
+  value: string;
+  copyable?: boolean;
+  long?: boolean;
+};
 
 function InfoItem({ label, value, copyable, long }: InfoItemProps) {
   return (
@@ -370,21 +459,22 @@ function InfoItem({ label, value, copyable, long }: InfoItemProps) {
         </button>
       )}
     </div>
-  )
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between items-center border rounded-md px-4 py-2 bg-background">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium break-all">{value}</span>
-    </div>
   );
 }
+
+// function InfoRow({ label, value }: { label: string; value: string }) {
+//   return (
+//     <div className="flex justify-between items-center border rounded-md px-4 py-2 bg-background">
+//       <span className="text-muted-foreground">{label}</span>
+//       <span className="font-medium break-all">{value}</span>
+//     </div>
+//   );
+// }
 export const BookingDetailsCard = ({
-  hotelid,
-  roomTypeId,
+
+  loading
 }: {
+  loading?: boolean;
   hotelid: string;
   roomTypeId: string;
 }) => {
@@ -399,13 +489,14 @@ export const BookingDetailsCard = ({
   const nights = selectedRoom?.nights || 0;
   const pricePerNight = selectedRoom?.pricePerNight || 0;
   const totalPrice = selectedRoom?.totalPrice || 0;
-
+    const navigate = useRouter();
   if (!selectedRoom) {
     return (
       <Card className="p-4">
         <p className="text-sm text-destructive">
           Selected room not found. Please go back.
         </p>
+        <Button onClick={() => navigate.back()}>Back</Button>
       </Card>
     );
   }
@@ -454,7 +545,7 @@ export const BookingDetailsCard = ({
 
       <Button
         type="submit"
-        disabled={nights <= 0}
+        disabled={nights <= 0 || loading}
         className="w-full font-semibold"
       >
         {nights <= 0 ? "Select valid dates" : "Proceed to Pay"}
@@ -463,10 +554,7 @@ export const BookingDetailsCard = ({
   );
 };
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { PaymentProps, PaymentSchema } from "@/schema/payment.schema";
-import { useHotelStore } from "@/store/hotel.store";
-import { Field, FieldGroup } from "@/components/ui/field";
+
 
 export function BookingDetails({
   methods,
@@ -490,7 +578,7 @@ export function BookingDetails({
   );
 }
 
-import { differenceInDays, format } from "date-fns";
+import { format } from "date-fns";
 function TripSummaryCard({
   methods,
 }: {
@@ -534,20 +622,16 @@ function TripSummaryCard({
 }
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
+
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 
 export function DialougeEditDates({
   methods,
   trigger,
-  content,
 }: {
   methods: UseFormReturn<PaymentProps>;
   trigger: string;
@@ -575,14 +659,11 @@ export function DialougeEditDates({
 function GuestInfoCard({ methods }: { methods: UseFormReturn<PaymentProps> }) {
   const { control } = methods;
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields} = useFieldArray({
     control,
     name: "guestInformation",
   });
   const { date, guests } = useHotelStore();
-  
-  
-
 
   return (
     <Card className="shadow-sm bg-background">
@@ -732,6 +813,8 @@ function SpecialRequestCard({
 }
 import { useFieldArray } from "react-hook-form";
 import { HotelCalender } from "@/app/(home)/hotels/[hotel]/_components/calander-booking";
+import { type } from "os";
+import { Spinner } from "@/components/spinner";
 
 function AddOnsCard() {
   return (
@@ -785,7 +868,7 @@ function CancellationPolicyCard() {
 }
 
 export const HighLightBar = () => {
-  const { currentstep: currentStep, setCurrentStep } = usePaymentsContext();
+  const { currentstep: currentStep } = usePaymentsContext();
 
   return (
     <div className="flex w-full justify-center items-center">
@@ -825,4 +908,3 @@ export const HighLightBar = () => {
     </div>
   );
 };
-

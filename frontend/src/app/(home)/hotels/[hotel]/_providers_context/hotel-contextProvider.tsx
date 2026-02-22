@@ -1,4 +1,4 @@
-import { useHotelAvailabilityQuery, useHotelDetailsQuery } from '@/services/querys';
+import { useHotelAvailabilityQuery, useHotelDetailsQuery } from '@/services/hotel/querys';
 import { useHotelStore } from '@/store/hotel.store';
 import { Hotel, RoomType } from '@/types';
 import React from 'react'
@@ -16,7 +16,7 @@ const HotelContext = React.createContext<{
 } | null>(null);
 const HotelContextProvider = ({ hotelId, children }: Props) => {
     const { date, guests, isBookingMode } = useHotelStore();
-    const { data: hotelDetailsData, isLoading: detailsLoading } =
+    const { data: hotelDetailsData } =
         useHotelDetailsQuery(hotelId);
 
     const { data: availabilityResponse, isLoading: availabilityLoading, refetch: refetchAvailability } =

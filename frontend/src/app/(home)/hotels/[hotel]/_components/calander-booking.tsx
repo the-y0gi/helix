@@ -17,7 +17,7 @@ export function BookingCalender({ className, setDateRange, dateRange, methods }:
             <CardContent className="p-0">
                 <Calendar
                     mode="range"
-                    defaultMonth={dateRange?.from}
+                    // defaultMonth={dateRange?.from}
                     selected={dateRange}
                     onSelect={(dateRange) => {
                         setDateRange(dateRange)
@@ -27,9 +27,9 @@ export function BookingCalender({ className, setDateRange, dateRange, methods }:
                         })
                     }}
                     numberOfMonths={2}
-                    disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                    }
+                    // disabled={(date) =>
+                    //     date > new Date() || date < new Date("1900-01-01")
+                    // }
                     className="border-none shadow-none"
                 />
             </CardContent>

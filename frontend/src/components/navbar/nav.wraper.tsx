@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
-import { useCurrentUser } from "@/services/querys";
 import LOGO from "./logo";
 const MenuBar = dynamic(
   () => import("../menubar").then((mod) => ({ default: mod.MenuBar })),

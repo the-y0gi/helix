@@ -639,7 +639,8 @@ import { useHotelStore } from "@/store/hotel.store";
 import { cn } from "@/lib/utils";
 import { useRoutingStore } from "@/store/routing.store";
 import { Sign_in_hover } from "@/components/auth/_components/sign-in-hover";
-import { useAuthContext } from "@/providers/main-provider/AuthContextProvider";
+import { toast } from "sonner";
+import { useSliderIfNotChooseDate } from "../_providers_context/SliderIfNotChooseDate";
 export interface RoomCardProps {
   hotelId: string;
   showReserveButton?:boolean,
@@ -809,7 +810,6 @@ export interface RoomCardProps {
 // }
 
 export function HotelRoomCard({
-  showReserveButton,
   hotelId,
   id,
   title,
@@ -829,13 +829,14 @@ export function HotelRoomCard({
   isBookingMode,
 }: RoomCardProps) {
   const router = useRouter();
-  const { setSelectedRoom  } = useHotelStore();
+  const { setSelectedRoom , date } = useHotelStore();
+  const {handleClick} = useSliderIfNotChooseDate()
+  const bothdate = !!date?.to && !!date?.from;
 
   const handleReserve = () => {
     
-    // setNextRoute(`/book/${hotelId}/${id}`)
      const route = `/book/${hotelId}/${id}`;
-    //  console.log("mohit" , route);
+    
     localStorage.setItem("nextRoute", route);
     if (isBookingMode && roomsLeft === 0) return;
     setSelectedRoom({
@@ -851,7 +852,13 @@ export function HotelRoomCard({
     
   };
    const handleReserve_with_Alrady_Login = () => {
-    console.log("mohit");
+
+    if(!bothdate){
+      handleClick()
+     toast.message("Please select date first")
+     return 
+    }
+    
     
     const route = `/book/${hotelId}/${id}`;
     localStorage.setItem("nextRoute", route);
@@ -1009,7 +1016,7 @@ const token = localStorage.getItem("accessToken")
             )}
           </div>
 
-          {showReserveButton && (
+          
             <div className="w-full mt-5 md:mt-6">
               {!token ? (
                 // your Sign_in_hover wrapper
@@ -1053,7 +1060,7 @@ const token = localStorage.getItem("accessToken")
                 Free cancellation available
               </p>
             </div>
-          )}
+          
         </div>
       </div>
     </Card>

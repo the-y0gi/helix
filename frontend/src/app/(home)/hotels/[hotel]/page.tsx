@@ -143,7 +143,7 @@ import { useHotelStore } from "@/store/hotel.store";
 import {
   useHotelDetailsQuery,
   useHotelAvailabilityQuery,
-} from "@/services/querys";
+} from "@/services/hotel/querys";
 import HotelContextProvider from "./_providers_context/hotel-contextProvider";
 
 const HotelDetails = ({ className }: { className?: string }) => {
@@ -172,7 +172,7 @@ const HotelDetails = ({ className }: { className?: string }) => {
   console.log(availabilityResponse?.roomTypes);
 
 
-  const isLoading = detailsLoading || (isBookingMode && availabilityLoading);
+  // const isLoading = detailsLoading || (isBookingMode && availabilityLoading);
 
   // if (isLoading) {
   //   return (

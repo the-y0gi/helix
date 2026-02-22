@@ -13,6 +13,9 @@ type Props = {
 };
 
 const ReviewsMain = ({ hotel }: Props) => {
+    const { data: reviews } = useGetHotelReviews(hotel._id)
+    console.log(reviews);
+    
     return (
         <Card className="w-full bg-transparent border-none shadow-none">
             <CardHeader className="space-y-2">
@@ -38,6 +41,7 @@ const ReviewsMain = ({ hotel }: Props) => {
     );
 };
 import { useState } from "react";
+import { useGetHotelReviews } from "@/services/hotel/querys";
 
 const ReviewsComments = () => {
     const comments = [

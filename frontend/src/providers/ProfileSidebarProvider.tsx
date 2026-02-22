@@ -14,7 +14,7 @@ import {
 import { useQueryState } from "nuqs";
 import { Tabs, TabsTrigger } from "@/components/ui/tabscn";
 import TripsAccordion from "@/app/(personal)/profile/_components/trips_acordion";
-import { useCurrentUser } from "@/services/querys";
+import { cn } from "@/lib/utils";
 
 type NavLink = {
   name: string;
@@ -144,7 +144,7 @@ export const ProfileSidebarProvider = ({
         <Tabs
           value={tab}
           onValueChange={(tab) => setTab(tab)}
-          className="flex w-full  flex-row items-start justify-between gap-4"
+          className={cn("flex w-full  flex-row items-start justify-between gap-4", className)}
           orientation="vertical"
         >
           {children}

@@ -3,13 +3,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { useBookingByIdQuery, useMyBookingsQuery } from "@/services/querys"
+import { useMyBookingsQuery } from "@/services/hotel/querys"
 
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import ReservationDetailsPage from "./details-trips"
 
-import Image from "next/image"
+import EmptyBookings from "./notrips"
 type ReservationStatus = "confirmed" | "pending" | "cancelled" | "completed" | "active" | "all"
 
 export interface ReservationCardProps {
@@ -30,8 +30,14 @@ export interface ReservationCardProps {
 
 export function AllReservations({ variant }: { variant: "cancelled" | "all" | "completed" | "active" }) {
   const { data: tripsdata_unfiltered, isLoading } = useMyBookingsQuery();
+  // const {data:myTripdata_ME} = useGetMyTripME()
+  console.log(tripsdata_unfiltered);
+  
   const trips = tripsdata_unfiltered?.data ?? [];
-  console.log("hahaha", trips);
+  
+  // console.log("myTripdata_ME", myTripdata_ME);
+  // console.log("myTripdata_useGetMyTrips", myTripdata_useGetMyTrips);
+  // console.log("myTripdata_useGetFavouriteSummary", myTripdata_useGetFavouriteSummary);
 
   const tripsdata =
     variant === "all"
@@ -50,6 +56,9 @@ export function AllReservations({ variant }: { variant: "cancelled" | "all" | "c
   if (!tripsdata) return <p>no bookings</p>
 
   if (details.open) return <ReservationDetailsPage setDetails={setDetails} id={details.id} />
+
+
+  if(tripsdata.length === 0) return <EmptyBookings variant={variant}/>
   return (
     <div className="rounded-xl shadow-sm  p-8 space-y-6  max-h-screen overflow-y-scroll">
       <div>

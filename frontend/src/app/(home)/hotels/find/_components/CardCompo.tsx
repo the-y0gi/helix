@@ -2,14 +2,12 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Heart, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IconStarFilled } from "@tabler/icons-react";
 import React from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { LikeIcon } from "@/services/dailyfunctions";
+import { MapPin } from "lucide-react";
 
 type HotelCardProps = {
   hotelId: string;
@@ -100,7 +98,7 @@ export function HotelCard({
             )
           }
         </Button> */}
-        <LikeIcon _id={hotelId} className="absolute right-3 top-3 h-8 w-8 rounded-full bg-white/50 flex items-center justify-center" />
+        <LikeIcon _id={hotelId} isFavourite={false} name="card" className="absolute right-3 top-3 h-8 w-8 rounded-full bg-white/50 flex items-center justify-center" />
 
         <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1">
           <span className="h-1.5 w-1.5 rounded-full bg-white" />

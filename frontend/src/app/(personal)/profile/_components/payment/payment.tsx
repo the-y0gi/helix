@@ -6,15 +6,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
 import { AlertOverlay } from "@/components/ui/alert-dialouge";
 
 export default function PaymentPage() {
@@ -86,7 +79,8 @@ function SettingRow({
     </div>
   );
 }
-const DeleteProfile = () => {
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+export const DeleteProfile = () => {
   const handelDeleteProfile = () => {
     console.log("delete profile");
   };

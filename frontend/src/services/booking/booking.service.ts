@@ -1,11 +1,21 @@
+import { BookingData } from "@/app/(personal)/book/[[...slug]]/_components/paymentform";
 import { axiosApi } from "@/lib/axios";
-const token = localStorage.getItem("accessToken");
+
+
+
+export const cancelBooking = (id:string) => {
+  try {
+    
+    const response = axiosApi.patch(`/bookings/${id}/cancel`);
+    return response;
+  } catch (error) {
+    console.log(error, "from cancelBooking  error");
+  }
+}
 export const createBooking = async (data: any) => {
   try {
-    console.log(data);
 
     const response = await axiosApi.post("/bookings", data);
-    console.log(response, "from createBooking ");
 
     return response.data;
   } catch (error) {
@@ -33,8 +43,6 @@ export const getMyBookings = async () => {
 
 export const getBookingById = async (id: string) => {
   try {
-    console.log(id);
-
     const response = await axiosApi.get(`/bookings/${id}`);
     return response.data;
   } catch (error) {

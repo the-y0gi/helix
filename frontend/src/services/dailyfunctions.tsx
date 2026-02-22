@@ -6,8 +6,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export const LikeIcon = ({ _id, className }: { _id: string; className?: string }) => {
-  const [liked, setLiked] = useState(false);
+export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; className?: string , isFavourite:boolean , name:string }) => {
+  const [liked, setLiked] = useState(isFavourite);
   const hasToken =
     typeof window !== "undefined" && localStorage.getItem("accessToken");
 
@@ -15,7 +15,7 @@ export const LikeIcon = ({ _id, className }: { _id: string; className?: string }
     mutationFn: toggleLike,
     onSuccess: (data) => {
       setLiked(data.liked);
-      toast.success(data.liked ? "Liked" : "Disliked");
+      toast.success(data.liked ? "Liked " +name : "Disliked " + name);
     },
     onError: () => {
       toast.error("Action failed!");
@@ -64,6 +64,7 @@ export const LikeIcon = ({ _id, className }: { _id: string; className?: string }
   );
 };
 import { useQueryClient } from "@tanstack/react-query";
+import { dotoggleLike } from "./hotel/hotel.service";
 // export const 
 export const useLogout = () => {
   try {
@@ -97,6 +98,7 @@ export const toggleLike = async ({
 }) => {
   const token = localStorage.getItem("accessToken");
   if (!token) throw new Error("Unauthorized");
+  await dotoggleLike(id)
 
   if (liked) {
     // 👉 call dislike API

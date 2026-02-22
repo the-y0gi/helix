@@ -2,10 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuthStore } from "@/store/auth.store";
 import { toast } from "sonner";
-import { useRoutingStore } from "@/store/routing.store";
-import { useAuthContext } from "@/providers/main-provider/AuthContextProvider";
 
 export default function AuthCallback() {
   const router = useRouter();

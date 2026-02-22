@@ -29,7 +29,7 @@ const MapLeaf = ({ className, height = '400px', cordinates }: Props) => {
         center={cordinates || [19.0760, 72.8777]} 
         zoom={11}
         scrollWheelZoom={true}
-        className="h-full w-full rounded-lg shadow-sm"
+        className="h-full w-full rounded-lg shadow-sm "
       >
         <TileLayer
           attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

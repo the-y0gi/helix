@@ -1,5 +1,5 @@
 "use client"
-import React from "react";
+import React, { useEffect } from "react";
 import {
   QueryClient,
   QueryClientProvider as QueryClientProviderLib,
@@ -7,20 +7,22 @@ import {
 import { ThemeProvider } from "./theme-provider";
 import MobileValueProvider from "@/context/mobile-value";
 import { NuqsAdapter } from "nuqs/adapters/react";
-import AuthContextProviderOfLogin from "./AuthContextProvider";
-// import AuthContextProvider from "./AuthContextProvider";
+import { Payment, useHotelStore } from "@/store/hotel.store";
 const MainProvider = ({ children }: { children: React.ReactNode }) => {
   const queryClient = new QueryClient();
+  // // const theme = localStorage.getItem("theme")
+  // const { setPayments } = useHotelStore();
+  // useEffect(()=>{
+  //   setPayments(null as unknown as Payment);
+  // },[])
 
   return (
     
     <NuqsAdapter>
       <QueryClientProviderLib client={queryClient}>
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <ThemeProvider defaultTheme={ "dark"} storageKey="vite-ui-theme">
           <MobileValueProvider>
-            <AuthContextProviderOfLogin>
             {children}
-            </AuthContextProviderOfLogin>
           </MobileValueProvider>
         </ThemeProvider>
       </QueryClientProviderLib>

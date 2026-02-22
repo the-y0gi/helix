@@ -8,33 +8,30 @@ import Ranges from '../center-distance'
 
 export const HotelPileGroup = ({values}:{values:PillOption[]}) => {
   return (
-    <PillGroup options={values} queryKey='places' />
+    <PillGroup options={values} queryKey='typeOfPlace' />//done
   )
 }
 
 export const HotelPriceRange=()=>{
     return (
-        <PriceRange />
+        <PriceRange /> //done
     )
 }
-export const HotelCounters=({values}:{values:string[]})=>{
-    return (
-        <div className="flex flex-col  gap-2">
-          {
-            values.map((opt)=>(
-              <Counter key={opt} label={opt} />
+type CounterKeys = "Bedrooms" | "Beds" | "Bathrooms";
 
-            ))
-          }
-          
-        </div>
-    )
-}
+export const HotelCounters = ({ values }: { values: readonly CounterKeys[]}) => {
+  return (
+    <div className="flex flex-col gap-2">
+      {values.map((opt) => (
+        <Counter key={opt} label={opt} /> //done
+      ))}
+    </div>
+  );
+};
 
 export const HotelCheckBoxGroupOfRoomSize=({values, stars}:{values:{value:number,label:string}[], stars?:boolean})=>{
-  const [count, setCount] = useQueryState('size', parseAsInteger)
     return (
-        <CheckboxGroup
+        <CheckboxGroup //done
         queryKey='roomSize'
                 stars={stars}
                   options={values || []}
@@ -61,7 +58,7 @@ export const HotelCheckBoxGroupOfClassification=({values, stars}:{values:{value:
 }
 export const HotelDistanceFromCenter=()=>{
     return (
-        <Ranges queryKey='distance' />
+        <Ranges  />
     )
 }
 export const HotelPileGroupOfAmenities = ({values}:{values:PillOption[]}) => {

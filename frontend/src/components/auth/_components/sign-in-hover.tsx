@@ -12,7 +12,6 @@ import {
   Field,
   FieldDescription,
   FieldGroup,
-  FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field";
 import {
@@ -38,7 +37,6 @@ import AuthContextProvider, {
 import ButtonHandler from "./buttonhandler";
 import { OTPForm } from "./otp-form";
 import { Loader } from "@/components/loader";
-import { useAuthStore } from "@/store/auth.store";
 export function Sign_in_hover({
   forLike,
   tag,

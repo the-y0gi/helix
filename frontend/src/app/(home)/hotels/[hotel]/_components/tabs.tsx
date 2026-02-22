@@ -360,6 +360,7 @@ import { CounterWithoutQuery } from "@/components/side-bar-filter/counter";
 import { PaymentProps } from "@/schema/payment.schema";
 import { UseFormReturn } from "react-hook-form";
 import { useHotelContext } from "../_providers_context/hotel-contextProvider";
+import SliderIfNotChooseDate from "../_providers_context/SliderIfNotChooseDate";
 
 type TabKey =
   | "overview"
@@ -394,6 +395,13 @@ export function TabsLine({
       />
     ),
   };
+    const sectionRef = useRef<HTMLDivElement | null>(null);
+  const handleClick = () => {
+    sectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
 
   return (
     <div className="mx-auto w-full max-w-screen-2xl px-4 md:px-6 lg:px-10">
@@ -403,7 +411,7 @@ export function TabsLine({
       </section>
 
       {/* 2. Sticky Navbar */}
-      <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b h-16 flex items-center -mx-4 px-4 md:px-6 lg:px-10 mb-8">
+      <div className="sticky top-0 z-30 bg-white/90 dark:bg-background/60 backdrop-blur-md border-b h-16 flex items-center -mx-4 px-4 md:px-6 lg:px-10 mb-8">
         <div className="flex gap-6 overflow-x-auto no-scrollbar">
           {values.map((tab: any) => (
             <a
@@ -433,14 +441,14 @@ export function TabsLine({
             <h3 className="text-xl font-bold mb-6">Amenities</h3>
             {content.amenities}
           </section>
-          <section id="location" className="scroll-mt-24 border-t pt-10">
+          <section id="location" className="scroll-mt-24 border-t pt-10" ref={sectionRef}>
             <h3 className="text-xl font-bold mb-6">Location</h3>
             {content.location}
           </section>
         </main>
 
         <aside className="lg:w-[380px] flex-shrink-0">
-          <div className="lg:sticky lg:top-24">
+          <div className="lg:sticky lg:top-24 " >
             <BookingCard
               rooms={rooms}
               isBookingMode={isBookingMode}
@@ -458,13 +466,15 @@ export function TabsLine({
             Choose the best room that fits your needs
           </p>
         </div>
-        {content.rooms}
+        <SliderIfNotChooseDate handleClick={handleClick}>
+          {content.rooms}
+        </SliderIfNotChooseDate>
       </section>
 
-      <section id="reviews" className="py-16 border-t mt-16">
+      <section id="reviews" className="py-16 border-t mt-16"  >
         {content.reviews}
       </section>
-      <HotelPolicies />
+      <HotelPolicies id={hotelId}/>
     </div>
   );
 }

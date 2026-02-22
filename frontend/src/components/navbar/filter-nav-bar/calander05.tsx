@@ -11,10 +11,15 @@ export function Calendar05(
     setDateRange: (dateRange: DateRange | undefined) => void;
   }
 ) {
+
+//   const today = new Date();
+// today.setHours(0, 0, 0, 0);
   
   return (
     <Calendar
       mode="range"
+      // fixedWeeks
+      // disabled={{ before: today }}
       defaultMonth={dateRange?.from}
       selected={dateRange}
       onSelect={setDateRange}

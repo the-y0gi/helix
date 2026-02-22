@@ -22,9 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import CpontrySelector from "./country";
-import { useCurrentUser } from "@/services/querys";
-import { currentUser } from "@/services/user.service";
+import { useCurrentUser } from "@/services/hotel/querys";
 
 export function UserProfileFields({ currUser, refetch }: { currUser: any; refetch: () => void }) {
   const { updateUser } = useAuthStore();

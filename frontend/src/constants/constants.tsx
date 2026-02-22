@@ -1,9 +1,7 @@
 
 import SelectContentScroable from "@/components/filter-bar/selectContent";
-import { Calendar05, HotelCalender } from "@/components/navbar/filter-nav-bar/calander05";
-import { useHotelStore } from "@/store/hotel.store";
+import {  HotelCalender } from "@/components/navbar/filter-nav-bar/calander05";
 import type { LucideIcon } from "lucide-react";
-import { StaticImageData } from "next/image";
 export type type=|"home"|"filter"|"profile"|"settings"|"payments"
 
 export interface Pages {

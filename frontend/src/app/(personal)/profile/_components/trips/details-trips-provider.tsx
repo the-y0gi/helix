@@ -1,11 +1,11 @@
-'use client'
-import { useBookingByIdQuery } from '@/services/querys';
-import React, { createContext, useContext } from 'react'
+// 'use client'
+// import { useBookingByIdQuery } from '@/services/hotel/querys';
+// import React, { createContext, useContext } from 'react'
 
-type Props = {
-    children: React.ReactNode,
-    id: string
-}
+// type Props = {
+//     children: React.ReactNode,
+//     id: string
+// }
 export interface BookingDetails {
     bookingReference: string,
     checkIn: string,
@@ -43,26 +43,26 @@ export interface BookingDetails {
     }
 
 }
-type DetailsTripsProviderProps = {
-    bookings: BookingDetails[],
-    id: string
-}
-const DetailsTripsContext = createContext<DetailsTripsProviderProps | null>(null);
-const DetailsTripsProvider = (props: Props) => {
-    const { data: booking } = useBookingByIdQuery({ id: props.id });
-    return (
-        <DetailsTripsContext.Provider value={booking}>
-            {props.children}
-        </DetailsTripsContext.Provider>
-    )
-}
+// type DetailsTripsProviderProps = {
+//     bookings: BookingDetails[],
+//     id: string
+// }
+// const DetailsTripsContext = createContext<DetailsTripsProviderProps | null>(null);
+// const DetailsTripsProvider = (props: Props) => {
+//     const { data: booking } = useBookingByIdQuery({ id: props.id });
+//     return (
+//         <DetailsTripsContext.Provider value={booking}>
+//             {props.children}
+//         </DetailsTripsContext.Provider>
+//     )
+// }
 
-export default DetailsTripsProvider
+// export default DetailsTripsProvider
 
-export const useDetailsTrips = () => {
-    const context = useContext(DetailsTripsContext);
-    if (!context) {
-        throw new Error("useDetailsTrips must be used within a DetailsTripsProvider");
-    }
-    return context;
-};
+// export const useDetailsTrips = () => {
+//     const context = useContext(DetailsTripsContext);
+//     if (!context) {
+//         throw new Error("useDetailsTrips must be used within a DetailsTripsProvider");
+//     }
+//     return context;
+// };

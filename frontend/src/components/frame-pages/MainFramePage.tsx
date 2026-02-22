@@ -13,7 +13,6 @@ type HotelFramePageProps = {
   type: | "cabs" | "adventures" | "tours" | "bikes" | "hotels"
 
 };
-import img2 from "@/assets/img3.jpg";
 import { ImagesSliderDemo } from "../addimage/middle-ads-image";
 const MainFramePage = ({ className, popularTrends, type }: HotelFramePageProps) => {
   return (

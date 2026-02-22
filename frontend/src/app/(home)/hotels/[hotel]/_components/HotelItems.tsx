@@ -98,12 +98,11 @@
 
 "use client";
 
-import { IconHeart, IconShare, IconStarFilled } from "@tabler/icons-react";
+import { IconShare, IconStarFilled } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { TabsLine } from "./tabs";
 import { Hotel, RoomType } from "@/types";
 import { handleCopy, LikeIcon } from "@/services/dailyfunctions";
-import { Sign_in_hover } from "@/components/auth/_components/sign-in-hover";
 
 type HotelItemsProps = {
   hotel: Hotel;
@@ -153,7 +152,7 @@ const HotelItems = ({
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            <LikeIcon _id={hotel._id} />
+            <LikeIcon _id={hotel._id} isFavourite={hotel.isFavorite} name={hotel.name}/>
 
 
             <button

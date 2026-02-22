@@ -1,17 +1,21 @@
 
 import React from "react"
-import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
-import { useQueryState, parseAsArrayOf, parseAsString } from "nuqs"
+import { HotelFilters, useHotelContext } from "@/context/hotel/HotelContextProvider"
 
 export type PillOption = {
   value: string
   icon?: React.ReactNode
 }
 
+type StringArrayFilterKeys = {
+  [K in keyof HotelFilters]: HotelFilters[K] extends string[] ? K : never
+}[keyof HotelFilters]
+
 type PillGroupProps = {
+  // label:"amenities" |""
   options: PillOption[]
-  queryKey?: string
+  queryKey?: StringArrayFilterKeys    
   value?: string[]
   onChange?: (value: string[]) => void
 }
@@ -24,41 +28,22 @@ function arraysEqual(a: string[], b: string[]) {
 export default function PillGroup({
   options,
   queryKey,
-  value = [],
-  onChange,
 }: PillGroupProps) {
-  const [queryValues, setQueryValues] = useQueryState(
-    queryKey ?? "__noop__",
-    parseAsArrayOf(parseAsString).withDefault([])
-  )
+  const { filters, setFilters } = useHotelContext()
 
-  const [selectedValues, setSelectedValues] = React.useState<string[]>(
-    value.length ? value : queryValues
-  )
-
-  React.useEffect(() => {
-    const next = value.length ? value : queryValues
-
-    setSelectedValues((prev) =>
-      arraysEqual(prev, next) ? prev : next
-    )
-  }, [])
+  const selectedValues = queryKey ? filters[queryKey] : []
 
   const toggle = (val: string) => {
-  setSelectedValues((prev) => {
-    const next = prev.includes(val)
-      ? prev.filter((v) => v !== val)
-      : [...prev, val]
+    if (!queryKey) return
 
-    onChange?.(next)
-    if (queryKey) {
-      setQueryValues(next)
-    }
+    const next = selectedValues.includes(val)
+      ? selectedValues.filter((v) => v !== val)
+      : [...selectedValues, val]
 
-    return next
-  })
-}
-
+    setFilters({
+      [queryKey]: next,
+    })
+  }
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -68,17 +53,12 @@ export default function PillGroup({
         return (
           <Button
             key={opt.value}
+            type="button"
             variant={active ? "default" : "outline"}
             onClick={() => toggle(opt.value)}
-            className={cn(
-              "flex items-center gap-2 rounded-full px-3 py-1 text-sm transition",
-              active
-                ? "bg-primary text-primary-foreground"
-                : "bg-background"
-            )}
+            className="rounded-full"
           >
-            {opt.icon && <span>{opt.icon}</span>}
-            <span>{opt.value}</span>
+            {opt.value}
           </Button>
         )
       })}

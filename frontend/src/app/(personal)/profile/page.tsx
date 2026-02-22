@@ -30,7 +30,7 @@ const content: Record<ProfileTabKey, React.ReactNode> = {
   payment: <PaymentPage />,
   wishlist: <WishlistSection />,
   support: <p>Support Content</p>,
-  reviews: <ReviewList />,
+  reviews: <ReviewList  />,
   settings: <Settings />,
   all: <AllReservations variant={"all"} />,
   active: <AllReservations variant={"active"} />,

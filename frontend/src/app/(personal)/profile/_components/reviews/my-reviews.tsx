@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MessageSquare, ThumbsUp } from "lucide-react"
+import {  ThumbsUp } from "lucide-react"
 import RattingBadge from "@/app/(home)/hotels/[hotel]/_components/badge"
 
 interface ReviewCardProps {
@@ -68,7 +68,7 @@ const reviews: Review[] = [
     },
 ]
 
-export function ReviewList() {
+export function ReviewList({id}: {id?: string}) {
     if (reviews.length === 0) {
         return (
             <Noreviews />

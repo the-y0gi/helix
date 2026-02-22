@@ -1,9 +1,8 @@
 "use client";
 import { LayoutGrid } from "@/components/ui/layout-grid";
-import React, { useState, useRef, useEffect } from "react";
+import React from "react";
 
 import { HotelImage } from "@/types";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export function LayoutGridDemo({ images }: { images: HotelImage[] }) {
   const mappedCards = images.slice(0, 4).map((img, index) => ({

@@ -1,9 +1,9 @@
 import { Checkbox } from "@/components/ui/checkbox"
+import { HotelFilters, useHotelContext } from "@/context/hotel/HotelContextProvider"
 import {
   IconStar,
   IconStarFilled,
 } from "@tabler/icons-react"
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs"
 
 export default function CheckboxGroup({
   options,
@@ -14,29 +14,32 @@ export default function CheckboxGroup({
     value: number
     label: string
   }[]
-  queryKey: string
+  queryKey: keyof HotelFilters
   stars?: boolean
 }) {
-  const [queryValues, setQueryValues] = useQueryState(
-    queryKey,
-    parseAsArrayOf(parseAsString).withDefault([])
-  )
+  const { filters, setFilters } = useHotelContext()
+
+  // Get current selected values safely
+  const current = (filters[queryKey] as string[]) ?? []
 
   const toggle = (value: number) => {
     const stringValue = String(value)
 
-    const next = queryValues.includes(stringValue)
-      ? queryValues.filter((v) => v !== stringValue)
-      : [...queryValues, stringValue]
+    const next = current.includes(stringValue)
+      ? current.filter((v) => v !== stringValue)
+      : [...current, stringValue]
 
-    setQueryValues(next)
+    setFilters((prev) => ({
+      ...prev,
+      [queryKey]: next
+    }))
   }
 
   return (
     <div className="space-y-2">
       {options.map((opt, i) => {
         const stringValue = String(opt.value)
-        const checked = queryValues.includes(stringValue)
+        const checked = current.includes(stringValue)
 
         return (
           <label

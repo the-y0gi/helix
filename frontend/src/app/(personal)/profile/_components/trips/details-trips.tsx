@@ -7,7 +7,7 @@ import {
   Refrigerator,
   Flame,
 } from "lucide-react"
-import DetailsTripsProvider, { BookingDetails } from "./details-trips-provider"
+import { BookingDetails } from "./details-trips-provider"
 
 import { ArrowLeft, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -15,8 +15,9 @@ import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Dispatch, SetStateAction } from "react";
-import { useBookingByIdQuery } from "@/services/querys";
+import { Dispatch, SetStateAction, useState } from "react";
+import { useBookingByIdQuery } from "@/services/hotel/querys";
+import { cancelBooking } from "@/services/booking/booking.service"
 export default function ReservationDetailsPage({
   setDetails, id
 }: {
@@ -25,10 +26,32 @@ export default function ReservationDetailsPage({
     open: boolean;
   }>>
 }) {
-  const { data: bookingg } = useBookingByIdQuery({ id });
+  const { data: bookingg , refetch} = useBookingByIdQuery({ id });
+  
+  const [canceled, setCanceled] = useState(bookingg?.data?.status==="cancelled" ? "Cancelled" : "Cancel booking")
   // console.log(booking);
   const booking = bookingg?.data;
   if (!booking) return <p>no booking</p>
+
+
+  const handelCancelBooking = () => {
+    try {
+      const res = cancelBooking(id)?.then(() => {
+        refetch()
+      });
+      
+      // console.log(res);
+      // if(res){
+        
+      // }
+      setCanceled("Cancelled")
+      
+    } catch (error) {
+      console.log(error);
+      
+      
+    }
+  }
   // console.log(booking.hotel);
 
 
@@ -59,7 +82,7 @@ export default function ReservationDetailsPage({
 
         {/* Actions */}
         <div className="flex justify-end gap-4">
-          <Button variant="outline">Cancel Booking</Button>
+          <Button variant="outline" onClick={handelCancelBooking} disabled={canceled === "Cancelled"}>{canceled}</Button>
           <Button className="gap-2">
             <Download size={16} />
             Download Invoice
@@ -80,7 +103,7 @@ export function PropertyHeaderCard({ booking }: { booking: BookingDetails }) {
     roomsBooked,
     guests,
   } = booking;
-  console.log(hotel);
+  // console.log(hotel);
 
   const checkInDate = new Date(checkIn);
   const checkOutDate = new Date(checkOut);

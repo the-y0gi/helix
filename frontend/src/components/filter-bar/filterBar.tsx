@@ -5,12 +5,10 @@ import { cn } from "@/lib/utils";
 import { Item, ItemContent, ItemDescription, ItemTitle } from "../ui/item";
 import HotelFilterBar from "./HotelFilterBar";
 import { Button } from "../ui/button";
-import { useHotelStore } from "@/store/hotel.store";
 import { useRouter } from "next/navigation";
 
 
 export const PagesFilterBarButtons = ({
-  origin,
   PagesFilterBarValues,
   link,
   type,

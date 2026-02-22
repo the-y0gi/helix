@@ -114,6 +114,9 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.408 0.123 38.172);
 }
+/* .leaflet-pane {
+   z-index: 400;
+} */
 
 @layer base {
   * {
@@ -124,6 +127,11 @@
   }
 
 }
+/* @layer base {
+  html, body {
+    overflow-x: hidden;
+  }
+} */
 
 /* Hide scrollbar utility */
 .scrollbar-hide {
