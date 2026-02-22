@@ -8,7 +8,6 @@ import { BookingForm } from "./_components/paymentform";
 
 const page = async ({ className, params }: { className?: string, params: Promise<{ slug: string[] }> }) => {
   const { slug } = await params
-  console.log(slug);
   // const [hotel, setHotel] = React.useState<Hotel | null>(null);
   // const [loading, setLoading] = React.useState(true);
 

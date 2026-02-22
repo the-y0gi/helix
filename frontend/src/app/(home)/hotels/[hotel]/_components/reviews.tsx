@@ -14,7 +14,6 @@ type Props = {
 
 const ReviewsMain = ({ hotel }: Props) => {
     const { data: reviews } = useGetHotelReviews(hotel._id)
-    console.log(reviews);
     
     return (
         <Card className="w-full bg-transparent border-none shadow-none">

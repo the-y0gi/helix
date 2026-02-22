@@ -386,7 +386,6 @@ export function RoomsBedTabs({
       </div>
     );
   }
-  console.log(roomTypes);
 
   // Generate dynamic tabs based on bed counts
   const bedCounts = Array.from(

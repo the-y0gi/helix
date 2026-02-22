@@ -848,7 +848,6 @@ export function HotelRoomCard({
       totalPrice: totalPrice || discountedPrice,
       nights,
     });
-    console.log("mohit_route" , localStorage.getItem("nextRoute"), );
     
   };
    const handleReserve_with_Alrady_Login = () => {

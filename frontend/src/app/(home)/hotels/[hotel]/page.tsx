@@ -169,7 +169,6 @@ const HotelDetails = ({ className }: { className?: string }) => {
       adults: guests.adults,
       children: guests.children,
     });
-  console.log(availabilityResponse?.roomTypes);
 
 
   // const isLoading = detailsLoading || (isBookingMode && availabilityLoading);
