@@ -1,20 +1,16 @@
 import { BookingData } from "@/app/(personal)/book/[[...slug]]/_components/paymentform";
 import { axiosApi } from "@/lib/axios";
 
-
-
-export const cancelBooking = (id:string) => {
+export const cancelBooking = (id: string) => {
   try {
-    
     const response = axiosApi.patch(`/bookings/${id}/cancel`);
     return response;
   } catch (error) {
     console.log(error, "from cancelBooking  error");
   }
-}
-export const createBooking = async (data: any) => {
+};
+export const createBooking = async (data: BookingData) => {
   try {
-
     const response = await axiosApi.post("/bookings", data);
 
     return response.data;

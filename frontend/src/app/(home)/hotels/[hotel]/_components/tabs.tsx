@@ -376,14 +376,26 @@ export function TabsLine({
   rooms,
   isBookingMode,
   isAvailabilityLoading,
-}: any) {
+}: {
+  values: { title: TabKey; id: number }[];
+  hotel: Hotel;
+  rooms: RoomType[];
+  isBookingMode: boolean;
+  isAvailabilityLoading: boolean;
+}) {
   const hotelId = hotel._id;
   if (!hotel) return null;
 
   const content: Record<TabKey, React.ReactNode> = {
     overview: <LayoutGridDemo images={hotel.images} />,
     description: <Decription hotel={hotel} />,
-    location: <MapLocation address={hotel.address} cordinates={hotel.location.coordinates} map="/map.png" />,
+    location: (
+      <MapLocation
+        address={hotel.address}
+        cordinates={hotel.location.coordinates}
+        map="/map.png"
+      />
+    ),
     amenities: <AmenitiesValues amenities={hotel.amenities} />,
     reviews: <ReviewsMain hotel={hotel} />,
     rooms: (
@@ -395,7 +407,7 @@ export function TabsLine({
       />
     ),
   };
-    const sectionRef = useRef<HTMLDivElement | null>(null);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
   const handleClick = () => {
     sectionRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -413,7 +425,7 @@ export function TabsLine({
       {/* 2. Sticky Navbar */}
       <div className="sticky top-0 z-30 bg-white/90 dark:bg-background/60 backdrop-blur-md border-b h-16 flex items-center -mx-4 px-4 md:px-6 lg:px-10 mb-8">
         <div className="flex gap-6 overflow-x-auto no-scrollbar">
-          {values.map((tab: any) => (
+          {values.map((tab) => (
             <a
               key={tab.id}
               href={`#${tab.title}`}
@@ -441,14 +453,18 @@ export function TabsLine({
             <h3 className="text-xl font-bold mb-6">Amenities</h3>
             {content.amenities}
           </section>
-          <section id="location" className="scroll-mt-24 border-t pt-10" ref={sectionRef}>
+          <section
+            id="location"
+            className="scroll-mt-24 border-t pt-10"
+            ref={sectionRef}
+          >
             <h3 className="text-xl font-bold mb-6">Location</h3>
             {content.location}
           </section>
         </main>
 
         <aside className="lg:w-[380px] flex-shrink-0">
-          <div className="lg:sticky lg:top-24 " >
+          <div className="lg:sticky lg:top-24 ">
             <BookingCard
               rooms={rooms}
               isBookingMode={isBookingMode}
@@ -471,15 +487,23 @@ export function TabsLine({
         </SliderIfNotChooseDate>
       </section>
 
-      <section id="reviews" className="py-16 border-t mt-16"  >
+      <section id="reviews" className="py-16 border-t mt-16">
         {content.reviews}
       </section>
-      <HotelPolicies id={hotelId}/>
+      <HotelPolicies id={hotelId} />
     </div>
   );
 }
 
-function BookingCard({ rooms, isBookingMode, isLoading }: any) {
+function BookingCard({
+  rooms,
+  isBookingMode,
+  isLoading,
+}: {
+  rooms: RoomType[];
+  isBookingMode: boolean;
+  isLoading: boolean;
+}) {
   const { date, guests } = useHotelStore();
   const [showCalendar, setShowCalendar] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -487,8 +511,8 @@ function BookingCard({ rooms, isBookingMode, isLoading }: any) {
 
   // NaN Fix: Validating prices
   const validPrices = rooms
-    .map((r: any) => r.finalPrice || r.displayPrice || r.totalPrice)
-    .filter((p: any) => typeof p === "number" && !isNaN(p));
+    .map((r: RoomType) => r.finalPrice || r.displayPrice || r.totalPrice)
+    .filter((p): p is number => typeof p === "number" && !isNaN(p));
 
   const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
   const maxPrice = validPrices.length > 0 ? Math.max(...validPrices) : 0;
@@ -522,7 +546,6 @@ function BookingCard({ rooms, isBookingMode, isLoading }: any) {
   return (
     <Card className="border border-border shadow-xl rounded-[32px] bg-background/50 text-foreground overflow-visible relative">
       <CardContent className="p-6 space-y-6">
-
         {/* Date Selection Box */}
         <div
           ref={containerRef}
@@ -650,7 +673,7 @@ export const HotelVisitorsCounters = ({
           label={opt}
           methods={methods}
           fieldName={methods ? `guests.${opt}` : undefined}
-          value={methods ? undefined : (guests as any)[opt]}
+          value={methods ? undefined : (guests as Record<string, number>)[opt]}
           onChange={methods ? undefined : (val) => handleStoreChange(opt, val)}
         />
       ))}

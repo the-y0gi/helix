@@ -55,10 +55,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
   const { setPayments } = useHotelStore();
   const { setCurrentStep, currentstep } = usePaymentsContext();
 
-
   const [loading, setLoading] = React.useState<boolean>(false);
-
-
 
   const navigate = useRouter();
   const { date, guests } = useHotelStore();
@@ -96,21 +93,21 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
         roomTypeId: slug[1],
         checkIn: data.dates.checkin,
         checkOut: data.dates.checkout,
-        guests: data.guests,
+        guests: data.guests.adults + data.guests.children,
         roomsBooked: data.rooms.length || 1,
 
         primaryGuest: {
-          firstName: data.guestInformation[0]?.firstname,
-          lastName: data.guestInformation[0]?.lastname,
-          email: data.guestInformation[0]?.email,
-          phoneNumber: data.guestInformation[0]?.phone,
+          firstName: data.guestInformation[0]?.firstname || "",
+          lastName: data.guestInformation[0]?.lastname || "",
+          email: data.guestInformation[0]?.email || "",
+          phoneNumber: data.guestInformation[0]?.phone || "",
         },
 
         additionalGuests: data.guestInformation.slice(1).map((guest) => ({
-          firstName: guest.firstname,
-          lastName: guest.lastname,
-          email: guest.email,
-          phoneNumber: guest.phone,
+          firstName: guest.firstname || "",
+          lastName: guest.lastname || "",
+          email: guest.email || "",
+          phoneNumber: guest.phone || "",
         })),
 
         specialRequest: data.specialRequest,
@@ -135,7 +132,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
           phone: booking.primaryGuest.phoneNumber,
           createdAt: booking.createdAt,
         });
-setCurrentStep((val) => val + 1);
+        setCurrentStep((val) => val + 1);
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
           amount: razorpayOrder.amount,
@@ -143,7 +140,11 @@ setCurrentStep((val) => val + 1);
           name: "Hilex Booking",
           description: `Booking for ${booking.bookingReference}`,
           order_id: razorpayOrder.id,
-          handler: async function (response: any) {
+          handler: async function (response: {
+            razorpay_order_id: string;
+            razorpay_payment_id: string;
+            razorpay_signature: string;
+          }) {
             try {
               const verifyResult = await verifyPayment({
                 razorpay_order_id: response.razorpay_order_id,
@@ -154,8 +155,6 @@ setCurrentStep((val) => val + 1);
               if (verifyResult.success) {
                 toast.success("Payment successful! Booking confirmed.");
                 console.log("verifyResult", verifyResult);
-
-               
 
                 // navigate.push("/personal/bookings"); // change is route a success page
               } else {
@@ -176,16 +175,18 @@ setCurrentStep((val) => val + 1);
           },
         };
 
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open()
-         
+        const rzp = new (window as unknown as { Razorpay: any }).Razorpay(
+          options,
+        );
+        rzp.open();
       } else {
         toast.error(result?.message || "Failed to create booking.");
       }
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
       console.error("Booking Error:", error);
       toast.error(
-        error.response?.data?.message || "An error occurred during booking.",
+        err.response?.data?.message || "An error occurred during booking.",
       );
     } finally {
       setLoading(false);
@@ -195,19 +196,25 @@ setCurrentStep((val) => val + 1);
     <Form {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)}>
         <StepsView />
-        {!loading ?<div className="flex flex-col lg:flex-row lg:gap-8 xl:gap-12">
-          <PaymentForm methods={methods} />
+        {!loading ? (
+          <div className="flex flex-col lg:flex-row lg:gap-8 xl:gap-12">
+            <PaymentForm methods={methods} />
 
-          {currentstep === 2 && (
-            <aside className="  lg:block lg:w-[320px] xl:w-[360px] flex-shrink-0 pt-6 lg:pt-10">
-              <div className="sticky top-24 lg:top-28 z-10">
-                <BookingDetailsCard hotelid={slug[0]} roomTypeId={slug[1]} loading={loading}/>
-              </div>
-            </aside>
-          )}
-        </div>:(
+            {currentstep === 2 && (
+              <aside className="  lg:block lg:w-[320px] xl:w-[360px] flex-shrink-0 pt-6 lg:pt-10">
+                <div className="sticky top-24 lg:top-28 z-10">
+                  <BookingDetailsCard
+                    hotelid={slug[0]}
+                    roomTypeId={slug[1]}
+                    loading={loading}
+                  />
+                </div>
+              </aside>
+            )}
+          </div>
+        ) : (
           <div className="w-full flex justify-center py-20">
-            <Spinner/>
+            <Spinner />
           </div>
         )}
       </form>
@@ -233,8 +240,6 @@ export const PaymentForm = ({
   switch (currentstep) {
     case 2:
       return <BookingDetails methods={methods} />;
-
-      
 
     default:
       break;
@@ -414,7 +419,6 @@ export default function PaymentSuccess({ payment }: PaymentSuccessProps) {
 
               // setPayments(null as unknown as Payment);
               console.log("payment cleared");
-              
             }}
           >
             Back to home
@@ -471,8 +475,7 @@ function InfoItem({ label, value, copyable, long }: InfoItemProps) {
 //   );
 // }
 export const BookingDetailsCard = ({
-
-  loading
+  loading,
 }: {
   loading?: boolean;
   hotelid: string;
@@ -489,7 +492,7 @@ export const BookingDetailsCard = ({
   const nights = selectedRoom?.nights || 0;
   const pricePerNight = selectedRoom?.pricePerNight || 0;
   const totalPrice = selectedRoom?.totalPrice || 0;
-    const navigate = useRouter();
+  const navigate = useRouter();
   if (!selectedRoom) {
     return (
       <Card className="p-4">
@@ -553,8 +556,6 @@ export const BookingDetailsCard = ({
     </div>
   );
 };
-
-
 
 export function BookingDetails({
   methods,
@@ -624,7 +625,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -659,7 +659,7 @@ export function DialougeEditDates({
 function GuestInfoCard({ methods }: { methods: UseFormReturn<PaymentProps> }) {
   const { control } = methods;
 
-  const { fields} = useFieldArray({
+  const { fields } = useFieldArray({
     control,
     name: "guestInformation",
   });

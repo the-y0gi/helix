@@ -68,10 +68,11 @@ export const useAuthStore = create<AuthStates>()((set, get) => ({
         return { success: true, message: res.data.message };
       }
       return { success: false, message: res.data.message || "Login failed" };
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
       return {
         success: false,
-        message: error.response?.data?.message || "Login failed",
+        message: err.response?.data?.message || "Login failed",
       };
     } finally {
       set({ isLoging: false });
@@ -83,10 +84,11 @@ export const useAuthStore = create<AuthStates>()((set, get) => ({
     try {
       const res = await axiosApi.post("/auth/signup", data);
       return { success: res.data.success, message: res.data.message };
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
       return {
         success: false,
-        message: error.response?.data?.message || "Signup failed",
+        message: err.response?.data?.message || "Signup failed",
       };
     } finally {
       set({ isSiging: false });
@@ -105,10 +107,11 @@ export const useAuthStore = create<AuthStates>()((set, get) => ({
         success: false,
         message: res.data.message || "Verification failed",
       };
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
       return {
         success: false,
-        message: error.response?.data?.message || "Verification failed",
+        message: err.response?.data?.message || "Verification failed",
       };
     } finally {
       set({ isSiging: false });
@@ -119,10 +122,11 @@ export const useAuthStore = create<AuthStates>()((set, get) => ({
     try {
       const res = await axiosApi.post("/auth/resend-otp", { email });
       return { success: res.data.success, message: res.data.message };
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
       return {
         success: false,
-        message: error.response?.data?.message || "Failed to resend OTP",
+        message: err.response?.data?.message || "Failed to resend OTP",
       };
     }
   },
@@ -138,10 +142,11 @@ export const useAuthStore = create<AuthStates>()((set, get) => ({
         success: false,
         message: res.data.message || "Failed to update profile",
       };
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
       return {
         success: false,
-        message: error.response?.data?.message || "Failed to update profile",
+        message: err.response?.data?.message || "Failed to update profile",
       };
     }
   },
@@ -168,10 +173,11 @@ export const useAuthStore = create<AuthStates>()((set, get) => ({
         success: false,
         message: res.data.message || "Upload failed",
       };
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
       return {
         success: false,
-        message: error.response?.data?.message || "Upload failed",
+        message: err.response?.data?.message || "Upload failed",
       };
     }
   },
