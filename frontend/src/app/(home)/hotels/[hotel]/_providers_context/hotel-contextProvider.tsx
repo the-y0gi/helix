@@ -29,14 +29,12 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
         });
 
     const FetchRoomTypes = () => {
-        console.log("fetching new values");
 
         refetchAvailability();
 
     }
     const availabilityRooms =
         availabilityResponse?.roomTypes;
-    console.log("yes", availabilityRooms, isBookingMode);
 
     let rooms =
         isBookingMode && availabilityRooms

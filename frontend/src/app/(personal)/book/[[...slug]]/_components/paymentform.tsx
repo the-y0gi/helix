@@ -59,7 +59,6 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
 
   const navigate = useRouter();
   const { date, guests } = useHotelStore();
-  console.log("lalaal", date, guests);
   const total = guests?.adults + guests?.children;
 
   const methods = useForm<PaymentProps>({
@@ -114,7 +113,6 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
       };
 
       const result = await createBooking(bookingData);
-      console.log("mohit rajput", result);
 
       if (result?.success) {
         const { razorpayOrder, booking } = result.data;
@@ -154,7 +152,6 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
 
               if (verifyResult.success) {
                 toast.success("Payment successful! Booking confirmed.");
-                console.log("verifyResult", verifyResult);
 
                 // navigate.push("/personal/bookings"); // change is route a success page
               } else {
@@ -418,7 +415,6 @@ export default function PaymentSuccess({ payment }: PaymentSuccessProps) {
               router.push("/");
 
               // setPayments(null as unknown as Payment);
-              console.log("payment cleared");
             }}
           >
             Back to home

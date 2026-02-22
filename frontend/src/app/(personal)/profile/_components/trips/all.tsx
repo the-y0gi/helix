@@ -31,7 +31,6 @@ export interface ReservationCardProps {
 export function AllReservations({ variant }: { variant: "cancelled" | "all" | "completed" | "active" }) {
   const { data: tripsdata_unfiltered, isLoading } = useMyBookingsQuery();
   // const {data:myTripdata_ME} = useGetMyTripME()
-  console.log(tripsdata_unfiltered);
   
   const trips = tripsdata_unfiltered?.data ?? [];
   

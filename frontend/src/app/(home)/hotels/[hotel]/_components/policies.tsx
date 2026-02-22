@@ -20,7 +20,6 @@ export function HotelPolicies({id}: {id: string}) {
     if(isError){
         return <div>Something went wrong</div>
     }
-    console.log(data);
     
     return (
         <div className="space-y-6">
