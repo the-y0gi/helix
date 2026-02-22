@@ -12,92 +12,97 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEffect, useState } from "react";
-import { useCurrentUser } from "@/services/querys";
-import { currentUser } from "@/services/user.service";
-import { cn } from "@/lib/utils";
+
+import { useCurrentUser } from "@/services/hotel/querys";
+import { Logout } from "@/app/(personal)/profile/_components/app-sidebar";
 
 export function MenuBar() {
-  const [open, setOpen] = useState(false);
-  const { data: user, isLoading: loading } = useCurrentUser();
-
-  const navigate = useRouter();
+  const { data: user, isLoading } = useCurrentUser();
+  const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    if (open) {
-      const scrollbarWidth =
-        window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-    } else {
-      document.body.style.paddingRight = "";
-    }
-  }, [open]);
+  // safer login check
+  const isLoggedIn = !!user?.data;
 
-  const handelnavigate = (path: string) => {
+  const handleNavigate = (path: string) => {
     if (pathname === path) return;
 
     toast.success("Redirecting...");
-    navigate.push(path);
+    router.push(path);
   };
 
-  // ✅ Conditional rendering AFTER all hooks
-  if (loading) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
+
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="p-0 rounded-full">
           <div className="w-12 h-12 rounded-full overflow-hidden border border-zinc-400 hover:border-orange-400 transition">
-            <img src="/girl.png" alt="Profile" className="w-full h-full object-cover" />
+            <img
+              src={user?.data?.avatar || "/user.png"}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
           </div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-40 mr-10  border-0" align="start">
+
+      <DropdownMenuContent
+        className="w-44 mr-10 border-0 overflow-hidden relative"
+        align="start"
+      >
+        {/* Account Section */}
         <DropdownMenuGroup>
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => handelnavigate("/profile")} className={cn(localStorage.getItem("accessToken") ? "" : "hidden")}>
-            Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handelnavigate("/")}>
+
+          {isLoggedIn && (
+            <>
+              <DropdownMenuItem onClick={() => handleNavigate("/profile")}>
+                Profile
+              </DropdownMenuItem>
+
+              <DropdownMenuItem>
+                Settings
+              </DropdownMenuItem>
+            </>
+          )}
+
+          <DropdownMenuItem onClick={() => handleNavigate("/")}>
             Home
           </DropdownMenuItem>
-          <DropdownMenuItem className={cn(localStorage.getItem("accessToken") ? "" : "hidden")}>
-            Settings
-          </DropdownMenuItem>
         </DropdownMenuGroup>
+
+        {/* Theme Toggle */}
         <DropdownMenuGroup className="px-2 w-full">
-          <DropdownMenuItem asChild >
+          <DropdownMenuItem asChild>
             <AnimatedThemeTogglerDemo />
           </DropdownMenuItem>
+        </DropdownMenuGroup>
 
+        {/* Auth Section */}
+        {!isLoggedIn && (
+          <DropdownMenuGroup>
+            <DropdownMenuItem asChild>
+              <Sign_in_hover tag="Log-in" variant="ghost" />
+            </DropdownMenuItem>
 
-        </DropdownMenuGroup>
-        <DropdownMenuGroup className={cn(localStorage.getItem("accessToken") ? "hidden" : "")}>
-          <DropdownMenuItem asChild >
-            <Sign_in_hover tag="Log-in" variant="ghost" />
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild >
-            <Sign_in_hover tag="Sign-up" variant="ghost" />
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuGroup className={cn(localStorage.getItem("accessToken") ? "" : "hidden")}>
-          <DropdownMenuItem onClick={() => {
-            localStorage.removeItem("accessToken");
-            navigate.push("/");
-          }} >
-            Log out
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
+            <DropdownMenuItem asChild>
+              <Sign_in_hover tag="Sign-up" variant="ghost" />
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        )}
+
+        {isLoggedIn && (
+          <DropdownMenuGroup>
+            <DropdownMenuItem asChild>
+              <Logout />
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

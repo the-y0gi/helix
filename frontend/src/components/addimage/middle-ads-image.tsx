@@ -2,9 +2,7 @@
 import { motion } from "motion/react";
 import React from "react";
 import { ImagesSlider } from "../ui/images-slider";
-import img1  from "/img1.png"
-import img2  from "/img2.png"
-import img3  from "/img3.jpg"
+
 export function ImagesSliderDemo() {
   const images = [
     '/img1.png',

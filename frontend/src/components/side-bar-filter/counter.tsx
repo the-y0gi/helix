@@ -1,9 +1,18 @@
 import { Button } from "@/components/ui/button";
+import { useHotelContext } from "@/context/hotel/HotelContextProvider";
 import { PaymentProps } from "@/schema/payment.schema";
-import { parseAsInteger, useQueryState } from "nuqs";
-import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
+
 export type CounterProps = {
+  label: "Bedrooms"|"Beds"|"Bathrooms";
+  any?: boolean;
+  methods?: UseFormReturn<PaymentProps>;
+  fieldName?: string;
+  value?: number;
+  onChange?: (val: number) => void;
+};
+
+export type CounterWithoutQueryProps = {
   label: string;
   any?: boolean;
   methods?: UseFormReturn<PaymentProps>;
@@ -11,22 +20,48 @@ export type CounterProps = {
   value?: number;
   onChange?: (val: number) => void;
 };
-export default function Counter({
-  label,
-  any,
-}: CounterProps) {
-  const [count, setCount] = useQueryState(label.toLowerCase(), parseAsInteger);
-  const currentCount = count ?? 0;
+
+export default function Counter({ label, any }: CounterProps) {
+  const { filters, setFilters } = useHotelContext()
+
+  const currentCount = filters[label]?.[0] ?? 0
+
+  const setCount = (value: number) => {
+    setFilters((prev) => ({
+      ...prev,
+      [label]: value > 0 ? [value] : []
+    }))
+  }
+
   return (
     <div className="flex items-center justify-between">
       <p className="text-sm">{label}</p>
+
       <div className="flex items-center gap-4">
-        <Button className="rounded-full" variant="outline" size="icon" onClick={() => setCount(currentCount > 0 ? currentCount - 1 : 0)}>−</Button>
-        <span className="text-sm">{any ? "Any" : currentCount}</span>
-        <Button className="rounded-full" variant="outline" size="icon" onClick={() => setCount(currentCount + 1)}>+</Button>
+        <Button
+          className="rounded-full"
+          variant="outline"
+          size="icon"
+          onClick={() => setCount(currentCount > 0 ? currentCount - 1 : 0)}
+        >
+          −
+        </Button>
+
+        <span className="text-sm">
+          {any ? "Any" : currentCount}
+        </span>
+
+        <Button
+          className="rounded-full"
+          variant="outline"
+          size="icon"
+          onClick={() => setCount(currentCount + 1)}
+        >
+          +
+        </Button>
       </div>
     </div>
-  );
+  )
 }
 export function CounterWithoutQuery({
   label,
@@ -35,7 +70,7 @@ export function CounterWithoutQuery({
   fieldName,
   value,
   onChange,
-}: CounterProps) {
+}: CounterWithoutQueryProps) {
   // Determine current value source
   const isFormMode = methods && fieldName;
 

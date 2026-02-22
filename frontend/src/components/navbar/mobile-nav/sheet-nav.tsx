@@ -9,17 +9,16 @@ import {
 
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { TabsNav } from "@/components/ui/tabs-nav-aty"
-import { pages } from "@/constants/pages"
+
 import { useMobileValue } from "@/context/mobile-value"
 import { IconMenu } from "@tabler/icons-react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import React, { useEffect, useState } from "react"
 type Direction = "left" | "right" | "top" | "bottom"
 export function MobileNav({direction , tabsChildren}: {direction:Direction , tabsChildren:React.ReactNode}) {
   const [open , setOpen ] = useState<boolean>(false)
   const location = usePathname()
-const {ismobile, setIsMobile} = useMobileValue()
+const {ismobile} = useMobileValue()
 
 useEffect(() => {
   setOpen(false)

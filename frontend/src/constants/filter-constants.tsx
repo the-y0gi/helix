@@ -1,14 +1,14 @@
 import { HotelCheckBoxGroupOfClassification, HotelCheckBoxGroupOfRoomSize, HotelCheckBoxGroupOfScore, HotelCounters, HotelDistanceFromCenter, HotelPileGroup, HotelPileGroupOfAmenities, HotelPileGroupOfEssentials, HotelPileGroupOfFeatures, HotelPileGroupOfLocation, HotelPileGroupOfOnsite, HotelPriceRange } from "@/components/side-bar-filter/hotel/HotelPileGroup";
-import PillGroup from "@/components/side-bar-filter/pillGroup";
+// export const ROOM_COUNTER_KEYS = ["Bedrooms", "Beds", "Bathrooms"] as const;
+
+// export type CounterKeys = typeof ROOM_COUNTER_KEYS[number];
 import {
   Wifi,
   Snowflake,
   Flame,
   WashingMachine,
   Utensils,
-  Bed,
-  Bath,
-  DoorOpen,
+
   Wind,
   Droplet,
   Briefcase,
@@ -42,7 +42,7 @@ export const filterOptions = {
     { value: "Kitchen", icon: <Utensils size={16} /> },
   ],
 
-  roomsbeds:[ "Bedrooms", "Beds", "Bathrooms", ],
+  roomsbeds: ["Bedrooms", "Beds", "Bathrooms"] as const,
 
   essentials: [
     { value: "Heating", icon: <Wind size={16} /> },
@@ -124,7 +124,7 @@ export const filterOptions = {
   ]
 };
 
-
+type bedstype = "Bedrooms"|"Beds"|"Bathrooms"
 export const items = [
   {
     value: "type",
@@ -141,7 +141,7 @@ export const items = [
       trigger: "Rooms and beds",
       content: (
         <HotelCounters 
-        values={filterOptions.roomsbeds} />
+        values={filterOptions.roomsbeds  } />
         
       ),
     },

@@ -6,9 +6,7 @@ import { destinations } from "@/constants/constants";
 import Image, { StaticImageData } from "next/image";
 import { useRouter } from "next/navigation";
 
-import { Hotel } from "@/types";
-import { getHotels } from "@/services/hotel.service";
-import { useHotelsQuery } from "@/services/querys";
+import { useHotelsQuery } from "@/services/hotel/querys";
 
 type Item = {
   title: string;

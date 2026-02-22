@@ -1,5 +1,4 @@
 'use client'
-// import NavWrapper from "@/components/navbar/nav.wraper";
 import { cn } from "@/lib/utils";
 import { CommonPagesStyles } from "@/styles/commonpages-styles";
 import dynamic from "next/dynamic";

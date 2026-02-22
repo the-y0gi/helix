@@ -4,9 +4,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import MainFramePage from '../../../components/frame-pages/MainFramePage'
 import type { CityTrends } from '@/types'
 
-type HitelProps = {
-  className?: string;
-};
+
 
 export const  HotelPopularCites:CityTrends[]=[
  {

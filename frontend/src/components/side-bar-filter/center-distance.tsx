@@ -1,47 +1,29 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Slider } from "../ui/slider";
-import { parseAsArrayOf, parseAsInteger, useQueryState } from "nuqs";
+import { useHotelContext } from "@/context/hotel/HotelContextProvider";
 
-export default function Ranges(
-  {queryKey}:{queryKey:string}
-) {
-  const [distance, setDistance] = useQueryState(
-    queryKey,
-    parseAsArrayOf(parseAsInteger).withDefault([ 0])
-  )
-  useEffect(() => {
-    if (distance[0]===0) {
-      setDistance(null);
-    }
-  }, [distance, setDistance]);
+export default function DistanceRange() {
+  const { filters, setFilters } = useHotelContext()
+  const distance = filters.distance
 
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">
-        Nightly prices including fees and taxes
+        Distance from location
       </p>
-      <div className="flex px-1 justify-between">
-        
-        <span>
-            {distance[0]} Km
 
-        </span>
-        <span>
-            100 Km
-        </span>
+      <div className="flex px-1 justify-between">
+        <span>{distance[0]} Km</span>
+        <span>100 Km</span>
       </div>
 
       <Slider
         value={distance}
-        onValueChange={(distance)=> {
-          setDistance(distance);
-        }}
+        onValueChange={(val) => setFilters({ distance: val })}
         max={100}
         step={1}
         className="w-full"
       />
-
-      
     </div>
-  );
+  )
 }

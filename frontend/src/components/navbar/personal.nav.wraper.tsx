@@ -1,10 +1,8 @@
 "use client";
-import { usePathname } from "next/navigation";
 import React, { Suspense } from "react";
 import { Footer } from "../footer/FFooter";
 import { cn } from "@/lib/utils";
 // import { MenuBar } from "../menubar";
-import { IconHeadphones } from "@tabler/icons-react";
 import { Headset } from "lucide-react";
 import dynamic from "next/dynamic";
 import LOGO from "./logo";

@@ -136,6 +136,7 @@
 
 import { create } from "zustand";
 import type { DateRange } from "react-day-picker";
+// import { Payment } from "@/app/(personal)/book/[[...slug]]/_components/paymentform";
 
 type SelectedRoom = {
   hotelId: string;
@@ -146,34 +147,52 @@ type SelectedRoom = {
   totalPrice: number;
   nights: number;
 } | null;
+export interface Payment {
+  razorpay_payment_id: string
+  razorpay_order_id: string
+  razorpay_signature: string
+  amount: number
+  currency: string
+  status: string
+  firstname: string
+  lastname: string
+  email: string
+  contact: string
+  phone: string
+  createdAt: string
+}
 
 type Guests = {
   adults: number;
   children: number;
 };
 
+// ... (rest of the code remains the same)
 type HotelStoreProps = {
   city: string;
   date?: DateRange;
   guests: Guests;
+  wrap: boolean;
 
   selectedRoom: SelectedRoom;
+  payments: Payment;
 
   // Derived
   isBookingMode: boolean;
-
+  setPayments: (payments: Payment) => void;
   setCity: (city: string) => void;
   setDate: (date?: DateRange) => void;
   setGuests: (guests: Guests) => void;
+  setWrap: (wrap: boolean) => void;
 
   setSelectedRoom: (room: SelectedRoom) => void;
   clearSelectedRoom: () => void;
 };
 
-export const useHotelStore = create<HotelStoreProps>((set, get) => ({
+export const useHotelStore = create<HotelStoreProps>((set) => ({
+  payments: {} as Payment,
   city: "Goa",
-
-  date: undefined,
+  wrap: false,
 
   guests: {
     adults: 1,
@@ -182,21 +201,22 @@ export const useHotelStore = create<HotelStoreProps>((set, get) => ({
 
   selectedRoom: null,
 
-  get isBookingMode() {
-    const { date } = get();
-    return !!date?.from && !!date?.to;
-  },
+  date: undefined,
+  isBookingMode: false,
 
+  setWrap: (wrap) => set({ wrap }),
   setCity: (city) => set({ city }),
+  setPayments: (payments: Payment) => set({ payments }),
 
   setDate: (date) =>
-    set((state) => ({
+    set(() => ({
       date,
-      selectedRoom: null, // reset selected room when date changes
+      isBookingMode: !!date?.from && !!date?.to,
+      selectedRoom: null,
     })),
 
   setGuests: (guests) =>
-    set((state) => ({
+    set(() => ({
       guests,
       selectedRoom: null, // reset selected room when guests change
     })),

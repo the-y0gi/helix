@@ -14,9 +14,7 @@ type LoaderProps = {
 export const Loader = ({
   loading,
   children,
-  noPadding,
   className,
-  created,
 }: LoaderProps) => {
   
   return loading ? (

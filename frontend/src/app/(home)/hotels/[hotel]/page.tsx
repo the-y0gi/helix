@@ -143,7 +143,8 @@ import { useHotelStore } from "@/store/hotel.store";
 import {
   useHotelDetailsQuery,
   useHotelAvailabilityQuery,
-} from "@/services/querys";
+} from "@/services/hotel/querys";
+import HotelContextProvider from "./_providers_context/hotel-contextProvider";
 
 const HotelDetails = ({ className }: { className?: string }) => {
   const { hotel: hotelIdParam } = useParams();
@@ -156,10 +157,11 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
   const { data: hotelDetailsData, isLoading: detailsLoading } =
     useHotelDetailsQuery(hotelId);
+  // console.log(hotelDetailsData);
 
-  const hotelDetails = hotelDetailsData?.data || hotelDetailsData;
+  // const hotelDetails = hotelDetailsData?.data || hotelDetailsData;
 
-  const { data: availabilityResponse, isLoading: availabilityLoading } =
+  const { data: availabilityResponse, isLoading: availabilityLoading, refetch: refetchAvailability } =
     useHotelAvailabilityQuery({
       hotelId,
       checkIn: date?.from,
@@ -167,20 +169,22 @@ const HotelDetails = ({ className }: { className?: string }) => {
       adults: guests.adults,
       children: guests.children,
     });
+  console.log(availabilityResponse?.roomTypes);
 
-  const isLoading = detailsLoading || (isBookingMode && availabilityLoading);
 
-  if (isLoading) {
-    return (
-      <div className="w-full flex items-center justify-center py-20">
-        <p className="text-muted-foreground text-sm">
-          Loading hotel details...
-        </p>
-      </div>
-    );
-  }
+  // const isLoading = detailsLoading || (isBookingMode && availabilityLoading);
 
-  if (!hotelDetails || !hotelDetails.name) {
+  // if (isLoading) {
+  //   return (
+  //     <div className="w-full flex items-center justify-center py-20">
+  //       <p className="text-muted-foreground text-sm">
+  //         Loading hotel details...
+  //       </p>
+  //     </div>
+  //   );
+  // }
+
+  if (!hotelDetailsData || !hotelDetailsData.name) {
     return (
       <div className="w-full flex items-center justify-center py-20">
         <p className="text-red-500 text-sm">Hotel not found.</p>
@@ -189,23 +193,26 @@ const HotelDetails = ({ className }: { className?: string }) => {
   }
 
   const availabilityRooms =
-    availabilityResponse?.data?.roomTypes || availabilityResponse?.roomTypes;
+    availabilityResponse?.roomTypes;
 
   const rooms =
     isBookingMode && availabilityRooms
       ? availabilityRooms
-      : hotelDetails.roomTypes || [];
+      : hotelDetailsData.roomTypes || [];
 
   return (
     <div className={cn("w-full", className)}>
       <ErrorBoundary fallback={<p>Something went wrong.</p>}>
         <ScrollToTop />
-        <HotelItems
-          hotel={hotelDetails}
-          rooms={rooms}
-          isBookingMode={isBookingMode}
-          isAvailabilityLoading={availabilityLoading}
-        />
+        <HotelContextProvider hotelId={hotelId}>
+
+          <HotelItems
+            hotel={hotelDetailsData}
+            rooms={rooms}
+            isBookingMode={isBookingMode}
+            isAvailabilityLoading={availabilityLoading}
+          />
+        </HotelContextProvider>
       </ErrorBoundary>
     </div>
   );

@@ -10,6 +10,7 @@ import { useHotelStore } from "@/store/hotel.store";
 type Props = {};
 
 export const ContentFrame = (props: Props) => {
+  
   return (
     <div className="md:w-full">
       <div className="flex justify-between">

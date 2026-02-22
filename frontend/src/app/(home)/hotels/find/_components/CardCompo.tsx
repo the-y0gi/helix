@@ -2,13 +2,12 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Heart, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IconStarFilled } from "@tabler/icons-react";
 import React from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { LikeIcon } from "@/services/dailyfunctions";
+import { MapPin } from "lucide-react";
 
 type HotelCardProps = {
   hotelId: string;
@@ -51,7 +50,7 @@ export function HotelCard({
   nights = 1,
   adults = 1,
 }: HotelCardProps) {
-  const navigate =useRouter();
+  const navigate = useRouter();
   const [heart, setHeart] = React.useState(false);
   return (
     <Card
@@ -59,7 +58,7 @@ export function HotelCard({
         "w-[290px] overflow-hidden rounded-2xl border shadow-sm hover:scale-101 transition-transform duration-100",
         wrap ? "flex-col " : "flex-row w-full",
       )}
-      
+
     >
       <div
         className={cn(
@@ -68,7 +67,7 @@ export function HotelCard({
         )}
       >
         <img
-         
+
           src='/img2.png'
           alt={title}
           className="h-full w-full object-cover rounded-2xl"
@@ -80,25 +79,26 @@ export function HotelCard({
           </div>
         )}
 
-        <Button
-        onClick={() => setHeart(!heart)}
+        {/* <Button
+          onClick={() => setHeart(!heart)}
           size="icon"
           variant="secondary"
           className="absolute right-3 top-3 h-8 w-8 rounded-full"
         >
           {
             heart ? (
-            <Heart
-              color="red"
-              fill="red"
-              
-            />
-          ) : (
-            <Heart
-            />
-          )
+              <Heart
+                color="red"
+                fill="red"
+
+              />
+            ) : (
+              <Heart
+              />
+            )
           }
-        </Button>
+        </Button> */}
+        <LikeIcon _id={hotelId} isFavourite={false} name="card" className="absolute right-3 top-3 h-8 w-8 rounded-full bg-white/50 flex items-center justify-center" />
 
         <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1">
           <span className="h-1.5 w-1.5 rounded-full bg-white" />
@@ -116,7 +116,7 @@ export function HotelCard({
         >
           <div>
             <div className="flex items-center justify-between gap-5">
-              <h3 className="text-base font-semibold leading-tight text-xl cursor-pointer" onClick={()=>navigate.push(`/hotels/${hotelId}`)} >{title}</h3>
+              <h3 className="text-base font-semibold leading-tight text-xl cursor-pointer" onClick={() => navigate.push(`/hotels/${hotelId}`)} >{title}</h3>
               <div className="flex">
                 {wrap ? (
                   <span className="flex gap-1 items-center">
@@ -154,9 +154,9 @@ export function HotelCard({
 
         <p className="text-sm text-muted-foreground">{roomInfo}</p>
 
-        <div className={cn(wrap?"flex-col flex ":"flex-row justify-between w-full flex items-end")}>
+        <div className={cn(wrap ? "flex-col flex " : "flex-row justify-between w-full flex items-end")}>
           <div>
-            {amenities&& !wrap && (
+            {amenities && !wrap && (
               <div className="flex flex-wrap gap-2">
                 {amenities.map((amenity, index) => (
                   <Badge

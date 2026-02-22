@@ -637,8 +637,13 @@ import { amenityIconMap } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useHotelStore } from "@/store/hotel.store";
 import { cn } from "@/lib/utils";
+import { useRoutingStore } from "@/store/routing.store";
+import { Sign_in_hover } from "@/components/auth/_components/sign-in-hover";
+import { toast } from "sonner";
+import { useSliderIfNotChooseDate } from "../_providers_context/SliderIfNotChooseDate";
 export interface RoomCardProps {
   hotelId: string;
+  showReserveButton?:boolean,
   id: string;
   title: string;
   imageUrl: string;
@@ -824,9 +829,15 @@ export function HotelRoomCard({
   isBookingMode,
 }: RoomCardProps) {
   const router = useRouter();
-  const { setSelectedRoom } = useHotelStore();
+  const { setSelectedRoom , date } = useHotelStore();
+  const {handleClick} = useSliderIfNotChooseDate()
+  const bothdate = !!date?.to && !!date?.from;
 
   const handleReserve = () => {
+    
+     const route = `/book/${hotelId}/${id}`;
+    
+    localStorage.setItem("nextRoute", route);
     if (isBookingMode && roomsLeft === 0) return;
     setSelectedRoom({
       hotelId,
@@ -837,148 +848,219 @@ export function HotelRoomCard({
       totalPrice: totalPrice || discountedPrice,
       nights,
     });
-    router.push(`/book/${hotelId}/${id}`);
+    console.log("mohit_route" , localStorage.getItem("nextRoute"), );
+    
   };
+   const handleReserve_with_Alrady_Login = () => {
 
+    if(!bothdate){
+      handleClick()
+     toast.message("Please select date first")
+     return 
+    }
+    
+    
+    const route = `/book/${hotelId}/${id}`;
+    localStorage.setItem("nextRoute", route);
+    if (isBookingMode && roomsLeft === 0) return;
+    setSelectedRoom({
+      hotelId,
+      roomTypeId: id,
+      title,
+      image: imageUrl,
+      pricePerNight: discountedPrice,
+      totalPrice: totalPrice || discountedPrice,
+      nights,
+    });
+    const nextRoute = localStorage.getItem("nextRoute");
+    router.push(nextRoute || "/");
+  };
+const token = localStorage.getItem("accessToken")
   return (
-    <Card className="w-full overflow-hidden border border-slate-200 bg-white hover:shadow-xl transition-all duration-300 rounded-3xl mb-6">
-      {/* Grid structure fixed to prevent shrinking */}
-      <div className="grid grid-cols-1 md:grid-cols-[320px_1fr_240px] min-h-[260px]">
-        {/* 1. Image Section - No Shrink */}
-        <div className="relative w-full h-56 md:h-full overflow-hidden flex-shrink-0">
+    <Card
+      className={cn(
+        "w-full overflow-hidden border border-border bg-card",
+        "hover:shadow-xl transition-all duration-300 rounded-3xl mb-6",
+        "dark:hover:shadow-[0_10px_25px_rgba(255,255,255,0.08)]"
+      )}
+    >
+      <div
+        className={cn(
+          "grid grid-cols-1",
+          // md = tablet-ish → start 3-col, but flexible
+          "md:grid-cols-[minmax(0,320px)_1fr_minmax(0,240px)]",
+          // lg = desktop → a bit wider columns
+          "lg:grid-cols-[minmax(0,340px)_1fr_minmax(0,260px)]",
+          "min-h-[260px]"
+        )}
+      >
+        {/* Image Section */}
+        <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-full overflow-hidden flex-shrink-0">
           <img
             src={imageUrl || "/img1.png"}
             alt={title}
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
           />
+
           {discountPercent > 0 && (
-            <div className="absolute top-4 right-4 bg-[#22C55E] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-lg">
+            <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[11px] font-bold px-3 py-1 rounded-full shadow-md">
               {discountPercent}% OFF
             </div>
           )}
         </div>
 
-        {/* 2. Content Section */}
-        <div className="p-6 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-100">
-          <div className="space-y-4">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-slate-900 leading-tight">
+        {/* Content / Info Section */}
+        <div className="p-5 md:p-6 flex flex-col justify-between border-b md:border-b-0 md:border-r border-border">
+          <div className="space-y-4 md:space-y-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg md:text-xl font-bold text-foreground leading-tight truncate">
                   {title}
                 </h3>
+
                 {isBookingMode && roomsLeft > 0 && (
                   <p
                     className={cn(
                       "text-xs font-bold mt-1",
-                      roomsLeft <= 3 ? "text-red-500" : "text-slate-400",
+                      roomsLeft <= 3 ? "text-destructive" : "text-muted-foreground"
                     )}
                   >
-                    {roomsLeft} rooms Left
+                    {roomsLeft} rooms left
                   </p>
                 )}
               </div>
 
               <div className="flex flex-col items-end flex-shrink-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-bold text-blue-600 uppercase tracking-tight">
+                  <span className="text-[11px] md:text-xs font-bold text-primary uppercase tracking-tight">
                     Excellent
                   </span>
-                  <div className="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-lg">
+                  <div className="bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded-lg">
                     {rating.toFixed(1)}
                   </div>
                 </div>
-                <span className="text-[10px] text-slate-400 mt-1 whitespace-nowrap">
+
+                <span className="text-[10px] text-muted-foreground mt-1 whitespace-nowrap">
                   {reviewCount.toLocaleString()} reviews
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-6 py-3 border-y border-slate-50">
+            {/* Facilities row */}
+            <div className="flex items-center gap-5 md:gap-6 py-3 border-y border-border">
               <div className="flex flex-col gap-1.5">
-                <div className="flex items-center gap-2 text-slate-700">
-                  <Bed size={16} className="text-slate-400" />
+                <div className="flex items-center gap-2 text-foreground">
+                  <Bed size={16} className="text-muted-foreground" />
                   <span className="text-xs font-bold">{beds}</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-700">
-                  <Users size={16} className="text-slate-400" />
+
+                <div className="flex items-center gap-2 text-foreground">
+                  <Users size={16} className="text-muted-foreground" />
                   <span className="text-xs font-bold">{guests} Persons</span>
                 </div>
               </div>
-              <div className="w-[1px] h-10 bg-slate-100" />
-              <div className="flex items-center gap-2 text-slate-700">
-                <Square size={16} className="text-slate-400" />
+
+              <div className="w-[1px] h-10 bg-border hidden sm:block" />
+
+              <div className="flex items-center gap-2 text-foreground">
+                <Square size={16} className="text-muted-foreground" />
                 <span className="text-xs font-bold">{size} m²</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+            {/* Amenities */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2 text-muted-foreground">
               {amenities.slice(0, 6).map((amenity) => {
                 const Icon = amenityIconMap[amenity.icon];
                 return (
                   <div
                     key={amenity.name}
-                    className="flex items-center gap-2 text-slate-500"
+                    className="flex items-center gap-2 text-[11px] md:text-xs font-medium truncate"
                   >
-                    {Icon && <Icon className="h-4 w-4" />}
-                    <span className="text-[11px] font-medium truncate">
-                      {amenity.name}
-                    </span>
+                    {Icon && <Icon className="h-4 w-4 shrink-0" />}
+                    <span className="truncate">{amenity.name}</span>
                   </div>
                 );
               })}
             </div>
           </div>
-
-          {/* <button className="text-xs font-bold text-[#FF6B00] flex items-center gap-1 hover:gap-2 transition-all mt-6">
-            More details <ChevronRight size={14} />
-          </button> */}
         </div>
 
-        <div className="bg-slate-50/30 p-6 flex flex-col justify-between items-end flex-shrink-0">
-          <div className="text-right flex flex-col h-full justify-center">
-            {originalPrice > discountedPrice && (
-              <span className="text-sm text-slate-400 line-through block mb-1">
-                ₹{originalPrice}
+        {/* Pricing & CTA */}
+        <div className="bg-muted/30 p-5 md:p-6 flex flex-col justify-between items-end flex-shrink-0">
+          <div className="text-right space-y-3 flex flex-col justify-center h-full">
+            {originalPrice && originalPrice > discountedPrice && (
+              <span className="text-sm text-muted-foreground line-through">
+                ₹{originalPrice.toLocaleString()}
               </span>
             )}
-            <div className="flex items-baseline justify-end gap-1 mb-2">
-              <span className="text-3xl font-black text-slate-900">
-                ₹{discountedPrice}
+
+            <div className="flex items-baseline justify-end gap-1">
+              <span className="text-3xl md:text-4xl font-black text-foreground">
+                ₹{discountedPrice.toLocaleString()}
               </span>
-              <span className="text-[11px] text-slate-500 font-bold uppercase">
+              <span className="text-xs text-muted-foreground font-bold uppercase">
                 / night
               </span>
             </div>
 
             {isBookingMode && typeof totalPrice === "number" && (
-              <div className="mt-2 text-right">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+              <div className="text-right">
+                <p className="text-[10px] md:text-xs text-muted-foreground font-bold uppercase tracking-wider">
                   Total Price
                 </p>
-                <p className="text-lg font-bold text-slate-800">
+                <p className="text-lg md:text-xl font-bold text-foreground">
                   ₹{totalPrice.toLocaleString()}
                 </p>
               </div>
             )}
           </div>
 
-          <div className="w-full mt-4">
-            <Button
-              disabled={isBookingMode && roomsLeft === 0}
-              className={cn(
-                "w-full font-bold h-12 rounded-2xl transition-all shadow-lg",
-                isBookingMode && roomsLeft === 0
-                  ? "bg-slate-200 text-slate-400"
-                  : "bg-[#FF6B00] hover:bg-[#E66000] text-white shadow-orange-100",
+          
+            <div className="w-full mt-5 md:mt-6">
+              {!token ? (
+                // your Sign_in_hover wrapper
+                <Sign_in_hover
+                  tag="Log-in"
+                  variant="ghost"
+                  forLike={{
+                    content: (
+                      <Button
+                        disabled={isBookingMode && roomsLeft === 0}
+                        className={cn(
+                          "w-full font-bold h-11 md:h-12 rounded-2xl transition-all shadow-md",
+                          isBookingMode && roomsLeft === 0
+                            ? "bg-muted text-muted-foreground cursor-not-allowed"
+                            : "bg-primary hover:bg-primary/90 text-primary-foreground"
+                        )}
+                        onClick={handleReserve}
+                      >
+                        {isBookingMode && roomsLeft === 0 ? "Not Available" : "Reserve"}
+                      </Button>
+                    ),
+                    id: `reserve-button-${id}`,
+                  }}
+                />
+              ) : (
+                <Button
+                  disabled={isBookingMode && roomsLeft === 0}
+                  className={cn(
+                    "w-full font-bold h-11 md:h-12 rounded-2xl transition-all shadow-md",
+                    isBookingMode && roomsLeft === 0
+                      ? "bg-muted text-muted-foreground cursor-not-allowed"
+                      : "bg-primary hover:bg-primary/90 text-primary-foreground"
+                  )}
+                  onClick={handleReserve_with_Alrady_Login}
+                >
+                  {isBookingMode && roomsLeft === 0 ? "Not Available" : "Reserve"}
+                </Button>
               )}
-              onClick={handleReserve}
-            >
-              {isBookingMode && roomsLeft === 0 ? "Not Available" : "Reserve"}
-            </Button>
-            <p className="text-[10px] text-center text-slate-400 mt-2 font-medium">
-              Free cancellation available
-            </p>
-          </div>
+
+              <p className="text-[10px] text-center text-muted-foreground mt-2.5 font-medium">
+                Free cancellation available
+              </p>
+            </div>
+          
         </div>
       </div>
     </Card>

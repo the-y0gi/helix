@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { Input } from './ui/input'
-import { Search, type LucideIcon } from 'lucide-react'
+import { type LucideIcon } from 'lucide-react'
 
 type searchbarProps = {
   Icon: LucideIcon

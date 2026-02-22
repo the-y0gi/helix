@@ -5,23 +5,24 @@ import { Plus } from "lucide-react"
 export interface WishListCardProps {
     id: string
     title: string
+    label?: string
     savedCount: number
     images: string[]
     large?: boolean
     onCheckDetails?: () => void
 }
 export const wishlistData: WishListCardProps[] = [
-    {
-        id: "1",
-        title: "My next trip",
-        savedCount: 6,
-        images: [
-            "/room1.png",
-            "/room2.png",
-            "/room3.png",
-            "/img4.png",
-        ],
-    },
+    // {
+    //     id: "1",
+    //     title: "My next trip",
+    //     savedCount: 6,
+    //     images: [
+    //         "/room1.png",
+    //         "/room2.png",
+    //         "/room3.png",
+    //         "/img4.png",
+    //     ],
+    // },
     {
         id: "2",
         title: "Falkensee, Germany 2025",
@@ -39,14 +40,20 @@ export const wishlistData: WishListCardProps[] = [
 ];
 
 export function WishlistSection() {
+    const {data:mytrips} = useGetFavouriteSummary()
 
-    const [wishListOpen, setWishListOpen] = React.useState({
+  
+
+
+    const [wishListOpen, setWishListOpen] = React.useState<{open:boolean,id:string,label:labelType}>
+    ({
         open: false,
-        id: ""
+        id: "",
+        label:"wishlists"
     })
 
     if (wishListOpen.open) {
-        return <SavedTripsSection setDetails={setWishListOpen} />
+        return <SavedTripsSection setDetails={setWishListOpen} label={wishListOpen.label} />
     }
     return (
         <div className="rounded-xl  shadow-sm p-8 space-y-8 bg-background pb-50">
@@ -64,7 +71,15 @@ export function WishlistSection() {
                 </Button>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-1  lg:grid-cols-3">
+                 <WishlistCard
+                                id={"1"}
+                                title={mytrips?.data?.name}
+                                savedCount={mytrips?.data?.totalSaved}
+                                images={mytrips?.data?.coverImages}
+                                large={mytrips?.data?.coverImages?.length < 2}
+                                onCheckDetails={() => setWishListOpen({ id: "1", open: true , label:"favourites" })}
+                            />
                 {
                     wishlistData.map((val, i) => {
                         return (
@@ -75,7 +90,7 @@ export function WishlistSection() {
                                 savedCount={val.savedCount}
                                 images={val.images}
                                 large={val.large}
-                                onCheckDetails={() => setWishListOpen({ id: val.id, open: true })}
+                                onCheckDetails={() => setWishListOpen({ id: val.id, open: true , label:"wishlists" })}
                             />
                         )
                     })
@@ -87,7 +102,8 @@ export function WishlistSection() {
 import Image from "next/image"
 import { Card } from "@/components/ui/card"
 import React from "react"
-import { SavedTripsSection } from "./details-lists"
+import { labelType, SavedTripsSection } from "./details-lists"
+import { useGetFavouriteSummary } from "@/services/hotel/querys"
 
 
 export function WishlistCard({
@@ -98,8 +114,9 @@ export function WishlistCard({
     onCheckDetails
 
 }: WishListCardProps) {
+    
     return (
-        <Card className="overflow-hidden rounded-xl shadow-sm hover:shadow-md transition bg-background" onClick={onCheckDetails} >
+        <Card className="overflow-hidden min-w-[150px] rounded-xl shadow-sm hover:shadow-md transition bg-background" onClick={onCheckDetails} >
             <div className="p-3 space-y-4">
                 {/* Image Section */}
                 {large ? (
@@ -113,7 +130,7 @@ export function WishlistCard({
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 gap-2">
-                        {images.slice(0, 4).map((img, index) => (
+                        {images?.slice(0, 4).map((img, index) => (
                             <div
                                 key={index}
                                 className="relative h-28 rounded-lg overflow-hidden"

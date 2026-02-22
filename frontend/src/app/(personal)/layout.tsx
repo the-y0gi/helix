@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { CommonPagesStyles } from "@/styles/commonpages-styles";
 import React from "react";
 
-type Props = {};
 
 const layout = ({ children }: { children: React.ReactNode }) => {
   return (

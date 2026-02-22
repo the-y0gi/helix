@@ -22,9 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import CpontrySelector from "./country";
-import { useCurrentUser } from "@/services/querys";
-import { currentUser } from "@/services/user.service";
+import { useCurrentUser } from "@/services/hotel/querys";
 
 export function UserProfileFields({ currUser, refetch }: { currUser: any; refetch: () => void }) {
   const { updateUser } = useAuthStore();
@@ -320,7 +318,7 @@ const ProfileAvatar = ({ className, currUser, refetch }: { className?: string; c
       setUploading(false);
     }
   };
-  console.log(currUser);
+  // console.log(currUser);
 
   return (
     <div className={cn("flex items-center gap-3 px-2 py-3 w-full ", className)}>

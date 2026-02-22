@@ -6,11 +6,20 @@ import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Heart } from "lucide-react"
-import { IconCross, IconStackBackward } from "@tabler/icons-react"
-export function SavedTripsSection({ setDetails }: {
-    setDetails: React.Dispatch<React.SetStateAction<{ open: boolean; id: string; }>>
+import {  useGetMyTrips } from "@/services/hotel/querys"
+import { LikeIcon } from "@/services/dailyfunctions"
+export type labelType = "favourites" | "wishlists"
+export function SavedTripsSection({ setDetails , label }: {label:labelType,
+    setDetails: React.Dispatch<React.SetStateAction<{ open: boolean; id: string; label:labelType}>>
 }) {
+    // const {data:myTripdata_useGetMyTrips} = useGetMyTrips()
+    //   console.log("myTripdata_useGetMyTrips",myTripdata_useGetMyTrips)
+    const querys = {
+            favourites: useGetMyTrips(),
+            wishlists: useGetMyTrips()
+        }
+        const {data} = querys[label as keyof typeof querys]
+        const alldata = data?.data
     return (
         <div className="rounded-xl  bg-background p-8 space-y-8">
             <div className="flex items-center justify-between">
@@ -19,33 +28,37 @@ export function SavedTripsSection({ setDetails }: {
                     <Button variant="ghost" size="icon">
                         <Share2 size={18} />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => setDetails({ open: false, id: "" })}>
+                    <Button variant="ghost" size="icon" onClick={() => setDetails({ open: false, id: "" ,label:"favourites" })}>
                         Back
                     </Button>
                 </div>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <SavedPropertyCard
-                    title="Blue Horizon Villa"
-                    image="/room1.png"
-                    location="Amalfi Coast, Italy"
-                    distance="3 km from down town"
-                />
+            <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-3">
 
-                <SavedPropertyCard
-                    title="Forest Whisper Cabin"
-                    image="/room1.png"
-                    location="Amalfi Coast, Italy"
-                    distance="3 km from down town"
-                />
+                {
+                    alldata?.map((val :SavedPropertyCardProps)=>{
 
-                <SavedPropertyCard
-                    title="Seaside Serenity Villa"
-                    image="/room1.png"
-                    location="Amalfi Coast, Italy"
-                    distance="3 km from down town"
-                />
+                        return (
+                             <SavedPropertyCard
+                                name={val.name}
+                                title={val.name}
+                                thumbnail={val.thumbnail}
+                                location={val.location}
+                                city={val.city}
+                                _id={val._id}
+                                isMyFavourite={val.isMyFavourite}
+                                numReviews={val.numReviews}
+                                rating={val.rating}
+                                distance="23"
+                                key={val._id}
+                            />
+                        )
+                    })
+                }
+               
+
+                
             </div>
         </div>
     )
@@ -53,49 +66,61 @@ export function SavedTripsSection({ setDetails }: {
 
 
 interface SavedPropertyCardProps {
+    name:string
     title: string
-    image: string
+     _id:string
+    thumbnail: string
     location: string
     distance: string
+    city:string
+    isMyFavourite:boolean
+    numReviews:number
+    rating:number
 }
 
 export function SavedPropertyCard({
     title,
-    image,
+    thumbnail,
     location,
     distance,
+    city,
+    isMyFavourite,
+    numReviews,
+    rating,
+    _id
 }: SavedPropertyCardProps) {
     return (
-        <Card className="rounded-xl overflow-hidden shadow-sm transition bg-background pt-0">
+        <Card className="rounded-xl min-w-[150px] overflow-hidden shadow-sm transition bg-background pt-0">
             <div className="relative h-56 w-full">
                 <Image
-                    src={image}
+                    src={thumbnail || "/room1.png"}
                     alt={title}
                     fill
                     className="object-cover"
                 />
+                <LikeIcon _id={_id} name={title} isFavourite={isMyFavourite}/>
 
-                <button className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-sm">
+                {/* <button className="absolute top-3 right-3 bg-card rounded-full p-2 shadow-sm">
                     <Heart size={16} className="text-red-500 fill-red-500" />
-                </button>
+                </button> */}
             </div>
 
             <CardContent className="p-4 space-y-3">
                 <div className="flex items-center gap-2 text-sm">
                     <Badge className="bg-blue-600 text-white px-2 py-0.5 text-xs">
-                        5.0
+                        {rating}
                     </Badge>
                     <span className="text-blue-600 font-medium text-xs">
                         Excellent
                     </span>
                     <span className="text-muted-foreground text-xs">
-                        160 reviews
+                        {numReviews} reviews
                     </span>
                 </div>
 
                 <h3 className="font-semibold text-sm">{title}</h3>
 
-                <p className="text-blue-600 text-sm">{location}</p>
+                <p className="text-blue-600 text-sm">{location} {city}</p>
 
                 <p className="text-muted-foreground text-xs">{distance}</p>
 

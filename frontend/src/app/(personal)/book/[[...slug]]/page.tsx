@@ -2,12 +2,11 @@ import PaymentsContextProvider from "@/context/payments-form-provider";
 import { cn } from "@/lib/utils";
 import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { BookingDetailsCard, BookingForm, PaymentForm, StepsView } from "./_components/paymentform";
+import { BookingForm } from "./_components/paymentform";
 
 
-type Props = {};
 
-const page = async ({ className, params }: { className?: string, params: Promise<{ slug: string }> }) => {
+const page = async ({ className, params }: { className?: string, params: Promise<{ slug: string[] }> }) => {
   const { slug } = await params
   console.log(slug);
   // const [hotel, setHotel] = React.useState<Hotel | null>(null);

@@ -1,17 +1,27 @@
 "use client"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { useMyBookingsQuery } from "@/services/hotel/querys"
 
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import ReservationDetailsPage from "./details-trips"
 
-type ReservationStatus = "confirmed" | "pending"
+import EmptyBookings from "./notrips"
+type ReservationStatus = "confirmed" | "pending" | "cancelled" | "completed" | "active" | "all"
 
 export interface ReservationCardProps {
+  _id: string
   hotelName: string
-  image: string
+  thumbnail: string
   checkIn: string
   checkOut: string
-  guests: string
+  guests: {
+    adults: number
+    children: number
+  }
   bookingId: string
   status: ReservationStatus
   onCheckDetails?: () => void
@@ -19,14 +29,36 @@ export interface ReservationCardProps {
 
 
 export function AllReservations({ variant }: { variant: "cancelled" | "all" | "completed" | "active" }) {
-  const { data: tripsdata, isLoading } = useTripsQuery();
+  const { data: tripsdata_unfiltered, isLoading } = useMyBookingsQuery();
+  // const {data:myTripdata_ME} = useGetMyTripME()
+  console.log(tripsdata_unfiltered);
+  
+  const trips = tripsdata_unfiltered?.data ?? [];
+  
+  // console.log("myTripdata_ME", myTripdata_ME);
+  // console.log("myTripdata_useGetMyTrips", myTripdata_useGetMyTrips);
+  // console.log("myTripdata_useGetFavouriteSummary", myTripdata_useGetFavouriteSummary);
 
-
-  const [details, setDetails] = useState({
+  const tripsdata =
+    variant === "all"
+      ? trips
+      : trips.filter((val: ReservationCardProps) =>
+        variant === "active"
+          ? val.status === "confirmed" ||val.status ==="pending"
+          : val.status === variant
+      );
+  const [details, setDetails] = useState<{ id: string, open: boolean }>({
     id: "",
     open: false
   })
-  if (details.open) return <ReservationDetailsPage setDetails={setDetails} />
+  // console.log(tripsdata);
+  if (isLoading) return <p>loading</p>
+  if (!tripsdata) return <p>no bookings</p>
+
+  if (details.open) return <ReservationDetailsPage setDetails={setDetails} id={details.id} />
+
+
+  if(tripsdata.length === 0) return <EmptyBookings variant={variant}/>
   return (
     <div className="rounded-xl shadow-sm  p-8 space-y-6  max-h-screen overflow-y-scroll">
       <div>
@@ -36,20 +68,24 @@ export function AllReservations({ variant }: { variant: "cancelled" | "all" | "c
         </p>
       </div>
 
-      {tripsdata?.map((val, i) => {
+      {tripsdata?.map((val: ReservationCardProps) => {
         return (
-          <div key={i}>
+          <div key={val._id}>
             <ReservationCard
-
+              _id={val._id}
               hotelName={val.hotelName}
-              image={val.image}
+              thumbnail={val.thumbnail}
               checkIn={val.checkIn}
               checkOut={val.checkOut}
-              guests={val.guests}
+              guests={
+                {
+                  adults: val.guests.adults,
+                  children: val.guests.children
+                }
+              }
               bookingId={val.bookingId}
               status={val.status}
-              onCheckDetails={() => setDetails({ id: val.bookingId, open: true })}
-            />
+              onCheckDetails={() => setDetails({ id: val._id, open: true })} />
             <Separator />
           </div>
         )
@@ -59,19 +95,13 @@ export function AllReservations({ variant }: { variant: "cancelled" | "all" | "c
   )
 }
 
-import Image from "next/image"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { useTripsQuery } from "@/services/querys"
 
 
 
 
 export function ReservationCard({
   hotelName,
-  image,
+  thumbnail,
   checkIn,
   checkOut,
   guests,
@@ -80,6 +110,8 @@ export function ReservationCard({
   onCheckDetails,
 }: ReservationCardProps) {
   const isConfirmed = status === "confirmed"
+  // console.log(thumbnail);
+
 
   return (
     <Card className="rounded-xl bg-background shadow-none border-none">
@@ -87,12 +119,11 @@ export function ReservationCard({
         <div className="flex items-start justify-between gap-6">
           {/* Left Section */}
           <div className="flex gap-4">
-            <div className="relative h-20 w-20 overflow-hidden rounded-md">
-              <Image
-                src="/room1.png"
+            <div className="h-20 w-20 overflow-hidden rounded-md">
+              <img
+                src={thumbnail || "/room1.png"}
                 alt={hotelName}
-                fill
-                className="object-cover"
+                className="h-full w-full object-cover"
               />
             </div>
 
@@ -102,15 +133,15 @@ export function ReservationCard({
               <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
                 <p>
                   <span className="font-medium text-foreground">Check in:</span>{" "}
-                  {checkIn}
+                  {new Date(checkIn).toDateString()}
                 </p>
                 <p>
                   <span className="font-medium text-foreground">Check out:</span>{" "}
-                  {checkOut}
+                  {new Date(checkOut).toDateString()}
                 </p>
                 <p>
                   <span className="font-medium text-foreground">Guests:</span>{" "}
-                  {guests}
+                  {guests.adults + guests.children}
                 </p>
               </div>
             </div>

@@ -45,7 +45,7 @@ export function PopularDestinationCarousel({
   if (!tabs) {
     return (
       <div className="w-full">
-        <h2 className="mb-4 text-lg font-semibold">{tagline}</h2>
+        <h2 className="mb-2 text-lg font-semibold">{tagline}</h2>
         <OnlyCarousel type={type} />
       </div>
     )
@@ -53,7 +53,7 @@ export function PopularDestinationCarousel({
 
   return (
     <div className="w-full">
-      <h2 className="mb-6 text-lg font-semibold">Trending {active}</h2>
+      <h2 className="mb-3 text-lg font-semibold">Trending {active}</h2>
 
       {/* MASKING WRAPPER (key fix) */}
       <div className="relative w-full overflow-hidden">
@@ -81,7 +81,7 @@ export function PopularDestinationCarousel({
           {tabs.map((tab, i) => (
             <button
               key={tab.name}
-              ref={(el) => {tabRefs.current[i] = el}}
+              ref={(el) => { tabRefs.current[i] = el }}
               onClick={() => {
                 setActive(tab.name)
                 setActiveIndex(i)
@@ -100,7 +100,7 @@ export function PopularDestinationCarousel({
       </div>
 
       {/* Content */}
-      <div className="mt-4 min-h-[260px]">
+      <div className="mt-2 min-h-[260px]">
         <OnlyCarousel key={active} type={type} />
       </div>
     </div>
