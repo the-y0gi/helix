@@ -81,7 +81,7 @@ const roomTypeSchema = new mongoose.Schema(
 
     viewType: {
       type: String,
-      enum: ["city", "sea", "garden", "mountain", "none"],
+      enum: ["city", "sea", "garden", "mountain", "lake","none"],
       default: "none",
     },
 

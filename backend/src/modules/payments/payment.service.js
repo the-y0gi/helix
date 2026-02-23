@@ -4,10 +4,12 @@ const Booking = require("../bookings/booking.model");
 const Payment = require("./payment.model");
 const Availability = require("../availability/availability.model");
 const Hotel = require("../hotels/hotel.model");
+const RoomType = require("../rooms/roomType.model");
 const logger = require("../../shared/utils/logger");
 const {
   sendBookingConfirmationEmail,
 } = require("../../shared/utils/sendEmail");
+
 
 exports.verifyPayment = async (data) => {
   const session = await mongoose.startSession();
@@ -24,19 +26,15 @@ exports.verifyPayment = async (data) => {
       razorpayOrderId: razorpay_order_id,
     }).session(session);
 
-    if (!payment) {
-      throw new Error("Payment record not found");
-    }
+    if (!payment) throw new Error("Payment record not found");
 
-    //Idempotency Check
+    //Idempotency check
     if (payment.isVerified && payment.status === "captured") {
       const existingBooking = await Booking.findById(payment.bookingId).session(
         session,
       );
-
       await session.commitTransaction();
       session.endSession();
-
       return existingBooking;
     }
 
@@ -44,8 +42,8 @@ exports.verifyPayment = async (data) => {
       throw new Error("Invalid payment state");
     }
 
+    //Signature verify
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
-
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
       .update(body)
@@ -63,10 +61,7 @@ exports.verifyPayment = async (data) => {
     await payment.save({ session });
 
     const booking = await Booking.findById(payment.bookingId).session(session);
-
-    if (!booking) {
-      throw new Error("Booking not found");
-    }
+    if (!booking) throw new Error("Booking not found");
 
     if (booking.status !== "pending") {
       throw new Error("Invalid booking state");
@@ -75,55 +70,68 @@ exports.verifyPayment = async (data) => {
     if (payment.amountPaid !== booking.totalAmount) {
       throw new Error("Payment amount mismatch");
     }
+
     const hotel = await Hotel.findById(booking.hotelId).session(session);
     if (!hotel || !hotel.isActive) {
       throw new Error("Hotel no longer available");
     }
 
-    const RoomType = mongoose.model("RoomType");
     const roomTypeData = await RoomType.findById(booking.roomTypeId).session(
       session,
     );
-
     if (!roomTypeData) {
-      throw new Error("Room type definition not found");
+      throw new Error("Room type not found");
     }
 
     const startDate = new Date(booking.checkIn);
-    const endDate = new Date(booking.checkOut);
 
+    //INVENTORY LOCK (Atomic)
     for (let i = 0; i < booking.nights; i++) {
       const currentDate = new Date(startDate);
-      currentDate.setDate(startDate.getDate() + i);
+      currentDate.setDate(currentDate.getDate() + i);
       currentDate.setHours(0, 0, 0, 0);
 
-      const result = await Availability.updateOne(
-        {
-          roomTypeId: booking.roomTypeId,
-          date: currentDate,
-          $or: [
-            { availableRooms: { $gte: booking.roomsBooked } },
-            { availableRooms: { $exists: false } },
-          ],
-        },
-        {
-          $setOnInsert: {
-            hotelId: booking.hotelId,
-            roomTypeId: booking.roomTypeId,
-            date: currentDate,
-            status: "available",
-            totalRooms: roomTypeData.totalRooms,
-          },
-          $inc: { availableRooms: -booking.roomsBooked },
-        },
-        {
-          session,
-          upsert: true,
-        },
-      );
+      //Check if availability doc exists
+      const existingDoc = await Availability.findOne({
+        roomTypeId: booking.roomTypeId,
+        date: currentDate,
+      }).session(session);
 
-      if (result.matchedCount === 0 && result.upsertedCount === 0) {
-        throw new Error("Rooms just sold out for specific dates.");
+      if (existingDoc) {
+        const available =
+          roomTypeData.totalRooms -
+          existingDoc.bookedRooms -
+          existingDoc.blockedRooms;
+
+        if (available < booking.roomsBooked) {
+          throw new Error(
+            `Rooms just sold out for ${currentDate.toDateString()}`,
+          );
+        }
+
+        await Availability.updateOne(
+          { _id: existingDoc._id },
+          { $inc: { bookedRooms: booking.roomsBooked } },
+          { session },
+        );
+      } else {
+        if (booking.roomsBooked > roomTypeData.totalRooms) {
+          throw new Error(
+            `Rooms just sold out for ${currentDate.toDateString()}`,
+          );
+        }
+
+        await Availability.create(
+          [
+            {
+              roomTypeId: booking.roomTypeId,
+              date: currentDate,
+              bookedRooms: booking.roomsBooked,
+              blockedRooms: 0,
+            },
+          ],
+          { session },
+        );
       }
     }
 
@@ -134,6 +142,8 @@ exports.verifyPayment = async (data) => {
 
     await session.commitTransaction();
     session.endSession();
+
+    // 🔹 Send email after commit
     try {
       await sendBookingConfirmationEmail(booking.primaryGuest.email, {
         customerName: booking.primaryGuest.firstName,
@@ -145,8 +155,9 @@ exports.verifyPayment = async (data) => {
         amount: booking.totalAmount,
       });
     } catch (mailErr) {
-      logger.error("Booking Confirmation Email failed to send:", mailErr);
+      logger.error("Booking Confirmation Email failed:", mailErr);
     }
+
     return booking;
   } catch (err) {
     await session.abortTransaction();

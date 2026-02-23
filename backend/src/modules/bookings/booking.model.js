@@ -5,22 +5,18 @@ const bookingSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
-      required: true,
-      index: true,
     },
 
     hotelId: {
       type: mongoose.Schema.ObjectId,
       ref: "Hotel",
       required: true,
-      index: true,
     },
 
     roomTypeId: {
       type: mongoose.Schema.ObjectId,
       ref: "RoomType",
       required: true,
-      index: true,
     },
 
     bookingReference: {
@@ -172,6 +168,11 @@ const bookingSchema = new mongoose.Schema(
 
     cancelledAt: Date,
     cancellationReason: String,
+
+    specialRequest: {
+      type: String,
+      trim: true,
+    },
   },
   { timestamps: true },
 );
@@ -184,6 +185,5 @@ bookingSchema.index({
   checkOut: 1,
   status: 1,
 });
-
 
 module.exports = mongoose.model("Booking", bookingSchema);

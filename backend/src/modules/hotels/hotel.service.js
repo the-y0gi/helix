@@ -293,7 +293,8 @@ exports.getHotelAvailability = async (
   adults,
   children,
 ) => {
-  if (!checkIn || !checkOut) throw new Error("Check-in and check-out required");
+  if (!checkIn || !checkOut)
+    throw new Error("Check-in and check-out required");
 
   const startDate = new Date(checkIn);
   const endDate = new Date(checkOut);
@@ -301,9 +302,15 @@ exports.getHotelAvailability = async (
   startDate.setHours(0, 0, 0, 0);
   endDate.setHours(0, 0, 0, 0);
 
-  if (startDate >= endDate) throw new Error("Invalid date range");
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+  throw new Error("Invalid date format");
+}
 
-  const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
+  if (startDate >= endDate)
+    throw new Error("Invalid date range");
+
+  const nights =
+    (endDate - startDate) / (1000 * 60 * 60 * 24);
 
   const hotel = await Hotel.findOne({
     _id: hotelId,
@@ -317,54 +324,49 @@ exports.getHotelAvailability = async (
     isActive: true,
   }).lean();
 
+  if (!roomTypes.length) {
+    return { roomTypes: [] };
+  }
+
+  //Fetch all relevant bookings in ONE query
+  const bookings = await Booking.find({
+    hotelId,
+    status: { $in: ["confirmed", "pending"] },
+    checkIn: { $lt: endDate },
+    checkOut: { $gt: startDate },
+  }).lean();
+
+  //Build in-memory booking map
+  // roomTypeId -> dateString -> bookedCount
+  const bookingMap = {};
+
+  for (const booking of bookings) {
+    const bookingStart = new Date(booking.checkIn);
+    const bookingEnd = new Date(booking.checkOut);
+
+    bookingStart.setHours(0, 0, 0, 0);
+    bookingEnd.setHours(0, 0, 0, 0);
+
+    for (
+      let d = new Date(bookingStart);
+      d < bookingEnd;
+      d.setDate(d.getDate() + 1)
+    ) {
+      const dateStr = d.toISOString().split("T")[0];
+
+      if (!bookingMap[booking.roomTypeId]) {
+        bookingMap[booking.roomTypeId] = {};
+      }
+
+      bookingMap[booking.roomTypeId][dateStr] =
+        (bookingMap[booking.roomTypeId][dateStr] || 0) +
+        booking.roomsBooked;
+    }
+  }
+
   const results = [];
 
   for (const room of roomTypes) {
-    let minAvailable = room.totalRooms;
-    let totalPrice = 0;
-    let isAvailable = true;
-
-    for (let i = 0; i < nights; i++) {
-      const date = new Date(startDate);
-      date.setDate(date.getDate() + i);
-
-      // Sum booked rooms
-      const booked = await Booking.aggregate([
-        {
-          $match: {
-            roomTypeId: room._id,
-            status: { $in: ["confirmed", "pending"] },
-            checkIn: { $lte: date },
-            checkOut: { $gt: date },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            totalBooked: { $sum: "$roomsBooked" },
-          },
-        },
-      ]);
-
-      const bookedCount = booked[0]?.totalBooked || 0;
-
-      const available = room.totalRooms - bookedCount;
-
-      if (available <= 0) {
-        isAvailable = false;
-        break;
-      }
-
-      minAvailable = Math.min(minAvailable, available);
-
-      const price =
-        room.discountPrice > 0 ? room.discountPrice : room.basePrice;
-
-      totalPrice += price;
-    }
-
-    if (!isAvailable) continue;
-
     if (adults || children) {
       if (
         room.capacity.adults < adults ||
@@ -373,6 +375,39 @@ exports.getHotelAvailability = async (
         continue;
       }
     }
+
+    let minAvailable = room.totalRooms;
+    let totalPrice = 0;
+    let isAvailable = true;
+
+    for (let i = 0; i < nights; i++) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + i);
+
+      const dateStr = date.toISOString().split("T")[0];
+
+      const bookedCount =
+        bookingMap[room._id]?.[dateStr] || 0;
+
+      const available =
+        room.totalRooms - bookedCount;
+
+      if (available < 1) {
+        isAvailable = false;
+        break;
+      }
+
+      minAvailable = Math.min(minAvailable, available);
+
+      const price =
+        room.discountPrice > 0
+          ? room.discountPrice
+          : room.basePrice;
+
+      totalPrice += price;
+    }
+
+    if (!isAvailable) continue;
 
     results.push({
       ...room,
@@ -383,7 +418,6 @@ exports.getHotelAvailability = async (
   }
 
   return {
-    // ...hotel,
     roomTypes: results,
   };
 };

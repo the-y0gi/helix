@@ -45,10 +45,16 @@ export type BookingData = {
   roomTypeId: string;
   checkIn: string;
   checkOut: string;
-  guests: number;
+  guests: {
+    adults: number;
+    children: number;
+  };
   roomsBooked: number;
   primaryGuest: GuestInfo;
-  additionalGuests: GuestInfo[];
+  additionalGuests: {
+    firstName: string;
+    lastName: string;
+  }[];
   specialRequest?: string | null;
 };
 export const BookingForm = ({ slug }: { slug: string[] }) => {
@@ -92,7 +98,11 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
         roomTypeId: slug[1],
         checkIn: data.dates.checkin,
         checkOut: data.dates.checkout,
-        guests: data.guests.adults + data.guests.children,
+
+        guests: {
+          adults: data.guests.adults,
+          children: data.guests.children,
+        },
         roomsBooked: data.rooms.length || 1,
 
         primaryGuest: {
@@ -105,8 +115,6 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
         additionalGuests: data.guestInformation.slice(1).map((guest) => ({
           firstName: guest.firstname || "",
           lastName: guest.lastname || "",
-          email: guest.email || "",
-          phoneNumber: guest.phone || "",
         })),
 
         specialRequest: data.specialRequest,
