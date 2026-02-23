@@ -912,3 +912,554 @@ export const HighLightBar = () => {
     </div>
   );
 };
+
+// "use client";
+
+// import React, { useRef, useState } from "react";
+// import { useRouter } from "next/navigation";
+// import { useForm, useFormContext, UseFormReturn, useFieldArray } from "react-hook-form";
+// import { zodResolver } from "@hookform/resolvers/zod";
+// import { format } from "date-fns";
+// import { toast } from "sonner";
+// import { CheckCircle2, Copy, CreditCard, Calendar, Users, Info, Plus } from "lucide-react";
+// import html2pdf from "html2pdf.js";
+
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Input } from "@/components/ui/input";
+// import { Textarea } from "@/components/ui/textarea";
+// import { Button } from "@/components/ui/button";
+// import { Separator } from "@/components/ui/separator";
+// import { Spinner } from "@/components/spinner";
+// import { ScrollToTop } from "../../../../../../scrolltoto";
+// import { PhoneInput } from "./phoneinput";
+// import { Field } from "@/components/ui/field";
+// import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+// import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
+// import { cn } from "@/lib/utils";
+// import { usePaymentsContext } from "@/context/payments-form-provider";
+// import { Payment, useHotelStore } from "@/store/hotel.store";
+// import { PaymentProps, PaymentSchema } from "@/schema/payment.schema";
+// import { createBooking, verifyPayment } from "@/services/booking/booking.service";
+// import { VisitorsMembers } from "@/app/(home)/hotels/[hotel]/_components/tabs";
+// import { HotelCalender } from "@/app/(home)/hotels/[hotel]/_components/calander-booking";
+
+// export const BookingForm = ({ slug }: { slug: string[] }) => {
+//   const { setPayments, date, guests } = useHotelStore();
+//   const { setCurrentStep, currentstep } = usePaymentsContext();
+//   const [loading, setLoading] = useState<boolean>(false);
+//   const navigate = useRouter();
+  
+//   const total = (guests?.adults || 0) + (guests?.children || 0);
+
+//   const methods = useForm<PaymentProps>({
+//     resolver: zodResolver(PaymentSchema),
+//     defaultValues: {
+//       dates: {
+//         checkin: date?.from?.toISOString() || "",
+//         checkout: date?.to?.toISOString() || "",
+//       },
+//       guests: {
+//         adults: guests?.adults || 0,
+//         children: guests?.children || 0,
+//       },
+//       guestInformation: Array(total || 1).fill({
+//         firstname: "",
+//         lastname: "",
+//         email: "",
+//         phone: "",
+//       }),
+//       specialRequest: "",
+//       rooms: [],
+//     },
+//     mode: "onChange",
+//   });
+
+//   const onSubmit = async (data: PaymentProps) => {
+//     try {
+//       setLoading(true);
+//       const bookingData = {
+//         hotelId: slug[0],
+//         roomTypeId: slug[1],
+//         checkIn: data.dates.checkin,
+//         checkOut: data.dates.checkout,
+//         guests: { adults: data.guests.adults, children: data.guests.children },
+//         roomsBooked: data.rooms.length || 1,
+//         primaryGuest: {
+//           firstName: data.guestInformation[0]?.firstname || "",
+//           lastName: data.guestInformation[0]?.lastname || "",
+//           email: data.guestInformation[0]?.email || "",
+//           phoneNumber: data.guestInformation[0]?.phone || "",
+//         },
+//         additionalGuests: data.guestInformation.slice(1).map((guest) => ({
+//           firstName: guest.firstname || "",
+//           lastName: guest.lastname || "",
+//         })),
+//         specialRequest: data.specialRequest,
+//       };
+
+//       const result = await createBooking(bookingData);
+
+//       if (result?.success) {
+//         const { razorpayOrder, booking } = result.data;
+//         setPayments({
+//           ...result.data, // assuming spread for basic fields
+//           razorpay_order_id: razorpayOrder.id,
+//           razorpay_payment_id: razorpayOrder.id,
+//           razorpay_signature: razorpayOrder.receipt,
+//           amount: razorpayOrder.amount,
+//           currency: razorpayOrder.currency,
+//           status: razorpayOrder.status,
+//           firstname: booking.primaryGuest.firstName,
+//           lastname: booking.primaryGuest.lastName,
+//           email: booking.primaryGuest.email,
+//           phone: booking.primaryGuest.phoneNumber,
+//           createdAt: booking.createdAt,
+//         });
+        
+//         setCurrentStep((val) => val + 1);
+
+//         const options = {
+//           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+//           amount: razorpayOrder.amount,
+//           currency: razorpayOrder.currency,
+//           name: "Hilex Booking",
+//           description: `Booking for ${booking.bookingReference}`,
+//           order_id: razorpayOrder.id,
+//           handler: async function (response: any) {
+//             const verifyResult = await verifyPayment(response);
+//             if (verifyResult.success) {
+//               toast.success("Payment successful! Booking confirmed.");
+//             } else {
+//               toast.error("Payment verification failed.");
+//             }
+//           },
+//           prefill: {
+//             name: `${data.guestInformation[0].firstname} ${data.guestInformation[0].lastname}`,
+//             email: data.guestInformation[0].email,
+//             contact: data.guestInformation[0].phone,
+//           },
+//           theme: { color: "#EA580C" },
+//         };
+
+//         const rzp = new (window as any).Razorpay(options);
+//         rzp.open();
+//       } else {
+//         toast.error(result?.message || "Failed to create booking.");
+//       }
+//     } catch (error: any) {
+//       toast.error(error.response?.data?.message || "An error occurred.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <Form {...methods}>
+//       <form onSubmit={methods.handleSubmit(onSubmit)} className="container max-w-7xl mx-auto px-4">
+//         <StepsView />
+//         {!loading ? (
+//           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+//             <div className="lg:col-span-8">
+//               <PaymentForm methods={methods} />
+//             </div>
+//             {currentstep === 2 && (
+//               <div className="lg:col-span-4">
+//                 <div className="sticky top-24">
+//                   <BookingDetailsCard
+//                     hotelid={slug[0]}
+//                     roomTypeId={slug[1]}
+//                     loading={loading}
+//                   />
+//                 </div>
+//               </div>
+//             )}
+//           </div>
+//         ) : (
+//           <div className="w-full flex flex-col items-center justify-center py-32 space-y-4">
+//             <Spinner />
+//             <p className="text-muted-foreground animate-pulse">Processing your request...</p>
+//           </div>
+//         )}
+//       </form>
+//     </Form>
+//   );
+// };
+
+// export const StepsView = () => (
+//   <div className="w-full py-8 overflow-x-auto">
+//     <HighLightBar />
+//   </div>
+// );
+
+// export const PaymentForm = ({ methods }: { methods: UseFormReturn<PaymentProps> }) => {
+//   const { currentstep } = usePaymentsContext();
+//   if (currentstep === 2) return <BookingDetails methods={methods} />;
+//   return <FinalStep />;
+// };
+
+// export const FinalStep = () => {
+//   const { payments } = useHotelStore();
+//   if (!payments) return null;
+//   return (
+//     <div className="w-full">
+//       <ScrollToTop />
+//       <PaymentSuccess payment={payments} />
+//     </div>
+//   );
+// };
+
+// export function PaymentSuccess({ payment }: { payment: Payment }) {
+//   const receiptRef = useRef<HTMLDivElement>(null);
+//   const router = useRouter();
+
+//   const formatAmount = (amount: number) => 
+//     (amount / 100).toLocaleString("en-IN", { style: "currency", currency: payment.currency || "INR" });
+
+//   const formatDate = (iso: string) => 
+//     new Date(iso).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+//   return (
+//     <div className="max-w-4xl mx-auto py-10">
+//       <Card className="overflow-hidden shadow-2xl border-none">
+//         <div className="bg-primary text-primary-foreground p-8 text-center space-y-2">
+//           <div className="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+//             <CheckCircle2 className="h-10 w-10 text-white" />
+//           </div>
+//           <h1 className="text-3xl font-bold">Payment Confirmed!</h1>
+//           <p className="opacity-90">Your booking is secured. Get ready for your trip!</p>
+//         </div>
+
+//         <CardContent className="p-0" ref={receiptRef}>
+//           <div className="p-8 space-y-8 bg-white dark:bg-zinc-950">
+//             <div className="text-center space-y-1">
+//               <span className="text-sm uppercase tracking-widest text-muted-foreground font-semibold">Total Amount Paid</span>
+//               <h2 className="text-5xl font-black text-primary">{formatAmount(payment.amount)}</h2>
+//               <div className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold mt-2">
+//                 {payment.status.toUpperCase()}
+//               </div>
+//             </div>
+
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               <InfoItem label="Payment ID" value={payment.razorpay_payment_id} copyable />
+//               <InfoItem label="Order ID" value={payment.razorpay_order_id} copyable />
+//               <InfoItem label="Guest Name" value={`${payment.firstname} ${payment.lastname || ""}`} />
+//               <InfoItem label="Date & Time" value={formatDate(payment.createdAt)} />
+//               <InfoItem label="Email Address" value={payment.email} />
+//               <InfoItem label="Phone Number" value={payment.phone} />
+//             </div>
+//           </div>
+//         </CardContent>
+
+//         <div className="p-6 bg-muted/30 border-t flex flex-col sm:flex-row gap-4 justify-center">
+//           <Button size="lg" className="w-full sm:w-auto px-10">Download Receipt</Button>
+//           <Button variant="outline" size="lg" className="w-full sm:w-auto px-10" onClick={() => router.push("/")}>
+//             Go to Home
+//           </Button>
+//         </div>
+//       </Card>
+//     </div>
+//   );
+// }
+
+// function InfoItem({ label, value, copyable, long }: { label: string; value: string; copyable?: boolean; long?: boolean }) {
+//   return (
+//     <div className="p-4 rounded-xl border bg-card hover:shadow-md transition-shadow">
+//       <dt className="text-xs font-bold text-muted-foreground uppercase tracking-tight mb-1">{label}</dt>
+//       <dd className={cn("text-sm font-mono font-medium truncate", long && "whitespace-normal")}>{value}</dd>
+//       {copyable && (
+//         <button 
+//           onClick={() => { navigator.clipboard.writeText(value); toast.success("Copied!"); }}
+//           className="mt-2 text-[10px] text-primary flex items-center gap-1 font-bold hover:underline"
+//         >
+//           <Copy className="h-3 w-3" /> COPY
+//         </button>
+//       )}
+//     </div>
+//   );
+// }
+
+// export const BookingDetailsCard = ({ loading }: { loading?: boolean; hotelid: string; roomTypeId: string }) => {
+//   const { selectedRoom } = useHotelStore();
+//   const methods = useFormContext<PaymentProps>();
+//   const navigate = useRouter();
+
+//   if (!selectedRoom) return null;
+
+//   const nights = selectedRoom?.nights || 0;
+//   const totalPrice = selectedRoom?.totalPrice || 0;
+
+//   return (
+//     <Card className="shadow-lg border-primary/10 overflow-hidden">
+//       <img src={selectedRoom.image || "/img1.png"} alt="Room" className="w-full h-48 object-cover" />
+//       <CardContent className="p-6 space-y-6">
+//         <div>
+//           <h3 className="text-xl font-bold">{selectedRoom.title}</h3>
+//           <p className="text-sm text-muted-foreground flex items-center gap-2 mt-2">
+//             <Calendar className="h-4 w-4" /> 
+//             {format(new Date(methods.watch("dates.checkin")), "dd MMM")} - {format(new Date(methods.watch("dates.checkout")), "dd MMM yyyy")}
+//           </p>
+//           <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+//             <Users className="h-4 w-4" /> {methods.watch("guests.adults")} Adults, {methods.watch("guests.children")} Children
+//           </p>
+//         </div>
+
+//         <Separator />
+
+//         <div className="space-y-3">
+//           <div className="flex justify-between text-sm">
+//             <span>Price for {nights} nights</span>
+//             <span className="font-semibold">₹{totalPrice.toLocaleString()}</span>
+//           </div>
+//           <div className="flex justify-between text-lg font-black border-t pt-3 text-primary">
+//             <span>Total Payable</span>
+//             <span>₹{totalPrice.toLocaleString()}</span>
+//           </div>
+//         </div>
+
+//         <Button type="submit" disabled={nights <= 0 || loading} className="w-full h-12 text-lg font-bold shadow-orange-200">
+//           {loading ? <Spinner className="mr-2" /> : <CreditCard className="mr-2 h-5 w-5" />}
+//           Proceed to Pay
+//         </Button>
+//       </CardContent>
+//     </Card>
+//   );
+// };
+
+// export function BookingDetails({ methods }: { methods: UseFormReturn<PaymentProps> }) {
+//   return (
+//     <div className="space-y-8 pb-20">
+//       <TripSummaryCard methods={methods} />
+//       <GuestInfoCard methods={methods} />
+//       <SpecialRequestCard methods={methods} />
+//       <AddOnsCard />
+//       <CancellationPolicyCard />
+//     </div>
+//   );
+// }
+
+// function TripSummaryCard({ methods }: { methods: UseFormReturn<PaymentProps> }) {
+//   const checkin = methods.getValues("dates.checkin");
+//   const checkout = methods.getValues("dates.checkout");
+//   return (
+//     <Card className="shadow-sm">
+//       <CardHeader className="flex flex-row items-center justify-between space-y-0">
+//         <div>
+//           <CardTitle className="text-xl">Your Trip Summary</CardTitle>
+//           <p className="text-sm text-muted-foreground">Confirm your dates and guests</p>
+//         </div>
+//         <DialougeEditDates methods={methods} trigger="Edit Trip" content={null} />
+//       </CardHeader>
+//       <CardContent className="grid grid-cols-2 gap-4">
+//         <div className="p-3 bg-muted/50 rounded-lg">
+//           <p className="text-xs font-bold uppercase text-muted-foreground">Check-in / Out</p>
+//           <p className="text-sm font-medium">
+//             {checkin ? format(new Date(checkin), "MMM dd") : "—"} - {checkout ? format(new Date(checkout), "MMM dd") : "—"}
+//           </p>
+//         </div>
+//         <div className="p-3 bg-muted/50 rounded-lg">
+//           <p className="text-xs font-bold uppercase text-muted-foreground">Guests</p>
+//           <p className="text-sm font-medium">
+//             {methods.watch("guests.adults")} Adults, {methods.watch("guests.children")} Children
+//           </p>
+//         </div>
+//       </CardContent>
+//     </Card>
+//   );
+// }
+
+// function GuestInfoCard({ methods }: { methods: UseFormReturn<PaymentProps> }) {
+//   const { control } = methods;
+//   const { fields } = useFieldArray({ control, name: "guestInformation" });
+
+//   return (
+//     <Card className="shadow-sm">
+//       <CardHeader>
+//         <CardTitle className="flex items-center gap-2">
+//           <Users className="h-5 w-5 text-primary" /> Guest Details
+//         </CardTitle>
+//       </CardHeader>
+//       <CardContent className="space-y-6">
+//         {fields.map((field, index) => (
+//           <div className="space-y-4 p-5 rounded-xl border bg-zinc-50/50 dark:bg-zinc-900/50" key={field.id}>
+//             <p className="font-bold text-sm flex items-center gap-2">
+//               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] text-white">
+//                 {index + 1}
+//               </span>
+//               {index === 0 ? "Primary Guest (Booking Holder)" : `Guest ${index + 1}`}
+//             </p>
+
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               <FormField
+//                 control={control}
+//                 name={`guestInformation.${index}.firstname`}
+//                 render={({ field }) => (
+//                   <FormItem>
+//                     <FormLabel>First Name</FormLabel>
+//                     <FormControl><Input placeholder="John" {...field} /></FormControl>
+//                     <FormMessage />
+//                   </FormItem>
+//                 )}
+//               />
+//               <FormField
+//                 control={control}
+//                 name={`guestInformation.${index}.lastname`}
+//                 render={({ field }) => (
+//                   <FormItem>
+//                     <FormLabel>Last Name</FormLabel>
+//                     <FormControl><Input placeholder="Doe" {...field} /></FormControl>
+//                     <FormMessage />
+//                   </FormItem>
+//                 )}
+//               />
+//               {index === 0 && (
+//                 <>
+//                   <FormItem className="md:col-span-2">
+//                     <FormLabel>Email Address</FormLabel>
+//                     <FormControl><Input type="email" placeholder="john@example.com" {...methods.register(`guestInformation.${index}.email`)} /></FormControl>
+//                     <FormMessage />
+//                   </FormItem>
+//                   <FormItem className="md:col-span-2">
+//                     <FormLabel>Phone Number</FormLabel>
+//                     <FormControl>
+//                       <PhoneInput value={methods.watch(`guestInformation.${index}.phone`)} onChange={(val) => methods.setValue(`guestInformation.${index}.phone`, val)} />
+//                     </FormControl>
+//                     <FormMessage />
+//                   </FormItem>
+//                 </>
+//               )}
+//             </div>
+//           </div>
+//         ))}
+//       </CardContent>
+//     </Card>
+//   );
+// }
+
+// function SpecialRequestCard({ methods }: { methods: UseFormReturn<PaymentProps> }) {
+//   return (
+//     <Card className="shadow-sm">
+//       <CardHeader>
+//         <CardTitle className="text-lg">Any Special Requests?</CardTitle>
+//       </CardHeader>
+//       <CardContent>
+//         <Textarea 
+//           placeholder="Early check-in, dietary requirements, etc. (Optional)" 
+//           className="min-h-[100px] bg-muted/20" 
+//           {...methods.register("specialRequest")} 
+//         />
+//       </CardContent>
+//     </Card>
+//   );
+// }
+
+// function AddOnsCard() {
+//   return (
+//     <Card className="shadow-sm border-dashed">
+//       <CardContent className="p-6 space-y-4">
+//         <div className="flex justify-between items-center gap-4">
+//           <div className="flex gap-3">
+//             <div className="h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center shrink-0">
+//               <Info className="h-5 w-5 text-orange-600" />
+//             </div>
+//             <div>
+//               <p className="font-bold text-sm">Travel Insurance</p>
+//               <p className="text-xs text-muted-foreground italic">Add protection for your trip for ₹1,000</p>
+//             </div>
+//           </div>
+//           <Button variant="outline" size="sm" className="rounded-full px-4"><Plus className="h-3 w-3 mr-1"/> Add</Button>
+//         </div>
+//       </CardContent>
+//     </Card>
+//   );
+// }
+
+// function CancellationPolicyCard() {
+//   return (
+//     <Card className="bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900">
+//       <CardContent className="p-6">
+//         <div className="flex gap-4">
+//           <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+//             <Info className="h-5 w-5 text-blue-600" />
+//           </div>
+//           <div className="space-y-1">
+//             <h4 className="font-bold text-sm text-blue-900 dark:text-blue-300">Cancellation Policy</h4>
+//             <p className="text-xs text-blue-800/70 dark:text-blue-400">
+//               Free cancellation before Aug 1. Get a partial refund if cancelled before Jul 10.
+//             </p>
+//             <Button variant="link" size="sm" className="h-auto p-0 text-blue-700 font-bold">View full policy</Button>
+//           </div>
+//         </div>
+//       </CardContent>
+//     </Card>
+//   );
+// }
+
+// export const HighLightBar = () => {
+//   const { currentstep: currentStep } = usePaymentsContext();
+//   const steps = [
+//     { id: 1, label: "Selection" },
+//     { id: 2, label: "Details" },
+//     { id: 3, label: "Confirm" }
+//   ];
+
+//   return (
+//     <div className="flex items-center justify-center w-full max-w-3xl mx-auto px-4">
+//       {steps.map((step, idx) => (
+//         <React.Fragment key={step.id}>
+//           <div className="flex flex-col items-center relative">
+//             <div className={cn(
+//               "h-10 w-10 md:h-12 md:w-12 rounded-full flex items-center justify-center font-bold transition-all duration-500 z-10",
+//               currentStep > step.id ? "bg-zinc-900 text-white" : 
+//               currentStep === step.id ? "bg-orange-500 text-white ring-4 ring-orange-100 scale-110" : 
+//               "bg-zinc-200 text-zinc-500"
+//             )}>
+//               {currentStep > step.id ? <CheckCircle2 className="h-6 w-6" /> : step.id}
+//             </div>
+//             <span className={cn(
+//               "absolute -bottom-6 text-[10px] md:text-xs font-bold uppercase tracking-tighter whitespace-nowrap",
+//               currentStep === step.id ? "text-orange-600" : "text-muted-foreground"
+//             )}>
+//               {step.label}
+//             </span>
+//           </div>
+//           {idx !== steps.length - 1 && (
+//             <div className={cn(
+//               "flex-1 h-1 mx-2 md:mx-4 rounded-full transition-colors duration-500",
+//               currentStep > step.id ? "bg-zinc-900" : "bg-zinc-200"
+//             )} />
+//           )}
+//         </React.Fragment>
+//       ))}
+//     </div>
+//   );
+// };
+
+// export function DialougeEditDates({ methods, trigger }: { methods: UseFormReturn<PaymentProps>; trigger: string; content: any }) {
+//   return (
+//     <Dialog>
+//       <DialogTrigger asChild>
+//         <Button variant="outline" size="sm" className="text-xs font-bold">
+//           {trigger}
+//         </Button>
+//       </DialogTrigger>
+//       <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden">
+//         <div className="p-6 border-b">
+//           <DialogTitle>Update Your Stay</DialogTitle>
+//           <DialogDescription>Modify dates or guest count to see updated pricing.</DialogDescription>
+//         </div>
+//         <div className="flex flex-col md:flex-row gap-0">
+//           <div className="flex-1 p-6 border-b md:border-b-0 md:border-r">
+//             <HotelCalender methods={methods} />
+//           </div>
+//           <div className="flex-1 p-6 bg-muted/20">
+//             <VisitorsMembers showCalendar={false} methods={methods} />
+//           </div>
+//         </div>
+//         <div className="p-4 bg-zinc-50 flex justify-end">
+//           <Button onClick={() => window.location.reload()}>Apply Changes</Button>
+//         </div>
+//       </DialogContent>
+//     </Dialog>
+//   );
+// }
