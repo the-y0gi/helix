@@ -41,96 +41,6 @@ exports.createHotel = async (hotelData) => {
 };
 
 // Get all hotels Supports filters, city, featured, rating
-// exports.getAllHotels = async (query = {}, userId = null) => {
-//   try {
-//     const {
-//       city,
-//       minRating,
-//       minPrice,
-//       maxPrice,
-//       amenities,
-//       minSize,
-//       maxSize,
-//       adults,
-//       children,
-//       lat,
-//       lng,
-//       maxDistance,
-//       page = 1,
-//       limit = 10,
-//     } = query;
-
-//     const skip = (page - 1) * limit;
-
-//     //RoomType Filters
-//     const roomTypeFilter = { isActive: true };
-
-//     if (minPrice || maxPrice) {
-//       roomTypeFilter.basePrice = {};
-//       if (minPrice) roomTypeFilter.basePrice.$gte = Number(minPrice);
-//       if (maxPrice) roomTypeFilter.basePrice.$lte = Number(maxPrice);
-//     }
-
-//     if (minSize || maxSize) {
-//       roomTypeFilter.roomSizeSqm = {};
-//       if (minSize) roomTypeFilter.roomSizeSqm.$gte = Number(minSize);
-//       if (maxSize) roomTypeFilter.roomSizeSqm.$lte = Number(maxSize);
-//     }
-
-//     if (adults) {
-//       roomTypeFilter["capacity.adults"] = { $gte: Number(adults) };
-//     }
-
-//     if (children) {
-//       roomTypeFilter["capacity.children"] = { $gte: Number(children) };
-//     }
-
-//     if (amenities) {
-//       roomTypeFilter.amenities = { $all: amenities.split(",") };
-//     }
-
-//     const matchingRoomTypes =
-//       await RoomType.find(roomTypeFilter).select("hotelId");
-
-//     const hotelIds = matchingRoomTypes.map((rt) => rt.hotelId);
-
-//     // Hotel Filters
-//     const hotelFilter = {
-//       _id: { $in: hotelIds },
-//       isActive: true,
-//     };
-
-//     if (city) hotelFilter.city = city;
-//     if (minRating) hotelFilter.rating = { $gte: Number(minRating) };
-
-//     // Geo Filter
-//     if (lat && lng) {
-//       hotelFilter.location = {
-//         $near: {
-//           $geometry: {
-//             type: "Point",
-//             coordinates: [Number(lng), Number(lat)],
-//           },
-//           $maxDistance: maxDistance ? Number(maxDistance) * 1000 : 100000,
-//         },
-//       };
-//     }
-
-//     const hotels = await Hotel.find(hotelFilter)
-//       .populate("vendorId", "businessName")
-//       .sort({ isFeatured: -1, rating: -1 })
-//       .skip(skip)
-//       .limit(Number(limit))
-//       .lean();
-
-//     //add favorite flag to hotels
-//     return await attachFavoriteFlag(hotels, userId);
-
-//     // return hotels;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 exports.getAllHotels = async (query = {}, userId = null) => {
   try {
     const {
@@ -248,6 +158,39 @@ exports.getAllHotels = async (query = {}, userId = null) => {
   }
 };
 
+//get home hotels
+exports.getHomeHotels = async (query = {}, userId = null) => {
+  try {
+    const { city, limit = 8 } = query;
+
+    const filter = {
+      isActive: true,
+      isFeatured: true,
+    };
+
+    if (city) filter.city = city;
+
+    const hotels = await Hotel.find(filter)
+      .select("name city images")
+      .sort({ rating: -1 })
+      .limit(Number(limit))
+      .lean();
+
+    const formattedHotels = hotels.map((hotel) => ({
+      _id: hotel._id,
+      name: hotel.name,
+      city: hotel.city,
+      rating: hotel.rating,
+      numReviews: hotel.numReviews,
+      image: hotel.images?.[0]?.url || null,
+    }));
+
+    return formattedHotels;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Get a single hotel detail by id
 exports.getHotelDetails = async (hotelId, userId = null) => {
   const hotel = await Hotel.findOne({
@@ -293,8 +236,7 @@ exports.getHotelAvailability = async (
   adults,
   children,
 ) => {
-  if (!checkIn || !checkOut)
-    throw new Error("Check-in and check-out required");
+  if (!checkIn || !checkOut) throw new Error("Check-in and check-out required");
 
   const startDate = new Date(checkIn);
   const endDate = new Date(checkOut);
@@ -303,14 +245,12 @@ exports.getHotelAvailability = async (
   endDate.setHours(0, 0, 0, 0);
 
   if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-  throw new Error("Invalid date format");
-}
+    throw new Error("Invalid date format");
+  }
 
-  if (startDate >= endDate)
-    throw new Error("Invalid date range");
+  if (startDate >= endDate) throw new Error("Invalid date range");
 
-  const nights =
-    (endDate - startDate) / (1000 * 60 * 60 * 24);
+  const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
   const hotel = await Hotel.findOne({
     _id: hotelId,
@@ -359,8 +299,7 @@ exports.getHotelAvailability = async (
       }
 
       bookingMap[booking.roomTypeId][dateStr] =
-        (bookingMap[booking.roomTypeId][dateStr] || 0) +
-        booking.roomsBooked;
+        (bookingMap[booking.roomTypeId][dateStr] || 0) + booking.roomsBooked;
     }
   }
 
@@ -386,11 +325,9 @@ exports.getHotelAvailability = async (
 
       const dateStr = date.toISOString().split("T")[0];
 
-      const bookedCount =
-        bookingMap[room._id]?.[dateStr] || 0;
+      const bookedCount = bookingMap[room._id]?.[dateStr] || 0;
 
-      const available =
-        room.totalRooms - bookedCount;
+      const available = room.totalRooms - bookedCount;
 
       if (available < 1) {
         isAvailable = false;
@@ -400,9 +337,7 @@ exports.getHotelAvailability = async (
       minAvailable = Math.min(minAvailable, available);
 
       const price =
-        room.discountPrice > 0
-          ? room.discountPrice
-          : room.basePrice;
+        room.discountPrice > 0 ? room.discountPrice : room.basePrice;
 
       totalPrice += price;
     }
@@ -489,16 +424,17 @@ exports.getSuggestions = async (query) => {
       score: { $meta: "textScore" },
       name: 1,
       city: 1,
-    }
+    },
   )
     .sort({ score: { $meta: "textScore" } })
     .limit(8)
     .lean();
 
   // Unique city suggestions
-  const uniqueCities = [
-    ...new Set(results.map((hotel) => hotel.city)),
-  ].slice(0, 3);
+  const uniqueCities = [...new Set(results.map((hotel) => hotel.city))].slice(
+    0,
+    3,
+  );
 
   const citySuggestions = uniqueCities.map((city) => ({
     type: "city",

@@ -136,6 +136,24 @@ exports.getNearbyHotels = async (req, res, next) => {
   }
 };
 
+//get home hotels
+exports.getHomeHotels = async (req, res, next) => {
+  try {
+    const userId = req.user?._id || null;
+
+    const hotels = await hotelService.getHomeHotels(req.query, userId);
+
+    res.status(200).json({
+      success: true,
+      count: hotels.length,
+      data: hotels,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getHomeHotels", error);
+    next(error);
+  }
+};
+
 //get auto-suggestions for search
 exports.getSuggestions = async (req, res, next) => {
   try {
