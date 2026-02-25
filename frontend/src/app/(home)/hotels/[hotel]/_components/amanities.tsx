@@ -9,7 +9,7 @@ type Props = {
 const AmenitiesValues = ({ amenities }: Props) => {
   return (
     <Card className="w-full bg-transparent border-none shadow-none">
-      <CardHeader>
+      <CardHeader className="px-0">
         <h3 className="text-xl font-bold">Amenities</h3>
       </CardHeader>
       <CardContent className="flex flex-wrap gap-4">

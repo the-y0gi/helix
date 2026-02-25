@@ -373,13 +373,13 @@ type TabKey =
 export function TabsLine({
   values,
   hotel,
-  rooms,
+  // rooms,
   isBookingMode,
   isAvailabilityLoading,
 }: {
   values: { title: TabKey; id: number }[];
   hotel: Hotel;
-  rooms: RoomType[];
+  // rooms: RoomType[];
   isBookingMode: boolean;
   isAvailabilityLoading: boolean;
 }) {
@@ -401,7 +401,7 @@ export function TabsLine({
     rooms: (
       <RoomsMain
         hotelId={hotelId}
-        rooms={rooms}
+        // rooms={rooms}
         isBookingMode={isBookingMode}
         isLoading={isAvailabilityLoading}
       />
@@ -446,11 +446,12 @@ export function TabsLine({
       {/* 3. Split Section (Upper Part Only) */}
       <div className="flex flex-col lg:flex-row lg:gap-12 mb-16">
         <main className="flex-1 space-y-12">
-          <section id="description" className="scroll-mt-24">
+          <section id="description" className="scroll-mt-24 border-t pt-10">
+            <h3 className="text-xl font-bold mb-6">Description</h3>
             {content.description}
           </section>
           <section id="amenities" className="scroll-mt-24 border-t pt-10">
-            <h3 className="text-xl font-bold mb-6">Amenities</h3>
+            {/* <h3 className="text-xl font-bold mb-6">Amenities</h3> */}
             {content.amenities}
           </section>
           <section
@@ -458,7 +459,7 @@ export function TabsLine({
             className="scroll-mt-24 border-t pt-10"
             ref={sectionRef}
           >
-            <h3 className="text-xl font-bold mb-6">Location</h3>
+            {/* <h3 className="text-xl font-bold mb-6">Location</h3> */}
             {content.location}
           </section>
         </main>
@@ -466,7 +467,7 @@ export function TabsLine({
         <aside className="lg:w-[380px] flex-shrink-0">
           <div className="lg:sticky lg:top-24 ">
             <BookingCard
-              rooms={rooms}
+              // rooms={rooms}
               isBookingMode={isBookingMode}
               isLoading={isAvailabilityLoading}
             />
@@ -496,18 +497,18 @@ export function TabsLine({
 }
 
 function BookingCard({
-  rooms,
+  // rooms,
   isBookingMode,
   isLoading,
 }: {
-  rooms: RoomType[];
+  // rooms: RoomType[];
   isBookingMode: boolean;
   isLoading: boolean;
 }) {
   const { date, guests } = useHotelStore();
   const [showCalendar, setShowCalendar] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { FetchRoomTypes } = useHotelContext();
+  const { FetchRoomTypes, rooms } = useHotelContext();
 
   // NaN Fix: Validating prices
   const validPrices = rooms
@@ -579,7 +580,7 @@ function BookingCard({
 
           {showCalendar && (
             <div
-              className="absolute top-full left-0 right-0 mt-3 z-[1000] bg-background border border-border shadow-2xl rounded-2xl p-2 min-w-[320px]"
+              className="absolute md:-ml-30 -ml-10 top-0 md:top-20 z-[1000] bg-background border border-border shadow-2xl rounded-2xl p-2 min-w-[320px]"
               onClick={(e) => e.stopPropagation()}
             >
               <HotelCalender />
@@ -608,10 +609,11 @@ function BookingCard({
 
         <Button
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-14 rounded-2xl text-lg shadow-lg transition-all active:scale-[0.98]"
-          onClick={async () => {
+          onClick={async (e) => {
+            e.preventDefault()
             const el = document.getElementById("rooms");
             if (el) el.scrollIntoView({ behavior: "smooth" });
-            await FetchRoomTypes();
+             FetchRoomTypes();
           }}
         >
           Show Rooms

@@ -24,7 +24,13 @@ function AuthCallbackHandler() {
 
       // You can optionally fetch user data here using the token
       toast.success("Successfully logged in!");
-      router.push(nextRoute || "/");
+      const nextRoute = localStorage.getItem("nextRoute");
+        if(nextRoute){
+          router.push(nextRoute);
+        }else{
+          router.push("/");
+        }
+      
     } else {
       toast.error("No authentication token received");
       router.push("/");

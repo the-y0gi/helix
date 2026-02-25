@@ -13,7 +13,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
   return (
    
         <NavWrapper>
-            <div className={cn(CommonPagesStyles, " md:flex-col  flex gap-4 ")}>
+            <div className={cn(CommonPagesStyles, " md:flex-col  flex gap-4 w-full ")}>
               {children}
             </div>
           </NavWrapper>

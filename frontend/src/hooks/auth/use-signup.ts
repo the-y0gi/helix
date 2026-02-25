@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/services/hotel/querys";
+import { dotoggleLike } from "@/services/hotel/hotel.service";
 
 export const useSignUp = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -30,7 +31,18 @@ export const useSignUp = () => {
       if (result.success) {
         toast.success(result.message || "Account created successfully!");
         await refetch();
-        navigate.push('/');
+        const nextRoute = localStorage.getItem("nextRoute");
+        const like = localStorage.getItem("like");
+        if(nextRoute){
+          navigate.push(nextRoute);
+          localStorage.removeItem("nextRoute")
+        }else if(like){
+          await dotoggleLike(like);
+          localStorage.removeItem("like")
+          window.location.reload();
+        }else{
+          navigate.push("/");
+        }
         // Redirect or close dialog
       } else {
         toast.error(result.message || "Failed to verify OTP");

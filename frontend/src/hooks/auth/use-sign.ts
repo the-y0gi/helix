@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/services/hotel/querys";
+import { dotoggleLike } from "@/services/hotel/hotel.service";
 
 export const useLogin = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -21,7 +22,7 @@ export const useLogin = () => {
     },
     mode: "onChange",
   });
-
+const router = useRouter()
   const onHandleSubmit = methods.handleSubmit(async (data) => {
     setLoading(true);
     
@@ -31,7 +32,18 @@ export const useLogin = () => {
         toast.success(result.message || "Login successful!");
         // Redirect or close dialog
         await refetch();
-        navigate.push('/');
+        const nextRoute = localStorage.getItem("nextRoute");
+        const like = localStorage.getItem("like");
+        if(nextRoute){
+          navigate.push(nextRoute);
+          localStorage.removeItem("nextRoute")
+        }else if(like){
+          await dotoggleLike(like);
+          localStorage.removeItem("like")
+          window.location.reload();
+        }else{
+          navigate.push("/");
+        }
       } else {
         toast.error(result.message || "Login failed");
       }

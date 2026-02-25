@@ -45,8 +45,8 @@ export function PopularDestinationCarousel({
   if (!tabs) {
     return (
       <div className="w-full">
-        <h2 className="mb-2 text-lg font-semibold">{tagline}</h2>
-        <OnlyCarousel type={type} />
+        {/* <h2 className="mb-2 text-lg font-semibold">{tagline}</h2> */}
+        <OnlyCarousel type={type} tagline={tagline}/>
       </div>
     )
   }

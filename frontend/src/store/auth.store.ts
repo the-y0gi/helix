@@ -48,7 +48,7 @@ interface Login_signup_Data {
   password?: string;
 }
 
-export const useAuthStore = create<AuthStates>()((set, get) => ({
+export const useAuthStore = create<AuthStates>()((set) => ({
   loginBoxOpen: false,
   setLoginBoxOpen: (open: boolean) => set({ loginBoxOpen: open }),
   signupBoxOpen: false,

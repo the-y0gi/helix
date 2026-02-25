@@ -28,7 +28,7 @@ export const FilterOfPages: Pages[] = [
     title: "Filter Hotels",
     icon:IconHome,
     filter_bar:(
-      <PagesFilterBarButtons PagesFilterBarValues={HotelFilterBarValues}  type="home" origin="Hotels"/>
+      <PagesFilterBarButtons PagesFilterBarValues={HotelFilterBarValues}  type="home" />
     )
   },
 ];

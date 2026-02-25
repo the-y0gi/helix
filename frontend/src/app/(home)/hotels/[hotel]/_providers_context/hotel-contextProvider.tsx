@@ -1,58 +1,90 @@
-import { useHotelAvailabilityQuery, useHotelDetailsQuery } from '@/services/hotel/querys';
-import { useHotelStore } from '@/store/hotel.store';
-import { Hotel, RoomType } from '@/types';
-import React from 'react'
+import React from "react";
+import {
+  useHotelAvailabilityQuery,
+  useHotelDetailsQuery,
+} from "@/services/hotel/querys";
+import { useHotelStore } from "@/store/hotel.store";
+import { Hotel, RoomType } from "@/types";
 
 type Props = {
-    hotelId: string;
-    children: React.ReactNode;
-}
+  hotelId: string;
+  children: React.ReactNode;
+};
+
 const HotelContext = React.createContext<{
-    rooms: RoomType[];
-    availabilityResponse: Hotel | undefined;
-    availabilityLoading: boolean;
-    FetchRoomTypes: () => void;
-    refetchAvailability: () => void;
+  rooms: RoomType[];
+  availabilityResponse: Hotel | undefined;
+  availabilityLoading: boolean;
+  FetchRoomTypes: () => void;
+  refetchAvailability: () => void;
 } | null>(null);
+
 const HotelContextProvider = ({ hotelId, children }: Props) => {
-    const { date, guests, isBookingMode } = useHotelStore();
-    const { data: hotelDetailsData } =
-        useHotelDetailsQuery(hotelId);
+  // ✅ Zustand selectors (IMPORTANT)
+  const date = useHotelStore((s) => s.date);
+  const guests = useHotelStore((s) => s.guests);
+  const isBookingMode = useHotelStore((s) => s.isBookingMode);
 
-    const { data: availabilityResponse, isLoading: availabilityLoading, refetch: refetchAvailability } =
-        useHotelAvailabilityQuery({
-            hotelId,
-            checkIn: date?.from,
-            checkOut: date?.to,
-            adults: guests.adults,
-            children: guests.children,
-        });
+  // ✅ Memoize params
+  const availabilityParams = React.useMemo(
+    () => ({
+      hotelId,
+      checkIn: date?.from,
+      checkOut: date?.to,
+      adults: guests.adults,
+      children: guests.children,
+    }),
+    [hotelId, date?.from, date?.to, guests.adults, guests.children]
+  );
 
-    const FetchRoomTypes = () => {
+  const { data: hotelDetailsData } =
+    useHotelDetailsQuery(hotelId);
 
-        refetchAvailability();
+  const {
+    data: availabilityResponse,
+    isLoading: availabilityLoading,
+    refetch: refetchAvailability,
+  } = useHotelAvailabilityQuery(availabilityParams);
 
-    }
-    const availabilityRooms =
-        availabilityResponse?.roomTypes;
+  const availabilityRooms = availabilityResponse?.roomTypes;
 
-    let rooms =
-        isBookingMode && availabilityRooms
-            ? availabilityRooms
-            : hotelDetailsData?.roomTypes || [];
-    return (
-        <HotelContext.Provider value={{ availabilityResponse, availabilityLoading, FetchRoomTypes, refetchAvailability, rooms }}>
-            {children}
-        </HotelContext.Provider>
-    )
-}
+  const rooms =
+    isBookingMode && availabilityRooms
+      ? availabilityRooms
+      : hotelDetailsData?.roomTypes || [];
 
-export default HotelContextProvider
+  // ✅ Memoize context value (prevents child re-renders)
+  const contextValue = React.useMemo(
+    () => ({
+      availabilityResponse,
+      availabilityLoading,
+      FetchRoomTypes: refetchAvailability,
+      refetchAvailability,
+      rooms,
+    }),
+    [
+      availabilityResponse,
+      availabilityLoading,
+      refetchAvailability,
+      rooms,
+    ]
+  );
+
+  return (
+    <HotelContext.Provider value={contextValue}>
+      {children}
+    </HotelContext.Provider>
+  );
+};
+
+export default HotelContextProvider;
 
 export const useHotelContext = () => {
-    const context = React.useContext(HotelContext);
-    if (!context) {
-        throw new Error("useHotelContext must be used within HotelContextProvider");
-    }
-    return context;
-}
+  const context = React.useContext(HotelContext);
+  if (!context) {
+    throw new Error(
+      "useHotelContext must be used within HotelContextProvider"
+    );
+  }
+  return context;
+};

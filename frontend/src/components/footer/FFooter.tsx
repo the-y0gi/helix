@@ -43,9 +43,9 @@ export function Footer() {
        
       </div>
 
-       <div className="w-full border-1 mt-10 mx-10"/>
+       <div className="w-full border-1 mt-10 "/>
 
-      <div className="mx-auto max-w-7xl px-6 py-6">
+      <div className="w-full px-6 py-6">
         <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
           <span>© 2021 All Rights Reserved</span>
           <div className="flex flex-wrap gap-6">

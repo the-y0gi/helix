@@ -13,7 +13,7 @@ type Props = {};
 
 const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="min-h-screen flex flex-col w-screen">
+    <div className="min-h-screen flex flex-col w-full">
       <div
         className={cn(
           "fixed top-0 left-0 z-50 w-full bg-card   flex flex-col justify-center h-30 bg-gradient-to-br from-zinc-200 to-transparent backdrop-blur-md dark:bg-gradient-to-br dark:from-zinc-700 dark:to-transparent backdrop-blur-lg border-b border-gray-300 dark:border-gray-700",

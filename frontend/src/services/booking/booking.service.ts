@@ -1,4 +1,4 @@
-import { BookingData } from "@/app/(personal)/book/[[...slug]]/_components/paymentform";
+// import { BookingData } from "@/app/(personal)/book/[[...slug]]/_components/paymentform";
 import { axiosApi } from "@/lib/axios";
 
 export const cancelBooking = (id: string) => {
@@ -6,16 +6,16 @@ export const cancelBooking = (id: string) => {
     const response = axiosApi.patch(`/bookings/${id}/cancel`);
     return response;
   } catch (error) {
-    console.log(error, "from cancelBooking  error");
+    console.error(error, "from cancelBooking  error");
   }
 };
-export const createBooking = async (data: BookingData) => {
+export const createBooking = async (data: any) => {
   try {
     const response = await axiosApi.post("/bookings", data);
 
     return response.data;
   } catch (error) {
-    console.log(error, "from createBooking  error");
+    console.error(error, "from createBooking  error");
   }
 };
 
@@ -33,7 +33,7 @@ export const getMyBookings = async () => {
     const response = await axiosApi.get("/bookings/my-bookings");
     return response.data;
   } catch (error) {
-    console.log(error, "from getMyBookings  error");
+    console.error(error, "from getMyBookings  error");
   }
 };
 
@@ -42,6 +42,6 @@ export const getBookingById = async (id: string) => {
     const response = await axiosApi.get(`/bookings/${id}`);
     return response.data;
   } catch (error) {
-    console.log(error, "from getBookingById  error");
+    console.error(error, "from getBookingById  error");
   }
 };

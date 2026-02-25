@@ -46,6 +46,8 @@ export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; c
                 size={24}
               />
             ),
+            type:"like",
+            do:_id,
             id: _id,
           }}
         />
@@ -83,7 +85,7 @@ export const useLogout = () => {
       logout: true
     };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return {
       logout: false
     };

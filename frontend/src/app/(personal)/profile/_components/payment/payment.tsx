@@ -82,7 +82,6 @@ function SettingRow({
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 export const DeleteProfile = () => {
   const handelDeleteProfile = () => {
-    console.log("delete profile");
   };
   return (
     <AlertOverlay

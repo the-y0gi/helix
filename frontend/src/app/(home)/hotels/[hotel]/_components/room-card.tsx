@@ -627,41 +627,6 @@
 //   );
 // }
 
-"use client";
-
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { Users, Square, Bed, ChevronRight } from "lucide-react";
-import { amenityIconMap } from "@/components/ui/icons";
-import { useRouter } from "next/navigation";
-import { useHotelStore } from "@/store/hotel.store";
-import { cn } from "@/lib/utils";
-import { useRoutingStore } from "@/store/routing.store";
-import { Sign_in_hover } from "@/components/auth/_components/sign-in-hover";
-import { toast } from "sonner";
-import { useSliderIfNotChooseDate } from "../_providers_context/SliderIfNotChooseDate";
-export interface RoomCardProps {
-  hotelId: string;
-  showReserveButton?:boolean,
-  id: string;
-  title: string;
-  imageUrl: string;
-  originalPrice: number;
-  discountedPrice: number;
-  totalPrice?: number;
-  nights: number;
-  rating: number;
-  reviewCount: number;
-  beds: string;
-  guests: number;
-  size: number;
-  amenities: { name: string; icon: string }[];
-  roomsLeft: number;
-  discountPercent?: number;
-  isBookingMode: boolean;
-}
-
 // export function HotelRoomCard({
 //   hotelId, id, title, imageUrl, originalPrice, discountedPrice, totalPrice,
 //   nights, rating, reviewCount, beds, guests, size, amenities, roomsLeft,
@@ -808,6 +773,42 @@ export interface RoomCardProps {
 //     </Card>
 //   );
 // }
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Users, Square, Bed } from "lucide-react";
+import { amenityIconMap } from "@/components/ui/icons";
+import { useRouter } from "next/navigation";
+import { useHotelStore } from "@/store/hotel.store";
+import { cn } from "@/lib/utils";
+import { Sign_in_hover } from "@/components/auth/_components/sign-in-hover";
+import { toast } from "sonner";
+import { useSliderIfNotChooseDate } from "../_providers_context/SliderIfNotChooseDate";
+import { motion } from "motion/react";
+import { useState } from "react";
+import { Spinner } from "@/components/spinner";
+
+export interface RoomCardProps {
+  hotelId: string;
+  showReserveButton?: boolean;
+  id: string;
+  title: string;
+  imageUrl: string;
+  originalPrice: number;
+  discountedPrice: number;
+  totalPrice?: number;
+  nights: number;
+  rating: number;
+  reviewCount: number;
+  beds: string;
+  guests: number;
+  size: number;
+  amenities: { name: string; icon: string }[];
+  roomsLeft: number;
+  discountPercent?: number;
+  isBookingMode: boolean;
+}
 
 export function HotelRoomCard({
   hotelId,
@@ -828,15 +829,15 @@ export function HotelRoomCard({
   discountPercent = 0,
   isBookingMode,
 }: RoomCardProps) {
+  const [loading , setLoadiong]  = useState(false)
   const router = useRouter();
-  const { setSelectedRoom , date } = useHotelStore();
-  const {handleClick} = useSliderIfNotChooseDate()
+  const { setSelectedRoom, date } = useHotelStore();
+  const { handleClick } = useSliderIfNotChooseDate();
   const bothdate = !!date?.to && !!date?.from;
 
   const handleReserve = () => {
-    
-     const route = `/book/${hotelId}/${id}`;
-    
+    const route = `/book/${hotelId}/${id}`;
+    localStorage.removeItem("like");
     localStorage.setItem("nextRoute", route);
     if (isBookingMode && roomsLeft === 0) return;
     setSelectedRoom({
@@ -848,17 +849,15 @@ export function HotelRoomCard({
       totalPrice: totalPrice || discountedPrice,
       nights,
     });
-    
   };
-   const handleReserve_with_Alrady_Login = () => {
 
-    if(!bothdate){
-      handleClick()
-     toast.message("Please select date first")
-     return 
+  const handleReserve_with_Alrady_Login = () => {
+    setLoadiong(true)
+    if (!bothdate) {
+      handleClick();
+      toast.message("Please select date first");
+      return;
     }
-    
-    
     const route = `/book/${hotelId}/${id}`;
     localStorage.setItem("nextRoute", route);
     if (isBookingMode && roomsLeft === 0) return;
@@ -874,41 +873,47 @@ export function HotelRoomCard({
     const nextRoute = localStorage.getItem("nextRoute");
     router.push(nextRoute || "/");
   };
-const token = localStorage.getItem("accessToken")
+
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
   return (
     <Card
       className={cn(
         "w-full overflow-hidden border border-border bg-card",
         "hover:shadow-xl transition-all duration-300 rounded-3xl mb-6",
-        "dark:hover:shadow-[0_10px_25px_rgba(255,255,255,0.08)]"
+        "dark:hover:shadow-[0_10px_25px_rgba(255,255,255,0.08)]",
       )}
     >
       <div
         className={cn(
-          "grid grid-cols-1",
-          // md = tablet-ish → start 3-col, but flexible
-          "md:grid-cols-[minmax(0,320px)_1fr_minmax(0,240px)]",
-          // lg = desktop → a bit wider columns
-          "lg:grid-cols-[minmax(0,340px)_1fr_minmax(0,260px)]",
-          "min-h-[260px]"
+          "grid grid-cols-1 md:grid-cols-[minmax(0,320px)_1fr_minmax(0,240px)] lg:grid-cols-[minmax(0,340px)_1fr_minmax(0,260px)] min-h-[260px]",
         )}
       >
-        {/* Image Section */}
-        <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-full overflow-hidden flex-shrink-0">
-          <img
-            src={imageUrl || "/img1.png"}
-            alt={title}
-            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-          />
+        {/* IMAGE SECTION */}
+        {/* Find the Image Section in HotelRoomCard and update it to this: */}
+        <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-full overflow-hidden flex-shrink-0 px-2">
+          <motion.div
+            layoutId={`image-${id}`} // This must match the modal exactly
+            className="w-full h-full"
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+          >
+            <img
+              src={imageUrl || "/img1.png"}
+              alt={title}
+              className="w-full h-full object-cover rounded-2xl"
+            />
+          </motion.div>
 
+          {/* Discount badge stays absolute to the parent div */}
           {discountPercent > 0 && (
-            <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[11px] font-bold px-3 py-1 rounded-full shadow-md">
+            <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[11px] font-bold px-3 py-1 rounded-full shadow-md z-10">
               {discountPercent}% OFF
             </div>
           )}
         </div>
 
-        {/* Content / Info Section */}
+        {/* CONTENT SECTION */}
         <div className="p-5 md:p-6 flex flex-col justify-between border-b md:border-b-0 md:border-r border-border">
           <div className="space-y-4 md:space-y-5">
             <div className="flex items-start justify-between gap-3">
@@ -916,19 +921,19 @@ const token = localStorage.getItem("accessToken")
                 <h3 className="text-lg md:text-xl font-bold text-foreground leading-tight truncate">
                   {title}
                 </h3>
-
                 {isBookingMode && roomsLeft > 0 && (
                   <p
                     className={cn(
                       "text-xs font-bold mt-1",
-                      roomsLeft <= 3 ? "text-destructive" : "text-muted-foreground"
+                      roomsLeft <= 3
+                        ? "text-destructive"
+                        : "text-muted-foreground",
                     )}
                   >
                     {roomsLeft} rooms left
                   </p>
                 )}
               </div>
-
               <div className="flex flex-col items-end flex-shrink-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[11px] md:text-xs font-bold text-primary uppercase tracking-tight">
@@ -938,46 +943,40 @@ const token = localStorage.getItem("accessToken")
                     {rating.toFixed(1)}
                   </div>
                 </div>
-
-                <span className="text-[10px] text-muted-foreground mt-1 whitespace-nowrap">
+                <span className="text-[10px] text-muted-foreground mt-1">
                   {reviewCount.toLocaleString()} reviews
                 </span>
               </div>
             </div>
 
-            {/* Facilities row */}
             <div className="flex items-center gap-5 md:gap-6 py-3 border-y border-border">
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-2 text-foreground">
                   <Bed size={16} className="text-muted-foreground" />
                   <span className="text-xs font-bold">{beds}</span>
                 </div>
-
                 <div className="flex items-center gap-2 text-foreground">
                   <Users size={16} className="text-muted-foreground" />
                   <span className="text-xs font-bold">{guests} Persons</span>
                 </div>
               </div>
-
               <div className="w-[1px] h-10 bg-border hidden sm:block" />
-
               <div className="flex items-center gap-2 text-foreground">
                 <Square size={16} className="text-muted-foreground" />
                 <span className="text-xs font-bold">{size} m²</span>
               </div>
             </div>
 
-            {/* Amenities */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2 text-muted-foreground">
+            <div className="flex flex-wrap gap-2 text-muted-foreground">
               {amenities.slice(0, 6).map((amenity) => {
                 const Icon = amenityIconMap[amenity.icon];
                 return (
                   <div
                     key={amenity.name}
-                    className="flex items-center gap-2 text-[11px] md:text-xs font-medium truncate"
+                    className="flex items-center gap-1.5 text-[10px] md:text-xs font-semibold bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full border border-zinc-200 dark:border-zinc-700 whitespace-nowrap"
                   >
-                    {Icon && <Icon className="h-4 w-4 shrink-0" />}
-                    <span className="truncate">{amenity.name}</span>
+                    {Icon && <Icon className="h-3 w-3 shrink-0" />}
+                    <span>{amenity.name}</span>
                   </div>
                 );
               })}
@@ -985,15 +984,14 @@ const token = localStorage.getItem("accessToken")
           </div>
         </div>
 
-        {/* Pricing & CTA */}
+        {/* PRICING & CTA */}
         <div className="bg-muted/30 p-5 md:p-6 flex flex-col justify-between items-end flex-shrink-0">
           <div className="text-right space-y-3 flex flex-col justify-center h-full">
-            {originalPrice && originalPrice > discountedPrice && (
+            {originalPrice > discountedPrice && (
               <span className="text-sm text-muted-foreground line-through">
                 ₹{originalPrice.toLocaleString()}
               </span>
             )}
-
             <div className="flex items-baseline justify-end gap-1">
               <span className="text-3xl md:text-4xl font-black text-foreground">
                 ₹{discountedPrice.toLocaleString()}
@@ -1002,64 +1000,57 @@ const token = localStorage.getItem("accessToken")
                 / night
               </span>
             </div>
-
-            {isBookingMode && typeof totalPrice === "number" && (
-              <div className="text-right">
-                <p className="text-[10px] md:text-xs text-muted-foreground font-bold uppercase tracking-wider">
-                  Total Price
-                </p>
-                <p className="text-lg md:text-xl font-bold text-foreground">
-                  ₹{totalPrice.toLocaleString()}
-                </p>
-              </div>
-            )}
           </div>
 
-          
-            <div className="w-full mt-5 md:mt-6">
-              {!token ? (
-                // your Sign_in_hover wrapper
-                <Sign_in_hover
-                  tag="Log-in"
-                  variant="ghost"
-                  forLike={{
-                    content: (
-                      <Button
-                        disabled={isBookingMode && roomsLeft === 0}
-                        className={cn(
-                          "w-full font-bold h-11 md:h-12 rounded-2xl transition-all shadow-md",
-                          isBookingMode && roomsLeft === 0
-                            ? "bg-muted text-muted-foreground cursor-not-allowed"
-                            : "bg-primary hover:bg-primary/90 text-primary-foreground"
-                        )}
-                        onClick={handleReserve}
-                      >
-                        {isBookingMode && roomsLeft === 0 ? "Not Available" : "Reserve"}
-                      </Button>
-                    ),
-                    id: `reserve-button-${id}`,
-                  }}
-                />
-              ) : (
-                <Button
-                  disabled={isBookingMode && roomsLeft === 0}
-                  className={cn(
-                    "w-full font-bold h-11 md:h-12 rounded-2xl transition-all shadow-md",
-                    isBookingMode && roomsLeft === 0
-                      ? "bg-muted text-muted-foreground cursor-not-allowed"
-                      : "bg-primary hover:bg-primary/90 text-primary-foreground"
-                  )}
-                  onClick={handleReserve_with_Alrady_Login}
-                >
-                  {isBookingMode && roomsLeft === 0 ? "Not Available" : "Reserve"}
-                </Button>
-              )}
-
-              <p className="text-[10px] text-center text-muted-foreground mt-2.5 font-medium">
-                Free cancellation available
-              </p>
-            </div>
-          
+          <div className="w-full mt-5 md:mt-6">
+            {!token ? (
+              <Sign_in_hover
+                tag="Log-in"
+                variant="ghost"
+                forLike={{
+                  content: (
+                    <Button
+                      disabled={isBookingMode && roomsLeft === 0}
+                      className={cn(
+                        "w-full font-bold h-11 md:h-12 rounded-2xl transition-all shadow-md",
+                        isBookingMode && roomsLeft === 0
+                          ? "bg-muted text-muted-foreground"
+                          : "bg-primary hover:bg-primary/90",
+                      )}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleReserve();
+                      }}
+                    >
+                      {isBookingMode && roomsLeft === 0
+                        ? "Not Available"
+                        : "Reserve"}
+                    </Button>
+                  ),
+                  type:"nextRoute",
+                  do:`/book/${hotelId}/${id}`,
+                  id: `reserve-button-${id}`,
+                }}
+              />
+            ) : (
+              <Button
+                disabled={isBookingMode && roomsLeft === 0 || loading}
+                className={cn(
+                  "w-full font-bold h-11 md:h-12 rounded-2xl transition-all shadow-md",
+                  isBookingMode && roomsLeft === 0
+                    ? "bg-muted text-muted-foreground"
+                    : "bg-primary hover:bg-primary/90",
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReserve_with_Alrady_Login();
+                }}
+              >
+                {isBookingMode && roomsLeft === 0 ? "Not Available" : loading ? <Spinner /> : "Reserve"}
+                
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </Card>

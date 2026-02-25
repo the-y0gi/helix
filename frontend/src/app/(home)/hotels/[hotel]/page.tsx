@@ -145,8 +145,11 @@ import {
   useHotelAvailabilityQuery,
 } from "@/services/hotel/querys";
 import HotelContextProvider from "./_providers_context/hotel-contextProvider";
+import { Spinner } from "@/components/spinner";
 
 const HotelDetails = ({ className }: { className?: string }) => {
+  localStorage.removeItem("nextRoute")
+  localStorage.removeItem("like")
   const { hotel: hotelIdParam } = useParams();
 
   const hotelId = Array.isArray(hotelIdParam)
@@ -155,13 +158,13 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
   const { date, guests, isBookingMode } = useHotelStore();
 
-  const { data: hotelDetailsData, isLoading: detailsLoading } =
+  const { data: hotelDetailsData } =
     useHotelDetailsQuery(hotelId);
   // console.log(hotelDetailsData);
 
   // const hotelDetails = hotelDetailsData?.data || hotelDetailsData;
 
-  const { data: availabilityResponse, isLoading: availabilityLoading, refetch: refetchAvailability } =
+  const {  isLoading: availabilityLoading, refetch: refetchAvailability } =
     useHotelAvailabilityQuery({
       hotelId,
       checkIn: date?.from,
@@ -186,18 +189,14 @@ const HotelDetails = ({ className }: { className?: string }) => {
   if (!hotelDetailsData || !hotelDetailsData.name) {
     return (
       <div className="w-full flex items-center justify-center py-20">
-        <p className="text-red-500 text-sm">Hotel not found.</p>
+        <Spinner/>
       </div>
     );
   }
 
-  const availabilityRooms =
-    availabilityResponse?.roomTypes;
+  
 
-  const rooms =
-    isBookingMode && availabilityRooms
-      ? availabilityRooms
-      : hotelDetailsData.roomTypes || [];
+ 
 
   return (
     <div className={cn("w-full", className)}>
@@ -207,7 +206,7 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
           <HotelItems
             hotel={hotelDetailsData}
-            rooms={rooms}
+            // rooms={rooms}
             isBookingMode={isBookingMode}
             isAvailabilityLoading={availabilityLoading}
           />

@@ -11,12 +11,14 @@ import { PaymentProps } from "@/schema/payment.schema"
 
 export function BookingCalender({ className, setDateRange, dateRange, methods }: { className?: string, setDateRange: (dateRange: DateRange | undefined) => void, dateRange: DateRange | undefined, methods?: UseFormReturn<PaymentProps> }) {
 
-
+const today = new Date();
+today.setHours(0, 0, 0, 0);
     return (
         <Card className="mx-auto w-fit p-0">
             <CardContent className="p-0">
                 <Calendar
                     mode="range"
+                    disabled={{ before: today }}
                     // defaultMonth={dateRange?.from}
                     selected={dateRange}
                     onSelect={(dateRange) => {
