@@ -130,6 +130,11 @@ const bookingSchema = new mongoose.Schema(
       index: true,
     },
 
+    roomNumber: {
+      type: String,
+      default: "",
+    },
+
     paymentStatus: {
       type: String,
       enum: ["pending", "paid", "failed", "refunded"],
