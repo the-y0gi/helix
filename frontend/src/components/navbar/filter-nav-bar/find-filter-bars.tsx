@@ -23,7 +23,7 @@ export const FindTabsNav = ({
   return (
     
    
-      <Search_bar_filter filter_bar={active} mobile={mobile} />
+      <Search_bar_filter filter_bar={active} mobile={mobile}  />
     
   );
 };

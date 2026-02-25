@@ -1,8 +1,10 @@
+'use client'
 import { cn } from "@/lib/utils";
 import  { Suspense } from "react";
 import { ErrorBoundary } from 'react-error-boundary'
 import HotelFramePage from "@/components/frame-pages/MainFramePage";
 import type { CityTrends } from "@/types";
+import { useGetMyTripME, useGetNewHotels } from "@/services/hotel/querys";
 
 type HitelProps = {
   className?: string;
@@ -35,6 +37,10 @@ export const  HotelPopularCites:CityTrends[]=[
  },
 ]
 const Hotel = ({className}: HitelProps) => {
+  localStorage.removeItem("nextRoute")
+  localStorage.removeItem("like")
+  
+  
   return (
     <div className={cn(" w-full", className)}>
       <ErrorBoundary fallback={<p>error</p>}>

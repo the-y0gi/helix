@@ -12,10 +12,11 @@ import { useLogout } from "@/services/dailyfunctions";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCurrentUser } from "@/services/hotel/querys";
+import { useAuthStore } from "@/store/auth.store";
 
 export function ProfileSidebar({ className }: { className?: string }) {
   const { navMain, user } = useProfileSidebar();
-  const { data: currUser} = useCurrentUser();
+  const { data: currUser, refetch} = useCurrentUser();
   const router = useRouter();
 
   return (
@@ -74,24 +75,27 @@ export function ProfileSidebar({ className }: { className?: string }) {
       <div className="mt-auto md:pt-4">
         <div className="cursor-pointer rounded-lg px-3 md:py-2 py-1 flex items-center gap-3 transition-colors">
           <IconLogout className="h-5 w-5" />
-          <Logout />
+          <Logout refetch={refetch} />
         </div>
       </div>
     </aside>
   );
 }
 
-export const Logout = () => {
+export const Logout = ({refetch}: {refetch: () => void}) => {
   const queryClient = useQueryClient();
-
+  const currentUser = useAuthStore();
 
   const navigate = useRouter();
   const handleLogout = () => {
 
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("nextRoute");
 
     queryClient.removeQueries({ queryKey: ["current_user"] });
-    navigate.push("/");
+    refetch();
+    window.location.reload();
+    // navigate.push("/");
   };
   return (
     <AlertOverlay

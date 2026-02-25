@@ -1,6 +1,8 @@
 
-import SelectContentScroable from "@/components/filter-bar/selectContent";
-import {  HotelCalender } from "@/components/navbar/filter-nav-bar/calander05";
+// import { HotelCalender } from "@/app/(home)/hotels/[hotel]/_components/calander-booking";
+import GuestSelector from "@/components/filter-bar/newui-selectedCounter";
+import { LocationSuggestionDropdown } from "@/components/filter-bar/selectContent";
+import HotelCalendern  from "@/components/navbar/filter-nav-bar/calander05";
 import type { LucideIcon } from "lucide-react";
 export type type=|"home"|"filter"|"profile"|"settings"|"payments"
 
@@ -79,7 +81,32 @@ export const timeZoneOptions: SelectGroupOption[] = [
     ],
   },
 ];
-
+const items = [
+    {
+      id: 1,
+      title: "Indore",
+      subtitle: "Madhya Pradesh",
+    },
+    {
+      id: 2,
+      title: "Indira Nagar",
+      subtitle: "Bengaluru, Karnataka",
+    },
+    {
+      id: 3,
+      title: "India",
+    },
+    {
+      id: 4,
+      title: "India Gate",
+      subtitle: "New Delhi, Delhi",
+    },
+    {
+      id: 5,
+      title: "Indira Gandhi International Airport (DEL)",
+      subtitle: "New Delhi",
+    },
+  ]
 export type FilterBarValues = {
   value: string;
   description: string;
@@ -90,21 +117,24 @@ export const HotelFilterBarValues: FilterBarValues[] = [
   {
     value: "Where",
     description: "Search Destination",
-    element: <SelectContentScroable />,
+    element: <LocationSuggestionDropdown
+  items={items}
+  onSelect={(item) => {}}
+/>,
     tagline: "Where do you want to go?",
     
   },
   {
     value: "When",
     description: "Add dates",
-    element: <HotelCalender />,
+    element: <HotelCalendern />,
     tagline: "Choose your REST plans",
     
   },
   {
     value: "Who",
     description: "Add Guests",
-    element: <SelectContentScroable />,
+    element: <GuestSelector />,
     tagline: "Who is coming?",
     
   },
@@ -113,28 +143,34 @@ export const CabsFilterBarValues: FilterBarValues[] = [
   {
     value: "Pickup Location",
     description: "Enter Pickup point",
-    element: <SelectContentScroable />,
+    element: <LocationSuggestionDropdown
+  items={items}
+  onSelect={(item) => {}}
+/>,
     tagline: "Where do you want to go?",
     
   },
   {
     value: "Drop Location",
     description: "Enter Destination",
-    element: <HotelCalender />,
+    element: <HotelCalendern />,
     tagline: "Choose your REST plans",
    
   },
   {
     value: "When",
     description: "Add Date and Time",
-    element: <HotelCalender />,
+    element: <HotelCalendern />,
     tagline: "Who is coming?",
     
   },
   {
     value: "Who",
     description: "Add Passengers",
-    element: <SelectContentScroable />,
+    element: <LocationSuggestionDropdown
+  items={items}
+  onSelect={(item) => {}}
+/>,
     tagline: "Who is coming?",
    
   },

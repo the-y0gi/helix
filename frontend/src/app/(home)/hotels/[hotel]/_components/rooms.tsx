@@ -310,6 +310,196 @@
 //     </div>
 //   );
 // }
+//////////////////////////////////////////////////////////////////////////////////
+// "use client";
+
+// import {
+//   Tabs,
+//   TabsContent,
+//   TabsList,
+//   TabsTrigger,
+// } from "@/components/ui/tabscn";
+// import { HotelRoomCard } from "./room-card";
+// import { RoomType } from "@/types";
+// import { useHotelStore } from "@/store/hotel.store";
+// import { useState, useEffect } from "react";
+// import { cn } from "@/lib/utils";
+// import { AnimatePresence, motion } from "motion/react"; // Note: Changed to framer-motion for stability
+// import { useIsMobile } from "@/hooks/use-mobile";
+
+// export const RoomsMain = ({
+//   hotelId,
+//   rooms,
+//   isBookingMode,
+//   isLoading,
+// }: {
+//   hotelId: string;
+//   rooms: RoomType[];
+//   isBookingMode: boolean;
+//   isLoading: boolean;
+// }) => {
+//   const [selectedRoom, setSelectedRoom] = useState<RoomType | null>(null);
+//   const isMobile = useIsMobile();
+
+//   useEffect(() => {
+//     if (selectedRoom) {
+//       document.body.style.overflow = "hidden";
+//     } else {
+//       document.body.style.overflow = "unset";
+//     }
+//     return () => {
+//       document.body.style.overflow = "unset";
+//     };
+//   }, [selectedRoom]);
+
+//   return (
+//     <div className="w-full space-y-6">
+//       {isLoading && isBookingMode ? (
+//         <div className="flex flex-col gap-4">
+//           {[1, 2].map((i) => (
+//             <div key={i} className="w-full h-[250px] bg-muted animate-pulse rounded-3xl" />
+//           ))}
+//         </div>
+//       ) : (
+//         <RoomsBedTabs
+//           roomTypes={rooms}
+//           hotelId={hotelId}
+//           isBookingMode={isBookingMode}
+//           onSelectRoom={setSelectedRoom}
+//         />
+//       )}
+
+//       {/* OVERLAY SECTION */}
+//       <AnimatePresence>
+//         {selectedRoom && (
+//           <>
+//             {/* Backdrop separated from content to prevent event bubbling issues */}
+//             <motion.div
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               onClick={() => setSelectedRoom(null)}
+//               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000]"
+//             />
+
+//             <div className="fixed inset-0 z-[1001] flex items-center justify-center pointer-events-none p-4 md:p-10">
+//               <motion.div
+//                 // Use a unique prefix to avoid collision with other pages
+//                 layoutId={`hotel-room-expanded-${selectedRoom._id}`}
+//                 className={cn(
+//                   "relative w-full max-w-5xl pointer-events-auto cursor-default",
+//                   isMobile ? 'px-2' : ''
+//                 )}
+//                 transition={{ type: "spring", damping: 30, stiffness: 300 }}
+//               >
+//                 <HotelRoomCardWrapper
+//                   room={selectedRoom}
+//                   hotelId={hotelId}
+//                   isBookingMode={isBookingMode}
+//                   expanded
+//                 />
+//               </motion.div>
+//             </div>
+//           </>
+//         )}
+//       </AnimatePresence>
+//     </div>
+//   );
+// };
+
+// export function RoomsBedTabs({
+//   roomTypes,
+//   hotelId,
+//   isBookingMode,
+//   onSelectRoom,
+// }: {
+//   roomTypes: RoomType[];
+//   hotelId: string;
+//   isBookingMode: boolean;
+//   onSelectRoom: (room: RoomType) => void;
+// }) {
+//   const ismobile = useIsMobile();
+
+//   return (
+//     <Tabs defaultValue="all" className="w-full">
+//       <TabsList className="bg-transparent gap-2 mb-8 overflow-x-auto no-scrollbar flex justify-start h-auto p-0">
+//         <TabsTrigger value="all" className="rounded-full border px-6 py-2 data-[state=active]:bg-primary">
+//           All Rooms
+//         </TabsTrigger>
+//         {/* ... Bed count map ... */}
+//       </TabsList>
+
+//       <TabsContent value="all" className="flex flex-col gap-6 outline-none">
+//         {roomTypes.map((room) => (
+//           <motion.div
+//             key={room._id}
+//             // MATCH THIS EXACTLY to the expanded layoutId
+//             layoutId={`hotel-room-expanded-${room._id}`}
+//             onClick={() => !ismobile && onSelectRoom(room)}
+//             className="cursor-pointer"
+//             transition={{ type: "spring", damping: 30, stiffness: 300 }}
+//           >
+//             <HotelRoomCardWrapper
+//               room={room}
+//               hotelId={hotelId}
+//               isBookingMode={isBookingMode}
+//             />
+//           </motion.div>
+//         ))}
+//       </TabsContent>
+//     </Tabs>
+//   );
+// }
+
+// const HotelRoomCardWrapper = ({
+//   room,
+//   hotelId,
+//   isBookingMode,
+//   expanded = false,
+// }: {
+//   room: RoomType;
+//   hotelId: string;
+//   isBookingMode: boolean;
+//   expanded?: boolean;
+// }) => {
+//   const { date } = useHotelStore();
+//   const showReserveButton = !!date?.to && !!date?.from;
+
+//   const totalBeds = room.beds.reduce((acc, curr) => acc + curr.quantity, 0);
+//   const bedDescription = room.beds.map((b) => `${b.quantity} ${b.type}`).join(", ");
+//   const currentNightlyPrice = isBookingMode && room.displayPrice ? room.displayPrice : (room.discountPrice || room.basePrice);
+
+//   return (
+//     <div className={cn(
+//         "transition-shadow",
+//         expanded ? "shadow-2xl rounded-[32px] overflow-hidden " : "bg-transparent"
+//     )}>
+//       <HotelRoomCard
+//         showReserveButton={showReserveButton}
+//         hotelId={hotelId}
+//         id={room._id}
+//         title={room.name}
+//         imageUrl={typeof room.images?.[0] === "string" ? room.images[0] : room.images?.[0]?.url || "/img1.png"}
+//         originalPrice={room.basePrice}
+//         discountedPrice={currentNightlyPrice}
+//         totalPrice={room.totalPrice}
+//         nights={room.nights || 1}
+//         rating={room.rating || 5.0}
+//         reviewCount={room.numReviews || 1245}
+//         beds={`${totalBeds} ${totalBeds > 1 ? "Beds" : "Bed"} (${bedDescription})`}
+//         guests={room.capacity.adults + room.capacity.children}
+//         size={room.roomSizeSqm}
+//         amenities={room.amenities.map((a: string) => ({
+//           name: a,
+//           icon: a.toLowerCase().replace(/\s+/g, "_"),
+//         }))}
+//         roomsLeft={room.availableRooms ?? room.totalRooms}
+//         discountPercent={room.basePrice > currentNightlyPrice ? Math.round(((room.basePrice - currentNightlyPrice) / room.basePrice) * 100) : 0}
+//         isBookingMode={isBookingMode}
+//       />
+//     </div>
+//   );
+// };
 
 "use client";
 
@@ -326,12 +516,12 @@ import { useHotelStore } from "@/store/hotel.store";
 
 export const RoomsMain = ({
   hotelId,
-  rooms: f,
+  
   isBookingMode,
   isLoading,
 }: {
   hotelId: string;
-  rooms: RoomType[];
+  // rooms: RoomType[];
   isBookingMode: boolean;
   isLoading: boolean;
 }) => {
@@ -477,6 +667,7 @@ export function RoomsBedTabs({
 //     />
 //   );
 // }
+
 
 export const renderRoomCard = (
   room: RoomType,

@@ -127,11 +127,7 @@
   }
 
 }
-/* @layer base {
-  html, body {
-    overflow-x: hidden;
-  }
-} */
+
 
 /* Hide scrollbar utility */
 .scrollbar-hide {
@@ -207,5 +203,10 @@ html {
 @layer base {
   html {
     scrollbar-gutter: stable;
+  }
+}
+@layer base {
+  html, body {
+    overflow-x: hidden;
   }
 }

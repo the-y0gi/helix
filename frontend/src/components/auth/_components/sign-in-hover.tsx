@@ -44,7 +44,9 @@ export function Sign_in_hover({
 }: {
   forLike?: {
     content: React.ReactNode;
-    id: string;
+    id?: string;
+    type: string;
+    do: string;
   }
   tag?: "Log-in" | "Sign-up";
   variant?:
@@ -55,10 +57,26 @@ export function Sign_in_hover({
   | "secondary"
   | "ghost";
 }) {
+  // console.log("trigger menu");
+  const {type:t , do:d} = forLike || {};
+  
   return (
     <AuthContextProvider>
-      <Dialog>
-        <DialogTrigger asChild>
+      <Dialog  onOpenChange={(value) => {
+         localStorage.setItem(t || "nextRoute", d || "/profile")
+         if(t==="nextRoute"){
+
+           localStorage.removeItem("like");
+         }else{
+          localStorage.removeItem("nextRoute");
+         }
+        
+
+        if (!value) {
+          localStorage.removeItem(forLike?.type || "nextRoute"); // triggers when dialog closes
+        }
+      }}>
+        <DialogTrigger asChild >
           {forLike ? (
             forLike.content
           ) : (
@@ -232,6 +250,7 @@ export function SignInForm({
   ...props
 }: React.ComponentProps<"div">) {
   const { loading, methods, onHandleSubmit } = useLogin();
+  
 
   return (
     <div className={cn("flex flex-col   ", className)} {...props}>

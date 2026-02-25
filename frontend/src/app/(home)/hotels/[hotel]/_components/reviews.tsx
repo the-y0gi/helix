@@ -129,7 +129,7 @@ export const ReviewsRanges = () => {
     ];
 
     return (
-        <div className="flex items-start gap-10">
+        <div className="flex items-start gap-10 md:flex-row flex-col">
             <div className="w-[220px]">
                 <h4 className="font-semibold mb-4">Overall Rating</h4>
 
@@ -144,9 +144,9 @@ export const ReviewsRanges = () => {
                 ))}
             </div>
 
-            <Separator orientation="vertical" className="h-28" />
+            <Separator orientation="vertical" className="h-28 md:block hidden" />
 
-            <div className="flex items-center divide-x">
+            <div className="flex items-center divide-x flex-wrap">
                 {categories.map((item) => (
                     <div
                         key={item}

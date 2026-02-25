@@ -17,20 +17,22 @@ import {
 
 import { useCurrentUser } from "@/services/hotel/querys";
 import { Logout } from "@/app/(personal)/profile/_components/app-sidebar";
+import { useNextGoingRoute } from "@/hooks/auth/route.hook";
 
 export function MenuBar() {
-  const { data: user, isLoading } = useCurrentUser();
+  const { data: user, isLoading , refetch } = useCurrentUser();
   const router = useRouter();
   const pathname = usePathname();
-
+const { goWithAuth } = useNextGoingRoute();
   // safer login check
   const isLoggedIn = !!user?.data;
 
   const handleNavigate = (path: string) => {
     if (pathname === path) return;
+    goWithAuth(path, isLoggedIn);
 
     toast.success("Redirecting...");
-    router.push(path);
+    // router.push(path);
   };
 
   if (isLoading) {
@@ -41,11 +43,11 @@ export function MenuBar() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="p-0 rounded-full">
-          <div className="w-12 h-12 rounded-full overflow-hidden border border-zinc-400 hover:border-orange-400 transition">
+          <div className="w-12 h-12 rounded-full overflow-hidden border border-border hover:border-orange-400 transition">
             <img
               src={user?.data?.avatar || "/user.png"}
               alt="Profile"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-full"
             />
           </div>
         </Button>
@@ -59,17 +61,34 @@ export function MenuBar() {
         <DropdownMenuGroup>
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
 
-          {isLoggedIn && (
-            <>
-              <DropdownMenuItem onClick={() => handleNavigate("/profile")}>
+          {!isLoggedIn ? (
+                        <Sign_in_hover
+                          tag="Log-in"
+                          variant="ghost"
+                          forLike={{
+                            content: (
+                                <div className="px-2 cursor-pointer">
+                Profile
+              </div>
+                            ),
+                            type:"nextRoute",
+                            do:"/profile",
+                            id: "/profile",
+                          }}
+                        />
+                      ) : (
+                        <DropdownMenuItem onClick={() => handleNavigate("/profile")}>
                 Profile
               </DropdownMenuItem>
+                      )}
+              {/* <DropdownMenuItem onClick={() => handleNavigate("/profile")}>
+                Profile
+              </DropdownMenuItem> */}
 
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 Settings
-              </DropdownMenuItem>
-            </>
-          )}
+              </DropdownMenuItem> */}
+            
 
           <DropdownMenuItem onClick={() => handleNavigate("/")}>
             Home
@@ -99,7 +118,7 @@ export function MenuBar() {
         {isLoggedIn && (
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
-              <Logout />
+              <Logout refetch={refetch} />
             </DropdownMenuItem>
           </DropdownMenuGroup>
         )}

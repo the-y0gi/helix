@@ -8,7 +8,7 @@ export const getFavouriteSummary = async () => {
     const res = await axiosApi.get(`/favorites/summary`);
     return res.data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     toast.error("something went wrong");
   }
 };
@@ -17,7 +17,7 @@ export const getMyTrip = async () => {
     const res = await axiosApi.get(`/favorites/my-trip`);
     return res.data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     toast.error("something went wrong");
   }
 };
@@ -26,7 +26,7 @@ export const getMyTripME = async () => {
     const res = await axiosApi.get(`/favorites/me`);
     return res.data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     toast.error("something went wrong");
   }
 };
@@ -36,7 +36,7 @@ export const getHotelReviews = async (id: string) => {
     const res = await axiosApi.get(`/reviews/hotel/${id}`);
     return res.data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     toast.error("something went wrong");
   }
 };
@@ -46,11 +46,23 @@ export const getHotelPolicies = async (id: string) => {
     const res = await axiosApi.get(`/policies/hotel/${id}`);
     return res.data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     toast.error("something went wrong");
   }
 };
 
+
+
+export const getNewHotels =async()=>{
+  try {
+    const res = await axiosApi.get(`/hotels/home`);
+    return res.data;
+    
+  } catch (error) {
+    console.error(error);
+    toast.error("something went wrong");
+  }
+}
 export const getHotels = async (
   params?: Record<string, unknown>,
 ): Promise<Hotel[]> => {
@@ -63,21 +75,41 @@ export const getHotelsForSearch = async (val: HotelFilters) => {
   // const response = await axiosApi.get("/hotels", { val });
   // return response.data.data;
 };
-export const getHotelDetails = async (id: string): Promise<Hotel> => {
+export const getHotelDetails = async (id:string) => {
+  
   const response = await axiosApi.get(`/hotels/${id}`);
   return response.data.data;
 };
 
-export const getHotelAvailability = async (
-  id: string,
-  checkIn: string,
-  checkOut: string,
-  adults: number,
-  children: number,
-): Promise<Hotel> => {
-  const response = await axiosApi.get(`/hotels/${id}/availability`, {
-    params: { checkIn, checkOut, adults, children },
-  });
+export const getHotelAvailability = async ({
+  hotelId,
+  checkIn,
+  checkOut,
+  adults,
+  children,
+}: {
+  hotelId: string;
+  checkIn?: Date;
+  checkOut?: Date;
+  adults: number;
+  children: number;
+}): Promise<Hotel> => {
+
+  if (!checkIn || !checkOut) {
+    throw new Error("Check-in and Check-out dates are required");
+  }
+
+  const response = await axiosApi.get(
+    `/hotels/${hotelId}/availability`,
+    {
+      params: {
+        checkIn: checkIn.toISOString(),
+        checkOut: checkOut.toISOString(),
+        adults,
+        children,
+      },
+    }
+  );
 
   return response.data.data;
 };
@@ -87,7 +119,7 @@ export const getHotelByPagination = async (data: AllProps) => {
     const res = await axiosApi.post(`/hotels/pagination`, data);
     return res.data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
@@ -98,7 +130,7 @@ export const dotoggleLike = async (id: string) => {
       return res.data;
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     toast.error("something went wrong");
   }
 };

@@ -12,8 +12,8 @@ type Props = {
 
 const MapLocation = ({ address, map, cordinates }: Props) => {
   return (
-    <Card className="w-full  bg-transparent border-none shadow-none">
-      <CardHeader>
+    <Card className="w-full  bg-transparent border-none shadow-none z-0">
+      <CardHeader className="px-0">
         <h3 className="text-xl font-bold">Location</h3>
         <p className="text-sm text-muted-foreground">{address}</p>
       </CardHeader>

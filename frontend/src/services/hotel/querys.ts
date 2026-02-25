@@ -1,3 +1,4 @@
+'use client'
 import { currentUser } from "../user.service";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -10,11 +11,22 @@ import {
   getMyTripME,
   getHotelPolicies,
   getHotelReviews,
+  getNewHotels,
 } from "./hotel.service";
 import { getBookingById, getMyBookings } from "../booking/booking.service";
 import { HotelFilters } from "@/context/hotel/HotelContextProvider";
 
-
+export const useGetNewHotels = () => {
+  return useQuery({
+    queryKey:["gethotels_home"],
+    queryFn:()=>getNewHotels(),
+    staleTime: 20000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: true,
+    retry: false
+  })
+};
 
 
 export const useGetMyTripME = ()=>{
@@ -163,40 +175,63 @@ export const useHotelDetailsQuery = (hotelId: string) => {
     staleTime: 60 * 1000,
   });
 };
-
-export const useHotelAvailabilityQuery = ({
-  hotelId,
-  checkIn,
-  checkOut,
-  adults,
-  children,
-}: {
+type AvailabilityParams = {
   hotelId: string;
-  checkIn?: Date | null;
-  checkOut?: Date | null;
+  checkIn?: Date;
+  checkOut?: Date;
   adults: number;
   children: number;
-}) => {
-  const isBookingMode = !!checkIn && !!checkOut;
+};
 
+export const useHotelAvailabilityQuery = (params: AvailabilityParams) => {
   return useQuery({
     queryKey: [
-      "hotel_availability",
-      // hotelId,
-      // checkIn?.toISOString(),
-      // checkOut?.toISOString(),
-      // adults,
-      // children,
+      "hotel-availability",
+      params.hotelId,
+      params.checkIn?.toISOString(),
+      params.checkOut?.toISOString(),
+      params.adults,
+      params.children,
     ],
-    queryFn: () =>
-      getHotelAvailability(
-        hotelId,
-        checkIn!.toISOString(),
-        checkOut!.toISOString(),
-        adults,
-        children,
-      ),
-    enabled: !!hotelId && isBookingMode,
+    queryFn: () => getHotelAvailability(params),
+    enabled: !!params.checkIn && !!params.checkOut,
     staleTime: Infinity,
   });
 };
+
+// export const useHotelAvailabilityQuery = ({
+//   hotelId,
+//   checkIn,
+//   checkOut,
+//   adults,
+//   children,
+// }: {
+//   hotelId: string;
+//   checkIn?: Date | null;
+//   checkOut?: Date | null;
+//   adults: number;
+//   children: number;
+// }) => {
+//   const isBookingMode = !!checkIn && !!checkOut;
+
+//   return useQuery({
+//     queryKey: [
+//       "hotel_availability",
+//       // hotelId,
+//       // checkIn?.toISOString(),
+//       // checkOut?.toISOString(),
+//       // adults,
+//       // children,
+//     ],
+//     queryFn: () =>
+//       getHotelAvailability(
+//         hotelId,
+//         checkIn!.toISOString(),
+//         checkOut!.toISOString(),
+//         adults,
+//         children,
+//       ),
+//     enabled: !!hotelId && isBookingMode && !!checkIn && !!checkOut,
+//     staleTime: Infinity,
+//   });
+// };

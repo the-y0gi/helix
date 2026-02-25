@@ -32,6 +32,7 @@ const MapLeaf = ({ className, height = '400px', cordinates }: Props) => {
         className="h-full w-full rounded-lg shadow-sm "
       >
         <TileLayer
+        className="z-0"
           attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />

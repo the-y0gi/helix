@@ -1,38 +1,52 @@
-import { timeZoneOptions } from "@/constants/constants";
-import React from "react";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { MapPin } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-type Props = {};
-
-const SelectContentScroable = (props: Props) => {
-  return (
-    <Select>
-      <SelectTrigger className="w-full max-w-64">
-        <SelectValue placeholder="Select a timezone" />
-      </SelectTrigger>
-      <SelectContent>
-        {timeZoneOptions.map((group) => (
-          <SelectGroup key={group.label}>
-            <SelectLabel>{group.label}</SelectLabel>
-
-            {group.items.map((item) => (
-              <SelectItem key={item.value} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        ))}
-      </SelectContent>
-    </Select>
-  );
+type LocationItem = {
+  id: number;
+  title: string;
+  subtitle?: string;
 };
 
-export default SelectContentScroable;
+interface Propsc {
+  items: LocationItem[];
+  onSelect?: (item: LocationItem) => void;
+}
+
+export function LocationSuggestionDropdown({
+  items,
+  onSelect,
+}: Propsc) {
+  return (
+    <div className="w-full rounded-2xl bg-background border border-border shadow-sm p-2">
+      <div className="flex flex-col gap-1">
+        {items.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => onSelect?.(item)}
+            className={cn(
+              "flex w-full items-center gap-4 rounded-xl p-3 text-left transition-colors",
+              "hover:bg-accent hover:text-accent-foreground"
+            )}
+          >
+            {/* Icon Container */}
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted">
+              <MapPin className="text-muted-foreground" size={20} />
+            </div>
+
+            {/* Text */}
+            <div className="flex flex-col">
+              <p className="font-medium text-foreground">
+                {item.title}
+              </p>
+              {item.subtitle && (
+                <p className="text-sm text-muted-foreground">
+                  {item.subtitle}
+                </p>
+              )}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
