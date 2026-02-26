@@ -4,7 +4,6 @@ const controller = require("./roomType.controller");
 const { protect } = require("../../shared/middlewares/verifyToken");
 const { authorize } = require("../../shared/middlewares/roleMiddleware");
 
-
 // Vendor
 router.use(protect);
 router.post("/", authorize("vendor"), controller.createRoomType);

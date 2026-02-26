@@ -417,3 +417,79 @@ exports.adminHandleRefund = async (bookingId, action) => {
     throw err;
   }
 };
+
+
+//----------VENDOR Service----------
+
+//get vendor bookings for the dashboard
+exports.getVendorBookings = async (vendorId, queryParams) => {
+  const {
+    page = 1,
+    limit = 10,
+    status,
+    search,
+    startDate,
+    endDate,
+    sort = "-createdAt",
+  } = queryParams;
+
+  const skip = (page - 1) * limit;
+
+  const hotels = await Hotel.find({ vendorId }, "_id").lean();
+  const hotelIds = hotels.map((h) => h._id);
+
+  const filter = {
+    hotelId: { $in: hotelIds },
+  };
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (startDate && endDate) {
+    filter.checkIn = {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate),
+    };
+  }
+
+  if (search) {
+    filter.$or = [
+      { bookingReference: { $regex: search, $options: "i" } },
+      { "primaryGuest.firstName": { $regex: search, $options: "i" } },
+      { "primaryGuest.lastName": { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const bookings = await Booking.find(filter)
+    .select(
+      "bookingReference primaryGuest roomTypeId roomNumber checkIn checkOut nights status specialRequest"
+    )
+    .populate("roomTypeId", "name")
+    .sort(sort)
+    .skip(skip)
+    .limit(Number(limit))
+    .lean();
+
+  const total = await Booking.countDocuments(filter);
+
+  const formatted = bookings.map((b) => ({
+    bookingReference: b.bookingReference,
+    guestName: `${b.primaryGuest.firstName} ${b.primaryGuest.lastName}`,
+    roomLabel: `${b.roomTypeId?.name || ""} ${b.roomNumber || ""}`,
+    specialRequest: b.specialRequest || null,
+    nights: b.nights,
+    checkIn: b.checkIn,
+    checkOut: b.checkOut,
+    status: b.status,
+  }));
+
+  return {
+    total,
+    page: Number(page),
+    pages: Math.ceil(total / limit),
+    count: formatted.length,
+    data: formatted,
+  };
+};
+
