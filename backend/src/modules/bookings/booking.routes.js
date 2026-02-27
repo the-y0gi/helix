@@ -11,7 +11,4 @@ router.get("/my-bookings", controller.getMyBookings);
 router.get("/:id", controller.getBookingById);
 router.patch("/:id/cancel", controller.cancelBooking);
 
-//Admin only
-router.patch("/:id/refund", authorize("admin"), controller.handleRefund);
-
 module.exports = router;
