@@ -18,11 +18,4 @@ router.get("/nearby", hotelController.getNearbyHotels);
 router.get("/:id", optionalProtect, hotelController.getHotelDetails);
 router.get("/:id/availability", hotelController.getHotelAvailability);
 
-//private: vendor routes
-router.use(protect);
-
-router.post("/", authorize("vendor"), hotelController.createHotel);
-
-router.patch("/:id", authorize("vendor"), hotelController.updateHotel);
-
 module.exports = router;

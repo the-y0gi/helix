@@ -136,3 +136,53 @@ exports.getVendorRoomTypeDetail = async (req, res, next) => {
     next(error);
   }
 };
+
+//invoice
+exports.getVendorInvoices = async (req, res, next) => {
+  try {
+    const vendor = await Vendor.findOne({ userId: req.user._id });
+
+    if (!vendor || vendor.status !== "approved") {
+      return res.status(403).json({
+        success: false,
+        message: "Vendor not approved or not found",
+      });
+    }
+
+    const result = await bookingService.getVendorInvoices(
+      vendor._id,
+      req.query
+    );
+
+    res.status(200).json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    logger.error("Vendor Invoice List Error:", error);
+    next(error);
+  }
+};
+
+//invocie download vendor
+exports.downloadInvoicePdf = async (req, res, next) => {
+  try {
+    const vendor = await Vendor.findOne({ userId: req.user._id });
+
+    if (!vendor || vendor.status !== "approved") {
+      return res.status(403).json({
+        success: false,
+        message: "Vendor not authorized",
+      });
+    }
+
+    await bookingService.generateInvoicePdf(
+      req.params.bookingId,
+      vendor._id,
+      res
+    );
+  } catch (error) {
+    logger.error("Download Invoice Error:", error);
+    next(error);
+  }
+};

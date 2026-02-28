@@ -7,6 +7,8 @@ const Hotel = require("../hotels/hotel.model");
 const razorpay = require("../../shared/config/razorpay");
 
 const crypto = require("crypto");
+const PDFDocument = require("pdfkit");
+
 const RoomType = require("../rooms/roomType.model");
 
 //restore availability function
@@ -76,11 +78,9 @@ exports.createBooking = async (data, userId) => {
     if (startDate >= endDate)
       throw new Error("Invalid check-in/check-out dates");
 
-    const nights =
-      (endDate - startDate) / (1000 * 60 * 60 * 24);
+    const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
-    if (nights <= 0)
-      throw new Error("Invalid booking duration");
+    if (nights <= 0) throw new Error("Invalid booking duration");
 
     const rooms = roomsBooked && roomsBooked > 0 ? roomsBooked : 1;
 
@@ -91,8 +91,7 @@ exports.createBooking = async (data, userId) => {
       throw new Error("Additional guests count mismatch");
 
     const hotel = await Hotel.findById(hotelId).session(session);
-    if (!hotel || !hotel.isActive)
-      throw new Error("Hotel not available");
+    if (!hotel || !hotel.isActive) throw new Error("Hotel not available");
 
     const roomType = await RoomType.findById(roomTypeId).session(session);
     if (!roomType || !roomType.isActive)
@@ -130,18 +129,16 @@ exports.createBooking = async (data, userId) => {
       const booked = dayDoc?.bookedRooms || 0;
       const blocked = dayDoc?.blockedRooms || 0;
 
-      const available =
-        roomType.totalRooms - booked - blocked;
+      const available = roomType.totalRooms - booked - blocked;
 
       if (available < rooms) {
         throw new Error(
-          `Insufficient availability on ${currentDate.toDateString()}`
+          `Insufficient availability on ${currentDate.toDateString()}`,
         );
       }
     }
 
-    const priceOverride =
-      availabilityDocs[0]?.priceOverride;
+    const priceOverride = availabilityDocs[0]?.priceOverride;
 
     const pricePerNight =
       priceOverride ??
@@ -152,8 +149,7 @@ exports.createBooking = async (data, userId) => {
     const totalAmount = pricePerNight * nights * rooms;
 
     const bookingReference =
-      "BK-" +
-      crypto.randomBytes(6).toString("hex").toUpperCase();
+      "BK-" + crypto.randomBytes(6).toString("hex").toUpperCase();
 
     const [booking] = await Booking.create(
       [
@@ -175,7 +171,7 @@ exports.createBooking = async (data, userId) => {
           paymentStatus: "pending",
         },
       ],
-      { session }
+      { session },
     );
 
     const razorpayOrder = await razorpay.orders.create({
@@ -194,7 +190,7 @@ exports.createBooking = async (data, userId) => {
           status: "created",
         },
       ],
-      { session }
+      { session },
     );
 
     booking.paymentId = payment._id;
@@ -418,7 +414,6 @@ exports.adminHandleRefund = async (bookingId, action) => {
   }
 };
 
-
 //----------VENDOR Service----------
 
 //get vendor bookings for the dashboard
@@ -463,7 +458,7 @@ exports.getVendorBookings = async (vendorId, queryParams) => {
 
   const bookings = await Booking.find(filter)
     .select(
-      "bookingReference primaryGuest roomTypeId roomNumber checkIn checkOut nights status specialRequest"
+      "bookingReference primaryGuest roomTypeId roomNumber checkIn checkOut nights status specialRequest",
     )
     .populate("roomTypeId", "name")
     .sort(sort)
@@ -493,3 +488,150 @@ exports.getVendorBookings = async (vendorId, queryParams) => {
   };
 };
 
+//invoice
+exports.getVendorInvoices = async (vendorId, queryParams) => {
+  const {
+    page = 1,
+    limit = 10,
+    status,
+    search,
+    startDate,
+    endDate,
+    sort = "-createdAt",
+  } = queryParams;
+
+  const skip = (page - 1) * limit;
+
+  const hotels = await Hotel.find({ vendorId }, "_id").lean();
+  const hotelIds = hotels.map((h) => h._id);
+
+  const filter = {
+    hotelId: { $in: hotelIds },
+  };
+
+  if (status) {
+    filter.paymentStatus = status;
+  }
+
+  if (startDate && endDate) {
+    filter.createdAt = {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate),
+    };
+  }
+
+  if (search) {
+    filter.$or = [
+      { bookingReference: { $regex: search, $options: "i" } },
+      { "primaryGuest.firstName": { $regex: search, $options: "i" } },
+      { "primaryGuest.lastName": { $regex: search, $options: "i" } },
+      { roomNumber: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const bookings = await Booking.find(filter)
+    .select(
+      `
+      bookingReference
+      primaryGuest
+      roomTypeId
+      roomNumber
+      pricePerNight
+      nights
+      totalAmount
+      paymentStatus
+    `,
+    )
+    .populate("roomTypeId", "name")
+    .sort(sort)
+    .skip(skip)
+    .limit(Number(limit))
+    .lean();
+
+  const total = await Booking.countDocuments(filter);
+
+  const data = bookings.map((b) => ({
+    bookingReference: b.bookingReference,
+    guestName: `${b.primaryGuest.firstName} ${b.primaryGuest.lastName}`,
+    room: `${b.roomTypeId?.name || ""} ${b.roomNumber || ""}`,
+    pricePerNight: b.pricePerNight,
+    nights: b.nights,
+    totalAmount: b.totalAmount,
+    paymentStatus: b.paymentStatus,
+  }));
+
+  return {
+    total,
+    page: Number(page),
+    pages: Math.ceil(total / limit),
+    count: data.length,
+    data,
+  };
+};
+
+//invocie download
+exports.generateInvoicePdf = async (bookingId, vendorId, res) => {
+  if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+    throw new Error("Invalid booking id");
+  }
+
+  const booking = await Booking.findById(bookingId)
+    .populate("roomTypeId", "name")
+    .lean();
+
+  if (!booking) throw new Error("Booking not found");
+
+  const hotel = await Hotel.findOne({
+    _id: booking.hotelId,
+    vendorId,
+  }).lean();
+
+  if (!hotel) {
+    throw new Error("Unauthorized access");
+  }
+
+  // Set headers
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename=invoice-${booking.bookingReference}.pdf`,
+  );
+
+  res.setHeader("Content-Type", "application/pdf");
+
+  // Create PDF
+  const doc = new PDFDocument({ margin: 50 });
+
+  doc.pipe(res);
+
+  // Header
+  doc.fontSize(20).text("INVOICE", { align: "center" });
+  doc.moveDown();
+
+  // Booking info
+  doc.fontSize(12).text(`Invoice #: ${booking.bookingReference}`);
+  doc.text(
+    `Guest: ${booking.primaryGuest.firstName} ${booking.primaryGuest.lastName}`,
+  );
+  doc.text(`Room: ${booking.roomTypeId.name} ${booking.roomNumber}`);
+  doc.text(`Check-in: ${booking.checkIn.toDateString()}`);
+  doc.text(`Check-out: ${booking.checkOut.toDateString()}`);
+  doc.text(`Nights: ${booking.nights}`);
+
+  doc.moveDown();
+
+  // Pricing
+  doc.text(`Price per night: ₹${booking.pricePerNight}`);
+  doc.text(`Tax: ₹${booking.taxAmount}`);
+  doc.text(`Cleaning Fee: ₹${booking.cleaningFee}`);
+  doc.text(`Discount: ₹${booking.discountAmount}`);
+
+  doc.moveDown();
+
+  doc.fontSize(14).text(`Total Amount: ₹${booking.totalAmount}`);
+
+  doc.moveDown();
+
+  doc.text(`Payment Status: ${booking.paymentStatus}`);
+
+  doc.end();
+};
