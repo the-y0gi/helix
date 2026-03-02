@@ -3,6 +3,7 @@ const router = express.Router();
 const vendorController = require("./vendor.controller");
 const bookingController = require("../bookings/booking.controller");
 const hotelController = require("../hotels/hotel.controller");
+const taskController = require("../task/task.controller");
 const { protect } = require("../../shared/middlewares/verifyToken");
 const { authorize } = require("../../shared/middlewares/roleMiddleware");
 
@@ -75,5 +76,43 @@ router.get(
   authorize("vendor"),
   vendorController.downloadInvoicePdf
 );
+
+//dashboard
+router.get(
+  "/dashboard",
+  protect,
+  authorize("vendor"),
+  vendorController.getVendorDashboard
+);
+
+router.patch(
+  "/bookings/:id/check-in",
+  protect,
+  authorize("vendor"),
+  vendorController.checkInBooking
+);
+
+router.patch(
+  "/bookings/:id/staying",
+  protect,
+  authorize("vendor"),
+  vendorController.markBookingStaying
+);
+
+router.patch(
+  "/bookings/:id/check-out",
+  protect,
+  authorize("vendor"),
+  vendorController.checkOutBooking
+);
+
+
+router.get("/tasks", protect, authorize("vendor"), taskController.getTasks);
+
+router.post("/tasks", protect, authorize("vendor"), taskController.createTask);
+
+router.patch("/tasks/:id", protect, authorize("vendor"), taskController.updateTask);
+
+router.delete("/tasks/:id", protect, authorize("vendor"), taskController.deleteTask);
 
 module.exports = router;

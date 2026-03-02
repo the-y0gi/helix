@@ -122,9 +122,12 @@ const bookingSchema = new mongoose.Schema(
       enum: [
         "pending",
         "confirmed",
+        "checked_in",
+        "staying",
+        "checked_out",
+        "completed",
         "cancellation_requested",
         "cancelled",
-        "completed",
       ],
       default: "pending",
       index: true,
@@ -173,6 +176,9 @@ const bookingSchema = new mongoose.Schema(
 
     cancelledAt: Date,
     cancellationReason: String,
+
+    actualCheckInAt: Date,
+    actualCheckOutAt: Date,
 
     specialRequest: {
       type: String,
