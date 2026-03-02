@@ -67,7 +67,7 @@ exports.getVendorBookingDetail = async (req, res, next) => {
       });
     }
 
-    const booking = await bookingService.getVendorBookingDetail(
+    const booking = await roomTypeService.getVendorBookingDetail(
       req.params.id,
       vendor._id
     );
