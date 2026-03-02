@@ -186,3 +186,91 @@ exports.downloadInvoicePdf = async (req, res, next) => {
     next(error);
   }
 };
+
+
+//vendor dashboard
+exports.getVendorDashboard = async (req, res, next) => {
+  try {
+    const vendor = await Vendor.findOne({ userId: req.user._id });
+
+    if (!vendor || vendor.status !== "approved") {
+      return res.status(403).json({
+        success: false,
+        message: "Vendor not authorized",
+      });
+    }
+
+    const data = await bookingService.getVendorDashboard(vendor._id);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    logger.error("Dashboard Error:", error);
+    next(error);
+  }
+};
+
+//user check-in
+exports.checkInBooking = async (req, res, next) => {
+  try {
+    const vendor = await Vendor.findOne({ userId: req.user._id });
+
+    if (!vendor || vendor.status !== "approved") {
+      return res.status(403).json({ message: "Unauthorized vendor" });
+    }
+
+    const result = await bookingService.checkInBooking(
+      req.params.id,
+      vendor._id
+    );
+
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    logger.error("Check-in Error:", err);
+    next(err);
+  }
+};
+
+//user staying
+exports.markBookingStaying = async (req, res, next) => {
+  try {
+    const vendor = await Vendor.findOne({ userId: req.user._id });
+
+    if (!vendor || vendor.status !== "approved") {
+      return res.status(403).json({ message: "Unauthorized vendor" });
+    }
+
+    const result = await bookingService.markBookingStaying(
+      req.params.id,
+      vendor._id
+    );
+
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    logger.error("Staying Error:", err);
+    next(err);
+  }
+};
+
+//user check-out
+exports.checkOutBooking = async (req, res, next) => {
+  try {
+    const vendor = await Vendor.findOne({ userId: req.user._id });
+
+    if (!vendor || vendor.status !== "approved") {
+      return res.status(403).json({ message: "Unauthorized vendor" });
+    }
+
+    const result = await bookingService.checkOutBooking(
+      req.params.id,
+      vendor._id
+    );
+
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    logger.error("Check-out Error:", err);
+    next(err);
+  }
+};

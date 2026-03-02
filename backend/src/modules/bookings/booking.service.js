@@ -6,6 +6,8 @@ const Payment = require("../payments/payment.model");
 const Hotel = require("../hotels/hotel.model");
 const razorpay = require("../../shared/config/razorpay");
 
+const Room = require("../rooms/room.model");
+
 const crypto = require("crypto");
 const PDFDocument = require("pdfkit");
 
@@ -634,4 +636,219 @@ exports.generateInvoicePdf = async (bookingId, vendorId, res) => {
   doc.text(`Payment Status: ${booking.paymentStatus}`);
 
   doc.end();
+};
+
+
+//vendor dashboard
+exports.getVendorDashboard = async (vendorId) => {
+  const hotels = await Hotel.find({ vendorId }, "_id").lean();
+  const hotelIds = hotels.map((h) => h._id);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  //Top Stats
+  const newBookings = await Booking.countDocuments({
+    hotelId: { $in: hotelIds },
+    createdAt: { $gte: today },
+  });
+
+  const todayCheckIns = await Booking.countDocuments({
+    hotelId: { $in: hotelIds },
+    checkIn: today,
+  });
+
+  const todayCheckOuts = await Booking.countDocuments({
+    hotelId: { $in: hotelIds },
+    checkOut: today,
+  });
+
+  const totalRevenueAgg = await Booking.aggregate([
+    {
+      $match: {
+        hotelId: { $in: hotelIds },
+        paymentStatus: "paid",
+        createdAt: { $gte: startOfMonth },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: "$totalAmount" },
+      },
+    },
+  ]);
+
+  const totalRevenue = totalRevenueAgg[0]?.total || 0;
+
+  //Room Summary
+  const totalRooms = await Room.countDocuments({
+    hotelId: { $in: hotelIds },
+  });
+
+  const occupiedRooms = await Booking.countDocuments({
+    hotelId: { $in: hotelIds },
+    status: { $in: ["checked_in", "staying"] },
+  });
+
+  const availableRooms = totalRooms - occupiedRooms;
+
+  //Revenue Chart (Last 6 Months)
+  const revenueChart = await Booking.aggregate([
+    {
+      $match: {
+        hotelId: { $in: hotelIds },
+        paymentStatus: "paid",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          year: { $year: "$createdAt" },
+          month: { $month: "$createdAt" },
+        },
+        revenue: { $sum: "$totalAmount" },
+      },
+    },
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
+    { $limit: 6 },
+  ]);
+
+  //Reservations Chart (Last 7 Days)
+  const last7Days = new Date();
+  last7Days.setDate(today.getDate() - 6);
+
+  const reservationChart = await Booking.aggregate([
+    {
+      $match: {
+        hotelId: { $in: hotelIds },
+        createdAt: { $gte: last7Days },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          day: { $dayOfMonth: "$createdAt" },
+        },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { "_id.day": 1 } },
+  ]);
+
+  //Recent Bookings
+  const recentBookings = await Booking.find({
+    hotelId: { $in: hotelIds },
+    checkIn: { $lte: today },
+    checkOut: { $gte: today },
+    status: {
+      $in: ["confirmed", "checked_in", "staying"],
+    },
+  })
+    .select(
+      "bookingReference primaryGuest roomTypeId roomNumber checkIn checkOut status",
+    )
+    .populate("roomTypeId", "name")
+    .sort("checkIn")
+    .limit(10)
+    .lean();
+
+  const formattedRecent = recentBookings.map((b) => ({
+    bookingReference: b.bookingReference,
+    guestName: `${b.primaryGuest.firstName} ${b.primaryGuest.lastName}`,
+    room: `${b.roomTypeId?.name || ""} ${b.roomNumber || ""}`,
+    checkIn: b.checkIn,
+    checkOut: b.checkOut,
+    status: b.status,
+  }));
+
+  return {
+    stats: {
+      newBookings,
+      todayCheckIns,
+      todayCheckOuts,
+      totalRevenue,
+    },
+    roomSummary: {
+      totalRooms,
+      occupiedRooms,
+      availableRooms,
+    },
+    revenueChart,
+    reservationChart,
+    recentBookings: formattedRecent,
+  };
+};
+
+
+//helper function
+const validateOwnership = async (bookingId, vendorId) => {
+  if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+    throw new Error("Invalid booking id");
+  }
+
+  const booking = await Booking.findById(bookingId);
+  if (!booking) throw new Error("Booking not found");
+
+  const hotel = await Hotel.findOne({
+    _id: booking.hotelId,
+    vendorId,
+  });
+
+  if (!hotel) throw new Error("Unauthorized access");
+
+  return booking;
+};
+
+
+exports.checkInBooking = async (bookingId, vendorId) => {
+  const booking = await validateOwnership(bookingId, vendorId);
+
+  if (booking.status !== "confirmed") {
+    throw new Error("Only confirmed bookings can be checked in");
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (booking.checkIn > today) {
+    throw new Error("Cannot check in before check-in date");
+  }
+
+  booking.status = "checked_in";
+  booking.actualCheckInAt = new Date();
+
+  await booking.save();
+
+  return booking;
+};
+
+exports.markBookingStaying = async (bookingId, vendorId) => {
+  const booking = await validateOwnership(bookingId, vendorId);
+
+  if (booking.status !== "checked_in") {
+    throw new Error("Guest must be checked in first");
+  }
+
+  booking.status = "staying";
+  await booking.save();
+
+  return booking;
+};
+
+exports.checkOutBooking = async (bookingId, vendorId) => {
+  const booking = await validateOwnership(bookingId, vendorId);
+
+  if (!["checked_in", "staying"].includes(booking.status)) {
+    throw new Error("Booking not eligible for checkout");
+  }
+
+  booking.status = "checked_out";
+  booking.actualCheckOutAt = new Date();
+
+  await booking.save();
+
+  return booking;
 };
