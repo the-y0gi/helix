@@ -11,6 +11,8 @@ import PaymentPage from "./_components/payment/payment"
 import { AllReservations } from "./_components/trips/all"
 import { WishlistSection } from "./_components/wishlist/wish-list"
 import { ReviewList } from "./_components/reviews/my-reviews"
+import { MessageModal } from "@/components/messagemodal"
+import { PageSkeleton } from "@/components/loader/skeleton"
 // import { ActiveReservations, AllReservations, CancelledReservations, CompletedReservations } from "./_components/trips/all"
 
 type ProfileTabKey =
@@ -48,8 +50,8 @@ export default function Page({ className }: { className?: string }) {
 
   return (
     <div className={cn("w-full flex", className)}>
-      <ErrorBoundary fallback={<p>error</p>}>
-        <Suspense fallback={<p>loading</p>}>
+      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong"/>}>
+              <Suspense fallback={<PageSkeleton/>}>
           {tabValues.map((value) => (
             <TabsContent
               key={value}

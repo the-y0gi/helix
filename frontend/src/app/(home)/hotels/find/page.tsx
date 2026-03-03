@@ -5,6 +5,8 @@ import { ErrorBoundary } from "react-error-boundary";
 import { SideBarFilter } from "./_components/sidebar-filter";
 import { ContentFrame } from "./_components/content";
 import {HotelContextProvider} from "@/context/hotel/HotelContextProvider";
+import { MessageModal } from "@/components/messagemodal";
+import { PageSkeleton } from "@/components/loader/skeleton";
 
 type FindHotelProps = {
   className?: string;
@@ -13,8 +15,8 @@ type FindHotelProps = {
 const FindHotels = (props: FindHotelProps) => {
   return (
     <div className={cn(props.className, "w-full bg-background")}>
-      <ErrorBoundary fallback={<p>error</p>}>
-        <Suspense fallback={<p>loading</p>}>
+      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong"/>}>
+              <Suspense fallback={<PageSkeleton/>}>
           <HotelContextProvider>
             <FilterFramePages
               filterClassname="w-full flex gap-4 "

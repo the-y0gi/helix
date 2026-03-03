@@ -18,6 +18,7 @@ import {
 import { useCurrentUser } from "@/services/hotel/querys";
 import { Logout } from "@/app/(personal)/profile/_components/app-sidebar";
 import { useNextGoingRoute } from "@/hooks/auth/route.hook";
+import { Skeleton } from "./ui/skeleton";
 
 export function MenuBar() {
   const { data: user, isLoading , refetch } = useCurrentUser();
@@ -36,7 +37,7 @@ const { goWithAuth } = useNextGoingRoute();
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div><Skeleton className="size-10 shrink-0 rounded-full" /></div>;
   }
 
   return (

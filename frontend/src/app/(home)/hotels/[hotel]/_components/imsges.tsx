@@ -13,8 +13,8 @@ export function LayoutGridDemo({ images }: { images: HotelImage[] }) {
   }));
 
   return (
-    <div className="h-[600px] py-2 w-full">
-      <LayoutGrid cards={mappedCards.length > 0 ? mappedCards : defaultCards} />
+    <div className="md:h-[800px] py-2 w-full ">
+      <LayoutGrid cards={ mappedCards} />
     </div>
 
   );
@@ -30,29 +30,4 @@ const Skeleton = ({ index }: { index: number }) => {
   );
 };
 
-const defaultCards = [
-  {
-    id: 1,
-    content: <Skeleton index={0} />,
-    className: "md:col-span-2 flex item-center",
-    thumbnail: "/room1.png",
-  },
-  {
-    id: 2,
-    content: <Skeleton index={1} />,
-    className: "col-span-1",
-    thumbnail: "/room2.png",
-  },
-  {
-    id: 3,
-    content: <Skeleton index={2} />,
-    className: "col-span-1",
-    thumbnail: "/room3.png",
-  },
-  {
-    id: 4,
-    content: <Skeleton index={3} />,
-    className: "md:col-span-2",
-    thumbnail: "/room2.png",
-  },
-];
+

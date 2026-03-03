@@ -40,7 +40,7 @@ export const wishlistData: WishListCardProps[] = [
 ];
 
 export function WishlistSection() {
-    const {data:mytrips} = useGetFavouriteSummary()
+    const {data:mytrips , isLoading} = useGetFavouriteSummary()
 
   
 
@@ -72,7 +72,11 @@ export function WishlistSection() {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-1  lg:grid-cols-3">
-                 <WishlistCard
+                 {
+                    isLoading?
+                    
+                        <PageSkeleton/>
+                    :<WishlistCard
                                 id={"1"}
                                 title={mytrips?.data?.name}
                                 savedCount={mytrips?.data?.totalSaved}
@@ -80,8 +84,14 @@ export function WishlistSection() {
                                 large={mytrips?.data?.coverImages?.length < 2}
                                 onCheckDetails={() => setWishListOpen({ id: "1", open: true , label:"favourites" })}
                             />
+                 }
                 {
-                    wishlistData.map((val, i) => {
+                   isLoading?[...Array(2)].map((_,i)=>{
+                    return (
+                         <PageSkeleton key={i}/>
+                    )
+                   }):(
+                     wishlistData.map((val, i) => {
                         return (
                             <WishlistCard
                                 key={val.id}
@@ -94,6 +104,7 @@ export function WishlistSection() {
                             />
                         )
                     })
+                   )
                 }
             </div>
         </div>
@@ -104,6 +115,7 @@ import { Card } from "@/components/ui/card"
 import React from "react"
 import { labelType, SavedTripsSection } from "./details-lists"
 import { useGetFavouriteSummary } from "@/services/hotel/querys"
+import { PageSkeleton } from "@/components/loader/skeleton"
 
 
 export function WishlistCard({
