@@ -1102,10 +1102,12 @@ export const FinalStep = () => {
   const { payments } = useHotelStore();
   if (!payments) return null;
   return (
+    <>
+    <ScrollToTop/>
     <div className="w-full flex flex-col items-center justify-center">
       <ScrollToTop />
       <PaymentSuccess payment={payments} />
-    </div>
+    </div></>
   );
 };
 

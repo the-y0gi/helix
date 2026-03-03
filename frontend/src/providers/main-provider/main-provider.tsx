@@ -20,7 +20,12 @@ const MainProvider = ({ children }: { children: React.ReactNode }) => {
     
     <NuqsAdapter>
       <QueryClientProviderLib client={queryClient}>
-        <ThemeProvider defaultTheme={ "dark"} storageKey="vite-ui-theme">
+        <ThemeProvider 
+       
+ attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange>
           <MobileValueProvider>
             {children}
           </MobileValueProvider>

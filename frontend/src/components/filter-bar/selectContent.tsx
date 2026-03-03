@@ -17,7 +17,7 @@ export function LocationSuggestionDropdown({
   onSelect,
 }: Propsc) {
   return (
-    <div className="w-full rounded-2xl bg-background border border-border shadow-sm p-2">
+    <div className="w-full rounded-2xl bg-background p-2">
       <div className="flex flex-col gap-1">
         {items.map((item) => (
           <button

@@ -852,12 +852,13 @@ export function HotelRoomCard({
   };
 
   const handleReserve_with_Alrady_Login = () => {
-    setLoadiong(true)
+    
     if (!bothdate) {
       handleClick();
       toast.message("Please select date first");
       return;
     }
+    setLoadiong(true)
     const route = `/book/${hotelId}/${id}`;
     localStorage.setItem("nextRoute", route);
     if (isBookingMode && roomsLeft === 0) return;

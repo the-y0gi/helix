@@ -16,6 +16,7 @@ export interface BookingDetails {
 
     },
     hotel: {
+        hotelId:string,
         address: string,
         name: string,
         coordinates: number[],

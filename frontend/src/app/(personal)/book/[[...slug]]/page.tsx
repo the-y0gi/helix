@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { BookingForm } from "./_components/paymentform";
+import { PageSkeleton } from "@/components/loader/skeleton";
+import { MessageModal } from "@/components/messagemodal";
 
 
 
@@ -26,8 +28,8 @@ const page = async ({ className, params }: { className?: string, params: Promise
   // if (!hotel) return <p>Hotel not found</p>;
   return (
     <div className={cn(" w-full", className)}>
-      <ErrorBoundary fallback={<p>error</p>}>
-        <Suspense fallback={<p>loading</p>}>
+      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong"/>}>
+              <Suspense fallback={<PageSkeleton/>}>
           <PaymentsContextProvider>
             <BookingForm slug={slug} />
 

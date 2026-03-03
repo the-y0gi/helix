@@ -133,7 +133,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import React from "react";
+import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { ScrollToTop } from "../../../../../scrolltoto";
 import { useParams } from "next/navigation";
@@ -146,6 +146,8 @@ import {
 } from "@/services/hotel/querys";
 import HotelContextProvider from "./_providers_context/hotel-contextProvider";
 import { Spinner } from "@/components/spinner";
+import { MessageModal } from "@/components/messagemodal";
+import { PageSkeleton } from "@/components/loader/skeleton";
 
 const HotelDetails = ({ className }: { className?: string }) => {
   localStorage.removeItem("nextRoute")
@@ -200,7 +202,8 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
   return (
     <div className={cn("w-full", className)}>
-      <ErrorBoundary fallback={<p>Something went wrong.</p>}>
+     <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong"/>}>
+             <Suspense fallback={<PageSkeleton/>}>
         <ScrollToTop />
         <HotelContextProvider hotelId={hotelId}>
 
@@ -211,6 +214,7 @@ const HotelDetails = ({ className }: { className?: string }) => {
             isAvailabilityLoading={availabilityLoading}
           />
         </HotelContextProvider>
+            </Suspense>
       </ErrorBoundary>
     </div>
   );
