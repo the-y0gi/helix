@@ -35,3 +35,74 @@ exports.getHotelReviews = async (req, res, next) => {
     next(error);
   }
 };
+
+// Vendor reviews
+exports.getVendorReviews = async (req, res, next) => {
+  try {
+    const vendorId = req.user._id;
+
+    const reviews = await reviewService.getVendorReviews(vendorId);
+
+    res.status(200).json({
+      success: true,
+      count: reviews.length,
+      data: reviews,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getVendorReviews", error);
+    next(error);
+  }
+};
+
+//delete reviews 
+exports.deleteReview = async (req, res, next) => {
+  try {
+    await reviewService.deleteReview(req.params.reviewId, req.user._id);
+
+    res.status(200).json({
+      success: true,
+      message: "Review deleted successfully",
+    });
+  } catch (error) {
+    logger.error("Controller Error: deleteReview", error);
+    next(error);
+  }
+};
+
+exports.vendorReply = async (req, res, next) => {
+  try {
+    const review = await reviewService.vendorReply(
+      req.params.reviewId,
+      req.user._id,
+      req.body.message
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Reply added successfully",
+      data: review,
+    });
+  } catch (error) {
+    logger.error("Controller Error: vendorReply", error);
+    next(error);
+  }
+};
+
+exports.updateReview = async (req, res, next) => {
+  try {
+    const review = await reviewService.updateReview(
+      req.params.reviewId,
+      req.user._id,
+      req.body
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Review updated successfully",
+      data: review,
+    });
+  } catch (error) {
+    logger.error("Controller Error: updateReview", error);
+    next(error);
+  }
+};

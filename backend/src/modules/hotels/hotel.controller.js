@@ -3,12 +3,47 @@ const logger = require("../../shared/utils/logger");
 const Vendor = require("../vendors/vendor.model");
 
 // Create a new hotel
+// exports.createHotel = async (req, res, next) => {
+//   try {
+//     const vendor = await Vendor.findOne({ userId: req.user._id });
+
+//     if (!vendor) {
+//       throw new Error("Vendor profile not found");
+//     }
+
+//     const hotelData = {
+//       ...req.body,
+//       vendorId: vendor._id,
+//     };
+
+//     const hotel = await hotelService.createHotel(hotelData);
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Hotel created successfully",
+//       data: hotel,
+//     });
+//   } catch (error) {
+//     logger.error("Controller Error: createHotel", error);
+//     next(error);
+//   }
+// };
+
+
+// Create hotel
 exports.createHotel = async (req, res, next) => {
   try {
-    const vendor = await Vendor.findOne({ userId: req.user._id });
+    const userId = req.user._id;
+
+    const vendor = await Vendor.findOne({ userId });
 
     if (!vendor) {
       throw new Error("Vendor profile not found");
+    }
+
+    //Check onboarding progress
+    if (vendor.registrationStep < 3) {
+      throw new Error("Please complete vendor onboarding first");
     }
 
     const hotelData = {

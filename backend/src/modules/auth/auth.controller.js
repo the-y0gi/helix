@@ -1,4 +1,7 @@
 const authService = require("./auth.service");
+const Hotel = require("../hotels/hotel.model");
+const Vendor = require("../vendors/vendor.model");
+
 const logger = require("../../shared/utils/logger");
 const { generateTokens } = require("../../shared/utils/jwt");
 
@@ -45,32 +48,77 @@ exports.socialAuthSuccess = async (req, res) => {
 
 exports.signup = async (req, res) => {
   try {
-    const { email, password,role } = req.body;
-    const result = await authService.signup(email, password,role);
+    const { email, password, role } = req.body;
+    const result = await authService.signup(email, password, role);
     res.status(201).json({ success: true, message: result.message });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
 
+// exports.login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     const { user, message } = await authService.login(email, password);
+//     const { accessToken, refreshToken } = generateTokens(user._id);
+
+//     setTokenCookie(res, refreshToken);
+//     res.status(200).json({
+//       success: true,
+//       message,
+//       accessToken,
+//       data: { user: filterUserData(user) },
+//     });
+//   } catch (error) {
+//     res.status(401).json({ success: false, message: error.message });
+//   }
+// };
+
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     const { user, message } = await authService.login(email, password);
+
     const { accessToken, refreshToken } = generateTokens(user._id);
 
     setTokenCookie(res, refreshToken);
+
+    let extraData = {};
+
+    //If vendor login and approved
+    if (user.role === "vendor") {
+      const vendor = await Vendor.findOne({ userId: user._id });
+
+      if (vendor) {
+        const hotel = await Hotel.findOne({ vendorId: vendor._id }).select(
+          "_id name",
+        );
+
+        extraData.vendor = {
+          status: vendor.status,
+        };
+
+        extraData.hotel = hotel;
+      }
+    }
+
     res.status(200).json({
       success: true,
       message,
       accessToken,
-      data: { user: filterUserData(user) },
+      data: {
+        user: filterUserData(user),
+        ...extraData,
+      },
     });
   } catch (error) {
-    res.status(401).json({ success: false, message: error.message });
+    res.status(401).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
-
 exports.resendOTP = async (req, res) => {
   try {
     const result = await authService.resendOTP(req.body.email);

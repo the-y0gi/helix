@@ -49,6 +49,15 @@ const hotelSchema = new mongoose.Schema(
       },
     ],
 
+    documents: [
+      {
+        docName: String,
+        docUrl: String,
+        public_id: String,
+        resource_type: String,
+        isVerified: { type: Boolean, default: false },
+      },
+    ],
     amenities: {
       type: [String],
       default: [],
@@ -86,6 +95,12 @@ const hotelSchema = new mongoose.Schema(
       default: 0,
     },
 
+    verificationStatus: {
+      type: String,
+      enum: ["pending", "verified", "rejected"],
+      default: "pending",
+      index: true,
+    },
     isFeatured: {
       type: Boolean,
       default: false,

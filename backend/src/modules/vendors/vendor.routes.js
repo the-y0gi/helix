@@ -8,7 +8,7 @@ const { protect } = require("../../shared/middlewares/verifyToken");
 const { authorize } = require("../../shared/middlewares/roleMiddleware");
 
 // Vendor profile
-router.post("/register", protect, vendorController.setupVendorProfile);
+router.post("/register", protect,authorize("vendor"), vendorController.createVendorProfile);
 
 // Bookings
 router.get(
@@ -47,7 +47,7 @@ router.get(
   vendorController.getVendorRoomTypeDetail,
 );
 
-// Hotels
+// Hotels Create
 router.post(
   "/hotels",
   protect,
