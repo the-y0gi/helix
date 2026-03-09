@@ -49,61 +49,60 @@ exports.signup = async (email, password, role) => {
   }
 };
 
+exports.login = async (email, password) => {
+  try {
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) throw new Error("Invalid credentials");
+
+    if (!user.password) throw new Error("Please use social login");
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) throw new Error("Invalid credentials");
+
+    if (!user.providers.local.isVerified) {
+      throw new Error("Account not verified. Please verify your OTP.");
+    }
+
+    return { user, message: "Login successful" };
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 // exports.login = async (email, password) => {
-//   try {
-//     const user = await User.findOne({ email }).select("+password");
-//     if (!user) throw new Error("Invalid credentials");
+//   const user = await User.findOne({ email }).select("+password");
+//   if (!user) throw new Error("Invalid credentials");
 
-//     if (!user.password) throw new Error("Please use social login");
+//   if (!user.password) throw new Error("Please use social login");
 
-//     const isMatch = await user.comparePassword(password);
-//     if (!isMatch) throw new Error("Invalid credentials");
+//   const isMatch = await user.comparePassword(password);
+//   if (!isMatch) throw new Error("Invalid credentials");
 
-//     if (!user.providers.local.isVerified) {
-//       throw new Error("Account not verified. Please verify your OTP.");
+//   if (!user.providers.local.isVerified) {
+//     throw new Error("Account not verified. Please verify your OTP.");
+//   }
+
+//   //Vendor approval check
+//   if (user.role === "vendor") {
+//     const vendor = await Vendor.findOne({ userId: user._id });
+
+//     if (!vendor) {
+//       throw new Error("Vendor profile not found");
 //     }
 
-//     return { user, message: "Login successful" };
-//   } catch (error) {
-//     throw error;
+//     if (vendor.status === "pending") {
+//       throw new Error("Waiting for super admin approval");
+//     }
+
+//     if (vendor.status === "rejected") {
+//       const reason = vendor.adminRemark || "Application rejected";
+//       throw new Error(reason);
+//     }
 //   }
+
+//   return { user, message: "Login successful" };
 // };
-
-// modules/auth/auth.service.js
-
-exports.login = async (email, password) => {
-  const user = await User.findOne({ email }).select("+password");
-  if (!user) throw new Error("Invalid credentials");
-
-  if (!user.password) throw new Error("Please use social login");
-
-  const isMatch = await user.comparePassword(password);
-  if (!isMatch) throw new Error("Invalid credentials");
-
-  if (!user.providers.local.isVerified) {
-    throw new Error("Account not verified. Please verify your OTP.");
-  }
-
-  //Vendor approval check
-  if (user.role === "vendor") {
-    const vendor = await Vendor.findOne({ userId: user._id });
-
-    if (!vendor) {
-      throw new Error("Vendor profile not found");
-    }
-
-    if (vendor.status === "pending") {
-      throw new Error("Waiting for super admin approval");
-    }
-
-    if (vendor.status === "rejected") {
-      const reason = vendor.adminRemark || "Application rejected";
-      throw new Error(reason);
-    }
-  }
-
-  return { user, message: "Login successful" };
-};
 
 exports.resendOTP = async (email) => {
   try {
