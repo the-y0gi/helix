@@ -10,7 +10,6 @@ const {
   sendBookingConfirmationEmail,
 } = require("../../shared/utils/sendEmail");
 
-
 exports.verifyPayment = async (data) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -166,3 +165,169 @@ exports.verifyPayment = async (data) => {
     throw err;
   }
 };
+
+// exports.verifyPayment = async (data) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
+
+//     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+//       throw new Error("Missing payment verification data");
+//     }
+
+//     const payment = await Payment.findOne({
+//       razorpayOrderId: razorpay_order_id,
+//     }).session(session);
+
+//     if (!payment) throw new Error("Payment record not found");
+
+//     if (payment.isVerified && payment.status === "captured") {
+//       const existingBooking = await Booking.findById(payment.bookingId).session(
+//         session,
+//       );
+
+//       await session.commitTransaction();
+//       session.endSession();
+
+//       return existingBooking;
+//     }
+
+//     if (payment.status !== "created") {
+//       throw new Error("Invalid payment state");
+//     }
+
+//     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
+
+//     const expectedSignature = crypto
+//       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+//       .update(body)
+//       .digest("hex");
+
+//     if (expectedSignature !== razorpay_signature) {
+//       throw new Error("Invalid payment signature");
+//     }
+
+//     payment.razorpayPaymentId = razorpay_payment_id;
+//     payment.razorpaySignature = razorpay_signature;
+//     payment.status = "captured";
+//     payment.isVerified = true;
+
+//     await payment.save({ session });
+
+//     const booking = await Booking.findById(payment.bookingId).session(session);
+
+//     if (!booking) throw new Error("Booking not found");
+
+//     if (booking.status !== "pending") throw new Error("Invalid booking state");
+
+//     if (payment.amountPaid !== booking.totalAmount)
+//       throw new Error("Payment amount mismatch");
+
+//     if (payment.userId.toString() !== booking.userId.toString())
+//       throw new Error("Payment user mismatch");
+
+//     const hotel = await Hotel.findById(booking.hotelId).session(session);
+
+//     if (!hotel || !hotel.isActive) throw new Error("Hotel no longer available");
+
+//     const roomTypeData = await RoomType.findById(booking.roomTypeId).session(
+//       session,
+//     );
+
+//     if (!roomTypeData) throw new Error("Room type not found");
+
+//     const startDate = new Date(booking.checkIn);
+//     startDate.setUTCHours(0, 0, 0, 0);
+
+//     // 🔒 INVENTORY LOCK
+//     for (let i = 0; i < booking.nights; i++) {
+//       const currentDate = new Date(startDate);
+//       currentDate.setUTCDate(currentDate.getUTCDate() + i);
+//       currentDate.setUTCHours(0, 0, 0, 0);
+
+//       const existingDoc = await Availability.findOne({
+//         roomTypeId: booking.roomTypeId,
+//         date: currentDate,
+//       }).session(session);
+
+//       if (existingDoc) {
+//         const available =
+//           roomTypeData.totalRooms -
+//           existingDoc.bookedRooms -
+//           existingDoc.blockedRooms;
+
+//         if (available < booking.roomsBooked) {
+//           throw new Error(
+//             `Rooms just sold out for ${currentDate.toDateString()}`,
+//           );
+//         }
+
+//         await Availability.updateOne(
+//           {
+//             _id: existingDoc._id,
+//             bookedRooms: {
+//               $lte:
+//                 roomTypeData.totalRooms -
+//                 booking.roomsBooked -
+//                 existingDoc.blockedRooms,
+//             },
+//           },
+//           {
+//             $inc: { bookedRooms: booking.roomsBooked },
+//           },
+//           { session },
+//         );
+//       } else {
+//         if (booking.roomsBooked > roomTypeData.totalRooms) {
+//           throw new Error(
+//             `Rooms just sold out for ${currentDate.toDateString()}`,
+//           );
+//         }
+
+//         await Availability.create(
+//           [
+//             {
+//               roomTypeId: booking.roomTypeId,
+//               date: currentDate,
+//               bookedRooms: booking.roomsBooked,
+//               blockedRooms: 0,
+//             },
+//           ],
+//           { session },
+//         );
+//       }
+//     }
+
+//     booking.status = "confirmed";
+//     booking.paymentStatus = "paid";
+
+//     await booking.save({ session });
+
+//     await session.commitTransaction();
+//     session.endSession();
+
+//     try {
+//       await sendBookingConfirmationEmail(booking.primaryGuest.email, {
+//         customerName: booking.primaryGuest.firstName,
+//         bookingId: booking.bookingReference,
+//         hotelName: hotel.name,
+//         roomName: roomTypeData.name,
+//         checkIn: booking.checkIn,
+//         checkOut: booking.checkOut,
+//         amount: booking.totalAmount,
+//       });
+//     } catch (mailErr) {
+//       logger.error("Booking Confirmation Email failed:", mailErr);
+//     }
+
+//     return booking;
+//   } catch (err) {
+//     await session.abortTransaction();
+//     session.endSession();
+
+//     logger.error("Service Error: verifyPayment", err);
+//     throw err;
+//   }
+// };

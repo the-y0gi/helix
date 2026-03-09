@@ -1,10 +1,15 @@
-const Hotel = require("./hotel.model");
-const RoomType = require("../rooms/roomType.model");
-const logger = require("../../shared/utils/logger");
 const mongoose = require("mongoose");
 const cloudinary = require("../../shared/config/cloudinary");
+const Vendor = require("../vendors/vendor.model");
+
+const Hotel = require("./hotel.model");
+const RoomType = require("../rooms/roomType.model");
+const Availability = require("../availability/availability.model");
+
 const Booking = require("../bookings/booking.model");
 const Favorite = require("../favorites/favorite.model");
+
+const logger = require("../../shared/utils/logger");
 
 //helper function to attach isFavorite flag to hotels
 const attachFavoriteFlag = async (hotels, userId) => {
@@ -31,9 +36,39 @@ const attachFavoriteFlag = async (hotels, userId) => {
 };
 
 // Create a new hotel
+// exports.createHotel = async (hotelData) => {
+//   try {
+//     return await Hotel.create(hotelData);
+//   } catch (error) {
+//     logger.error("Service Error: createHotel", error);
+//     throw error;
+//   }
+// };
+
+// Create hotel
 exports.createHotel = async (hotelData) => {
   try {
-    return await Hotel.create(hotelData);
+    const { vendorId } = hotelData;
+
+    //Check if vendor already created hotel
+    const existingHotel = await Hotel.findOne({ vendorId });
+
+    if (existingHotel) {
+      throw new Error("Vendor already has a hotel listed");
+    }
+
+    const hotel = await Hotel.create({
+      ...hotelData,
+      verificationStatus: "pending",
+      isActive: false,
+    });
+
+    //Update onboarding progress
+    await Vendor.findByIdAndUpdate(vendorId, {
+      registrationStep: 4,
+    });
+
+    return hotel;
   } catch (error) {
     logger.error("Service Error: createHotel", error);
     throw error;
@@ -228,7 +263,135 @@ exports.getHotelDetails = async (hotelId, userId = null) => {
   };
 };
 
-//availabile rooms in hotel
+// //availabile rooms in hotel
+// exports.getHotelAvailability = async (
+//   hotelId,
+//   checkIn,
+//   checkOut,
+//   adults,
+//   children,
+// ) => {
+//   if (!checkIn || !checkOut) throw new Error("Check-in and check-out required");
+
+//   const startDate = new Date(checkIn);
+//   const endDate = new Date(checkOut);
+
+//   startDate.setHours(0, 0, 0, 0);
+//   endDate.setHours(0, 0, 0, 0);
+
+//   if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+//     throw new Error("Invalid date format");
+//   }
+
+//   if (startDate >= endDate) throw new Error("Invalid date range");
+
+//   const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
+
+//   const hotel = await Hotel.findOne({
+//     _id: hotelId,
+//     isActive: true,
+//   }).lean();
+
+//   if (!hotel) throw new Error("Hotel not found");
+
+//   const roomTypes = await RoomType.find({
+//     hotelId,
+//     isActive: true,
+//   }).lean();
+
+//   if (!roomTypes.length) {
+//     return { roomTypes: [] };
+//   }
+
+//   //Fetch all relevant bookings in ONE query
+//   const bookings = await Booking.find({
+//     hotelId,
+//     status: { $in: ["confirmed", "pending"] },
+//     checkIn: { $lt: endDate },
+//     checkOut: { $gt: startDate },
+//   }).lean();
+
+//   //Build in-memory booking map
+//   // roomTypeId -> dateString -> bookedCount
+//   const bookingMap = {};
+
+//   for (const booking of bookings) {
+//     const bookingStart = new Date(booking.checkIn);
+//     const bookingEnd = new Date(booking.checkOut);
+
+//     bookingStart.setHours(0, 0, 0, 0);
+//     bookingEnd.setHours(0, 0, 0, 0);
+
+//     for (
+//       let d = new Date(bookingStart);
+//       d < bookingEnd;
+//       d.setDate(d.getDate() + 1)
+//     ) {
+//       const dateStr = d.toISOString().split("T")[0];
+
+//       if (!bookingMap[booking.roomTypeId]) {
+//         bookingMap[booking.roomTypeId] = {};
+//       }
+
+//       bookingMap[booking.roomTypeId][dateStr] =
+//         (bookingMap[booking.roomTypeId][dateStr] || 0) + booking.roomsBooked;
+//     }
+//   }
+
+//   const results = [];
+
+//   for (const room of roomTypes) {
+//     if (adults || children) {
+//       if (
+//         room.capacity.adults < adults ||
+//         room.capacity.children < (children || 0)
+//       ) {
+//         continue;
+//       }
+//     }
+
+//     let minAvailable = room.totalRooms;
+//     let totalPrice = 0;
+//     let isAvailable = true;
+
+//     for (let i = 0; i < nights; i++) {
+//       const date = new Date(startDate);
+//       date.setDate(date.getDate() + i);
+
+//       const dateStr = date.toISOString().split("T")[0];
+
+//       const bookedCount = bookingMap[room._id]?.[dateStr] || 0;
+
+//       const available = room.totalRooms - bookedCount;
+
+//       if (available < 1) {
+//         isAvailable = false;
+//         break;
+//       }
+
+//       minAvailable = Math.min(minAvailable, available);
+
+//       const price =
+//         room.discountPrice > 0 ? room.discountPrice : room.basePrice;
+
+//       totalPrice += price;
+//     }
+
+//     if (!isAvailable) continue;
+
+//     results.push({
+//       ...room,
+//       availableRooms: minAvailable,
+//       nights,
+//       totalPrice,
+//     });
+//   }
+
+//   return {
+//     roomTypes: results,
+//   };
+// };
+
 exports.getHotelAvailability = async (
   hotelId,
   checkIn,
@@ -241,8 +404,8 @@ exports.getHotelAvailability = async (
   const startDate = new Date(checkIn);
   const endDate = new Date(checkOut);
 
-  startDate.setHours(0, 0, 0, 0);
-  endDate.setHours(0, 0, 0, 0);
+  startDate.setUTCHours(0, 0, 0, 0);
+  endDate.setUTCHours(0, 0, 0, 0);
 
   if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
     throw new Error("Invalid date format");
@@ -268,39 +431,27 @@ exports.getHotelAvailability = async (
     return { roomTypes: [] };
   }
 
-  //Fetch all relevant bookings in ONE query
-  const bookings = await Booking.find({
-    hotelId,
-    status: { $in: ["confirmed", "pending"] },
-    checkIn: { $lt: endDate },
-    checkOut: { $gt: startDate },
+  const roomTypeIds = roomTypes.map((r) => r._id);
+
+  const availabilityDocs = await Availability.find({
+    roomTypeId: { $in: roomTypeIds },
+    date: { $gte: startDate, $lt: endDate },
   }).lean();
 
-  //Build in-memory booking map
-  // roomTypeId -> dateString -> bookedCount
-  const bookingMap = {};
+  // Build lookup map
+  const availabilityMap = new Map();
 
-  for (const booking of bookings) {
-    const bookingStart = new Date(booking.checkIn);
-    const bookingEnd = new Date(booking.checkOut);
+  for (const doc of availabilityDocs) {
+    const utcDate = new Date(doc.date);
+    utcDate.setUTCHours(0, 0, 0, 0);
 
-    bookingStart.setHours(0, 0, 0, 0);
-    bookingEnd.setHours(0, 0, 0, 0);
+    const dateStr = utcDate.toISOString().slice(0, 10);
 
-    for (
-      let d = new Date(bookingStart);
-      d < bookingEnd;
-      d.setDate(d.getDate() + 1)
-    ) {
-      const dateStr = d.toISOString().split("T")[0];
+    const mapKey = `${doc.roomTypeId.toString()}_${dateStr}`;
 
-      if (!bookingMap[booking.roomTypeId]) {
-        bookingMap[booking.roomTypeId] = {};
-      }
+    console.log("MAP INSERT:", mapKey);
 
-      bookingMap[booking.roomTypeId][dateStr] =
-        (bookingMap[booking.roomTypeId][dateStr] || 0) + booking.roomsBooked;
-    }
+    availabilityMap.set(mapKey, doc);
   }
 
   const results = [];
@@ -320,14 +471,19 @@ exports.getHotelAvailability = async (
     let isAvailable = true;
 
     for (let i = 0; i < nights; i++) {
-      const date = new Date(startDate);
-      date.setDate(date.getDate() + i);
+      const currentDate = new Date(startDate);
+      currentDate.setUTCDate(currentDate.getUTCDate() + i);
 
-      const dateStr = date.toISOString().split("T")[0];
+      const dateStr = currentDate.toISOString().slice(0, 10);
 
-      const bookedCount = bookingMap[room._id]?.[dateStr] || 0;
+      const key = `${room._id.toString()}_${dateStr}`;
 
-      const available = room.totalRooms - bookedCount;
+      const dayDoc = availabilityMap.get(key);
+
+      const booked = dayDoc?.bookedRooms || 0;
+      const blocked = dayDoc?.blockedRooms || 0;
+
+      const available = room.totalRooms - booked - blocked;
 
       if (available < 1) {
         isAvailable = false;
@@ -337,12 +493,18 @@ exports.getHotelAvailability = async (
       minAvailable = Math.min(minAvailable, available);
 
       const price =
-        room.discountPrice > 0 ? room.discountPrice : room.basePrice;
+        dayDoc?.priceOverride ??
+        (room.discountPrice > 0 ? room.discountPrice : room.basePrice);
+
+      console.log("PRICE USED:", price);
 
       totalPrice += price;
     }
 
-    if (!isAvailable) continue;
+    if (!isAvailable) {
+      console.log("ROOM NOT AVAILABLE");
+      continue;
+    }
 
     results.push({
       ...room,
@@ -356,7 +518,6 @@ exports.getHotelAvailability = async (
     roomTypes: results,
   };
 };
-
 // Update hotel details
 exports.updateHotel = async (hotelId, vendorId, updateData) => {
   try {

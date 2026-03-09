@@ -7,6 +7,7 @@ const reviewSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     hotelId: {
       type: mongoose.Schema.ObjectId,
       ref: "Hotel",
@@ -16,6 +17,8 @@ const reviewSchema = new mongoose.Schema(
     rating: {
       type: Number,
       required: true,
+      min: 1,
+      max: 5,
     },
 
     breakdown: {
@@ -26,8 +29,15 @@ const reviewSchema = new mongoose.Schema(
     },
 
     comment: String,
+
+    vendorReply: {
+      message: String,
+      repliedAt: Date,
+    },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
+
+reviewSchema.index({ userId: 1, hotelId: 1 }, { unique: true });
 
 module.exports = mongoose.model("Review", reviewSchema);

@@ -7,6 +7,14 @@ const vendorSchema = new mongoose.Schema(
       ref: "User",
       required: [true, "Vendor must be linked to a User account"],
       unique: true,
+      index: true,
+    },
+
+    serviceType: {
+      type: String,
+      enum: ["hotel", "adventure", "cab", "bike"],
+      required: true,
+      index: true,
     },
 
     businessName: {
@@ -16,38 +24,95 @@ const vendorSchema = new mongoose.Schema(
       index: true,
     },
 
-    // Approval Flow (Super Admin Control)
-    status: {
+    businessEmail: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending",
+      lowercase: true,
+      trim: true,
+      index: true,
     },
 
-    // Future-proofing for Documents/KYC
+    businessPhone: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+
+    businessAddress: {
+      type: String,
+      trim: true,
+    },
+
+    city: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+
+    state: {
+      type: String,
+      trim: true,
+    },
+
+    country: {
+      type: String,
+      default: "India",
+    },
+
+    panNumber: {
+      type: String,
+      trim: true,
+      uppercase: true,
+    },
+
+    aadhaarNumber: {
+      type: String,
+      trim: true,
+    },
+
+    // KYC Documents
     verificationDocs: [
       {
-        docName: { type: String },
+        docName: { type: String }, // aadhaarFront, aadhaarBack, panCard etc
         docUrl: { type: String },
         isVerified: { type: Boolean, default: false },
       },
     ],
 
-    businessEmail: { type: String, lowercase: true, trim: true },
-    businessPhone: { type: String, trim: true },
+    // Vendor approval flow
+    status: {
+      type: String,
+      enum: ["draft", "pending", "approved", "rejected"],
+      default: "draft",
+      index: true,
+    },
+
+    adminRemark: {
+      type: String,
+      trim: true,
+    },
+
+    // registration progress
+    registrationStep: {
+      type: Number,
+      default: 1,
+    },
 
     isActive: {
       type: Boolean,
       default: true,
+      index: true,
     },
   },
   {
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  },
+  }
 );
 
 vendorSchema.index({ status: 1 });
+vendorSchema.index({ serviceType: 1 });
+vendorSchema.index({ city: 1 });
 vendorSchema.index({ userId: 1 });
 
 const Vendor = mongoose.model("Vendor", vendorSchema);

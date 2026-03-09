@@ -1,17 +1,25 @@
 const Vendor = require("./vendor.model");
 const logger = require("../../shared/utils/logger");
 
-// Register a new vendor profile
-exports.registerVendor = async (vendorData) => {
+// Create vendor profile
+exports.createVendorProfile = async (userId, vendorData) => {
   try {
-    const existingVendor = await Vendor.findOne({ userId: vendorData.userId });
+    const existingVendor = await Vendor.findOne({ userId });
+
     if (existingVendor) {
-      throw new Error("Vendor profile already exists for this user");
+      throw new Error("Vendor profile already exists");
     }
 
-    return await Vendor.create(vendorData);
+    const vendor = await Vendor.create({
+      userId,
+      ...vendorData,
+      status: "draft",
+      registrationStep: 2,
+    });
+
+    return vendor;
   } catch (error) {
-    logger.error("Service Error: registerVendor", error);
+    logger.error("Service Error: createVendorProfile", error);
     throw error;
   }
 };

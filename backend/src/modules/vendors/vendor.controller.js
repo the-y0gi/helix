@@ -5,28 +5,23 @@ const roomTypeService = require("../rooms/roomType.service");
 const vendorService = require("./vendor.service");
 const logger = require("../../shared/utils/logger");
 
-exports.setupVendorProfile = async (req, res, next) => {
+// Create vendor profile
+exports.createVendorProfile = async (req, res, next) => {
   try {
-    const vendorData = {
-      userId: req.user._id,
-      businessName: req.body.businessName,
-      //approved for the testing purpose
-      status: "approved",
-    };
+    const userId = req.user._id;
 
-    const vendor = await vendorService.registerVendor(vendorData);
+    const vendor = await vendorService.createVendorProfile(userId, req.body);
 
     res.status(201).json({
       success: true,
-      message: "Vendor profile created and approved for testing",
+      message: "Vendor profile created successfully",
       data: vendor,
     });
   } catch (error) {
-    logger.error("Controller Error: setupVendorProfile", error);
+    logger.error("Controller Error: createVendorProfile", error);
     next(error);
   }
 };
-
 
 //get booking list in dashboard-vendor
 exports.getVendorBookings = async (req, res, next) => {
@@ -69,7 +64,7 @@ exports.getVendorBookingDetail = async (req, res, next) => {
 
     const booking = await roomTypeService.getVendorBookingDetail(
       req.params.id,
-      vendor._id
+      vendor._id,
     );
 
     res.status(200).json({
@@ -81,7 +76,6 @@ exports.getVendorBookingDetail = async (req, res, next) => {
     next(error);
   }
 };
-
 
 //get in dashboardroom type controller
 exports.getVendorRoomTypes = async (req, res, next) => {
@@ -97,7 +91,7 @@ exports.getVendorRoomTypes = async (req, res, next) => {
 
     const result = await roomTypeService.getVendorRoomTypes(
       vendor._id,
-      req.query
+      req.query,
     );
 
     res.status(200).json({
@@ -124,7 +118,7 @@ exports.getVendorRoomTypeDetail = async (req, res, next) => {
 
     const result = await roomTypeService.getVendorRoomTypeDetail(
       req.params.id,
-      vendor._id
+      vendor._id,
     );
 
     res.status(200).json({
@@ -151,7 +145,7 @@ exports.getVendorInvoices = async (req, res, next) => {
 
     const result = await bookingService.getVendorInvoices(
       vendor._id,
-      req.query
+      req.query,
     );
 
     res.status(200).json({
@@ -179,7 +173,7 @@ exports.downloadInvoicePdf = async (req, res, next) => {
     await bookingService.generateInvoicePdf(
       req.params.bookingId,
       vendor._id,
-      res
+      res,
     );
   } catch (error) {
     logger.error("Download Invoice Error:", error);
@@ -187,12 +181,12 @@ exports.downloadInvoicePdf = async (req, res, next) => {
   }
 };
 
-
 //vendor dashboard
 exports.getVendorDashboard = async (req, res, next) => {
   try {
-    const vendor = await Vendor.findOne({ userId: req.user._id });
-
+    const vendor = await Vendor.findOne({ userId: req.user._id })
+      .select("_id status")
+      .lean();
     if (!vendor || vendor.status !== "approved") {
       return res.status(403).json({
         success: false,
@@ -200,8 +194,14 @@ exports.getVendorDashboard = async (req, res, next) => {
       });
     }
 
-    const data = await bookingService.getVendorDashboard(vendor._id);
+    const reservationDays = parseInt(req.query.reservationDays) || 7;
+    const revenueMonths = parseInt(req.query.revenueMonths) || 6;
 
+    const data = await bookingService.getVendorDashboard(
+      vendor._id,
+      reservationDays,
+      revenueMonths,
+    );
     res.status(200).json({
       success: true,
       data,
@@ -223,7 +223,7 @@ exports.checkInBooking = async (req, res, next) => {
 
     const result = await bookingService.checkInBooking(
       req.params.id,
-      vendor._id
+      vendor._id,
     );
 
     res.status(200).json({ success: true, data: result });
@@ -244,7 +244,7 @@ exports.markBookingStaying = async (req, res, next) => {
 
     const result = await bookingService.markBookingStaying(
       req.params.id,
-      vendor._id
+      vendor._id,
     );
 
     res.status(200).json({ success: true, data: result });
@@ -265,7 +265,7 @@ exports.checkOutBooking = async (req, res, next) => {
 
     const result = await bookingService.checkOutBooking(
       req.params.id,
-      vendor._id
+      vendor._id,
     );
 
     res.status(200).json({ success: true, data: result });

@@ -61,3 +61,105 @@ exports.getAvailability = async (req, res, next) => {
     next(error);
   }
 };
+
+
+//Get vendor room types
+exports.getVendorRoomTypes = async (req, res, next) => {
+  try {
+    const vendorId = req.user._id;
+    const { hotelId } = req.params;
+
+    const roomTypes = await availabilityService.getVendorRoomTypes(
+      vendorId,
+      hotelId
+    );
+
+    res.status(200).json({
+      success: true,
+      count: roomTypes.length,
+      data: roomTypes,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getVendorRoomTypes", error);
+    next(error);
+  }
+};
+
+//room tpye calender data return
+exports.getRoomTypeCalendar = async (req, res, next) => {
+  try {
+    const vendorId = req.user._id;
+    const { roomTypeId } = req.params;
+    let { month, year } = req.query;
+
+    const now = new Date();
+
+    month = month ? Number(month) : now.getMonth() + 1; 
+    year = year ? Number(year) : now.getFullYear();
+
+    const calendar = await availabilityService.getRoomTypeCalendar(
+      vendorId,
+      roomTypeId,
+      month,
+      year
+    );
+
+    res.status(200).json({
+      success: true,
+      data: calendar,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getRoomTypeCalendar", error);
+    next(error);
+  }
+};
+
+//date and price over-ride for perticular date
+exports.updateRoomTypeCalendar = async (req, res, next) => {
+  try {
+    const vendorId = req.user._id;
+    const { roomTypeId } = req.params;
+    const { date, blockedRooms, priceOverride } = req.body;
+
+    const result = await availabilityService.updateRoomTypeCalendar(
+      vendorId,
+      roomTypeId,
+      date,
+      blockedRooms,
+      priceOverride
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Calendar updated successfully",
+      data: result,
+    });
+  } catch (error) {
+    logger.error("Controller Error: updateRoomTypeCalendar", error);
+    next(error);
+  }
+};
+
+
+exports.resetRoomTypeCalendar = async (req, res, next) => {
+  try {
+    const vendorId = req.user._id;
+    const { roomTypeId } = req.params;
+    const { date } = req.body;
+
+    const result = await availabilityService.resetRoomTypeCalendar(
+      vendorId,
+      roomTypeId,
+      date
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Calendar override removed",
+      data: result,
+    });
+  } catch (error) {
+    logger.error("Controller Error: resetRoomTypeCalendar", error);
+    next(error);
+  }
+};
