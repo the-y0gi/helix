@@ -6,8 +6,11 @@ import { destinations } from "@/constants/constants";
 import Image, { StaticImageData } from "next/image";
 import { useRouter } from "next/navigation";
 import { useHotelsQuery } from "@/services/hotel/querys";
+import { GalleryCard, HotelGalleryCard } from "../comet-card-demo";
+// import { GalleryCard } from "../comet-card-demo";
+// import HotelGalleryCard from "../comet-card-demo";
 
-type Item = {
+export type Item = {
   title: string;
   location: string;
   image: string | StaticImageData;
@@ -17,29 +20,17 @@ type Item = {
 type Props = {
   type: "cabs" | "adventures" | "tours" | "bikes" | "hotels";
   tagline?: string;
-  item?:Item[]
+  items:Item[];
+  isLoading?:boolean;
 };
 
-export const OnlyCarousel = ({ type, tagline,item }: Props) => {
+export const OnlyCarousel = ({ type, tagline,items,isLoading }: Props) => {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
 
-  const { data: hotels, isLoading } = useHotelsQuery();
-
-  const items: Item[] = React.useMemo(() => {
-    if (type === "hotels" && hotels) {
-      return hotels.map((hotel) => ({
-        title: hotel.name,
-        location: `${hotel.city}, India`,
-        image: hotel.images?.[0]?.url || "/placeholder-hotel.jpg",
-        href: `/hotels/${hotel._id}`,
-      }));
-    }
-    if (type === "cabs") return destinations as Item[];
-    return [];
-  }, [type, hotels]);
+  
 
   const updateScrollButtons = useCallback(() => {
     const el = scrollRef.current;
@@ -78,10 +69,10 @@ export const OnlyCarousel = ({ type, tagline,item }: Props) => {
   if (!isLoading && items.length === 0) return null;
 
   return (
-    <div className="relative group">
+    <div className="relative group  bg-transparent">
       {/* Header & Controls */}
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold capitalize flex gap-2 items-center">{tagline} 
+      <div className="mb-4 flex items-center justify-between px-2 md:px-0">
+        <h2 className="text-xl font-semibold capitalize flex gap-2 items-center  text-nowrap" >{tagline} 
           {/* <ChevronRight className="h-4 w-4" /> */}
           </h2>
         <div className="flex gap-2">
@@ -101,21 +92,33 @@ export const OnlyCarousel = ({ type, tagline,item }: Props) => {
       {/* Carousel Container */}
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide scroll-smooth"
+        className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide scroll-smooth pt-5 px-3 "
       >
         {isLoading ? (
           // Simple Skeleton Loader
-          Array.from({ length: 5 }).map((_, i) => (
+          Array.from({ length: 7 }).map((_, i) => (
             <div key={i} className="min-w-[220px] h-[200px] animate-pulse bg-gray-200 rounded-xl" />
           ))
         ) : (
-          items.map((item, i) => (
+          <>
+          {items.map((item, i) => (
             <Card
               key={`${item.title}-${i}`}
               item={item}
               onClick={() => router.push(item.href)}
             />
-          ))
+          ))}
+          {/* <CardBlank
+              
+              item={"/room1.png"}
+              onClick={() => router.push('/')}
+            /> */}
+            
+            <div className="min-w-[240px] ">
+              {/* <HotelGalleryCard images={["/room3.png", "/room2.png", "/room3.png"]} /> */}
+            <GalleryCard images={["/room1.png", "/room2.png", "/room3.png"]}/>
+            </div>
+            </>
         )}
       </div>
     </div>
@@ -140,8 +143,8 @@ const Card = React.memo(({ item, onClick }: { item: Item; onClick: () => void })
     >
       <div className="aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
         <Image
-          width={400} // Higher width for better resolution on high-DPI screens
-          height={300}
+          width={220} // Higher width for better resolution on high-DPI screens
+          height={165}
           src={item.image}
           alt={item.title}
           className="h-full w-full object-cover transition-transform duration-300 group-hover/card:scale-110"
@@ -158,3 +161,18 @@ const Card = React.memo(({ item, onClick }: { item: Item; onClick: () => void })
     </div>
   );
 });
+// const CardBlank = React.memo(({ item, onClick }: { item: string; onClick: () => void }) => {
+//   return (
+//     <div 
+//       onClick={onClick} 
+//       className=" snap-start cursor-pointer group/card  w-[350px]"
+//     >
+//       <div className="aspect-4/3 overflow-hidden rounded-xl bg-gray-100 w-full p-10">
+//         {/* <img src={item} alt="search more" className="w-full h-full object-cover rounded-3xl" /> */}
+        
+//       </div>
+
+      
+//     </div>
+//   );
+// });

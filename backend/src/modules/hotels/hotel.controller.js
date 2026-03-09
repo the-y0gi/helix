@@ -66,14 +66,17 @@ exports.createHotel = async (req, res, next) => {
 
 // Get all hotels with filtering and pagination support
 exports.getHotels = async (req, res, next) => {
+  
   try {
+  
     const userId = req.user?._id || null;
 
-    const hotels = await hotelService.getAllHotels(req.query, userId);
+    const { hotels, total } = await hotelService.getAllHotels(req.query, userId);
 
     res.status(200).json({
       success: true,
       count: hotels.length,
+      total,
       data: hotels,
     });
   } catch (error) {

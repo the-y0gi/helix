@@ -34,9 +34,9 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
       <div
         className={cn(
           "fixed top-0 left-0 z-50 w-full bg-card    flex flex-col justify-center bg-gradient-to-br from-zinc-100 to-transparent dark:bg-gradient-to-br dark:from-zinc-700 dark:to-transparent backdrop-blur-lg border-b border-gray-300 dark:border-gray-700 ",
-          "",
-          shouldShowNavbar ? "h-30" : "h-40",
-          mobileHeight,
+          "h-auto",
+          // shouldShowNavbar ? "h-30" : "h-40",
+          // mobileHeight,
         )}
       >
         <div className="flex items-center justify-between py-3 md:px-9 px-2 ">
@@ -74,8 +74,8 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
       <main
         className={cn(
           "flex-1",
-          shouldShowNavbar ? "pt-34" : "pt-44",
-          isMobile ? "pt-24" : "",
+          shouldShowNavbar ? "pt-24" : "pt-44",
+          isMobile ? "pt-26" : "",
         )}
       >
         {children}
@@ -85,8 +85,8 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
       <Footer />
        {/* CUSTOM MOBILE BOTTOM BAR (Instagram/YouTube Style) */}
       {isMobile && (
-        <nav className="fixed bottom-0 left-0 right-0 z-[100] h-[122px] bg-transparent  dark:border-zinc-800 px-2 pb-safe shadow-[0_-1px_10px_rgba(0,0,0,0.05)]">
-          <div className="flex h-full items-center justify-around">
+        <nav className="fixed bottom-0 left-0 right-0 z-[100]  bg-background rounded-tl-3xl rounded-tr-3xl  dark:border-zinc-800 px-2 pb-safe shadow-[0_-1px_10px_rgba(0,0,0,0.05)]">
+          <div className="flex h-full items-center justify-around ">
             {shouldShowNavbar ? (
                 <FindTabsNav mobile={false} tabs={FilterOfPages} />
               ) : (

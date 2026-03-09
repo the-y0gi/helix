@@ -205,8 +205,8 @@ html {
     scrollbar-gutter: stable;
   }
 }
-@layer base {
+/* @layer base {
   html, body {
     overflow-x: hidden;
   }
-}
+} */

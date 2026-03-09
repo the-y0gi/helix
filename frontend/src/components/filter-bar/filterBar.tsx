@@ -64,14 +64,14 @@ export const PagesFilterBarButtons = ({
             >
               <Item
                 className={cn(
-                  "relative z-40 cursor-pointer rounded-full px-3 py-1 transition-all duration-300",
+                  "relative z-40 cursor-pointer rounded-full px-3 py-2 transition-all duration-300",
                   isActive ? "text-primary" : "text-gray-500 "
                 )}
               >
                 {isActive && (
                   <motion.div
                     layoutId="active-highlight"
-                    className="absolute inset-0 z-10 rounded-full bg-gray-150 shadow-inner"
+                    className="absolute inset-0 z-10 rounded-full bg-gray-150 shadow-inner dark:shadow-zinc-400"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
@@ -80,13 +80,13 @@ export const PagesFilterBarButtons = ({
                     {hv.value}
                   </ItemTitle>
                   {/* <ItemDescription>{hv.description}</ItemDescription> */}
-                  <div className="flex justify-center w-full">
-                    <input
+                  <div className="flex justify-center md:w-[150px] w-full ">
+                    {/* <input
                       type="text"
                       readOnly={selectedId === null}
                       style={{ all: "unset", width: "100%", padding: "0", border: "none" }}
                       placeholder={"          " + hv.description}
-                    />
+                    /> */}
                   </div>
                 </ItemContent>
               </Item>
@@ -121,7 +121,7 @@ export const PagesFilterBarButtons = ({
       style={{ originX: 0.5 }}
       className={cn(
         "absolute left-1/2 -translate-x-1/2 z-40 md:w-[95vw] w-[90vw] min-h-[100px] max-w-xl  overflow-hidden md:rounded-[3rem] rounded-[1rem] border border-border-100 bg-background md:p-2 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.25)]",
-        "bottom-full mb-4 md:bottom-auto md:top-full md:mt-6"
+        "bottom-full mb-4 md:bottom-auto md:top-full md:mt-3"
       )}
     >
       <motion.div layout className="p-7">
@@ -134,7 +134,7 @@ export const PagesFilterBarButtons = ({
             exit={{ opacity: 0, x: -10 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="min-h-[100px] w-full ">
+            <div className="min-h-[100px] w-full py-5 ">
               {PagesFilterBarValues[selectedId].element}
             </div>
           </motion.div>
@@ -147,31 +147,4 @@ export const PagesFilterBarButtons = ({
   );
 };
 
- // <HotelFilterBar
-        //   type={type}
-        //   key={i}
-        //   tagline={hv.tagline}
-        //   content={hv.element}
-        // >
-        //   <div className="flex flex-col items-center gap-2 md:flex-row ">
-        //     <div
-        //       className={cn(
-        //         "bg-border relative ",
-        //         i === 0 && "hidden",
-        //         "h-px w-6 md:h-4 md:w-px ",
-
-        //         type === "filter" && "md:h-18",
-        //       )}
-        //     />
-
-        //     <Item>
-        //       <ItemContent className="gap-0 text-center md:text-left md:ml-3 items-center">
-        //         <ItemTitle>{hv.value}</ItemTitle>
-        //         <ItemDescription>{hv.description}</ItemDescription>
-               
-               
-             
-        //       </ItemContent>
-        //     </Item>
-        //   </div>
-        // </HotelFilterBar>
+ 

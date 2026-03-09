@@ -426,6 +426,7 @@ exports.getUserBookings = async (userId) => {
       .lean();
 
     return bookings.map((booking) => ({
+      hotelId:booking.hotelId._id,
       _id: booking._id,
       bookingReference: booking.bookingReference,
       hotelName: booking.hotelId?.name,
@@ -462,6 +463,7 @@ exports.getBookingDetail = async (bookingId, userId) => {
       paymentStatus: booking.paymentStatus,
 
       hotel: {
+        hotelId:booking.hotelId._id,
         name: booking.hotelId.name,
         address: booking.hotelId.address,
         coordinates: booking.hotelId.location?.coordinates,

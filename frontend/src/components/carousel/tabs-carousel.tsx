@@ -3,7 +3,9 @@
 import React, { useLayoutEffect, useRef, useState } from "react"
 import { motion } from "motion/react"
 import { cn } from "@/lib/utils"
-import { OnlyCarousel } from "./onlyColursel"
+import { Item, OnlyCarousel } from "./onlyColursel"
+import { destinations } from "@/constants/constants"
+import { useHotelsQuery } from "@/services/hotel/querys"
 
 type TabItem = {
   name: string
@@ -14,12 +16,16 @@ type Props = {
   tagline: string
   tabs?: TabItem[]
   type: "cabs" | "adventures" | "tours" | "bikes" | "hotels"
+  items:Item[]
+  isLoading?:boolean
 }
 
 export function PopularDestinationCarousel({
   tagline,
   tabs,
   type,
+  items,
+  isLoading
 }: Props) {
   const [active, setActive] = useState(tabs?.[0]?.name ?? "")
   const [activeIndex, setActiveIndex] = useState(0)
@@ -27,6 +33,7 @@ export function PopularDestinationCarousel({
   const containerRef = useRef<HTMLDivElement>(null)
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
   const [pill, setPill] = useState({ left: 0, width: 0 })
+  
 
   useLayoutEffect(() => {
     const el = tabRefs.current[activeIndex]
@@ -46,7 +53,7 @@ export function PopularDestinationCarousel({
     return (
       <div className="w-full">
         {/* <h2 className="mb-2 text-lg font-semibold">{tagline}</h2> */}
-        <OnlyCarousel type={type} tagline={tagline}/>
+        <OnlyCarousel type={type} tagline={tagline} items={items} isLoading={isLoading} />
       </div>
     )
   }
@@ -101,7 +108,7 @@ export function PopularDestinationCarousel({
 
       {/* Content */}
       <div className="mt-2 min-h-[260px]">
-        <OnlyCarousel key={active} type={type} />
+        <OnlyCarousel key={active} type={type} items={items} isLoading={isLoading} />
       </div>
     </div>
   )

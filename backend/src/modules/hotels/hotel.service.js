@@ -141,8 +141,13 @@ exports.getAllHotels = async (query = {}, userId = null) => {
 
     //Amenities on roomType
     if (amenities) {
-      const amenityArray = amenities.split(",");
-      roomTypeFilter.amenities = { $all: amenityArray };
+      // Support both repeat params (array) and comma-separated string
+      const amenityArray = Array.isArray(amenities)
+        ? amenities
+        : amenities.split(",");
+      if (amenityArray.length > 0) {
+        roomTypeFilter.amenities = { $all: amenityArray };
+      }
     }
 
     //Get distinct hotelIds efficiently
@@ -180,14 +185,18 @@ exports.getAllHotels = async (query = {}, userId = null) => {
       };
     }
 
-    const hotels = await Hotel.find(hotelFilter)
-      .populate("vendorId", "businessName")
-      .sort({ isFeatured: -1, rating: -1 })
-      .skip(skip)
-      .limit(limitNum)
-      .lean();
+    const [hotels, total] = await Promise.all([
+      Hotel.find(hotelFilter)
+        .populate("vendorId", "businessName")
+        .sort({ isFeatured: -1, rating: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Hotel.countDocuments(hotelFilter),
+    ]);
 
-    return await attachFavoriteFlag(hotels, userId);
+    const hotelsWithFavorites = await attachFavoriteFlag(hotels, userId);
+    return { hotels: hotelsWithFavorites, total };
   } catch (error) {
     throw error;
   }
@@ -196,7 +205,7 @@ exports.getAllHotels = async (query = {}, userId = null) => {
 //get home hotels
 exports.getHomeHotels = async (query = {}, userId = null) => {
   try {
-    const { city, limit = 8 } = query;
+    const { city, limit = 15 } = query;
 
     const filter = {
       isActive: true,

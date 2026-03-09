@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {  useGetMyTrips } from "@/services/hotel/querys"
 import { LikeIcon } from "@/services/dailyfunctions"
+import { PageSkeleton } from "@/components/loader/skeleton"
 export type labelType = "favourites" | "wishlists"
 export function SavedTripsSection({ setDetails , label }: {label:labelType,
     setDetails: React.Dispatch<React.SetStateAction<{ open: boolean; id: string; label:labelType}>>
@@ -18,7 +19,7 @@ export function SavedTripsSection({ setDetails , label }: {label:labelType,
             favourites: useGetMyTrips(),
             wishlists: useGetMyTrips()
         }
-        const {data} = querys[label as keyof typeof querys]
+        const {data,isLoading} = querys[label as keyof typeof querys]
         const alldata = data?.data
     return (
         <div className="rounded-xl  bg-background p-8 space-y-8">
@@ -35,8 +36,13 @@ export function SavedTripsSection({ setDetails , label }: {label:labelType,
             </div>
 
             <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-3">
+                
 
-                {
+                {isLoading?[...Array(6)].map((_,i)=>{
+                                    return (
+                                         <PageSkeleton key={i}/>
+                                    )
+                                   }):
                     alldata?.map((val :SavedPropertyCardProps)=>{
 
                         return (

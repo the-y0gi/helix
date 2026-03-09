@@ -4,6 +4,8 @@ import React, { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import MainFramePage from '../../../components/frame-pages/MainFramePage'
 import type { CityTrends } from '@/types'
+import { MessageModal } from '@/components/messagemodal'
+import { PageSkeleton } from '@/components/loader/skeleton'
 
 
 
@@ -55,11 +57,11 @@ export const  HotelPopularCites:CityTrends[]=[
 const Cabs = ({className}: {className?:string}) => {
   return (
     <div className={cn(" w-full", className)}>
-          <ErrorBoundary fallback={<p>error</p>}>
-            <Suspense fallback={<p>loading</p>}>
+          <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong"/>}>
+                  <Suspense fallback={<PageSkeleton/>}>
               <MainFramePage 
               type="cabs"
-              popularTrends={HotelPopularCites}
+              // popularTrends={HotelPopularCites}
               
                 // searchHotels={<SearchHotels/>}
                 
