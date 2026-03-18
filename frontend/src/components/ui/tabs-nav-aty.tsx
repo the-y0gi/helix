@@ -1,18 +1,18 @@
-'use client'
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+"use client";
+
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { cn } from "@/lib/utils";
-import Search_bar_filter from "../navbar/filter-nav-bar/search-bar-nav";
 import type { Pages } from "@/constants/constants";
 import { usePathname, useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
+import Image from "next/image";
 
 export const TabsNav = ({
   tabs: propTabs,
   containerClassName,
   activeTabClassName,
   tabClassName,
-  mobile,
 }: {
   mobile: boolean;
   tabs: Pages[];
@@ -24,30 +24,101 @@ export const TabsNav = ({
   const location = usePathname();
   const ismobile = useIsMobile();
 
-  // State to control visibility
   const [isVisible, setIsVisible] = useState(true);
-  const { scrollY } = useScroll();
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    const previous = scrollY.getPrevious() ?? 0;
-
-    if (ismobile) {
-      if (latest < 50) setIsVisible(true);
-      else if (latest > previous) setIsVisible(false); // scrolling down → hide
-      else setIsVisible(true); // scrolling up → show
-    } else {
-      if (latest < 50) setIsVisible(true);
-      else if (latest > previous) setIsVisible(false);
-      else setIsVisible(true);
-    }
-  });
-
+  const imgsize = ismobile ? 28 : 38;
   const active = propTabs.find((tab) => location.endsWith(tab.link)) || propTabs[0];
 
   return (
-    <div className="sticky top-0 z-50 w-full flex flex-col items-center bg-transparent pb-2 ">
-      {/* SEARCH FILTER SECTION */}
-      <div className="w-full flex justify-center overflow-visible">
+    <motion.div 
+      initial={false}
+      animate={{ y: isVisible ? 0 : -100 }}
+      // flex justify-center ensures the stretched bar stays centered over the 910px card
+      className="sticky top-0 z-10 w-full flex justify-center py-2 px-4"
+    >
+      <div
+        className={cn(
+          // STRETCH: Increased max-width by 100px (from 910px to 1010px)
+          "flex items-center w-full max-w-[1010px] mx-auto",
+          "bg-white dark:bg-zinc-900 rounded-[14px] p-1.5",
+          "border border-black/5 dark:border-white/10 shadow-sm",
+          containerClassName
+        )}
+      >
+        {propTabs.map((tab, index) => (
+          <div key={tab.title} className="flex flex-1 items-center">
+            <button
+              onClick={() => navigate.push(tab.link)}
+              className={cn(
+                // STRETCH: Increased horizontal padding (px-14) to fill the extra width
+                "relative flex-1 flex items-center justify-center md:px-14 px-5 py-2 rounded-[14px]",
+                "md:text-lg text-sm font-medium transition-colors whitespace-nowrap",
+                "hover:bg-pink-100 dark:hover:bg-zinc-800 border-none",
+                tabClassName
+              )}
+            >
+              {active.title === tab.title && (
+                <motion.div
+                  layoutId="active-nav-tab"
+                  transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
+                  className={cn(
+                    "absolute inset-0 rounded-full bg-pink-100 dark:bg-zinc-800",
+                    activeTabClassName
+                  )}
+                />
+              )}
+
+              <span className="relative z-20 flex gap-3 items-center">
+                {tab.iconUrl && (
+                  <div className="flex-shrink-0 -ml-2">
+                    <Image
+                      className="rounded-full object-cover"
+                      src={tab.iconUrl}
+                      alt={tab.title}
+                      width={imgsize}
+                      height={imgsize}
+                      priority
+                    />
+                  </div>
+                )}
+                {!ismobile && <span className="hidden sm:block text-sm">{tab.title}</span>}
+              </span>
+            </button>
+
+            {index < propTabs.length - 1 && !ismobile && (
+              <div className="h-6 w-px bg-black/10 dark:bg-white/10 mx-1 opacity-50" />
+            )}
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+  /* <div className="w-full flex justify-center overflow-visible">
         <AnimatePresence mode="wait">
           {isVisible && (
             <motion.div
@@ -62,43 +133,5 @@ export const TabsNav = ({
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-
-      {/* TABS BAR - centered + safe side padding on mobile */}
-      <div
-        className={cn(
-          "flex items-center justify-center gap-1.5 mt-2 ", // centered + tighter gap
-          "bg-white dark:bg-zinc-900 rounded-full px-3 py-1.5", // reduced side padding
-          "max-w-[min(95vw,420px)] mx-auto", // ← key fix: prevents touching screen edges
-          "border border-black/5 dark:border-white/10 shadow-sm",
-          containerClassName
-        )}
-      >
-        {propTabs.map((tab) => (
-          <button
-            key={tab.title}
-            onClick={() => navigate.push(tab.link)}
-            className={cn(
-              "relative px-3.5 py-1.5 rounded-full",
-              "text-xs sm:text-sm font-medium transition-colors whitespace-nowrap",
-              "flex-shrink-0 min-w-0", // allow slight compression if needed
-              tabClassName
-            )}
-          >
-            {active.title === tab.title && (
-              <motion.div
-                layoutId="active-nav-tab"
-                transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
-                className={cn(
-                  "absolute inset-0 rounded-full bg-pink-100 dark:bg-zinc-800",
-                  activeTabClassName
-                )}
-              />
-            )}
-            <span className="relative z-20">{tab.title}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
+      </div> */
+}

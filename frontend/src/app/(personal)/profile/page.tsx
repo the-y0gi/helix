@@ -56,7 +56,7 @@ export default function Page({ className }: { className?: string }) {
             <TabsContent
               key={value}
               value={value}
-              className="w-full"
+              className="w-full "
             >
               {content[value as ProfileTabKey]}
             </TabsContent>

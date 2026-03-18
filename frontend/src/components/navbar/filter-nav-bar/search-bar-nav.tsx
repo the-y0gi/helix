@@ -30,7 +30,7 @@ const Search_bar_filter = ({
               "backdrop-blur-sm ",
               "md:rounded-2xl  ",
               "shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
-              "border border-black/10 dark:border-white/20 bg-gradient-to-br from-zinc-100 to-zinc-100/50  dark:bg-gradient-to-br dark:from-zinc-700 dark:to-transparent",
+              // "border border-black/10 dark:border-white/20 bg-gradient-to-br from-zinc-100 to-zinc-100/50  dark:bg-gradient-to-br dark:from-zinc-700 dark:to-transparent",
               mobile ? "mt-4 p-1" : "p-1",
             ],
 

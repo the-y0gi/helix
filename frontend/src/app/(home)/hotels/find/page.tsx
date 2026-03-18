@@ -7,6 +7,8 @@ import { ContentFrame } from "./_components/content";
 import {HotelContextProvider} from "@/context/hotel/HotelContextProvider";
 import { MessageModal } from "@/components/messagemodal";
 import { PageSkeleton } from "@/components/loader/skeleton";
+import { IconArrowRampRight } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
 
 type FindHotelProps = {
   className?: string;
@@ -14,12 +16,13 @@ type FindHotelProps = {
 
 const FindHotels = (props: FindHotelProps) => {
   return (
-    <div className={cn(props.className, "w-full bg-background")}>
+    <div className={cn(props.className, "w-full bg-background  sm:px-0")}>
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong"/>}>
               <Suspense fallback={<PageSkeleton/>}>
           <HotelContextProvider>
+            
             <FilterFramePages
-              filterClassname="w-full flex gap-4 "
+              filterClassname="w-full flex gap-4 justify-center "
               filterSidebar={<SideBarFilter />}
               content={<ContentFrame />}
             />

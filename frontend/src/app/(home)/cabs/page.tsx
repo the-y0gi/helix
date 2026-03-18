@@ -61,7 +61,7 @@ const Cabs = ({className}: {className?:string}) => {
                   <Suspense fallback={<PageSkeleton/>}>
               <MainFramePage 
               type="cabs"
-              // popularTrends={HotelPopularCites}
+              popularTrends={HotelPopularCites}
               
                 // searchHotels={<SearchHotels/>}
                 

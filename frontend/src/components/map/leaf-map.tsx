@@ -1,44 +1,45 @@
-'use client'; // ← important if you're using Next.js App Router!
+'use client';
 
 import { cn } from '@/lib/utils';
 import React from 'react';
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css'; // ← MUST import Leaflet CSS!
+import { MapContainer, Marker, TileLayer } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
 type Props = {
   className?: string;
-  height?: string; // optional: let parent control height
+  height?: string;
   cordinates?: [number, number];
 };
+
 const customIcon = new L.Icon({
-  iconUrl: '/map_marker.png',               // your image path
-  iconRetinaUrl: '/map_marker.png',         // same for retina (or separate @2x version)
-  iconSize: [38, 45],                   // width, height in pixels
-  iconAnchor: [19, 45],                 // point of the icon that corresponds to marker location (center bottom usually)
-  popupAnchor: [0, -45],                // where popup appears relative to iconAnchor
-//   shadowUrl: '/map_marker.png', // optional shadow (classic Leaflet shadow)
-  shadowSize: [68, 95],
-  shadowAnchor: [22, 94],
-  className: ''                         // optional: remove if you get unwanted borders
+  iconUrl: '/map_marker.png',
+  iconRetinaUrl: '/map_marker.png',
+  iconSize: [38, 45],
+  iconAnchor: [19, 45],
+  popupAnchor: [0, -45],
 });
+
 const MapLeaf = ({ className, height = '400px', cordinates }: Props) => {
   return (
-    <div className={cn('w-full', className)} style={{ height }}>
+    <div 
+      // 1. Use 'relative' and a specific z-index lower than your Navbar (e.g., 0 or 10)
+      // 2. 'mt-20' provides the gap from the top of the screen/navbar
+      className={cn('w-full md:mt-10 relative z-0', className)} 
+      style={{ height }}
+    >
       <MapContainer
         center={cordinates || [19.0760, 72.8777]} 
         zoom={11}
         scrollWheelZoom={true}
-        className="h-full w-full rounded-lg  "
+        // REMOVE 'z-0' from here. Let Leaflet handle its internal layering.
+        className="h-full w-full rounded-lg" 
       >
         <TileLayer
-        className="z-0"
-          attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={cordinates || [19.0760, 72.8777]} icon={customIcon}>
-          <Popup>Mohit in Mumbai! 🌆</Popup>
-        </Marker>
+        <Marker position={cordinates || [19.0760, 72.8777]} icon={customIcon} />
       </MapContainer>
     </div>
   );

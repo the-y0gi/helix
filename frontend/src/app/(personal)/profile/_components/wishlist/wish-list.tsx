@@ -1,7 +1,12 @@
 "use client"
-
+import Image from "next/image"
+import { Card } from "@/components/ui/card"
+import React from "react"
+import { labelType, SavedTripsSection } from "./details-lists"
+import { PageSkeleton } from "@/components/loader/skeleton"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
+import { useGetFavouriteSummary } from "@/services/personal/queryes"
 export interface WishListCardProps {
     id: string
     title: string
@@ -56,7 +61,7 @@ export function WishlistSection() {
         return <SavedTripsSection setDetails={setWishListOpen} label={wishListOpen.label} />
     }
     return (
-        <div className="rounded-xl  shadow-sm p-8 space-y-8 bg-background pb-50">
+        <div className="rounded-xl  shadow-sm md:p-8 p-3 md:space-y-8 space-y-3 bg-background pb-50">
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-xl font-semibold">Wish Lists</h2>
@@ -65,10 +70,10 @@ export function WishlistSection() {
                     </p>
                 </div>
 
-                <Button variant="outline" className="gap-2" >
+                {/* <Button variant="outline" className="gap-2" >
                     <Plus size={16} />
                     Create a list
-                </Button>
+                </Button> */}
             </div>
 
             <div className="grid gap-6 sm:grid-cols-1  lg:grid-cols-3">
@@ -110,12 +115,7 @@ export function WishlistSection() {
         </div>
     )
 }
-import Image from "next/image"
-import { Card } from "@/components/ui/card"
-import React from "react"
-import { labelType, SavedTripsSection } from "./details-lists"
-import { useGetFavouriteSummary } from "@/services/hotel/querys"
-import { PageSkeleton } from "@/components/loader/skeleton"
+
 
 
 export function WishlistCard({

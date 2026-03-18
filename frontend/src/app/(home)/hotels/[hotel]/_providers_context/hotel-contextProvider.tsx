@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   useHotelAvailabilityQuery,
   useHotelDetailsQuery,
@@ -36,6 +36,7 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
     }),
     [hotelId, date?.from, date?.to, guests.adults, guests.children]
   );
+  const debouncedFilters = useDebounce(availabilityParams, 2000)
 
   const { data: hotelDetailsData } =
     useHotelDetailsQuery(hotelId);
@@ -44,7 +45,7 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
     data: availabilityResponse,
     isLoading: availabilityLoading,
     refetch: refetchAvailability,
-  } = useHotelAvailabilityQuery(availabilityParams);
+  } = useHotelAvailabilityQuery(debouncedFilters);
 
   const availabilityRooms = availabilityResponse?.roomTypes;
 
@@ -53,7 +54,6 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
       ? availabilityRooms
       : hotelDetailsData?.roomTypes || [];
 
-  // ✅ Memoize context value (prevents child re-renders)
   const contextValue = React.useMemo(
     () => ({
       availabilityResponse,
@@ -88,3 +88,19 @@ export const useHotelContext = () => {
   }
   return context;
 };
+export function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+
+    }, delay)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [value, delay])
+
+  return debouncedValue
+}

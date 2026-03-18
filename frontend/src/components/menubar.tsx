@@ -44,7 +44,7 @@ const { goWithAuth } = useNextGoingRoute();
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="p-0 rounded-full">
-          <div className="w-12 h-12 rounded-full overflow-hidden border border-border hover:border-orange-400 transition">
+          <div className="md:w-12 md:h-12 h-8 w-8 rounded-full overflow-hidden border border-border hover:border-orange-400 transition">
             <img
               src={user?.data?.avatar || "/user.png"}
               alt="Profile"

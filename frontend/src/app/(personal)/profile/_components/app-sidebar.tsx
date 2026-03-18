@@ -42,7 +42,7 @@ export function ProfileSidebar({ className }: { className?: string }) {
 
       <div className="my-3 h-px bg-border hidden md:block" />
 
-      <nav className="md:flex-col flex flex-wrap md:gap-2 ">
+      <nav className="md:flex-col flex overflow-x-auto md:gap-2 ">
         {navMain.map((item) => {
           if (item.value === "settings") return null;
           const Icon = item.icon;

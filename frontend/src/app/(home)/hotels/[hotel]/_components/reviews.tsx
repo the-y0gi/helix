@@ -14,7 +14,10 @@ type Props = {
 
 const ReviewsMain = ({ hotel }: Props) => {
     const { data: reviews } = useGetHotelReviews(hotel._id)
+    console.log(reviews);
     
+
+
     return (
         <Card className="w-full bg-transparent border-none shadow-none">
             <CardHeader className="space-y-2">
@@ -41,8 +44,73 @@ const ReviewsMain = ({ hotel }: Props) => {
 };
 import { useState } from "react";
 import { useGetHotelReviews } from "@/services/hotel/querys";
+import { useGetReviewsQuery } from "@/services/personal/queryes";
 
+
+
+export default ReviewsMain;
+export const ReviewsRanges = () => {
+    const categories = [
+        "Amenities",
+        "Cleanliness",
+        "Communication",
+        "Location",
+        "Value",
+    ];
+
+    return (
+        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6 md:gap-10 w-full">
+            
+            {/* 1. Overall Rating Section: Full width on mobile, fixed width on desktop */}
+            <div className="w-full lg:w-[220px] shrink-0">
+                <h4 className="font-semibold mb-4 text-center lg:text-left text-sm md:text-base">
+                    Overall Rating
+                </h4>
+
+                <div className="space-y-2">
+                    {[5, 4, 3, 2, 1].map((star) => (
+                        <div key={star} className="flex items-center gap-3">
+                            <span className="text-xs md:text-sm font-medium w-3">{star}</span>
+                            <Progress
+                                value={star === 5 ? 100 : 0}
+                                className="h-1.5 md:h-2 flex-1"
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Separator: Hidden on mobile, vertical on desktop */}
+            <Separator orientation="vertical" className="h-32 hidden lg:block" />
+            <Separator orientation="horizontal" className="w-full lg:hidden opacity-50" />
+
+            {/* 2. Categories Section: Horizontal scroll on mobile, wrap on desktop */}
+            <div className="w-full overflow-x-auto no-scrollbar ">
+                <div className="flex lg:flex-wrap items-center md:gap-4 gap-1 lg:gap-0 lg:divide-x divide-border pb-2 lg:pb-0 ">
+                    {categories.map((item) => (
+                        <div
+                            key={item}
+                            className="flex flex-col items-center justify-center px-2 md:px-4 lg:px-8 shrink-0 lg:shrink"
+                        >
+                            {/* Smaller pill on mobile */}
+                            <div className="bg-muted rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-medium whitespace-nowrap">
+                                {item}
+                            </div>
+                            <span className="mt-1 md:mt-2 text-xs md:text-sm font-bold">5.0</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+type ReviewCardProps = {
+    name: string;
+    date: string;
+    review: string;
+};
 const ReviewsComments = () => {
+    // const {data} = useGetReviewsQuery();
     const comments = [
         {
             name: "July Kaly",
@@ -117,57 +185,6 @@ const ReviewsComments = () => {
         </div>
     );
 };
-
-export default ReviewsMain;
-export const ReviewsRanges = () => {
-    const categories = [
-        "Amenities",
-        "Cleanliness",
-        "Communication",
-        "Location",
-        "Value",
-    ];
-
-    return (
-        <div className="flex items-start gap-10 md:flex-row flex-col">
-            <div className="w-[220px]">
-                <h4 className="font-semibold mb-4">Overall Rating</h4>
-
-                {[5, 4, 3, 2, 1].map((star) => (
-                    <div key={star} className="flex items-center gap-3 mb-2">
-                        <span className="text-sm w-4">{star}</span>
-                        <Progress
-                            value={star === 5 ? 100 : 0}
-                            className="h-2 flex-1 "
-                        />
-                    </div>
-                ))}
-            </div>
-
-            <Separator orientation="vertical" className="h-28 md:block hidden" />
-
-            <div className="flex items-center divide-x flex-wrap">
-                {categories.map((item) => (
-                    <div
-                        key={item}
-                        className="px-8 flex flex-col items-center justify-center"
-                    >
-                        <div className="bg-muted rounded-full px-4 py-2 text-sm font-medium">
-                            {item}
-                        </div>
-                        <span className="mt-2 text-sm font-semibold">5.0</span>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
-type ReviewCardProps = {
-    name: string;
-    date: string;
-    review: string;
-};
-
 const ReviewCard = ({ name, date, review }: ReviewCardProps) => {
     return (
         <Card className="rounded-2xl  border border-border items-start flex flex-col gap-2">

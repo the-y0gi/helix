@@ -1,17 +1,20 @@
-
 // import { HotelCalender } from "@/app/(home)/hotels/[hotel]/_components/calander-booking";
 import GuestSelector from "@/components/filter-bar/newui-selectedCounter";
 import { LocationSuggestionDropdown } from "@/components/filter-bar/selectContent";
-import HotelCalendern  from "@/components/navbar/filter-nav-bar/calander05";
-import type { LucideIcon } from "lucide-react";
-export type type=|"home"|"filter"|"profile"|"settings"|"payments"
+import HotelCalendern from "@/components/navbar/filter-nav-bar/calander05";
+import { Icon } from "@tabler/icons-react";
+import { Calendar, LucideProps, User, type LucideIcon } from "lucide-react";
+import SearchInput from "./search-box-components/search-input";
+export type type = "home" | "filter" | "profile" | "settings" | "payments";
 
 export interface Pages {
-  type:type
+  type: type;
   link: string;
   icon: LucideIcon;
+  iconUrl?: string;
   title: string;
   filter_bar?: React.ReactNode;
+  home_filter_box?: React.ReactNode;
 }
 
 export type SelectItemOption = {
@@ -82,172 +85,261 @@ export const timeZoneOptions: SelectGroupOption[] = [
   },
 ];
 const items = [
-    {
-      id: 1,
-      title: "Indore",
-      subtitle: "Madhya Pradesh",
-    },
-    {
-      id: 2,
-      title: "Indira Nagar",
-      subtitle: "Bengaluru, Karnataka",
-    },
-    {
-      id: 3,
-      title: "India",
-    },
-    {
-      id: 4,
-      title: "India Gate",
-      subtitle: "New Delhi, Delhi",
-    },
-    {
-      id: 5,
-      title: "Indira Gandhi International Airport (DEL)",
-      subtitle: "New Delhi",
-    },
-  ]
+  {
+    id: 1,
+    title: "Indore",
+    subtitle: "Madhya Pradesh",
+  },
+  {
+    id: 2,
+    title: "Indira Nagar",
+    subtitle: "Bengaluru, Karnataka",
+  },
+  {
+    id: 3,
+    title: "India",
+  },
+  {
+    id: 4,
+    title: "India Gate",
+    subtitle: "New Delhi, Delhi",
+  },
+  {
+    id: 5,
+    title: "Indira Gandhi International Airport (DEL)",
+    subtitle: "New Delhi",
+  },
+];
 export type FilterBarValues = {
   value: string;
   description: string;
   element?: React.ReactNode;
   tagline?: string;
+  // icon?:Icon;
 };
+export type BoxFilterBarVaues ={
+   label: string;
+   icon: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
+   element?: React.ReactNode;
+   text: string;
+}
+export type SearchBoxValuesProps={
+  search:React.ReactNode,
+  filterBlocks:BoxFilterBarVaues[],
+  videos:string[]
+}
+
 export const HotelFilterBarValues: FilterBarValues[] = [
   {
     value: "Where",
     description: "Search Destination",
-    element: <LocationSuggestionDropdown
-  items={items}
-  onSelect={(item) => {}}
-/>,
+    element: (
+      <LocationSuggestionDropdown items={items} onSelect={(item) => {}} />
+    ),
     tagline: "Where do you want to go?",
-    
   },
   {
     value: "When",
     description: "Add dates",
     element: <HotelCalendern />,
     tagline: "Choose your REST plans",
-    
   },
   {
     value: "Who",
     description: "Add Guests",
     element: <GuestSelector />,
     tagline: "Who is coming?",
-    
   },
+];
+export const Hotel_Box_FilterBarValues: BoxFilterBarVaues[] = [
+ {
+    label: "Check In",
+    icon: Calendar,
+    element: <HotelCalendern />,
+    text: "Add dates",
+  },
+  {
+    label: "Check Out",
+    icon: Calendar,
+    element: <HotelCalendern />,
+    text: "Add dates",
+  },
+  {
+    label: "Guests",
+    icon:User,
+    element: <GuestSelector />,
+    text: "Add Guests",
+  },
+];
+export const Cabs_Box_FilterBarValues: BoxFilterBarVaues[] = [
+ {
+    label: "Company",
+    icon: Calendar,
+    element: <HotelCalendern />,
+    text: "Add dates",
+  },
+  {
+    label: "When",
+    icon: Calendar,
+    element: <HotelCalendern />,
+    text: "Add dates",
+  },
+  // {
+  //   label: "Guests",
+  //   icon:User,
+  //   element: <GuestSelector />,
+  //   text: "Add Guests",
+  // },
 ];
 export const CabsFilterBarValues: FilterBarValues[] = [
   {
     value: "Pickup Location",
     description: "Enter Pickup point",
-    element: <LocationSuggestionDropdown
-  items={items}
-  onSelect={(item) => {}}
-/>,
+    element: (
+      <LocationSuggestionDropdown items={items} onSelect={(item) => {}} />
+    ),
     tagline: "Where do you want to go?",
-    
   },
   {
     value: "Drop Location",
     description: "Enter Destination",
     element: <HotelCalendern />,
     tagline: "Choose your REST plans",
-   
   },
   {
     value: "When",
     description: "Add Date and Time",
     element: <HotelCalendern />,
     tagline: "Who is coming?",
-    
   },
   {
     value: "Who",
     description: "Add Passengers",
-    element: <LocationSuggestionDropdown
-  items={items}
-  onSelect={(item) => {}}
-/>,
+    element: (
+      <LocationSuggestionDropdown items={items} onSelect={(item) => {}} />
+    ),
     tagline: "Who is coming?",
-   
   },
 ];
-export const destinations: { title: string; location: string; image: string }[] = [
+export const Search_box_values:SearchBoxValuesProps[] = [
+    {
+        search:<SearchInput />,
+        filterBlocks:Hotel_Box_FilterBarValues,
+        videos:["/happy.mp4", "/road.mp4", "/hot-air.mp4"]
+    },
+    {
+        search:<SearchInput />,
+        filterBlocks:Cabs_Box_FilterBarValues,
+        videos:["/happy.mp4", "/road.mp4",  "/japan.mp4"]
+    },
+    {
+        search:<SearchInput />,
+        filterBlocks:Hotel_Box_FilterBarValues,
+        videos:["/happy.mp4",  "/japan.mp4"]
+    },
+    {
+        search:<SearchInput />,
+        filterBlocks:Hotel_Box_FilterBarValues,
+        videos:[ "/road.mp4", "/hot-air.mp4", "/japan.mp4"]
+    },
+    {
+        search:<SearchInput />,
+        filterBlocks:Hotel_Box_FilterBarValues,
+        videos:["/happy.mp4", "/road.mp4", "/hot-air.mp4", "/japan.mp4"]
+    }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const destinations: {
+  title: string;
+  location: string;
+  image: string;
+}[] = [
   {
     title: "Louvre Museum",
     location: "Paris, France",
-    image:
-      "/img1.png",
+    image: "/img1.png",
   },
   {
     title: "Golden Hands Bridge",
     location: "Da Nang, Vietnam",
-    image:
-      "/img2.png",
+    image: "/img2.png",
   },
   {
     title: "Elizabeth Tower",
     location: "London, England",
-    image:
-     "/img3.jpg",
+    image: "/img3.jpg",
   },
   {
     title: "Louvre Museum",
     location: "Paris, France",
-    image:
-      "/img4.png",
+    image: "/img4.png",
   },
   {
     title: "Golden Hands Bridge",
     location: "Da Nang, Vietnam",
-    image:
-      "/img1.png",
+    image: "/img1.png",
   },
   {
     title: "Elizabeth Tower",
     location: "London, England",
-    image:
-      "/img2.png",
+    image: "/img2.png",
   },
 ];
 export const cars = [
   {
     title: "Tesla Model S",
     location: "California, USA",
-    image:
-      "https://images.pexels.com/photos/799443/pexels-photo-799443.jpeg",
+    image: "https://images.pexels.com/photos/799443/pexels-photo-799443.jpeg",
   },
   {
     title: "Lamborghini Aventador",
     location: "Sant'Agata Bolognese, Italy",
-    image:
-      "https://images.pexels.com/photos/3802510/pexels-photo-3802510.jpeg",
+    image: "https://images.pexels.com/photos/3802510/pexels-photo-3802510.jpeg",
   },
   {
     title: "BMW M4",
     location: "Munich, Germany",
-    image:
-      "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg",
+    image: "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg",
   },
   {
     title: "Tesla Model SS",
     location: "California, USA",
-    image:
-      "https://images.pexels.com/photos/1149831/pexels-photo-1149831.jpeg",
+    image: "https://images.pexels.com/photos/1149831/pexels-photo-1149831.jpeg",
   },
   {
     title: "Lamborghini AventadorS",
     location: "Sant'Agata Bolognese, Italy",
-    image:
-      "https://images.pexels.com/photos/244206/pexels-photo-244206.jpeg",
+    image: "https://images.pexels.com/photos/244206/pexels-photo-244206.jpeg",
   },
   {
     title: "BMW M4S",
     location: "Munich, Germany",
-    image:
-      "https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg",
+    image: "https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg",
   },
 ];

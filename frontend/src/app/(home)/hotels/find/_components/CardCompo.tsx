@@ -8,6 +8,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { LikeIcon } from "@/services/dailyfunctions";
 import { MapPin } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type HotelCardProps = {
   hotelId: string;
@@ -23,6 +24,7 @@ type HotelCardProps = {
   roomInfo: string;
   oldPrice?: string;
   price: string;
+  favourite?: boolean;
   discount: string;
   nights?: number;
   stars: number;
@@ -36,6 +38,7 @@ export function HotelCard({
   left,
   amenities,
   stars,
+  favourite,
   wrap,
   image,
   title,
@@ -52,11 +55,12 @@ export function HotelCard({
 }: HotelCardProps) {
   const navigate = useRouter();
   const [heart, setHeart] = React.useState(false);
+  const isMobile = useIsMobile()
   return (
     <Card
       className={cn(
         "w-[290px] overflow-hidden rounded-2xl border shadow-sm hover:scale-101 transition-transform duration-100",
-        wrap ? "flex-col " : "flex-row w-full",
+        wrap ? "flex-col " : "flex-row w-full", isMobile ? 'w-full' : ""
       )}
 
     >
@@ -68,7 +72,7 @@ export function HotelCard({
       >
         <img
 
-          src='/img2.png'
+          src={image || "/img2.png"}
           alt={title}
           className="h-full w-full object-cover rounded-2xl"
         />
@@ -98,7 +102,7 @@ export function HotelCard({
             )
           }
         </Button> */}
-        <LikeIcon _id={hotelId} isFavourite={false} name="card" className="absolute right-3 top-3 h-8 w-8 rounded-full bg-white/50 flex items-center justify-center" />
+        <LikeIcon _id={hotelId} isFavourite={favourite || false} name="card" className="absolute right-3 top-3 h-8 w-8 rounded-full bg-white/50 flex items-center justify-center" />
 
         <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1">
           <span className="h-1.5 w-1.5 rounded-full bg-white" />
