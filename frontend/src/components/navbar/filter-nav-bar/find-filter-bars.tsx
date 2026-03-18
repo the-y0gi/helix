@@ -4,6 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
+import { IconArrowRampRight } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
 export const FindTabsNav = ({
   mobile,
   tabs: propTabs,
@@ -59,6 +61,7 @@ export const FindTabsNav = ({
             </motion.div>
           )}
         </AnimatePresence>
+        
       </div>
     
   );

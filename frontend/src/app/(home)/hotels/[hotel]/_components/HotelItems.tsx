@@ -19,19 +19,15 @@ const HotelItems = ({
 }: HotelItemsProps) => {
   return (
     <div className="flex flex-col gap-6 w-full md:py-8 px-4 md:px-0">
-      {/* Header Container */}
       <div className="flex flex-col gap-4 md:px-10">
         
-        {/* Title and Actions Row */}
         <div className="flex justify-between items-start gap-4">
           
-          {/* Title and Stars Group */}
           <div className="flex flex-col gap-1.5 min-w-0 flex-1">
             <h1 className="text-2xl md:text-4xl font-extrabold text-foreground/80 tracking-tight leading-tight break-words">
               {hotel.name}
             </h1>
             
-            {/* Stars - Responsive sizing */}
             <div className="flex items-center gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <IconStarFilled
@@ -41,7 +37,7 @@ const HotelItems = ({
                       ? "text-yellow-400"
                       : "text-muted/30"
                   }
-                  size={16} // Slightly smaller for mobile
+                  size={16}
                 />
               ))}
               <span className="ml-2 text-xs font-bold text-muted-foreground">
@@ -50,7 +46,6 @@ const HotelItems = ({
             </div>
           </div>
 
-          {/* Action Buttons - Fixed size to prevent squashing */}
           <div className="flex items-center gap-2 flex-shrink-0 pt-1">
             <div className="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 rounded-full border border-border bg-background shadow-sm active:scale-90 transition-transform">
                <LikeIcon _id={hotel._id} isFavourite={hotel.isFavorite} name={hotel.name}/>
@@ -66,7 +61,6 @@ const HotelItems = ({
           </div>
         </div>
 
-        {/* Location Row */}
         <div className="flex items-center gap-1 text-muted-foreground">
           <IconMapPin size={14} className="flex-shrink-0" />
           <p className="text-sm font-semibold underline underline-offset-2 decoration-muted/40">
@@ -75,7 +69,6 @@ const HotelItems = ({
         </div>
       </div>
 
-      {/* Sticky Tabs Section */}
       <div className="w-full border-t border-border mt-2">
         <TabsLine
           hotel={hotel}

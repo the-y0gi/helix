@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {  ThumbsUp } from "lucide-react"
 import RattingBadge from "@/app/(home)/hotels/[hotel]/_components/badge"
-
+import { format, isBefore, parseISO } from 'date-fns'
 interface ReviewCardProps {
     review: Review
 }
@@ -13,7 +13,10 @@ import { Separator } from "@/components/ui/separator"
 import { IconFileSmile } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 
-import React from "react"
+import React, { useMemo } from "react"
+import { useGetReviewsQuery } from "@/services/personal/queryes"
+import { useMyBookingsQuery } from "@/services/hotel/querys"
+import { ReservationCardProps } from "../trips/all"
 type ReviewStatus = "posted" | "rejected" | "pending"
 
 interface Review {
@@ -69,6 +72,23 @@ const reviews: Review[] = [
 ]
 
 export function ReviewList({id}: {id?: string}) {
+    const { data: tripsdata_unfiltered, isLoading } = useMyBookingsQuery()
+
+  const completedBookings = useMemo(() => {
+    if (!tripsdata_unfiltered?.data) return []
+
+    const today = new Date() 
+
+    return tripsdata_unfiltered.data.filter((booking:ReservationCardProps) => {
+      const checkOutDate = parseISO(booking.checkOut) 
+
+      return isBefore(checkOutDate, today)
+    })
+  }, [tripsdata_unfiltered])
+  console.log(completedBookings);
+  
+    
+    
     if (reviews.length === 0) {
         return (
             <Noreviews />

@@ -4,13 +4,16 @@ import  { Suspense } from "react";
 import { ErrorBoundary } from 'react-error-boundary'
 import HotelFramePage from "@/components/frame-pages/MainFramePage";
 import type { CityTrends } from "@/types";
-import { useGetMyTripME, useGetNewHotels } from "@/services/hotel/querys";
+import {  useGetNewHotels } from "@/services/hotel/querys";
 import { PageSkeleton } from "@/components/loader/skeleton";
 import { MessageModal } from "@/components/messagemodal";
+import HotelSearch from "./search-";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export type HotelFramePageProps = {
   className?: string;
   type: "hotels" | "cabs";
+  popularTrends?: CityTrends[];
 };
 export interface HotelData {
   data: hoteldata[];
@@ -50,12 +53,14 @@ export type hoteldata = {
 const Hotel = ({className}: HotelFramePageProps) => {
   localStorage.removeItem("nextRoute")
   localStorage.removeItem("like")
+  const ismobile = useIsMobile()
   
   
   return (
-    <div className={cn(" w-full", className)}>
+    <div className={cn(" w-full ",ismobile?"":"", className)}>
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong"/>}>
         <Suspense fallback={<PageSkeleton/>}>
+       
           <HotelFramePage 
           // popularTrends={HotelPopularCites}
           type="hotels"

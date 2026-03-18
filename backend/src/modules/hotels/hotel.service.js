@@ -205,7 +205,7 @@ exports.getAllHotels = async (query = {}, userId = null) => {
 //get home hotels
 exports.getHomeHotels = async (query = {}, userId = null) => {
   try {
-    const { city, limit = 15 } = query;
+    const { city } = query;
 
     const filter = {
       isActive: true,
@@ -217,8 +217,8 @@ exports.getHomeHotels = async (query = {}, userId = null) => {
     const hotels = await Hotel.find(filter)
       .select("name city images")
       .sort({ rating: -1 })
-      .limit(Number(limit))
       .lean();
+      // .limit(Number(limit))
 
     const formattedHotels = hotels.map((hotel) => ({
       _id: hotel._id,

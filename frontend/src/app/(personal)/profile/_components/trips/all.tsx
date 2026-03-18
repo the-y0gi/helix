@@ -40,15 +40,11 @@ export function AllReservations({
   variant: "cancelled" | "all" | "completed" | "active";
 }) {
   const { data: tripsdata_unfiltered, isLoading } = useMyBookingsQuery();
-  console.log(tripsdata_unfiltered);
-  
-  // const {data:myTripdata_ME} = useGetMyTripME()
+
 
   const trips = tripsdata_unfiltered?.data ?? [];
 
-  // console.log("myTripdata_ME", myTripdata_ME);
-  // console.log("myTripdata_useGetMyTrips", myTripdata_useGetMyTrips);
-  // console.log("myTripdata_useGetFavouriteSummary", myTripdata_useGetFavouriteSummary);
+ 
 
   const tripsdata =
     variant === "all"
@@ -62,7 +58,6 @@ export function AllReservations({
     id: "",
     open: false,
   });
-  // console.log(tripsdata);
   if (isLoading) return <Skel />;
   if (!tripsdata) return <p>no bookings</p>;
 
@@ -123,8 +118,11 @@ const Skel = () => {
   );
 };
 
-import { Skeleton } from "@/components/ui/skeleton";
+
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+
+
 
 export function ReservationCard({
   hotelId,
@@ -138,69 +136,89 @@ export function ReservationCard({
   _id,
   onCheckDetails,
 }: ReservationCardProps) {
+  const router = useRouter();
   const isConfirmed = status === "confirmed";
-  // console.log(thumbnail);
-const router = useRouter()
+
   return (
-    <Card className="rounded-xl bg-background shadow-none border-none">
-      <CardContent className=" flex flex-col gap-4">
-        <div className="flex items-start justify-between gap-6">
-          {/* Left Section */}
-          <div className="flex gap-4">
-            <div className="h-20 w-20 overflow-hidden rounded-md">
+    <Card className="rounded-xl bg-background shadow-sm border border-border/40 hover:shadow-md transition-shadow">
+      <CardContent className="">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5 sm:gap-6">
+          {/* Left Section – Image + Info */}
+          <div className="flex flex-col sm:flex-row gap-4 flex-1">
+            {/* Hotel Image */}
+            <div className="relative h-32 sm:h-24 w-full sm:w-32 min-w-[128px] overflow-hidden rounded-lg">
               <img
                 src={thumbnail || "/room1.png"}
                 alt={hotelName}
-                className="h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
+                loading="lazy"
               />
             </div>
 
-            <div className="space-y-1">
-              <h3 onClick={()=>{
-                router.push(`/hotels/${hotelId}`)
+            {/* Hotel Details */}
+            <div className="flex-1 space-y-3 sm:space-y-2">
+              <h3
+                onClick={() => router.push(`/hotels/${hotelId}`)}
+                className="font-semibold text-lg sm:text-base cursor-pointer hover:text-primary transition-colors line-clamp-2"
+              >
+                {hotelName}
+              </h3>
 
-              }} className="font-semibold cursor-pointer text-base">{hotelName}</h3>
-              <Separator />
-              <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
+              <Separator className="my-2 sm:hidden" />
+
+              <div className="grid grid-cols-1 sm:flex sm:flex-wrap sm:gap-6 gap-2 text-sm text-muted-foreground">
                 <p>
-                  <span className="font-medium text-foreground">Check in:</span>{" "}
-                  {new Date(checkIn).toDateString()}
+                  <span className="font-medium text-foreground">Check-in:</span>{" "}
+                  {new Date(checkIn).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
                 </p>
                 <p>
-                  <span className="font-medium text-foreground">
-                    Check out:
-                  </span>{" "}
-                  {new Date(checkOut).toDateString()}
+                  <span className="font-medium text-foreground">Check-out:</span>{" "}
+                  {new Date(checkOut).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
                 </p>
                 <p>
                   <span className="font-medium text-foreground">Guests:</span>{" "}
-                  {guests.adults + guests.children}
+                  {guests.adults + guests.children} 
+                  {guests.adults + guests.children === 1 ? " person" : " people"}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Right Section */}
-          <div className="flex flex-col items-end gap-3">
+          {/* Right Section – Status + Button */}
+          <div className="flex flex-col items-start sm:items-end gap-4 sm:gap-3 mt-3 sm:mt-0">
             <div className="flex items-center gap-3">
               <Badge
                 variant="outline"
-                className={
+                className={cn(
+                  "px-3 py-1 text-xs sm:text-sm font-medium",
                   isConfirmed
-                    ? "border-green-500 text-green-600"
-                    : "border-orange-500 text-orange-600"
-                }
+                    ? "border-green-500/70 bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400"
+                    : "border-amber-500/70 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400"
+                )}
               >
-                {isConfirmed ? "Confirmed" : "Pending"}
+                {isConfirmed ? "Confirmed" : status.charAt(0).toUpperCase() + status.slice(1)}
               </Badge>
 
-              <span className="text-sm text-muted-foreground">
-                ID {bookingId}
+              <span className="text-xs sm:text-sm text-muted-foreground font-mono">
+                {bookingId}
               </span>
             </div>
 
-            <Button variant="link" className="px-0" onClick={onCheckDetails}>
-              Check Details
+            <Button
+              variant="outline"
+              size="sm"
+              className="px-6 sm:px-0 sm:w-auto w-full sm:text-base"
+              onClick={onCheckDetails}
+            >
+              Details
             </Button>
           </div>
         </div>

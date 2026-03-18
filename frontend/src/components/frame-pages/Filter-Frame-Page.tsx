@@ -1,3 +1,5 @@
+'use client'
+import { useIsMobile } from '@/hooks/use-mobile'
 import React from 'react'
 
 type FilterFrameProps = {
@@ -7,9 +9,10 @@ type FilterFrameProps = {
 }
 
 const FilterFramePages = ({content,filterClassname,filterSidebar}: FilterFrameProps) => {
+  const ismobile = useIsMobile()
   return (
     <div className={filterClassname}>
-        {filterSidebar}
+        {!ismobile && filterSidebar}
         {content}
     </div>
   )

@@ -1,3 +1,5 @@
+import { PageSkeleton } from "@/components/loader/skeleton";
+import { MessageModal } from "@/components/messagemodal";
 import { Card, CardContent } from "@/components/ui/card"
 import { useGetHotelPolicies } from "@/services/hotel/querys"
 import {
@@ -12,15 +14,16 @@ import {
     Loader,
 } from "lucide-react"
 
-export function HotelPolicies({id}: {id: string}) {
-    const {data,isLoading,isError} = useGetHotelPolicies(id)
-    if(isLoading){
-        return <Loader/>
+export function HotelPolicies({ id }: { id: string }) {
+    const { data, isLoading, isError } = useGetHotelPolicies(id)
+
+    if (isLoading) {
+        return <PageSkeleton />
     }
-    if(isError){
-        return <div>Something went wrong</div>
+    if (isError) {
+        return <MessageModal title="Error" description="Something went wrong" />
     }
-    
+
     return (
         <div className="space-y-6">
             <div className="space-y-1.5">

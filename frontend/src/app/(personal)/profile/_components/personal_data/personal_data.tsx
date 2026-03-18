@@ -23,6 +23,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCurrentUser } from "@/services/hotel/querys";
+import { PageSkeleton } from "@/components/loader/skeleton";
+import { MessageModal } from "@/components/messagemodal";
 
 export function UserProfileFields({
   currUser,
@@ -74,7 +76,6 @@ export function UserProfileFields({
   const onHandleSubmit = handleSubmit(async (data) => {
     setLoading(true);
     try {
-      console.log(data);
 
       const result = await updateUser(data);
       if (result.success) {
@@ -253,11 +254,11 @@ export const PersonProfilePersonalData = ({
   const { data: currUser, isLoading, isError, refetch } = useCurrentUser();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <PageSkeleton/>;
   }
 
   if (isError) {
-    return <div>Not authenticated</div>;
+    return <MessageModal title="Unauthorized" description="Please login to continue" />;
   }
 
   return (

@@ -701,6 +701,7 @@ export const renderRoomCard = (
 
   return (
     <HotelRoomCard
+    displayPrice={room.displayPrice || room.basePrice}
       showReserveButton={showReserveButton}
       key={room._id}
       hotelId={hotelId}

@@ -7,23 +7,32 @@ import { Pagination_console } from "./pagination-console";
 import { Button } from "@/components/ui/button";
 import { IconGrid4x4, IconMenu4 } from "@tabler/icons-react";
 import { useHotelStore } from "@/store/hotel.store";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useHotelContext } from "@/context/hotel/HotelContextProvider";
+import { Hotel } from "@/types";
+import { ScrollToTop } from "../../../../../../scrolltoto";
+import { ScrollToTopByParams } from "./ScrollToTopByParams";
+
 type Props = {};
 
 export const ContentFrame = (props: Props) => {
-  
+  const ismobile = useIsMobile()
+  const { total } = useHotelContext()
+
   return (
     <div className="md:w-full">
-      <div className="flex justify-between">
+      <div className="flex justify-between px-4 sm:px-0">
         <div className="w-full">
-          <h2 className="text-2xl font-semibold mb-4">
-            Explore 300+ places in Goa
+          <h2 className="text-2xl font-semibold mb-4 ">
+            {total > 0 ? `Explore ${total}+ hotels` : "Explore hotels"}
           </h2>
           <div className="w-10 min-w-37 md:w-1/2 mb-6">
+
             <ComboboxMultiple />
           </div>
         </div>
         <div>
-          <SwitchGrids />
+          {!ismobile && <SwitchGrids />}
         </div>
       </div>
       <Content className={cn("gap-x-4 gap-y-6")} />
@@ -33,39 +42,80 @@ export const ContentFrame = (props: Props) => {
     </div>
   );
 };
+
 export const Content = ({ className }: { className: string }) => {
   const { wrap } = useHotelStore();
+  const isMobile = useIsMobile()
+  const { hotels, isLoading } = useHotelContext()
 
-  return (
+  if (isLoading) {
+    return (
+      <>
+        <ScrollToTopByParams />
+        <div className={cn("flex px-2 flex-wrap", className)}>
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className={cn(
+                "rounded-2xl bg-muted animate-pulse",
+                wrap || isMobile ? "w-[290px] h-[420px]" : "w-full h-[220px]"
+              )}
+            />
+          ))}
+        </div>
+      </>
+    )
+  }
+
+  if (!isLoading && hotels.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
+        <p className="text-lg">No hotels found for the selected filters.</p>
+        <p className="text-sm">Try adjusting or clearing the filters.</p>
+      </div>
+    )
+  }
+
+  return (<>
+
+    <ScrollToTopByParams />
     <div
-      className={cn("flex  px-2", wrap ? "flex-wrap" : "flex-col", className)}
+      className={cn("flex  px-2", wrap ? "flex-wrap" : isMobile ? "flex-wrap" : "flex-col", className)}
     >
-      {[...Array(9)].map((_, i) => (
-        <HotelCard
-          hotelId={i.toString()}
-          amenities={["free cancelation", "spa access"]}
-          left={1}
-          stars={4}
-          wrap={wrap}
-          key={i}
-          image="./img2.png"
-          title="Hotel Arts Goa"
-          location="Port Olympic"
-          tag="Getaway Deal"
-          rating={5.0}
-          reviews={{ text: "Excellent", count: 1200 }}
-          roomInfo="Luxury Hotel · Sea View Room · King Bed"
-          oldPrice="$1,800"
-          price="$1,500"
-          discount="10% off"
-        />
-      ))}
+      {hotels.map((hotel: Hotel) => {
+        // Find lowest display price from roomTypes if available
+        const roomTypes = (hotel as any).roomTypes ?? []
+        const lowestPrice = roomTypes.length > 0
+          ? Math.min(...roomTypes.map((r: any) => r.discountPrice > 0 ? r.discountPrice : r.basePrice))
+          : (hotel as any).startingPrice ?? 0
+
+        const firstImage = hotel.images?.[0]?.url ?? "/img2.png"
+
+        return (
+          <HotelCard
+            key={hotel._id}
+            hotelId={hotel._id}
+            image={firstImage}
+            favourite={hotel.isFavorite}
+            title={hotel.name}
+            location={hotel.city ?? ""}
+            rating={hotel.rating ?? 0}
+            stars={Math.round(hotel.rating ?? 0)}
+            reviews={{ text: hotel.rating >= 4.5 ? "Excellent" : hotel.rating >= 3.5 ? "Very Good" : "Good", count: hotel.numReviews ?? 0 }}
+            roomInfo={hotel.description}
+            price={lowestPrice ? `$${lowestPrice}` : "—"}
+            discount={""}
+            wrap={wrap || isMobile}
+            amenities={hotel.amenities ?? []}
+          />
+        )
+      })}
     </div>
+  </>
   );
 };
 
 const SwitchGrids = () => {
-  // const [isGroupedItems, setIsGroupedItems] = React.useState(true)
   const { setWrap: setIsGroupedItems, wrap: isGroupedItems } = useHotelStore();
 
   return (
