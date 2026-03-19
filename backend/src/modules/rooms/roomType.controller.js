@@ -58,7 +58,7 @@ exports.createRoomTypeWithAutoRooms = async (req, res, next) => {
     const roomType = new RoomType(roomTypeData);
     await roomType.save({ session });
 
-    // Generate Rooms
+    //auto generate Rooms
     const rooms = [];
 
     for (let i = 1; i <= totalRooms; i++) {
@@ -71,6 +71,16 @@ exports.createRoomTypeWithAutoRooms = async (req, res, next) => {
     }
 
     await Room.insertMany(rooms, { session });
+
+    //hotel active
+    await Hotel.findByIdAndUpdate(
+      hotel._id,
+      {
+        isActive: true,
+        isFeatured: true,
+      },
+      { session, new: true },
+    );
 
     await session.commitTransaction();
     session.endSession();

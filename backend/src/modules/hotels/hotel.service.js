@@ -271,7 +271,7 @@ exports.getHomeHotels = async (query = {}, userId = null) => {
       .select("name city images")
       .sort({ rating: -1 })
       .lean();
-      // .limit(Number(limit))
+    // .limit(Number(limit))
 
     const formattedHotels = hotels.map((hotel) => ({
       _id: hotel._id,
@@ -685,24 +685,39 @@ exports.searchHotels = async (query = {}, userId = null) => {
     limit = 10,
   } = query;
 
-  if (!checkIn || !checkOut)
-    throw new Error("checkIn and checkOut are required");
-
-  const startDate = new Date(checkIn);
-  const endDate = new Date(checkOut);
-
-  const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
+  if (!destination) {
+    throw new Error("Destination (city) is required");
+  }
 
   const skip = (page - 1) * limit;
 
+  let startDate = null;
+  let endDate = null;
+  let nights = 1;
+
+  if (checkIn && checkOut) {
+    startDate = new Date(checkIn);
+    endDate = new Date(checkOut);
+
+    startDate.setUTCHours(0, 0, 0, 0);
+    endDate.setUTCHours(0, 0, 0, 0);
+
+    nights = Math.max(
+      1,
+      Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)),
+    );
+  }
+
   const pipeline = [
+    //HOTEL FILTER
     {
       $match: {
         isActive: true,
-        ...(destination && { city: destination }),
+        city: { $regex: destination, $options: "i" },
       },
     },
 
+    //ROOM TYPES
     {
       $lookup: {
         from: "roomtypes",
@@ -714,7 +729,6 @@ exports.searchHotels = async (query = {}, userId = null) => {
 
     { $unwind: "$roomTypes" },
 
-    // Capacity filter
     {
       $match: {
         "roomTypes.capacity.adults": { $gte: Number(adults) },
@@ -723,44 +737,71 @@ exports.searchHotels = async (query = {}, userId = null) => {
       },
     },
 
-    {
-      $lookup: {
-        from: "availabilities",
-        let: { roomTypeId: "$roomTypes._id" },
-        pipeline: [
+    //AVAILABILITY (ONLY IF DATES PROVIDED)
+    ...(startDate && endDate
+      ? [
           {
-            $match: {
-              $expr: { $eq: ["$roomTypeId", "$$roomTypeId"] },
-              date: { $gte: startDate, $lt: endDate },
+            $lookup: {
+              from: "availabilities",
+              let: { roomTypeId: "$roomTypes._id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$roomTypeId", "$$roomTypeId"] },
+                    date: { $gte: startDate, $lt: endDate },
+                  },
+                },
+              ],
+              as: "availabilityData",
             },
           },
-        ],
-        as: "availabilityData",
-      },
-    },
 
-    // Ensure availability for ALL selected nights
-    {
-      $addFields: {
-        validDateCount: { $size: "$availabilityData" },
-        minAvailableRooms: {
-          $cond: [
-            { $gt: [{ $size: "$availabilityData" }, 0] },
-            { $min: "$availabilityData.availableRooms" },
-            0,
-          ],
-        },
-      },
-    },
+          {
+            $addFields: {
+              minAvailableRooms: {
+                $cond: [
+                  { $gt: [{ $size: "$availabilityData" }, 0] },
+                  {
+                    $min: {
+                      $map: {
+                        input: "$availabilityData",
+                        as: "a",
+                        in: {
+                          $subtract: [
+                            "$roomTypes.totalRooms",
+                            {
+                              $add: [
+                                { $ifNull: ["$$a.bookedRooms", 0] },
+                                { $ifNull: ["$$a.blockedRooms", 0] },
+                              ],
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  "$roomTypes.totalRooms",
+                ],
+              },
+            },
+          },
 
-    {
-      $match: {
-        validDateCount: nights,
-        minAvailableRooms: { $gt: 0 },
-      },
-    },
+          {
+            $match: {
+              minAvailableRooms: { $gt: 0 },
+            },
+          },
+        ]
+      : [
+          //NO DATE → assume available
+          {
+            $addFields: {
+              minAvailableRooms: "$roomTypes.totalRooms",
+            },
+          },
+        ]),
 
-    // Price calculation
+    // PRICE
     {
       $addFields: {
         effectivePrice: {
@@ -773,7 +814,7 @@ exports.searchHotels = async (query = {}, userId = null) => {
       },
     },
 
-    // Group back to hotel
+    //GROUP
     {
       $group: {
         _id: "$_id",
@@ -809,5 +850,6 @@ exports.searchHotels = async (query = {}, userId = null) => {
 
   const hotels = await Hotel.aggregate(pipeline);
   const updatedHotels = await attachFavoriteFlag(hotels, userId);
+
   return updatedHotels;
 };
