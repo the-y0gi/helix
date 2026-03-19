@@ -128,8 +128,9 @@ exports.getRoomTypeCalendar = async (vendorId, roomTypeId, month, year) => {
       throw new Error("Not authorized");
     }
 
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 1);
+    //UTC SAFE RANGE
+    const startDate = new Date(Date.UTC(year, month - 1, 1));
+    const endDate = new Date(Date.UTC(year, month, 1));
 
     //Fetch availability docs
     const availabilityDocs = await Availability.find({
@@ -137,11 +138,11 @@ exports.getRoomTypeCalendar = async (vendorId, roomTypeId, month, year) => {
       date: { $gte: startDate, $lt: endDate },
     }).lean();
 
-    //Build map
     const availabilityMap = {};
 
     for (const doc of availabilityDocs) {
-      const dateStr = doc.date.toISOString().split("T")[0];
+      const d = new Date(doc.date);
+      const dateStr = d.toISOString().split("T")[0];
       availabilityMap[dateStr] = doc;
     }
 
@@ -150,9 +151,7 @@ exports.getRoomTypeCalendar = async (vendorId, roomTypeId, month, year) => {
     const calendar = [];
 
     for (let day = 1; day <= daysInMonth; day++) {
-      const currentDate = new Date(year, month - 1, day);
-      currentDate.setHours(0, 0, 0, 0);
-
+      const currentDate = new Date(Date.UTC(year, month - 1, day));
       const dateStr = currentDate.toISOString().split("T")[0];
 
       const dayData = availabilityMap[dateStr];
@@ -200,10 +199,32 @@ exports.updateRoomTypeCalendar = async (
   try {
     if (!date) throw new Error("Date is required");
 
-    const targetDate = new Date(date + "T00:00:00");
-    targetDate.setHours(0, 0, 0, 0);
+    //UTC SAFE DATE RANGE
+    const start = new Date(
+      Date.UTC(
+        new Date(date).getFullYear(),
+        new Date(date).getMonth(),
+        new Date(date).getDate(),
+        0,
+        0,
+        0,
+        0,
+      ),
+    );
 
-    if (isNaN(targetDate.getTime())) {
+    const end = new Date(
+      Date.UTC(
+        new Date(date).getFullYear(),
+        new Date(date).getMonth(),
+        new Date(date).getDate(),
+        23,
+        59,
+        59,
+        999,
+      ),
+    );
+
+    if (isNaN(start.getTime())) {
       throw new Error("Invalid date");
     }
 
@@ -223,38 +244,41 @@ exports.updateRoomTypeCalendar = async (
       throw new Error("Not authorized");
     }
 
+    // validation
     if (blockedRooms !== undefined) {
       if (blockedRooms < 0 || blockedRooms > roomType.totalRooms) {
         throw new Error("Invalid blocked rooms value");
       }
     }
 
-    //Find existing availability doc
-    let availability = await Availability.findOne({
-      roomTypeId,
-      date: targetDate,
-    });
+    const updateData = {};
 
-    //Create doc if not exist
-    if (!availability) {
-      availability = new Availability({
-        roomTypeId,
-        date: targetDate,
-        bookedRooms: 0,
-        blockedRooms: blockedRooms ?? 0,
-        priceOverride: priceOverride ?? undefined,
-      });
-    } else {
-      if (blockedRooms !== undefined) {
-        availability.blockedRooms = blockedRooms;
-      }
-
-      if (priceOverride !== undefined) {
-        availability.priceOverride = priceOverride;
-      }
+    if (blockedRooms !== undefined) {
+      updateData.blockedRooms = blockedRooms;
     }
 
-    await availability.save();
+    if (priceOverride !== undefined) {
+      updateData.priceOverride = priceOverride;
+    }
+
+    const availability = await Availability.findOneAndUpdate(
+      {
+        roomTypeId,
+        date: { $gte: start, $lte: end },
+      },
+      {
+        $set: updateData,
+        $setOnInsert: {
+          roomTypeId,
+          date: start, // always save UTC start
+          bookedRooms: 0,
+        },
+      },
+      {
+        new: true,
+        upsert: true,
+      },
+    );
 
     const availableRooms =
       roomType.totalRooms -
@@ -268,7 +292,7 @@ exports.updateRoomTypeCalendar = async (
         : roomType.basePrice);
 
     return {
-      date: date,
+      date: start.toISOString().split("T")[0],
       availableRooms: Math.max(availableRooms, 0),
       bookedRooms: availability.bookedRooms || 0,
       blockedRooms: availability.blockedRooms || 0,
