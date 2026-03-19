@@ -7,6 +7,12 @@ const { authorize } = require("../../shared/middlewares/roleMiddleware");
 // Vendor
 router.use(protect);
 router.post("/", authorize("vendor"), controller.createRoomType);
+
+router.post(
+  "/auto",
+  authorize("vendor"),
+  controller.createRoomTypeWithAutoRooms
+);
 router.patch("/:id", authorize("vendor"), controller.updateRoomType);
 
 module.exports = router;
