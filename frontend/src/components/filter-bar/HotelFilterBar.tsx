@@ -13,22 +13,23 @@ type Props = {
   type?: "filter" | "home";
 };
 
-const HotelFilterBar = ({ children, content, tagline,type }: Props) => {
+// components/filter-bar/HotelFilterBar.tsx
+
+const HotelFilterBar = ({ children, content, tagline }: Props) => {
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <div className={`cursor-pointer hover:bg-muted/50 transition-colors  ${type==="home"?"rounded-full":"rounded-2xl"}` }>
+      {/* 1. Added asChild so the Trigger doesn't act like a button */}
+      <DialogTrigger asChild> 
           {children}
-        </div>
       </DialogTrigger>
-      <DialogContent className="md:max-w-[825px] justify-center overflow-visible min-h-[400px]">
+      <DialogContent className="md:min-w-[825px] flex flex-col min-h-[400px] gap-2">
         <DialogHeader>
-          <DialogTitle className="w-full flex justify-center text-3xl">
-            {tagline || "Filter Options"}
-          </DialogTitle>
+           <DialogTitle>{tagline || "Location"}</DialogTitle>
         </DialogHeader>
-        <div className="mt-6">
-          {content || <div className="text-center text-muted-foreground">No content available</div>}
+        {/* 2. Wrap content in a div that grows to fill the dialog */}
+        <div className="flex-1 w-full relative min-h-[400px]">
+          
+           {content || <div className="text-center">No content available</div>}
         </div>
       </DialogContent>
     </Dialog>

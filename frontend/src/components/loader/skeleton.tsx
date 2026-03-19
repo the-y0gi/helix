@@ -13,11 +13,22 @@ export function PageSkeleton() {
         <Skeleton className="h-4 w-1/2" />
       </CardHeader>
       <CardContent>
-        <Skeleton className="aspect-video w-full" />
+        <PlaneSkeleton/>
       </CardContent>
     </Card>
       </div>
       
+  )
+}
+export const PlaneSkeleton = ()=>{
+  return (
+    <div className="min-w-full flex">
+        <Card className="w-full  h-full">
+     <CardContent>
+        <Skeleton className="aspect-video w-full" />
+      </CardContent>
+       </Card>
+      </div>
   )
 }
 

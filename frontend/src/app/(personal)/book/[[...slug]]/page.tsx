@@ -18,7 +18,6 @@ const page = async ({ className, params }: { className?: string, params: Promise
   //   if (hotelId && typeof hotelId === "string") {
   //     getHotelById(hotelId)
   //       .then((data) => setHotel(data)).then(() => {
-  //         console.log(hotel);
   //       })
   //       .finally(() => setLoading(false));
   //   }
@@ -28,8 +27,8 @@ const page = async ({ className, params }: { className?: string, params: Promise
   // if (!hotel) return <p>Hotel not found</p>;
   return (
     <div className={cn(" w-full", className)}>
-      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong"/>}>
-              <Suspense fallback={<PageSkeleton/>}>
+      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
+        <Suspense fallback={<PageSkeleton />}>
           <PaymentsContextProvider>
             <BookingForm slug={slug} />
 

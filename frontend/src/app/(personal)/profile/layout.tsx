@@ -54,7 +54,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <ErrorBoundary fallback={<p>unauthenticated</p>}>
       <Suspense fallback={<LoaderOne />}>
         <ProfileSidebarProvider
-          className={cn("flex flex-col md:flex-row gap-4 justify-center")}
+          className={cn("flex flex-col md:flex-row gap-4 md:justify-center ")}
         >
           <TabsList className="grid h-auto w-fit shrink-0 grid-cols-1 gap-3 bg-transparent pt-0">
             <ProfileSidebar className="rounded-2xl gap-3" />

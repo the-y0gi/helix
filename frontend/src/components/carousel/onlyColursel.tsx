@@ -72,7 +72,7 @@ export const OnlyCarousel = ({ type, tagline,items,isLoading }: Props) => {
     <div className="relative group  bg-transparent">
       {/* Header & Controls */}
       <div className="mb-4 flex items-center justify-between px-2 md:px-0">
-        <h2 className="text-xl font-semibold capitalize flex gap-2 items-center  text-nowrap" >{tagline} 
+        <h2 className="text-md md:text-xl font-semibold capitalize flex gap-2 items-center  text-nowrap" >{tagline} 
           {/* <ChevronRight className="h-4 w-4" /> */}
           </h2>
         <div className="flex gap-2">
@@ -108,15 +108,10 @@ export const OnlyCarousel = ({ type, tagline,items,isLoading }: Props) => {
               onClick={() => router.push(item.href)}
             />
           ))}
-          {/* <CardBlank
-              
-              item={"/room1.png"}
-              onClick={() => router.push('/')}
-            /> */}
+         
             
             <div className="min-w-[240px] ">
-              {/* <HotelGalleryCard images={["/room3.png", "/room2.png", "/room3.png"]} /> */}
-            <GalleryCard images={["/room1.png", "/room2.png", "/room3.png"]}/>
+            <GalleryCard  images={["/room1.png", "/room2.png", "/room3.png"]}/>
             </div>
             </>
         )}
@@ -139,7 +134,7 @@ const Card = React.memo(({ item, onClick }: { item: Item; onClick: () => void })
   return (
     <div 
       onClick={onClick} 
-      className="min-w-[220px] snap-start cursor-pointer group/card"
+      className="min-w-[220px] snap-start cursor-pointer group/card pl-1"
     >
       <div className="aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
         <Image

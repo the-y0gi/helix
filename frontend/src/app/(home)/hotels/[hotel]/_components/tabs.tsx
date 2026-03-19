@@ -25,6 +25,7 @@ import { PaymentProps } from "@/schema/payment.schema";
 import { UseFormReturn } from "react-hook-form";
 import { useHotelContext } from "../_providers_context/hotel-contextProvider";
 import SliderIfNotChooseDate from "../_providers_context/SliderIfNotChooseDate";
+import GuestSelector from "@/components/filter-bar/newui-selectedCounter";
 
 type TabKey =
   | "overview"
@@ -99,13 +100,13 @@ export function TabsLine({
       </div>
       <div className="flex flex-col lg:flex-row lg:gap-6 mb-5">
         <main className="flex-1 space-y-5">
-          <section id="description" className="scroll-mt-24 md:pt-10 pt-5">
+          <section id="description" className="scroll-mt-6 md:pt-4 pt-2">
             <h3 className="text-xl font-bold mb-6">Description</h3>
             {content.description}
           </section>
           <section
             id="amenities"
-            className="scroll-mt-24 border-t md:pt-10 pt-5"
+            className="scroll-mt-16 border-t md:pt-3 pt-2"
           >
             {content.amenities}
           </section>
@@ -194,7 +195,7 @@ function BookingCard({
       <CardContent className="p-6 space-y-6">
         <div
           ref={containerRef}
-          className="relative rounded-2xl border border-border divide-x divide-border flex overflow-visible bg-background z-50"
+          className="relative rounded-2xl border border-border divide-x divide-border flex overflow-visible bg-background z-1"
         >
           <div
             className="flex-1 p-4 hover:bg-muted cursor-pointer transition rounded-l-2xl"
@@ -278,10 +279,11 @@ export function VisitorsMembers({
       <AccordionItem value="rooms and guests">
         <AccordionTrigger>rooms and guests</AccordionTrigger>
         <AccordionContent>
-          <HotelVisitorsCounters
+          <GuestSelector/>
+          {/* <HotelVisitorsCounters
             values={["adults", "children"]}
             methods={methods}
-          />
+          /> */}
         </AccordionContent>
       </AccordionItem>
     </Accordion>

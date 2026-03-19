@@ -11,8 +11,15 @@ export const PaymentSchema = z.object({
   }),
   guestInformation: z.array(
     z.object({
-      firstname: z.string().min(1, "First name is required"),
-      lastname: z.string().min(1, "Last name is required"),
+      firstname: z
+        .string()
+        .min(1, "First name is required")
+        .regex(/^[A-Za-z]+$/, "Only letters are allowed"),
+
+      lastname: z
+        .string()
+        .min(1, "Last name is required")
+        .regex(/^[A-Za-z]+$/, "Only letters are allowed"),
       email: z.string().email("Invalid email").optional().or(z.literal("")),
       phone: z.string().optional().or(z.literal("")),
     }),

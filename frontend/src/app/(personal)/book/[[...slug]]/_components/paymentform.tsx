@@ -949,7 +949,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
   const { setCurrentStep, currentstep } = usePaymentsContext();
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useRouter();
-  
+
   const total = (guests?.adults || 0) + (guests?.children || 0);
 
   const methods = useForm<PaymentProps>({
@@ -1016,8 +1016,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
           phone: booking.primaryGuest.phoneNumber,
           createdAt: booking.createdAt,
         });
-        
-        setCurrentStep((val) => val + 1);
+
 
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -1030,6 +1029,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
             const verifyResult = await verifyPayment(response);
             if (verifyResult.success) {
               toast.success("Payment successful! Booking confirmed.");
+              setCurrentStep((val) => val + 1);
             } else {
               toast.error("Payment verification failed.");
             }
@@ -1044,6 +1044,8 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
 
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
+        // setCurrentStep((val) => val + 1);
+
       } else {
         toast.error(result?.message || "Failed to create booking.");
       }
@@ -1103,11 +1105,11 @@ export const FinalStep = () => {
   if (!payments) return null;
   return (
     <>
-    <ScrollToTop/>
-    <div className="w-full flex flex-col items-center justify-center">
       <ScrollToTop />
-      <PaymentSuccess payment={payments} />
-    </div></>
+      <div className="w-full flex flex-col items-center justify-center">
+        <ScrollToTop />
+        <PaymentSuccess payment={payments} />
+      </div></>
   );
 };
 
@@ -1136,7 +1138,7 @@ export function PaymentSuccess({ payment }: { payment: any }) {
   return (
     <div className="min-h-screen w-full bg-slate-50 dark:bg-zinc-950 flex items-center justify-center p-4 md:p-8">
       <Card className="w-full overflow-hidden shadow-2xl border-none ring-1 ring-black/5 dark:ring-white/10">
-        
+
         {/* Modern Success Header */}
         <div className="relative bg-primary text-primary-foreground p-8 md:p-12 text-center overflow-hidden ">
           {/* Decorative background elements */}
@@ -1159,13 +1161,13 @@ export function PaymentSuccess({ payment }: { payment: any }) {
         <CardContent className="p-0 bg-white dark:bg-zinc-900" ref={receiptRef}>
           {/* Main Receipt Body */}
           <div className="p-6 md:p-10 space-y-8">
-            
+
             {/* Amount & Status Section */}
             <div className="text-center py-6 border-b border-dashed border-slate-200 dark:border-zinc-800 relative">
-               {/* Receipt "Punch Holes" on the sides */}
+              {/* Receipt "Punch Holes" on the sides */}
               <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-50 dark:bg-zinc-950 border-r border-slate-200 dark:border-zinc-800 hidden md:block" />
               <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-50 dark:bg-zinc-950 border-l border-slate-200 dark:border-zinc-800 hidden md:block" />
-              
+
               <span className="text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground/60">Total Paid</span>
               <h2 className="text-5xl md:text-6xl font-black text-foreground tracking-tighter my-2">
                 {formatAmount(payment.amount)}
@@ -1182,11 +1184,11 @@ export function PaymentSuccess({ payment }: { payment: any }) {
               <InfoItem label="Booking Date" value={formatDate(payment.createdAt)} icon={<Calendar size={14} />} />
               <InfoItem label="Contact Email" value={payment.email} icon={<Mail size={14} />} />
               <InfoItem label="Phone Number" value={payment.phone} icon={<Smartphone size={14} />} />
-              
+
               {/* ID Section (Span 2) */}
               <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800/50">
-                 <InfoItem label="Payment ID" value={payment.razorpay_payment_id} copyable long />
-                 <InfoItem label="Order ID" value={payment.razorpay_order_id} copyable long />
+                <InfoItem label="Payment ID" value={payment.razorpay_payment_id} copyable long />
+                <InfoItem label="Order ID" value={payment.razorpay_order_id} copyable long />
               </div>
             </div>
           </div>
@@ -1194,8 +1196,8 @@ export function PaymentSuccess({ payment }: { payment: any }) {
 
         {/* Action Footer */}
         <div className="p-6 md:p-8 bg-slate-50/80 dark:bg-zinc-900/50 border-t border-slate-200 dark:border-zinc-800 flex flex-col sm:flex-row gap-3">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="flex-1 h-12 font-bold gap-2 order-2 sm:order-1 transition-all active:scale-95"
             onClick={(e) => {
               e.preventDefault();
@@ -1206,7 +1208,7 @@ export function PaymentSuccess({ payment }: { payment: any }) {
             <Home size={18} />
             Go Home
           </Button>
-          <Button 
+          <Button
             onClick={(e) => {
               e.preventDefault();
               // router.push("/");
@@ -1222,18 +1224,18 @@ export function PaymentSuccess({ payment }: { payment: any }) {
   );
 }
 
-function InfoItem({ 
-  label, 
-  value, 
-  copyable, 
-  long, 
-  icon 
-}: { 
-  label: string; 
-  value: string; 
-  copyable?: boolean; 
-  long?: boolean; 
-  icon?: React.ReactNode 
+function InfoItem({
+  label,
+  value,
+  copyable,
+  long,
+  icon
+}: {
+  label: string;
+  value: string;
+  copyable?: boolean;
+  long?: boolean;
+  icon?: React.ReactNode
 }) {
   return (
     <div className="p-4 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm hover:shadow-md transition-all group overflow-hidden">
@@ -1242,17 +1244,19 @@ function InfoItem({
         <dt className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{label}</dt>
       </div>
       <dd className={cn(
-        "text-sm font-bold text-foreground truncate leading-relaxed", 
+        "text-sm font-bold text-foreground truncate leading-relaxed",
         long && "font-mono text-xs text-muted-foreground",
         !long && "text-base"
       )}>
         {value}
       </dd>
       {copyable && (
-        <button 
-          onClick={() => { 
-            navigator.clipboard.writeText(value); 
-            toast.success("Copied!"); 
+        <button
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            navigator.clipboard.writeText(value);
+            toast.success("Copied!");
           }}
           className="mt-3 text-[10px] text-primary flex items-center gap-1.5 font-black hover:opacity-70 transition-opacity"
         >
@@ -1279,7 +1283,7 @@ export const BookingDetailsCard = ({ loading }: { loading?: boolean; hotelid: st
         <div>
           <h3 className="text-xl font-bold">{selectedRoom.title}</h3>
           <p className="text-sm text-muted-foreground flex items-center gap-2 mt-2">
-            <Calendar className="h-4 w-4" /> 
+            <Calendar className="h-4 w-4" />
             {format(new Date(methods.watch("dates.checkin")), "dd MMM")} - {format(new Date(methods.watch("dates.checkout")), "dd MMM yyyy")}
           </p>
           <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
@@ -1301,7 +1305,7 @@ export const BookingDetailsCard = ({ loading }: { loading?: boolean; hotelid: st
         </div>
 
         <Button type="submit" disabled={nights <= 0 || loading} className="w-full h-12 text-lg font-bold shadow-orange-200">
-          {loading ? <Spinner  /> : <CreditCard className="mr-2 h-5 w-5" />}
+          {loading ? <Spinner /> : <CreditCard className="mr-2 h-5 w-5" />}
           Proceed to Pay
         </Button>
       </CardContent>
@@ -1426,10 +1430,10 @@ function SpecialRequestCard({ methods }: { methods: UseFormReturn<PaymentProps> 
         <CardTitle className="text-lg">Any Special Requests?</CardTitle>
       </CardHeader>
       <CardContent>
-        <Textarea 
-          placeholder="Early check-in, dietary requirements, etc. (Optional)" 
-          className="min-h-[100px] bg-muted/20" 
-          {...methods.register("specialRequest")} 
+        <Textarea
+          placeholder="Early check-in, dietary requirements, etc. (Optional)"
+          className="min-h-[100px] bg-muted/20"
+          {...methods.register("specialRequest")}
         />
       </CardContent>
     </Card>
@@ -1450,9 +1454,9 @@ function AddOnsCard() {
               <p className="text-xs text-muted-foreground italic">Add protection for your trip for ₹1,000</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" className="rounded-full px-4" onClick={(e)=>{
+          <Button variant="outline" size="sm" className="rounded-full px-4" onClick={(e) => {
             e.preventDefault()
-          }}><Plus className="h-3 w-3 mr-1"/> Add</Button>
+          }}><Plus className="h-3 w-3 mr-1" /> Add</Button>
         </div>
       </CardContent>
     </Card>
@@ -1472,9 +1476,9 @@ function CancellationPolicyCard() {
             <p className="text-xs text-blue-800/70 dark:text-blue-400">
               Free cancellation before Aug 1. Get a partial refund if cancelled before Jul 10.
             </p>
-            <Button variant="link" size="sm" className="h-auto p-0 text-blue-700 font-bold" onClick={(e)=>{
-            e.preventDefault()
-          }}>View full policy</Button>
+            <Button variant="link" size="sm" className="h-auto p-0 text-blue-700 font-bold" onClick={(e) => {
+              e.preventDefault()
+            }}>View full policy</Button>
           </div>
         </div>
       </CardContent>
@@ -1497,9 +1501,9 @@ export const HighLightBar = () => {
           <div className="flex flex-col items-center relative">
             <div className={cn(
               "h-10 w-10 md:h-12 md:w-12 rounded-full flex items-center justify-center font-bold transition-all duration-500 z-10",
-              currentStep > step.id ? "bg-zinc-900 text-white" : 
-              currentStep === step.id ? "bg-orange-500 text-white ring-4 ring-orange-100 scale-110" : 
-              "bg-zinc-200 text-zinc-500"
+              currentStep > step.id ? "bg-zinc-900 text-white" :
+                currentStep === step.id ? "bg-orange-500 text-white ring-4 ring-orange-100 scale-110" :
+                  "bg-zinc-200 text-zinc-500"
             )}>
               {currentStep > step.id ? <CheckCircle2 className="h-6 w-6" /> : step.id}
             </div>

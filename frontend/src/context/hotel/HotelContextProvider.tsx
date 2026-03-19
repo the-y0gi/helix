@@ -8,25 +8,26 @@ import {
   parseAsInteger,
 } from "nuqs"
 import { useGetHotelsByFiltersDemo } from "@/services/hotel/querys"
+import { Hotel } from "@/types"
 
 type PriceTuple = [number, number]
 
 export type HotelFilters = {
   price: PriceTuple//
-  Bedrooms:number[]//
-  Beds:number[]//
-  Bathrooms:number[]//
+  Bedrooms: number[]//
+  Beds: number[]//
+  Bathrooms: number[]//
   typeOfPlace: string[]//
-  essentials:string[]
-  roomSize:string[]//
-  onsite:string[]
-  features:string[]
+  essentials: string[]
+  roomSize: string[]//
+  onsite: string[]
+  features: string[]
   amenities: string[]
   roomsbeds: string[]
   location: string[]//
   classification: string[]
   score: string[]
-  distance:number[]
+  distance: number[]
 }
 
 type HotelContextProps = {
@@ -34,6 +35,11 @@ type HotelContextProps = {
   setFilters: (
     value: Partial<HotelFilters> | ((prev: HotelFilters) => Partial<HotelFilters>)
   ) => void
+  hotels: Hotel[]
+  isLoading: boolean
+  total: number
+  page: number
+  setPage: (page: number) => void
 }
 
 const DEFAULT_PRICE: PriceTuple = [0, 10]
@@ -46,26 +52,22 @@ export const HotelContextProvider = ({
   children: React.ReactNode
 }) => {
   const [queryFilters, setQueryFilters] = useQueryStates({
-    price: parseAsArrayOf(parseAsInteger).withDefault(DEFAULT_PRICE),//
-    typeOfPlace: parseAsArrayOf(parseAsString).withDefault([]),//
-    Bedrooms:parseAsArrayOf(parseAsInteger).withDefault([]),//
-    Beds:parseAsArrayOf(parseAsInteger).withDefault([]),//
-    Bathrooms:parseAsArrayOf(parseAsInteger).withDefault([]),//
-    roomSize:parseAsArrayOf(parseAsString).withDefault([]),//
-
-    distance:parseAsArrayOf(parseAsInteger).withDefault([ 0]),
-
-    amenities: parseAsArrayOf(parseAsString).withDefault([]),//
-    essentials: parseAsArrayOf(parseAsString).withDefault([]),//
-    features: parseAsArrayOf(parseAsString).withDefault([]),//
-    onsite: parseAsArrayOf(parseAsString).withDefault([]),//
-    // amenities: parseAsArrayOf(parseAsString).withDefault([]),
-
-
-    roomsbeds: parseAsArrayOf(parseAsString).withDefault([]),//
-    location: parseAsArrayOf(parseAsString).withDefault([]),//
+    price: parseAsArrayOf(parseAsInteger).withDefault(DEFAULT_PRICE),
+    typeOfPlace: parseAsArrayOf(parseAsString).withDefault([]),
+    Bedrooms: parseAsArrayOf(parseAsInteger).withDefault([]),
+    Beds: parseAsArrayOf(parseAsInteger).withDefault([]),
+    Bathrooms: parseAsArrayOf(parseAsInteger).withDefault([]),
+    roomSize: parseAsArrayOf(parseAsString).withDefault([]),
+    distance: parseAsArrayOf(parseAsInteger).withDefault([0]),
+    amenities: parseAsArrayOf(parseAsString).withDefault([]),
+    essentials: parseAsArrayOf(parseAsString).withDefault([]),
+    features: parseAsArrayOf(parseAsString).withDefault([]),
+    onsite: parseAsArrayOf(parseAsString).withDefault([]),
+    roomsbeds: parseAsArrayOf(parseAsString).withDefault([]),
+    location: parseAsArrayOf(parseAsString).withDefault([]),
     classification: parseAsArrayOf(parseAsString).withDefault([]),
     score: parseAsArrayOf(parseAsString).withDefault([]),
+    page: parseAsInteger.withDefault(1),
   })
 
   const filters: HotelFilters = {
@@ -76,32 +78,34 @@ export const HotelContextProvider = ({
         : DEFAULT_PRICE,
   }
 
+  const page = queryFilters.page
+
+  const setPage = (newPage: number) => {
+    setQueryFilters((prev) => ({ ...prev, page: newPage }))
+  }
+
   const setFilters: HotelContextProps["setFilters"] = (value) => {
     const next =
       typeof value === "function" ? value(filters) : value
 
+    // Reset to page 1 whenever filters change
     setQueryFilters((prev) => ({
       ...prev,
       ...next,
+      page: 1,
     }))
   }
-  const debouncedFilters = useDebounce(filters, 2000)
 
-const { data, isLoading } = useGetHotelsByFiltersDemo(debouncedFilters)
-  // const callQuery = ()=>{
-    
-  // }
+  const debouncedFilters = useDebounce(filters, 600)
+  const debouncedPage = useDebounce(page, 100)
 
-  // useEffect(() => {
-  //   callQuery()
-    
-    
-    
+  const { data, isLoading } = useGetHotelsByFiltersDemo(debouncedFilters, debouncedPage)
 
-  // }, [filters])
+  const hotels: Hotel[] = data?.data ?? []
+  const total: number = data?.total ?? 0
 
   return (
-    <HotelContext.Provider value={{ filters, setFilters }}>
+    <HotelContext.Provider value={{ filters, setFilters, hotels, isLoading, total, page, setPage }}>
       {children}
     </HotelContext.Provider>
   )
@@ -121,6 +125,7 @@ export function useDebounce<T>(value: T, delay: number): T {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(value)
+
     }, delay)
 
     return () => {

@@ -145,11 +145,12 @@ import {
   useHotelAvailabilityQuery,
 } from "@/services/hotel/querys";
 import HotelContextProvider from "./_providers_context/hotel-contextProvider";
-import { Spinner } from "@/components/spinner";
 import { MessageModal } from "@/components/messagemodal";
-import { PageSkeleton } from "@/components/loader/skeleton";
+import { PageSkeleton, PlaneSkeleton, SkeletonText } from "@/components/loader/skeleton";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const HotelDetails = ({ className }: { className?: string }) => {
+  const ismobile = useIsMobile();
   localStorage.removeItem("nextRoute")
   localStorage.removeItem("like")
   const { hotel: hotelIdParam } = useParams();
@@ -162,11 +163,9 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
   const { data: hotelDetailsData } =
     useHotelDetailsQuery(hotelId);
-  // console.log(hotelDetailsData);
 
-  // const hotelDetails = hotelDetailsData?.data || hotelDetailsData;
 
-  const {  isLoading: availabilityLoading, refetch: refetchAvailability } =
+  const { isLoading: availabilityLoading, refetch: refetchAvailability } =
     useHotelAvailabilityQuery({
       hotelId,
       checkIn: date?.from,
@@ -176,45 +175,43 @@ const HotelDetails = ({ className }: { className?: string }) => {
     });
 
 
-  // const isLoading = detailsLoading || (isBookingMode && availabilityLoading);
 
-  // if (isLoading) {
-  //   return (
-  //     <div className="w-full flex items-center justify-center py-20">
-  //       <p className="text-muted-foreground text-sm">
-  //         Loading hotel details...
-  //       </p>
-  //     </div>
-  //   );
-  // }
+
 
   if (!hotelDetailsData || !hotelDetailsData.name) {
     return (
-      <div className="w-full flex items-center justify-center py-20">
-        <Spinner/>
-      </div>
+
+          <div className="w-full flex items-center justify-center py-10 flex-col">
+            <div className="w-full my-10">
+              <SkeletonText />
+            </div>
+            <div className="grid-cols-2 w-full px-15">
+              <PlaneSkeleton />
+
+            </div>
+          </div>
     );
   }
 
-  
 
- 
+
+
 
   return (
-    <div className={cn("w-full", className)}>
-     <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong"/>}>
-             <Suspense fallback={<PageSkeleton/>}>
-        <ScrollToTop />
-        <HotelContextProvider hotelId={hotelId}>
+    <div className={cn("w-full ", className)}>
+      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
+        <Suspense fallback={<PageSkeleton />}>
+          <ScrollToTop />
+          <HotelContextProvider hotelId={hotelId}>
 
-          <HotelItems
-            hotel={hotelDetailsData}
-            // rooms={rooms}
-            isBookingMode={isBookingMode}
-            isAvailabilityLoading={availabilityLoading}
-          />
-        </HotelContextProvider>
-            </Suspense>
+            <HotelItems
+              hotel={hotelDetailsData}
+              // rooms={rooms}
+              isBookingMode={isBookingMode}
+              isAvailabilityLoading={availabilityLoading}
+            />
+          </HotelContextProvider>
+        </Suspense>
       </ErrorBoundary>
     </div>
   );

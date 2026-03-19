@@ -15,14 +15,15 @@ import React from "react";
 
 const frameworks = [
   "5+ stars Excellent",
-    "4+ stars Very Good",
-    "3+ stars Good",
-    "2+ stars Fair",
-    "1+ stars Poor",
+  "4+ stars Very Good",
+  "3+ stars Good",
+  "2+ stars Fair",
+  "1+ stars Poor",
 ] as const;
 
 export function ComboboxMultiple({ className }: { className?: string }) {
   const anchor = useComboboxAnchor();
+
 
   return (
     <Combobox

@@ -35,7 +35,6 @@ export const PagesFilterBarButtons = ({
 
   return (
     <div ref={containerRef} className="relative w-full max-w-5xl mx-auto">
-      {/* 1. Global Backdrop Blur */}
       <AnimatePresence>
         {selectedId !== null && (
           <motion.div
@@ -48,7 +47,6 @@ export const PagesFilterBarButtons = ({
         )}
       </AnimatePresence>
 
-      {/* 2. Navbar Row */}
       <div className="relative z-30 flex items-center bg-transparent rounded-full">
         {PagesFilterBarValues.map((hv, i) => {
           const isActive = selectedId === i;
@@ -71,7 +69,7 @@ export const PagesFilterBarButtons = ({
                 {isActive && (
                   <motion.div
                     layoutId="active-highlight"
-                    className="absolute inset-0 z-10 rounded-full bg-gray-150 shadow-inner dark:shadow-zinc-400"
+                    className="absolute inset-0 z-10 rounded-full bg-gray-150 shadow-inner dark:shadow-zinc-800"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
@@ -79,14 +77,8 @@ export const PagesFilterBarButtons = ({
                   <ItemTitle className="text-sm font-bold uppercase tracking-wide justify-start">
                     {hv.value}
                   </ItemTitle>
-                  {/* <ItemDescription>{hv.description}</ItemDescription> */}
                   <div className="flex justify-center md:w-[150px] w-full ">
-                    {/* <input
-                      type="text"
-                      readOnly={selectedId === null}
-                      style={{ all: "unset", width: "100%", padding: "0", border: "none" }}
-                      placeholder={"          " + hv.description}
-                    /> */}
+                  
                   </div>
                 </ItemContent>
               </Item>

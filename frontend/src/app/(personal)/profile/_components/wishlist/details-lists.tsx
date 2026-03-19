@@ -6,9 +6,11 @@ import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {  useGetMyTrips } from "@/services/hotel/querys"
 import { LikeIcon } from "@/services/dailyfunctions"
 import { PageSkeleton } from "@/components/loader/skeleton"
+import { useGetMyTrips } from "@/services/personal/queryes"
+import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 export type labelType = "favourites" | "wishlists"
 export function SavedTripsSection({ setDetails , label }: {label:labelType,
     setDetails: React.Dispatch<React.SetStateAction<{ open: boolean; id: string; label:labelType}>>
@@ -22,9 +24,9 @@ export function SavedTripsSection({ setDetails , label }: {label:labelType,
         const {data,isLoading} = querys[label as keyof typeof querys]
         const alldata = data?.data
     return (
-        <div className="rounded-xl  bg-background p-8 space-y-8">
+        <div className="rounded-xl  bg-background md:p-8 p-0 space-y-8">
             <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">My next trip</h2>
+                <h2 className="text-xl font-semibold px-2">My next trip</h2>
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon">
                         <Share2 size={18} />
@@ -35,7 +37,7 @@ export function SavedTripsSection({ setDetails , label }: {label:labelType,
                 </div>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-3">
+            <div className="grid md:gap-6 grid-cols-2 lg:grid-cols-3">
                 
 
                 {isLoading?[...Array(6)].map((_,i)=>{
@@ -53,7 +55,7 @@ export function SavedTripsSection({ setDetails , label }: {label:labelType,
                                 location={val.location}
                                 city={val.city}
                                 _id={val._id}
-                                isMyFavourite={val.isMyFavourite}
+                                isFavorite={val.isFavorite}
                                 numReviews={val.numReviews}
                                 rating={val.rating}
                                 distance="23"
@@ -79,7 +81,7 @@ interface SavedPropertyCardProps {
     location: string
     distance: string
     city:string
-    isMyFavourite:boolean
+    isFavorite:boolean
     numReviews:number
     rating:number
 }
@@ -90,47 +92,77 @@ export function SavedPropertyCard({
     location,
     distance,
     city,
-    isMyFavourite,
+    isFavorite,
     numReviews,
     rating,
     _id
 }: SavedPropertyCardProps) {
+    const router = useRouter()
     return (
-        <Card className="rounded-xl min-w-[150px] overflow-hidden shadow-sm transition bg-background pt-0">
-            <div className="relative h-56 w-full">
+        <Card className="group relative rounded-none md:rounded-xl min-w-[150px] overflow-hidden shadow-sm transition bg-background border-none py-0">
+            {/* Image Container - Height stays fixed or aspect-ratio */}
+            <div className="relative h-64 md:h-56 w-full">
                 <Image
                     src={thumbnail || "/room1.png"}
                     alt={title}
                     fill
-                    className="object-cover"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <LikeIcon _id={_id} name={title} isFavourite={isMyFavourite}/>
+                
+                {/* Mobile Overlay Gradient: Only visible on small screens */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent md:hidden" />
 
-                {/* <button className="absolute top-3 right-3 bg-card rounded-full p-2 shadow-sm">
-                    <Heart size={16} className="text-red-500 fill-red-500" />
-                </button> */}
+                {/* Favorite Icon */}
+                <LikeIcon 
+                    _id={_id} 
+                    isFavourite={isFavorite || false} 
+                    name="card" 
+                    className="absolute right-3 top-3 h-8 w-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center z-10" 
+                />
             </div>
 
-            <CardContent className="p-4 space-y-3">
-                <div className="flex items-center gap-2 text-sm">
-                    <Badge className="bg-blue-600 text-white px-2 py-0.5 text-xs">
+            {/* Content Container */}
+            {/* MD: Relative (standard card) | SM: Absolute (overlay) */}
+            <CardContent className={cn(
+                "p-3 md:p-4 md:space-y-3 space-y-1",
+                "absolute bottom-0 left-0 w-full md:relative md:bg-transparent", // Mobile overlay logic
+                "text-white md:text-foreground" // Switch text color based on background
+            )}>
+                
+                {/* Review/Rating Row */}
+                <div className="flex items-center gap-2">
+                    <Badge className="bg-blue-600 text-white border-none px-1.5 py-0 text-[10px] md:text-xs">
                         {rating}
                     </Badge>
-                    <span className="text-blue-600 font-medium text-xs">
+                    <span className="text-blue-400 md:text-blue-600 font-medium text-[10px] md:text-xs">
                         Excellent
                     </span>
-                    <span className="text-muted-foreground text-xs">
-                        {numReviews} reviews
+                    <span className="text-zinc-300 md:text-muted-foreground text-[10px] md:text-xs">
+                        {numReviews}
                     </span>
                 </div>
 
-                <h3 className="font-semibold text-sm">{title}</h3>
+                {/* Title */}
+                <h3 className="font-semibold text-sm md:text-base leading-tight truncate" onClick={()=>{
+                    router.push(`/hotels/${_id}`);
+                }}>
+                    {title}
+                </h3>
 
-                <p className="text-blue-600 text-sm">{location} {city}</p>
-
-                <p className="text-muted-foreground text-xs">{distance}</p>
-
-                <Input placeholder="Add note" className="h-9" />
+                {/* Location & Note - Hidden or smaller on mobile to keep it clean */}
+                <div className="space-y-1">
+                    <p className="text-zinc-200 md:text-blue-600 text-xs">
+                        {city}
+                    </p>
+                    {/* Hide distance and input on mobile overlay to prevent clutter, similar to Reels */}
+                    <p className="hidden md:block text-muted-foreground text-xs">
+                        {distance}
+                    </p>
+                    <Input 
+                        placeholder="Add note" 
+                        className="hidden md:flex h-8 bg-secondary/50 border-none text-xs" 
+                    />
+                </div>
             </CardContent>
         </Card>
     )

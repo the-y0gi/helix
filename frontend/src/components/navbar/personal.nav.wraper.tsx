@@ -16,7 +16,7 @@ const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
     <div className="min-h-screen flex flex-col w-full">
       <div
         className={cn(
-          "fixed top-0 left-0 z-50 w-full bg-card   flex flex-col justify-center h-30 bg-gradient-to-br from-zinc-200 to-transparent backdrop-blur-md dark:bg-gradient-to-br dark:from-zinc-700 dark:to-transparent backdrop-blur-lg border-b border-gray-300 dark:border-gray-700",
+          "fixed top-0 left-0 z-50 w-full bg-card   flex flex-col justify-center h-20 bg-gradient-to-br from-zinc-200 to-transparent backdrop-blur-md dark:bg-gradient-to-br dark:from-zinc-700 dark:to-transparent backdrop-blur-lg border-b border-gray-300 dark:border-gray-700",
         )}
       >
         <div className="flex items-center justify-between py-3 px-9">
@@ -36,7 +36,7 @@ const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
         </div>
       </div>
 
-      <main className={cn("flex-1 mt-34")}>{children}</main>
+      <main className={cn("flex-1 mt-26")}>{children}</main>
       <div className="w-full border-1 mt-10" />
 
       <Footer />

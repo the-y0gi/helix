@@ -22,10 +22,9 @@ const POPULAR_SECTIONS: SectionConfig[] = [
   { tagline: "Luxury in Indore", city: "Indore" },
 ];
 
-const MainFramePage = ({ className, type }: HotelFramePageProps) => {
+const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) => {
   const { data, isLoading, error } = useGetNewHotels();
-  console.log(data?.data);
-  
+
 
   // 1. Group once (optional but efficient if many sections)
   const groupedByCity = useMemo(() => {
@@ -50,11 +49,11 @@ const MainFramePage = ({ className, type }: HotelFramePageProps) => {
 
       const sliced = section.limit ? hotelsInCity.slice(0, section.limit) : hotelsInCity;
 
-      return sliced.map((hotel:hoteldata): Item => ({
+      return sliced.map((hotel: hoteldata): Item => ({
         title: hotel.name,
         location: `${hotel.city}, India`,
         image: hotel.image,
-        href: `/hotels/${hotel._id}`,   // adjust if your route is different
+        href: `/hotels/${hotel._id}`,
       }));
     });
   }, [groupedByCity]);
@@ -63,21 +62,18 @@ const MainFramePage = ({ className, type }: HotelFramePageProps) => {
     <div className={cn(className, "flex flex-col gap-y-5 ")}>
       {POPULAR_SECTIONS.map((section, i) => {
         const items = sectionItems[i] || [];
-        console.log(items);
-        
+
 
         return (
           <React.Fragment key={section.tagline}>
             <PopularDestinationCarousel
               tagline={section.tagline}
-              // No tabs needed in your screenshot design
-              // tabs={undefined}
+              tabs={popularTrends?.[0]?.tabs || undefined}
               type={type}
               items={items}
               isLoading={isLoading}
             />
 
-            {/* Insert ad after Bangalore (or any index you want) */}
             {i === 1 && <ImagesSliderDemo />}
           </React.Fragment>
         );
