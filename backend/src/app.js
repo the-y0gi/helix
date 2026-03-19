@@ -21,6 +21,7 @@ const favoriteRoutes = require("./modules/favorites/favorite.routes");
 const vendorBank = require("./modules/vendorBank/bank.routes");
 
 const adminRoutes = require("./modules/admin/property/property.routes");
+const adminUserRoutes = require("./modules/admin/user/user.routes");
 
 const { errorHandler } = require("./shared/middlewares/errorHandler");
 require("./shared/config/passport");
@@ -84,6 +85,7 @@ app.use("/api/v1/favorites", favoriteRoutes);
 app.use("/api/v1/vendor-bank", vendorBank);
 
 app.use("/api/v1/admin/property", adminRoutes);
+app.use("/api/v1/admin/users", adminUserRoutes);
 
 app.use(errorHandler);
 

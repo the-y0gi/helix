@@ -674,6 +674,7 @@ exports.getVendorBookings = async (vendorId, queryParams) => {
   const total = await Booking.countDocuments(filter);
 
   const formatted = bookings.map((b) => ({
+     bookingId: b._id,
     bookingReference: b.bookingReference,
     guestName: `${b.primaryGuest.firstName} ${b.primaryGuest.lastName}`,
     roomLabel: `${b.roomTypeId?.name || ""} ${b.roomNumber || ""}`,
