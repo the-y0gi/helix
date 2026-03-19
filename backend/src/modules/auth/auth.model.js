@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "vendor", "admin"],
       default: "user",
     },
+    isVendor: {
+      type: Boolean,
+      default: false,
+    },
     firstName: { type: String, trim: true },
     lastName: { type: String, trim: true },
     phoneNumber: { type: String, trim: true },

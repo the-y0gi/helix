@@ -7,7 +7,7 @@ const vendorBankSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vendor",
       required: true,
-      unique: true,
+      unique: false,
     },
 
     accountHolderName: {
@@ -66,18 +66,21 @@ const vendorBankSchema = new mongoose.Schema(
       trim: true,
     },
 
+    isPrimary: {
+      type: Boolean,
+      default: true,
+    },
+    
     isActive: {
       type: Boolean,
       default: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
-
 
 // Encrypt sensitive fields before saving
 vendorBankSchema.pre("save", function () {
-
   if (this.isModified("accountNumber") && this.accountNumber) {
     this.accountNumber = encrypt(this.accountNumber);
   }
@@ -89,9 +92,7 @@ vendorBankSchema.pre("save", function () {
   if (this.isModified("upiId") && this.upiId) {
     this.upiId = encrypt(this.upiId);
   }
-
 });
-
 
 // Decrypt after findOne
 vendorBankSchema.post("findOne", function (doc) {
@@ -110,11 +111,9 @@ vendorBankSchema.post("findOne", function (doc) {
   }
 });
 
-
 // Decrypt after find
 vendorBankSchema.post("find", function (docs) {
   docs.forEach((doc) => {
-
     if (doc.accountNumber) {
       doc.accountNumber = decrypt(doc.accountNumber);
     }
@@ -126,9 +125,7 @@ vendorBankSchema.post("find", function (docs) {
     if (doc.upiId) {
       doc.upiId = decrypt(doc.upiId);
     }
-
   });
 });
-
 
 module.exports = mongoose.model("VendorBank", vendorBankSchema);

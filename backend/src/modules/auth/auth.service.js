@@ -11,8 +11,52 @@ const generateOTP = async () => {
   return { otp, otpExpires };
 };
 
+// exports.signup = async (email, password, role) => {
+//   try {
+//     let user = await User.findOne({ email });
+
+//     if (user && user.providers.local.isVerified) {
+//       throw new Error("Email already registered. Please login.");
+//     }
+
+//     const { otp, otpExpires } = await generateOTP();
+
+//     if (!user) {
+//       user = new User({
+//         email,
+//         password,
+//         role: role || "user",
+//         otp,
+//         otpExpires,
+//         providers: {
+//           local: { isVerified: false },
+//         },
+//       });
+//     } else {
+//       user.password = password;
+//       user.otp = otp;
+//       user.otpExpires = otpExpires;
+//       user.providers.local.isVerified = false;
+//     }
+
+//     await user.save();
+//     await sendOTPEmail(email, otp);
+
+//     return { message: "OTP sent to your email for verification" };
+//   } catch (error) {
+//     logger.error("Service Error: signup", error);
+//     throw error;
+//   }
+// };
+
 exports.signup = async (email, password, role) => {
   try {
+    const allowedRoles = ["user", "vendor","admin"];
+
+    if (role && !allowedRoles.includes(role)) {
+      throw new Error("Invalid role");
+    }
+
     let user = await User.findOne({ email });
 
     if (user && user.providers.local.isVerified) {
@@ -28,12 +72,15 @@ exports.signup = async (email, password, role) => {
         role: role || "user",
         otp,
         otpExpires,
+        isVendor: role === "vendor",
         providers: {
           local: { isVerified: false },
         },
       });
     } else {
-      user.password = password;
+      // don't blindly overwrite password unless needed
+      if (password) user.password = password;
+
       user.otp = otp;
       user.otpExpires = otpExpires;
       user.providers.local.isVerified = false;
@@ -122,6 +169,7 @@ exports.resendOTP = async (email) => {
   }
 };
 
+
 exports.verifyOTP = async (email, inputOTP) => {
   try {
     const user = await User.findOne({ email }).select("+otp +otpExpires");
@@ -130,18 +178,64 @@ exports.verifyOTP = async (email, inputOTP) => {
     if (!user.otpExpires || Date.now() > user.otpExpires) {
       throw new Error("OTP expired");
     }
-    if (String(inputOTP) !== String(user.otp)) throw new Error("Invalid OTP");
 
+    if (String(inputOTP) !== String(user.otp)) {
+      throw new Error("Invalid OTP");
+    }
+
+    // verify user
     user.providers.local.isVerified = true;
     user.otp = undefined;
     user.otpExpires = undefined;
     await user.save();
 
-    return { user, message: "Verification successful" };
+    let vendor = null;
+
+    //CREATE VENDOR IF ROLE = VENDOR
+    if (user.role === "vendor") {
+      vendor = await Vendor.findOne({ userId: user._id });
+
+      if (!vendor) {
+        vendor = await Vendor.create({
+          userId: user._id,
+          serviceType: null, // step 2 set
+          status: "draft",
+          currentStep: 1,
+          registrationStep: 1,
+        });
+      }
+    }
+
+    return {
+      user,
+      vendor,
+      message: "Verification successful",
+    };
   } catch (error) {
     throw error;
   }
 };
+
+// exports.verifyOTP = async (email, inputOTP) => {
+//   try {
+//     const user = await User.findOne({ email }).select("+otp +otpExpires");
+//     if (!user) throw new Error("User not found");
+
+//     if (!user.otpExpires || Date.now() > user.otpExpires) {
+//       throw new Error("OTP expired");
+//     }
+//     if (String(inputOTP) !== String(user.otp)) throw new Error("Invalid OTP");
+
+//     user.providers.local.isVerified = true;
+//     user.otp = undefined;
+//     user.otpExpires = undefined;
+//     await user.save();
+
+//     return { user, message: "Verification successful" };
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 exports.forgotPassword = async (email) => {
   try {

@@ -8,7 +8,15 @@ const { protect } = require("../../shared/middlewares/verifyToken");
 const { authorize } = require("../../shared/middlewares/roleMiddleware");
 
 // Vendor profile
-router.post("/register", protect,authorize("vendor"), vendorController.createVendorProfile);
+router.post(
+  "/register",
+  protect,
+  authorize("vendor"),
+  vendorController.createVendorProfile,
+);
+
+//vendor get me help for the prefilling data 
+router.get("/me", protect, authorize("vendor"), vendorController.getVendorMe);
 
 // Bookings
 router.get(
@@ -55,6 +63,13 @@ router.post(
   hotelController.createHotel,
 );
 
+router.post(
+  "/submit",
+  protect,
+  authorize("vendor"),
+  vendorController.submitVendor,
+);
+
 router.patch(
   "/hotels/:id",
   protect,
@@ -67,14 +82,14 @@ router.get(
   "/invoices",
   protect,
   authorize("vendor"),
-  vendorController.getVendorInvoices
+  vendorController.getVendorInvoices,
 );
 
 router.get(
   "/invoices/:bookingId/download",
   protect,
   authorize("vendor"),
-  vendorController.downloadInvoicePdf
+  vendorController.downloadInvoicePdf,
 );
 
 //dashboard
@@ -82,37 +97,46 @@ router.get(
   "/dashboard",
   protect,
   authorize("vendor"),
-  vendorController.getVendorDashboard
+  vendorController.getVendorDashboard,
 );
 
 router.patch(
   "/bookings/:id/check-in",
   protect,
   authorize("vendor"),
-  vendorController.checkInBooking
+  vendorController.checkInBooking,
 );
 
 router.patch(
   "/bookings/:id/staying",
   protect,
   authorize("vendor"),
-  vendorController.markBookingStaying
+  vendorController.markBookingStaying,
 );
 
 router.patch(
   "/bookings/:id/check-out",
   protect,
   authorize("vendor"),
-  vendorController.checkOutBooking
+  vendorController.checkOutBooking,
 );
-
 
 router.get("/tasks", protect, authorize("vendor"), taskController.getTasks);
 
 router.post("/tasks", protect, authorize("vendor"), taskController.createTask);
 
-router.patch("/tasks/:id", protect, authorize("vendor"), taskController.updateTask);
+router.patch(
+  "/tasks/:id",
+  protect,
+  authorize("vendor"),
+  taskController.updateTask,
+);
 
-router.delete("/tasks/:id", protect, authorize("vendor"), taskController.deleteTask);
+router.delete(
+  "/tasks/:id",
+  protect,
+  authorize("vendor"),
+  taskController.deleteTask,
+);
 
 module.exports = router;
