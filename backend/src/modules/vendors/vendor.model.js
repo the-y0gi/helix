@@ -13,13 +13,12 @@ const vendorSchema = new mongoose.Schema(
     serviceType: {
       type: String,
       enum: ["hotel", "adventure", "cab", "bike"],
-      required: true,
       index: true,
     },
 
     businessName: {
       type: String,
-      required: [true, "Business name is required"],
+      // required: [true, "Business name is required"],
       trim: true,
       index: true,
     },
@@ -81,15 +80,15 @@ const vendorSchema = new mongoose.Schema(
     // Vendor approval flow
     status: {
       type: String,
-      enum: ["draft", "pending", "approved", "rejected"],
+      enum: ["draft", "pending", "under_review", "approved", "rejected"],
       default: "draft",
       index: true,
     },
 
-    adminRemark: {
-      type: String,
-      trim: true,
-    },
+    // adminRemark: {
+    //   type: String,
+    //   trim: true,
+    // },
 
     // registration progress
     registrationStep: {
@@ -97,17 +96,47 @@ const vendorSchema = new mongoose.Schema(
       default: 1,
     },
 
+    currentStep: {
+      type: Number,
+      default: 1,
+    },
+
+    rejectedSteps: {
+      type: [Number], // multiple steps
+      default: [],
+    },
+
+    rejectionReasons: {
+      type: Object,
+      default: {},
+    },
+
+    //timestamps for tracking
+    submittedAt: Date,
+    approvedAt: Date,
+    rejectedAt: Date,
+
+    isSubmitted: {
+      type: Boolean,
+      default: false,
+    },
+
     isActive: {
       type: Boolean,
       default: true,
       index: true,
+    },
+
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   {
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
 
 vendorSchema.index({ status: 1 });

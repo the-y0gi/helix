@@ -18,6 +18,10 @@ const paymentRoutes = require("./modules/payments/payment.routes");
 const reviewRoutes = require("./modules/reviews/review.routes");
 const uploadRoutes = require("./modules/upload/upload.routes");
 const favoriteRoutes = require("./modules/favorites/favorite.routes");
+const vendorBank = require("./modules/vendorBank/bank.routes");
+
+const adminRoutes = require("./modules/admin/property/property.routes");
+
 const { errorHandler } = require("./shared/middlewares/errorHandler");
 require("./shared/config/passport");
 
@@ -41,7 +45,7 @@ app.use(
       }
     },
     credentials: true,
-  })
+  }),
 );
 
 // Rate limiting..
@@ -77,6 +81,9 @@ app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/reviews", reviewRoutes);
 app.use("/api/v1/uploads", uploadRoutes);
 app.use("/api/v1/favorites", favoriteRoutes);
+app.use("/api/v1/vendor-bank", vendorBank);
+
+app.use("/api/v1/admin/property", adminRoutes);
 
 app.use(errorHandler);
 

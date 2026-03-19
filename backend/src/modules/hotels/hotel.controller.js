@@ -29,8 +29,40 @@ const Vendor = require("../vendors/vendor.model");
 //   }
 // };
 
+// // Create hotel
+// exports.createHotel = async (req, res, next) => {
+//   try {
+//     const userId = req.user._id;
 
-// Create hotel
+//     const vendor = await Vendor.findOne({ userId });
+
+//     if (!vendor) {
+//       throw new Error("Vendor profile not found");
+//     }
+
+//     //Check onboarding progress
+//     if (vendor.registrationStep < 3) {
+//       throw new Error("Please complete vendor onboarding first");
+//     }
+
+//     const hotelData = {
+//       ...req.body,
+//       vendorId: vendor._id,
+//     };
+
+//     const hotel = await hotelService.createHotel(hotelData);
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Hotel created successfully",
+//       data: hotel,
+//     });
+//   } catch (error) {
+//     logger.error("Controller Error: createHotel", error);
+//     next(error);
+//   }
+// };
+
 exports.createHotel = async (req, res, next) => {
   try {
     const userId = req.user._id;
@@ -41,22 +73,16 @@ exports.createHotel = async (req, res, next) => {
       throw new Error("Vendor profile not found");
     }
 
-    //Check onboarding progress
-    if (vendor.registrationStep < 3) {
-      throw new Error("Please complete vendor onboarding first");
-    }
+    const hotel = await hotelService.createHotel(vendor, req.body);
 
-    const hotelData = {
-      ...req.body,
-      vendorId: vendor._id,
-    };
-
-    const hotel = await hotelService.createHotel(hotelData);
-
-    res.status(201).json({
+    res.status(200).json({
       success: true,
-      message: "Hotel created successfully",
-      data: hotel,
+      message: "Step 4 completed successfully",
+      data: {
+        currentStep: vendor.currentStep,
+        registrationStep: vendor.registrationStep,
+        status: vendor.status,
+      },
     });
   } catch (error) {
     logger.error("Controller Error: createHotel", error);
@@ -66,12 +92,13 @@ exports.createHotel = async (req, res, next) => {
 
 // Get all hotels with filtering and pagination support
 exports.getHotels = async (req, res, next) => {
-  
   try {
-  
     const userId = req.user?._id || null;
 
-    const { hotels, total } = await hotelService.getAllHotels(req.query, userId);
+    const { hotels, total } = await hotelService.getAllHotels(
+      req.query,
+      userId,
+    );
 
     res.status(200).json({
       success: true,
@@ -86,7 +113,6 @@ exports.getHotels = async (req, res, next) => {
 };
 
 // Get a single hotel by ID for the details page
-
 exports.getHotelDetails = async (req, res, next) => {
   try {
     const userId = req.user?._id || null;
@@ -160,7 +186,7 @@ exports.getNearbyHotels = async (req, res, next) => {
       Number(lng),
       Number(lat),
       Number(distance) || 5000, // Default 5km
-      userId
+      userId,
     );
 
     res.status(200).json({

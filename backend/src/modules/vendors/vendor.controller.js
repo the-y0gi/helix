@@ -6,19 +6,86 @@ const vendorService = require("./vendor.service");
 const logger = require("../../shared/utils/logger");
 
 // Create vendor profile
+// exports.createVendorProfile = async (req, res, next) => {
+//   try {
+//     const userId = req.user._id;
+
+//     const vendor = await vendorService.createVendorProfile(userId, req.body);
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Vendor profile created successfully",
+//       data: vendor,
+//     });
+//   } catch (error) {
+//     logger.error("Controller Error: createVendorProfile", error);
+//     next(error);
+//   }
+// };
+
+
+//get me help for prefilling data
+exports.getVendorMe = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    const data = await vendorService.getVendorMe(userId);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getVendorMe", error);
+    next(error);
+  }
+};
+
+//vendor profile create step-2
 exports.createVendorProfile = async (req, res, next) => {
   try {
     const userId = req.user._id;
 
     const vendor = await vendorService.createVendorProfile(userId, req.body);
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
-      message: "Vendor profile created successfully",
-      data: vendor,
+      message: "Step 2 saved successfully",
+      data: {
+        currentStep: vendor.currentStep,
+        registrationStep: vendor.registrationStep,
+        status: vendor.status,
+      },
     });
   } catch (error) {
     logger.error("Controller Error: createVendorProfile", error);
+    next(error);
+  }
+};
+
+//final step of registration step-5
+exports.submitVendor = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    const vendor = await Vendor.findOne({ userId });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    const updatedVendor = await vendorService.submitVendor(vendor);
+
+    res.status(200).json({
+      success: true,
+      message: "Submitted successfully. Waiting for admin approval.",
+      data: {
+        status: updatedVendor.status,
+        currentStep: updatedVendor.currentStep,
+      },
+    });
+  } catch (error) {
+    logger.error("Controller Error: submitVendor", error);
     next(error);
   }
 };

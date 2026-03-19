@@ -46,27 +46,80 @@ const attachFavoriteFlag = async (hotels, userId) => {
 // };
 
 // Create hotel
-exports.createHotel = async (hotelData) => {
+// exports.createHotel = async (hotelData) => {
+//   try {
+//     const { vendorId } = hotelData;
+
+//     //Check if vendor already created hotel
+//     const existingHotel = await Hotel.findOne({ vendorId });
+
+//     if (existingHotel) {
+//       throw new Error("Vendor already has a hotel listed");
+//     }
+
+//     const hotel = await Hotel.create({
+//       ...hotelData,
+//       verificationStatus: "pending",
+//       isActive: false,
+//     });
+
+//     //Update onboarding progress
+//     await Vendor.findByIdAndUpdate(vendorId, {
+//       registrationStep: 4,
+//     });
+
+//     return hotel;
+//   } catch (error) {
+//     logger.error("Service Error: createHotel", error);
+//     throw error;
+//   }
+// };
+
+exports.createHotel = async (vendor, hotelData) => {
   try {
-    const { vendorId } = hotelData;
-
-    //Check if vendor already created hotel
-    const existingHotel = await Hotel.findOne({ vendorId });
-
-    if (existingHotel) {
-      throw new Error("Vendor already has a hotel listed");
+    if (vendor.isSubmitted && vendor.status !== "rejected") {
+      throw new Error("Already submitted. Cannot edit.");
     }
 
-    const hotel = await Hotel.create({
-      ...hotelData,
-      verificationStatus: "pending",
-      isActive: false,
-    });
+    //STEP VALIDATION
+    if (vendor.currentStep !== 3 && vendor.status !== "rejected") {
+      throw new Error("Invalid step flow");
+    }
 
-    //Update onboarding progress
-    await Vendor.findByIdAndUpdate(vendorId, {
-      registrationStep: 4,
-    });
+    //REJECTION FLOW
+    if (vendor.status === "rejected" && vendor.rejectedStep !== 4) {
+      throw new Error("Fix required step first");
+    }
+
+    //CHECK EXISTING HOTEL
+    let hotel = await Hotel.findOne({ vendorId: vendor._id });
+
+    if (hotel) {
+      // update existing
+      Object.assign(hotel, hotelData);
+      hotel.verificationStatus = "pending";
+      await hotel.save();
+    } else {
+      hotel = await Hotel.create({
+        ...hotelData,
+        vendorId: vendor._id,
+        verificationStatus: "pending",
+        isActive: false,
+      });
+    }
+
+    //STEP UPDATE
+    vendor.currentStep = 4;
+    vendor.registrationStep = Math.max(vendor.registrationStep, 4);
+
+    //reset rejection
+    if (vendor.status === "rejected") {
+      vendor.status = "draft";
+      vendor.rejectedStep = null;
+      vendor.adminRemark = null;
+    }
+
+    await vendor.save();
 
     return hotel;
   } catch (error) {

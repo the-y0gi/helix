@@ -74,6 +74,52 @@ exports.signup = async (req, res) => {
 //   }
 // };
 
+// exports.login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const { user, message } = await authService.login(email, password);
+
+//     const { accessToken, refreshToken } = generateTokens(user._id);
+
+//     setTokenCookie(res, refreshToken);
+
+//     let extraData = {};
+
+//     //If vendor login and approved
+//     if (user.role === "vendor") {
+//       const vendor = await Vendor.findOne({ userId: user._id });
+
+//       if (vendor) {
+//         const hotel = await Hotel.findOne({ vendorId: vendor._id }).select(
+//           "_id name",
+//         );
+
+//         extraData.vendor = {
+//           status: vendor.status,
+//         };
+
+//         extraData.hotel = hotel;
+//       }
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message,
+//       accessToken,
+//       data: {
+//         user: filterUserData(user),
+//         ...extraData,
+//       },
+//     });
+//   } catch (error) {
+//     res.status(401).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -86,20 +132,24 @@ exports.login = async (req, res) => {
 
     let extraData = {};
 
-    //If vendor login and approved
     if (user.role === "vendor") {
       const vendor = await Vendor.findOne({ userId: user._id });
 
       if (vendor) {
-        const hotel = await Hotel.findOne({ vendorId: vendor._id }).select(
-          "_id name",
-        );
-
         extraData.vendor = {
           status: vendor.status,
+          currentStep: vendor.currentStep,
+          rejectedSteps: vendor.rejectedSteps || [],
+          rejectionReasons: vendor.rejectionReasons || {},
         };
 
-        extraData.hotel = hotel;
+        if (vendor.status === "approved") {
+          const hotel = await Hotel.findOne({ vendorId: vendor._id }).select(
+            "_id name",
+          );
+
+          extraData.hotel = hotel;
+        }
       }
     }
 
@@ -119,6 +169,7 @@ exports.login = async (req, res) => {
     });
   }
 };
+
 exports.resendOTP = async (req, res) => {
   try {
     const result = await authService.resendOTP(req.body.email);
@@ -128,18 +179,50 @@ exports.resendOTP = async (req, res) => {
   }
 };
 
+// exports.verifyOTP = async (req, res) => {
+//   try {
+//     const { email, otp } = req.body;
+//     const { user, message } = await authService.verifyOTP(email, otp);
+//     const { accessToken, refreshToken } = generateTokens(user._id);
+
+//     setTokenCookie(res, refreshToken);
+//     res.status(200).json({
+//       success: true,
+//       message,
+//       accessToken,
+//       data: { user: filterUserData(user) },
+//     });
+//   } catch (error) {
+//     handleError(res, error);
+//   }
+// };
+
 exports.verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const { user, message } = await authService.verifyOTP(email, otp);
+
+    const { user, vendor, message } = await authService.verifyOTP(email, otp);
+
     const { accessToken, refreshToken } = generateTokens(user._id);
 
     setTokenCookie(res, refreshToken);
+
     res.status(200).json({
       success: true,
       message,
       accessToken,
-      data: { user: filterUserData(user) },
+      data: {
+        user: filterUserData(user),
+        vendor: vendor
+          ? {
+              currentStep: vendor.currentStep,
+              registrationStep: vendor.registrationStep,
+              status: vendor.status,
+              rejectedSteps: vendor.rejectedSteps || [],
+              rejectionReasons: vendor.rejectionReasons || {},
+            }
+          : null,
+      },
     });
   } catch (error) {
     handleError(res, error);
