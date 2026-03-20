@@ -22,6 +22,8 @@ const vendorBank = require("./modules/vendorBank/bank.routes");
 
 const adminRoutes = require("./modules/admin/property/property.routes");
 const adminUserRoutes = require("./modules/admin/user/user.routes");
+const adminBookingRoutes = require("./modules/admin/booking/booking.routes");
+const adminReviewRoutes = require("./modules/admin/review/review.routes");
 
 const { errorHandler } = require("./shared/middlewares/errorHandler");
 require("./shared/config/passport");
@@ -86,6 +88,8 @@ app.use("/api/v1/vendor-bank", vendorBank);
 
 app.use("/api/v1/admin/property", adminRoutes);
 app.use("/api/v1/admin/users", adminUserRoutes);
+app.use("/api/v1/admin/bookings", adminBookingRoutes);
+app.use("/api/v1/admin/reviews", adminReviewRoutes);
 
 app.use(errorHandler);
 

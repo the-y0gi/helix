@@ -7,6 +7,12 @@ const {authorize} = require("../../shared/middlewares/roleMiddleware")
 router.get("/hotel/:hotelId", controller.getHotelReviews);
 
 // User
+//get
+router.get(
+  "/",
+  protect,
+  controller.getUserReviewBookings
+);
 router.post("/", protect, controller.createReview);
 router.put("/:reviewId", protect, controller.updateReview);
 

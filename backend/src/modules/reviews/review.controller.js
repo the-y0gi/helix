@@ -1,6 +1,23 @@
 const reviewService = require("./review.service");
 const logger = require("../../shared/utils/logger");
 
+//get review card
+exports.getUserReviewBookings = async (req, res, next) => {
+  try {
+    const result = await reviewService.getUserReviewBookings(
+      req.user._id,
+      req.query,
+    );
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getUserReviewBookings", error);
+    next(error);
+  }
+};
 //Create review
 exports.createReview = async (req, res, next) => {
   try {
@@ -54,7 +71,7 @@ exports.getVendorReviews = async (req, res, next) => {
   }
 };
 
-//delete reviews 
+//delete reviews
 exports.deleteReview = async (req, res, next) => {
   try {
     await reviewService.deleteReview(req.params.reviewId, req.user._id);
@@ -74,7 +91,7 @@ exports.vendorReply = async (req, res, next) => {
     const review = await reviewService.vendorReply(
       req.params.reviewId,
       req.user._id,
-      req.body.message
+      req.body.message,
     );
 
     res.status(200).json({
@@ -93,7 +110,7 @@ exports.updateReview = async (req, res, next) => {
     const review = await reviewService.updateReview(
       req.params.reviewId,
       req.user._id,
-      req.body
+      req.body,
     );
 
     res.status(200).json({

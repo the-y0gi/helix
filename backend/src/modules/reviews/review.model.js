@@ -34,8 +34,18 @@ const reviewSchema = new mongoose.Schema(
       message: String,
       repliedAt: Date,
     },
+
+    isFlagged: {
+      type: Boolean,
+      default: false,
+    },
+
+    flagReason: {
+      type: String,
+      default: "",
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 reviewSchema.index({ userId: 1, hotelId: 1 }, { unique: true });
