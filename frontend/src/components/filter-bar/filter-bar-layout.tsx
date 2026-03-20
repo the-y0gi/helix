@@ -23,6 +23,7 @@ const FilterBarLayout = ({
   const ismobile = useIsMobile()
   return (
     <div>
+      {ismobile && <TabsNav mobile={false} tabs={pages} />}
         {
             active?.home_filter_box
         }

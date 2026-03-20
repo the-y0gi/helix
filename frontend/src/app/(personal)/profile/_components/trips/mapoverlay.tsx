@@ -22,22 +22,22 @@ export const AnimatedModalDemo = ({
     <div className="  flex items-center justify-center">
       <Modal>
         <ModalTrigger className="bg-black h-40 w-60 p-0 dark:bg-white dark:text-black text-white flex justify-center group/modal-btn">
-         <div className="relative w-full h-full rounded-md overflow-hidden group">
-    {/* The Map Image with Blur */}
-    <Image
-      src="/map.png"
-      alt="Hotel Arts Barcelona"
-      fill
-      className="object-cover blur-[2px] brightness-75 transition-all duration-300 group-hover:blur-sm group-hover:scale-110"
-    />
+          <div className="relative w-full h-full rounded-md overflow-hidden group">
+            {/* The Map Image with Blur */}
+            <Image
+              src="/map.png"
+              alt="Hotel Arts Barcelona"
+              fill
+              className="object-cover blur-[2px] brightness-75 transition-all duration-300 group-hover:blur-sm group-hover:scale-110"
+            />
 
-    {/* The Text Overlay */}
-    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors duration-300">
-      <span className="text-white text-sm font-bold uppercase tracking-wider px-4 py-2 border border-white/50 rounded-lg backdrop-blur-md shadow-2xl">
-        See Location on Map
-      </span>
-    </div>
-  </div>
+            {/* The Text Overlay */}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors duration-300">
+              <span className="text-white text-sm font-bold uppercase tracking-wider px-4 py-2 border border-white/50 rounded-lg backdrop-blur-md shadow-2xl">
+                See Location on Map
+              </span>
+            </div>
+          </div>
         </ModalTrigger>
         <ModalBody>
           <ModalContent className="overflow-hidden p-0 ">

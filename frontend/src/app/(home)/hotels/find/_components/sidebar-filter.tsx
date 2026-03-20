@@ -1,11 +1,25 @@
 
 'use client'
-
+import Image from "next/image";
 export const SideBarFilter = () => {
   return (
+
     <div className="flex flex-col gap-2 p-1 md:min-w-[270px] w-full md:max-w-[270px]">
-      <div className="w-full border border-gray-500/20 rounded-2xl flex justify-center items-center h-40">
-        map image
+      <div className="relative gap-2 p-1 md:min-w-[270px] w-full md:max-w-[270px] h-40 rounded-md overflow-hidden group">
+        {/* The Map Image with Blur */}
+        <Image
+          src="/map.png"
+          alt="Hotel Arts Barcelona"
+          fill
+          className="object-cover blur-[2px] brightness-75 transition-all duration-300 group-hover:blur-sm group-hover:scale-110"
+        />
+
+        {/* The Text Overlay */}
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors duration-300">
+          <span className="text-white text-sm font-bold uppercase tracking-wider px-4 py-2 border border-white/50 rounded-lg backdrop-blur-md shadow-2xl">
+            See Location on Map
+          </span>
+        </div>
       </div>
       <FilterAccordion />
       <div className="w-full h-[50px]"></div>

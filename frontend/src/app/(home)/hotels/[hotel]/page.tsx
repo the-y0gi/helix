@@ -181,15 +181,15 @@ const HotelDetails = ({ className }: { className?: string }) => {
   if (!hotelDetailsData || !hotelDetailsData.name) {
     return (
 
-          <div className="w-full flex items-center justify-center py-10 flex-col">
-            <div className="w-full my-10">
-              <SkeletonText />
-            </div>
-            <div className="grid-cols-2 w-full px-15">
-              <PlaneSkeleton />
+      <div className="w-full flex items-center justify-center py-10 flex-col">
+        <div className="w-full my-10">
+          <SkeletonText />
+        </div>
+        <div className="grid-cols-2 w-full px-15">
+          <PlaneSkeleton />
 
-            </div>
-          </div>
+        </div>
+      </div>
     );
   }
 
@@ -198,7 +198,7 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
 
   return (
-    <div className={cn("w-full ", className)}>
+    <div className={cn("w-full  ", className)}>
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<PageSkeleton />}>
           <ScrollToTop />

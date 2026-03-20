@@ -943,12 +943,16 @@ import { PaymentProps, PaymentSchema } from "@/schema/payment.schema";
 import { createBooking, verifyPayment } from "@/services/booking/booking.service";
 import { VisitorsMembers } from "@/app/(home)/hotels/[hotel]/_components/tabs";
 import { HotelCalender } from "@/app/(home)/hotels/[hotel]/_components/calander-booking";
+import { handleRefresh } from "@/services/dailyfunctions";
+
+import { useQueryClient } from "@tanstack/react-query";
 
 export const BookingForm = ({ slug }: { slug: string[] }) => {
   const { setPayments, date, guests } = useHotelStore();
   const { setCurrentStep, currentstep } = usePaymentsContext();
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useRouter();
+  const queryClient = useQueryClient();
 
   const total = (guests?.adults || 0) + (guests?.children || 0);
 
@@ -956,8 +960,8 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
     resolver: zodResolver(PaymentSchema),
     defaultValues: {
       dates: {
-        checkin: date?.from?.toISOString() || "",
-        checkout: date?.to?.toISOString() || "",
+        checkin: date?.from ? new Date(date.from).toISOString() : "",
+        checkout: date?.to ? new Date(date.to).toISOString() : "",
       },
       guests: {
         adults: guests?.adults || 0,
@@ -1030,6 +1034,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
             if (verifyResult.success) {
               toast.success("Payment successful! Booking confirmed.");
               setCurrentStep((val) => val + 1);
+              handleRefresh(queryClient, ["hotel_details", "hotel_availability"]);
             } else {
               toast.error("Payment verification failed.");
             }
@@ -1055,10 +1060,10 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
       setLoading(false);
     }
   };
-
+  const ismobile = useIsMobile();
   return (
     <Form {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} className="container max-w-7xl mx-auto px-4">
+      <form onSubmit={methods.handleSubmit(onSubmit)} className={cn("container max-w-7xl mx-auto px-4", ismobile && "pb-32")}>
         <StepsView />
         {!loading ? (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
@@ -1068,17 +1073,23 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
             {currentstep === 2 && (
               <div className="lg:col-span-4">
                 <div className="sticky top-24">
-                  <BookingDetailsCard
-                    hotelid={slug[0]}
-                    roomTypeId={slug[1]}
-                    loading={loading}
-                  />
+                  {ismobile ? (
+                    <div className="fixed bottom-0 left-0 right-0 z-[100] w-full border-t bg-background/95 backdrop-blur-sm p-4 animate-in slide-in-from-bottom duration-300">
+                      <BookingCard loading={loading} />
+                    </div>
+                  ) : (
+                    <BookingDetailsCard
+                      hotelid={slug[0]}
+                      roomTypeId={slug[1]}
+                      loading={loading}
+                    />
+                  )}
                 </div>
               </div>
             )}
           </div>
         ) : (
-          <div className="w-full flex flex-col items-center justify-center py-32 space-y-4">
+          <div className="w-full h-screen flex flex-col items-center justify-center py-32 space-y-4">
             <Spinner />
             <p className="text-muted-foreground animate-pulse">Processing your request...</p>
           </div>
@@ -1088,6 +1099,50 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
   );
 };
 
+import { Check } from 'lucide-react';
+import { useIsMobile } from "@/hooks/use-mobile";
+
+const BookingCard = ({ loading }: { loading: boolean }) => {
+  const { selectedRoom, date } = useHotelStore();
+  const methods = useFormContext<PaymentProps>();
+
+  if (!selectedRoom) return null;
+
+  const totalAdults = methods.watch("guests.adults") || 0;
+  const totalChildren = methods.watch("guests.children") || 0;
+  const nights = selectedRoom.nights || 0;
+  const totalPrice = selectedRoom.totalPrice || 0;
+
+  return (
+    <div className="flex items-center justify-between gap-4">
+      {/* Price & Summary Section */}
+      <div className="flex flex-col">
+        <div className="flex items-baseline gap-1">
+          <span className="text-xl font-bold tracking-tight">₹{totalPrice.toLocaleString()}</span>
+          <span className="text-xs text-muted-foreground font-medium">total</span>
+        </div>
+        <p className="text-[11px] font-semibold text-slate-500 flex items-center gap-1 mt-0.5">
+          {nights} nights · {totalAdults + totalChildren} guests
+        </p>
+        <div className="flex items-center gap-1 mt-1">
+          <Check className="w-3 h-3 text-emerald-500 stroke-[3px]" />
+          <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-tight">Free cancellation</span>
+        </div>
+      </div>
+
+      {/* Action Button */}
+      <Button
+        type="submit"
+        disabled={loading}
+        className="h-12 px-8 rounded-xl bg-primary hover:bg-primary/90 text-white text-base font-black shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center gap-2"
+      >
+        {loading ? <Spinner /> : "Reserve"}
+      </Button>
+    </div>
+  );
+};
+
+export default BookingCard;
 export const StepsView = () => (
   <div className="w-full py-8 overflow-x-auto">
     <HighLightBar />

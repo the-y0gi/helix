@@ -28,7 +28,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false)
 
- const showChevronRight  = location.includes("/hotels/find")
+  const showChevronRight = location.includes("/hotels/find")
   const segments = location.split("/").filter(Boolean);
 
   const shouldShowNavbar = !(
@@ -45,13 +45,13 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
           "fixed top-0 left-0 z-50 w-full bg-card    flex flex-col justify-center bg-gradient-to-br from-zinc-100 to-transparent dark:bg-gradient-to-bl dark:from-zinc-700  border-b border-gray-300 dark:border-gray-700 ",
           "h-auto",
           "bg-background",
-          isMobile?"bg-transparent border-none static":""
-         
+          isMobile ? "bg-transparent border-none static" : ""
+
         )}
       >
         <div className="flex  justify-between py-3 md:px-9 px-2 h-full">
-     
-         <LOGO />
+
+          <LOGO />
 
           {!isMobile && (
             <div className="hidden md:flex flex-col items-center gap-[5px] h-full ">
@@ -69,9 +69,9 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
             </Suspense>
           </div>
         </div>
-       {shouldShowNavbar&&showChevronRight&& <div className="block md:hidden h-10 w-full    ">
+        {shouldShowNavbar && showChevronRight && <div className="block md:hidden h-10 w-full    ">
           <SheetNavigation
-          setOpen={setOpen}
+            setOpen={setOpen}
             content={
               <Button variant={"ghost"} className="border-r">
                 {<ChevronRight className="h-4 w-4" />}
@@ -84,13 +84,13 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
       <main
         className={cn(
           "flex-1 bg-card",
-          shouldShowNavbar ? "pt-24" : "pt-29",
+          shouldShowNavbar ? "pt-21" : "pt-29",
           isMobile ? "pt-0" : "",
         )}
       >
-        { !shouldShowNavbar && (
+        {!shouldShowNavbar && (
           <div className=" ">
-            <FilterBarLayout pages={pages}/>
+            <FilterBarLayout pages={pages} />
             {/* <SearchBox tabs={FilterOfPages}/> */}
           </div>
         )}

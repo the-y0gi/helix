@@ -50,6 +50,14 @@ export interface Hotel {
   description: string;
   address: string;
   city: string;
+  guests: {
+    adults: number;
+    children: number;
+  };
+  date: {
+    from: string;
+    to: string;
+  };
   location: {
     type: string;
     coordinates: [number, number];

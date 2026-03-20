@@ -129,12 +129,8 @@
 
 //   setGuests: (guests) => set({ guests }),
 
-//   setSelectedRoom: (room) => set({ selectedRoom: room }),
-
-//   clearSelectedRoom: () => set({ selectedRoom: null }),
-// }));
-
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import type { DateRange } from "react-day-picker";
 // import { Payment } from "@/app/(personal)/book/[[...slug]]/_components/paymentform";
 
@@ -189,39 +185,53 @@ type HotelStoreProps = {
   clearSelectedRoom: () => void;
 };
 
-export const useHotelStore = create<HotelStoreProps>((set) => ({
-  payments: {} as Payment,
-  city: "Goa",
-  wrap: false,
+export const useHotelStore = create<HotelStoreProps>()(
+  persist(
+    (set) => ({
+      payments: {} as Payment,
+      city: "Goa",
+      wrap: false,
 
-  guests: {
-    adults: 1,
-    children: 0,
-  },
+      guests: {
+        adults: 1,
+        children: 0,
+      },
 
-  selectedRoom: null,
-
-  date: undefined,
-  isBookingMode: false,
-
-  setWrap: (wrap) => set({ wrap }),
-  setCity: (city) => set({ city }),
-  setPayments: (payments: Payment) => set({ payments }),
-
-  setDate: (date) =>
-    set(() => ({
-      date,
-      isBookingMode: !!date?.from && !!date?.to,
       selectedRoom: null,
-    })),
 
-  setGuests: (guests) =>
-    set(() => ({
-      guests,
-      selectedRoom: null, // reset selected room when guests change
-    })),
+      date: undefined,
+      isBookingMode: false,
 
-  setSelectedRoom: (room) => set({ selectedRoom: room }),
+      setWrap: (wrap) => set({ wrap }),
+      setCity: (city) => set({ city }),
+      setPayments: (payments: Payment) => set({ payments }),
 
-  clearSelectedRoom: () => set({ selectedRoom: null }),
-}));
+      setDate: (date) =>
+        set(() => ({
+          date,
+          isBookingMode: !!date?.from && !!date?.to,
+          selectedRoom: null,
+        })),
+
+      setGuests: (guests) =>
+        set(() => ({
+          guests,
+          selectedRoom: null, // reset selected room when guests change
+        })),
+
+      setSelectedRoom: (room) => set({ selectedRoom: room }),
+
+      clearSelectedRoom: () => set({ selectedRoom: null }),
+    }),
+    {
+      name: "hotel-storage",
+      storage: createJSONStorage(() => localStorage),
+      // Only persist these keys
+      partialize: (state) => ({
+        city: state.city,
+        date: state.date,
+        guests: state.guests,
+      }),
+    }
+  )
+);

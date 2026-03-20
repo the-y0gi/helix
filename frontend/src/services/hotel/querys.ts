@@ -10,11 +10,12 @@ import {
   getHotelReviews,
   getNewHotels,
   SearchCity,
+  HotelsSearch,
 } from "./hotel.service";
 import { getBookingById, getMyBookings } from "../booking/booking.service";
 import { HotelFilters } from "@/context/hotel/HotelContextProvider";
 
-export const useSearchCity = (query:string) => {
+export const useSearchCity = (query: string) => {
   return useQuery({
     queryKey: ["search_city", query],
     queryFn: () => SearchCity(query),
@@ -99,6 +100,38 @@ export const useCurrentUser = () => {
     retry: false, // optional
   });
 };
+export const useHotelSearch = ({
+  destination,
+  checkIn,
+  checkOut,
+  adults,
+  children,
+}: {
+  destination: string;
+  checkIn: Date | undefined;
+  checkOut: Date | undefined;
+  adults: number;
+  children: number;
+}) => {
+  return useQuery({
+    queryKey: [
+      "hotel_search",
+      destination,
+      checkIn,
+      checkOut,
+      adults,
+      children,
+    ],
+    queryFn: () =>
+      HotelsSearch({ destination, checkIn, checkOut, adults, children }),
+    staleTime: 20000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: true,
+    retry: false,
+    enabled: !!destination && !!checkIn && !!checkOut,
+  });
+};
 export const useGetHotelsByFiltersDemo = (
   val: HotelFilters,
   page: number = 1,
@@ -163,8 +196,9 @@ export const useHotelDetailsQuery = (hotelId: string) => {
     queryKey: ["hotel_details", hotelId],
     queryFn: () => getHotelDetails(hotelId),
     enabled: !!hotelId,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
+
     refetchOnReconnect: true,
     staleTime: 60 * 1000,
   });
@@ -177,18 +211,24 @@ type AvailabilityParams = {
   children: number;
 };
 
-export const useHotelAvailabilityQuery = (params: AvailabilityParams) => {
+export const useHotelAvailabilityQuery = (
+  params: AvailabilityParams,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [
       "hotel-availability",
       params.hotelId,
-      params.checkIn?.toISOString(),
-      params.checkOut?.toISOString(),
+      params.checkIn,
+      params.checkOut,
       params.adults,
       params.children,
     ],
     queryFn: () => getHotelAvailability(params),
-    enabled: !!params.checkIn && !!params.checkOut,
+    enabled:
+      options?.enabled !== undefined
+        ? options.enabled
+        : !!params.checkIn && !!params.checkOut,
     staleTime: Infinity,
   });
 };

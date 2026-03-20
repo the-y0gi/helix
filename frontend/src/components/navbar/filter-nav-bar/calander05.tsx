@@ -14,11 +14,11 @@ export function Calendar05({
 }) {
   //   const today = new Date();
   // today.setHours(0, 0, 0, 0);
-const today = new Date();
-today.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   return (
     <Calendar
-    disabled={{ before: today }}
+      disabled={{ before: today }}
       mode="range"
       defaultMonth={dateRange?.from}
       selected={dateRange}
@@ -39,7 +39,7 @@ today.setHours(0, 0, 0, 0);
         months: "flex flex-col md:flex-row  md:space-x-2 md:space-y-0",
         month: "space-y-2",
         table: "w-full border-collapse space-y-1",
-        nav_button_previous: "absolute left-2 top-9 z-30", 
+        nav_button_previous: "absolute left-2 top-9 z-30",
         nav_button_next: "absolute right-2 top-9 z-30",
         head_cell:
           "text-muted-foreground rounded-md w-4 font-normal text-[0.8rem]",
@@ -49,7 +49,49 @@ today.setHours(0, 0, 0, 0);
     />
   );
 }
-export default function HotelCalender () {
+export default function HotelCalender(
+
+) {
   const { date, setDate } = useHotelStore();
   return <Calendar05 setDateRange={setDate} dateRange={date} />;
 };
+
+
+
+
+
+
+
+export const RangeCalender_singlepage = ({
+  dateRange,
+  setDateRange,
+}: {
+  dateRange: DateRange | undefined;
+  setDateRange: (dateRange: DateRange | undefined) => void;
+}) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return (
+    <div>
+      <Calendar
+        mode='range'
+        disabled={{ before: today }}
+        defaultMonth={dateRange?.from}
+        selected={dateRange}
+        onSelect={setDateRange}
+        className='rounded-md'
+        classNames={{
+          range_start: 'bg-primary/20 dark:bg-primary/10 rounded-l-full',
+          range_end: 'bg-primary/20 dark:bg-primary/10 rounded-r-full',
+          day_button:
+            'data-[range-end=true]:rounded-full! data-[range-start=true]:rounded-full! data-[range-start=true]:bg-primary! data-[range-start=true]:text-primary-foreground! data-[range-start=true]:dark:bg-primary! data-[range-start=true]:group-data-[focused=true]/day:ring-primary/20 data-[range-start=true]:dark:group-data-[focused=true]/day:ring-primary/40 data-[range-end=true]:bg-primary! data-[range-end=true]:text-primary-foreground! data-[range-end=true]:dark:bg-primary! data-[range-end=true]:group-data-[focused=true]/day:ring-primary/20 data-[range-end=true]:dark:group-data-[focused=true]/day:ring-primary/40 data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-primary/20 data-[range-middle=true]:dark:bg-primary/10 hover:rounded-full',
+          today:
+            'data-[selected=true]:rounded-l-none! rounded-full bg-accent! data-[selected=true]:bg-primary/20! dark:data-[selected=true]:bg-primary/10! [&_button[data-range-middle=true]]:bg-transparent!'
+        }}
+      />
+
+    </div>
+  )
+}
+

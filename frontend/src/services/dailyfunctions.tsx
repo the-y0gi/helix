@@ -6,7 +6,15 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; className?: string , isFavourite:boolean , name:string }) => {
+
+export const handleRefresh = (queryClient: any, queryKey: string[]) => {
+  // This will refetch any query that starts with the provided queryKey
+  queryClient.invalidateQueries({
+    queryKey: queryKey,
+    exact: false, // Matches any query that starts with these keys
+  });
+};
+export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; className?: string, isFavourite: boolean, name: string }) => {
   const [liked, setLiked] = useState(isFavourite);
   const hasToken =
     typeof window !== "undefined" && localStorage.getItem("accessToken");
@@ -15,7 +23,7 @@ export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; c
     mutationFn: toggleLike,
     onSuccess: (data) => {
       setLiked(data.liked);
-      toast.success(data.liked ? "Liked " +name : "Disliked " + name);
+      toast.success(data.liked ? "Liked " + name : "Disliked " + name);
     },
     onError: () => {
       toast.error("Action failed!");
@@ -46,8 +54,8 @@ export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; c
                 size={24}
               />
             ),
-            type:"like",
-            do:_id,
+            type: "like",
+            do: _id,
             id: _id,
           }}
         />
