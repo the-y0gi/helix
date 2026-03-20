@@ -12,6 +12,37 @@ export const getHotelReviews = async (id: string) => {
     toast.error("something went wrong");
   }
 };
+export const HotelsSearch = async ({
+  destination,
+  checkIn,
+  checkOut,
+  adults = 1,
+  children = 0,
+}: {
+  destination: string;
+  checkIn: Date | undefined;
+  checkOut: Date | undefined;
+  adults: number;
+  children: number;
+}) => {
+  try {
+    console.log(destination, checkIn, checkOut, adults, children);
+
+    const res = await axiosApi.get(`/hotels/search`, {
+      params: {
+        destination,
+        checkIn,
+        checkOut,
+        adults,
+        children,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error(error);
+    toast.error("something went wrong");
+  }
+};
 
 export const getHotelPolicies = async (id: string) => {
   try {
@@ -46,6 +77,8 @@ export const getHotels = async (
   page: number = 1,
   limit: number = 9,
 ): Promise<HotelsResponse> => {
+  console.log(filters);
+
   const params: Record<string, unknown> = { page, limit };
 
   const [minPrice, maxPrice] = filters.price ?? [0, 10];
@@ -54,6 +87,8 @@ export const getHotels = async (
 
   if (filters.location?.length > 0) {
     params.city = filters.location[0];
+  } else if ((filters as any).city) {
+    params.city = (filters as any).city;
   }
 
   if (filters.score?.length > 0) {
@@ -74,11 +109,22 @@ export const getHotels = async (
     params.maxSize = Math.max(...filters.roomSize.map(Number));
   }
 
-  if (filters.Bedrooms?.length > 0)
+  if ((filters as any).adults) {
+    params.adults = (filters as any).adults;
+  } else if (filters.Bedrooms?.length > 0) {
     params.adults = Math.max(...filters.Bedrooms);
+  }
+
+  if ((filters as any).children) {
+    params.children = (filters as any).children;
+  }
+
   if (filters.Beds?.length > 0) params.beds = Math.max(...filters.Beds);
   if (filters.Bathrooms?.length > 0)
     params.bathrooms = Math.max(...filters.Bathrooms);
+
+  if ((filters as any).date?.checkIn) params.checkIn = (filters as any).date.checkIn;
+  if ((filters as any).date?.checkOut) params.checkOut = (filters as any).date.checkOut;
 
   if (
     filters.typeOfPlace?.length > 0 &&
@@ -149,11 +195,13 @@ export const getHotelAvailability = async ({
 //   }
 // };
 
-export const SearchCity = async (query:string)=>{
-  const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=6`);
+export const SearchCity = async (query: string) => {
+  const res = await fetch(
+    `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=6`,
+  );
   const data = await res.json();
-  return data
-}
+  return data;
+};
 export const dotoggleLike = async (id: string) => {
   try {
     const res = await axiosApi.post(`/favorites/toggle/${id}`);

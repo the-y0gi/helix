@@ -89,7 +89,8 @@ exports.createBooking = async (data, userId) => {
     if (!guests?.adults || guests.adults <= 0)
       throw new Error("At least one adult guest is required");
 
-    if (additionalGuests.length !== guests.adults - 1)
+    const expectedAdditionalGuests = (guests.adults || 0) + (guests.children || 0) - 1;
+    if (additionalGuests.length !== expectedAdditionalGuests)
       throw new Error("Additional guests count mismatch");
 
     const hotel = await Hotel.findById(hotelId).session(session);

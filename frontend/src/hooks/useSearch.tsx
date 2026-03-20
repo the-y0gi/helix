@@ -19,7 +19,7 @@ export const useSearchCity = (query: string) => {
     queryFn: async () => {
       if (!debouncedQuery) return [];
       const res = await fetch(
-        `https://photon.komoot.io/api/?q=${encodeURIComponent(debouncedQuery)}&limit=6`
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(debouncedQuery)}&limit=6&osm_tag=place:city&osm_tag=place:town`
       );
       if (!res.ok) throw new Error("Network response was not ok");
       const result = await res.json();
@@ -29,9 +29,9 @@ export const useSearchCity = (query: string) => {
     staleTime: Infinity, // Cache geographic data forever in-session
   });
 
-  return { 
-    results: data || [], 
-    loading: isLoading, 
-    error 
+  return {
+    results: data || [],
+    loading: isLoading,
+    error
   };
 };

@@ -40,6 +40,7 @@ export const filterOptions = {
     { value: "BBQ grill", icon: <Flame size={16} /> },
     { value: "Washing machine", icon: <WashingMachine size={16} /> },
     { value: "Kitchen", icon: <Utensils size={16} /> },
+    { value: "restaurant", icon: <Utensils size={16} /> }
   ],
 
   roomsbeds: ["Bedrooms", "Beds", "Bathrooms"] as const,
@@ -72,59 +73,59 @@ export const filterOptions = {
     { value: "Waterfront", icon: <MapPin size={16} /> },
     { value: "Balcony", icon: <Building size={16} /> },
   ],
-  guest_score:[
-            {
-              value: 5,
-              label: "5.0+ Excellent",
-            },
-            {
-              value: 4,
-              label: "4.0+ Very Good",
-            },
-            {
-              value: 3,
-              label: "3.0+ Good",
-            },
-            {
-              value: 2,
-              label: "2.0+ Fair",
-            },
-            {
-              value: 1,
-              label: "1.0+ Poor",
-            },
-          ],
-  classification:[
-            {
-              value: 5,
-              label: "5.0+ Excellent",
-            },
-            {
-              value: 4,
-              label: "4.0+ Very Good",
-            },
-            {
-              value: 3,
-              label: "3.0+ Good",
-            },
-            {
-              value: 2,
-              label: "2.0+ Fair",
-            },
-            {
-              value: 1,
-              label: "1.0+ Poor",
-            },
-          ],
-  roomsize:[
+  guest_score: [
+    {
+      value: 5,
+      label: "5.0+ Excellent",
+    },
+    {
+      value: 4,
+      label: "4.0+ Very Good",
+    },
+    {
+      value: 3,
+      label: "3.0+ Good",
+    },
+    {
+      value: 2,
+      label: "2.0+ Fair",
+    },
+    {
+      value: 1,
+      label: "1.0+ Poor",
+    },
+  ],
+  classification: [
+    {
+      value: 5,
+      label: "5.0+ Excellent",
+    },
+    {
+      value: 4,
+      label: "4.0+ Very Good",
+    },
+    {
+      value: 3,
+      label: "3.0+ Good",
+    },
+    {
+      value: 2,
+      label: "2.0+ Fair",
+    },
+    {
+      value: 1,
+      label: "1.0+ Poor",
+    },
+  ],
+  roomsize: [
     { value: 200, label: "small (<=25 msq" },
     { value: 500, label: "medium (25-50 msq)" },
     { value: 1000, label: "large (50-100 msq)" },
-    
+
   ]
 };
 
-type bedstype = "Bedrooms"|"Beds"|"Bathrooms"
+type bedstype = "Bedrooms" | "Beds" | "Bathrooms"
 export const items = [
   {
     value: "type",
@@ -132,45 +133,45 @@ export const items = [
     content: <HotelPileGroup values={filterOptions.typeOfPlace} />,
   },
   {
-      value: "Price",
-      trigger: "Price range",
-      content:<HotelPriceRange/> ,
-    },
+    value: "Price",
+    trigger: "Price range",
+    content: <HotelPriceRange />,
+  },
   {
-      value: "roomsbeds",
-      trigger: "Rooms and beds",
-      content: (
-        <HotelCounters 
-        values={filterOptions.roomsbeds  } />
-        
-      ),
-    },
-    {
-      value: "Room size",
-      trigger: "Rooms Size",
-      content: (
-        <HotelCheckBoxGroupOfRoomSize stars={false} values={filterOptions.roomsize}/>
-      ),
-    },
-    {
-      value: "distance_center",
-      trigger: "Distance from center",
-      content:<HotelDistanceFromCenter/> ,
-    },
-    {
-      value: "score",
-      trigger: "Guest Review Score",
-      content: (
-        <HotelCheckBoxGroupOfScore stars={false} values={filterOptions.guest_score} />
-      ),
-    },
-    {
-      value: "clasification",
-      trigger: "Property Clasification",
-      content: (
-        <HotelCheckBoxGroupOfClassification stars={true} values={filterOptions.classification} />
-      ),
-    },
+    value: "roomsbeds",
+    trigger: "Rooms and beds",
+    content: (
+      <HotelCounters
+        values={filterOptions.roomsbeds} />
+
+    ),
+  },
+  {
+    value: "Room size",
+    trigger: "Rooms Size",
+    content: (
+      <HotelCheckBoxGroupOfRoomSize stars={false} values={filterOptions.roomsize} />
+    ),
+  },
+  {
+    value: "distance_center",
+    trigger: "Distance from center",
+    content: <HotelDistanceFromCenter />,
+  },
+  {
+    value: "score",
+    trigger: "Guest Review Score",
+    content: (
+      <HotelCheckBoxGroupOfScore stars={false} values={filterOptions.guest_score} />
+    ),
+  },
+  {
+    value: "clasification",
+    trigger: "Property Clasification",
+    content: (
+      <HotelCheckBoxGroupOfClassification stars={true} values={filterOptions.classification} />
+    ),
+  },
   {
     value: "amenities",
     trigger: "Amenities",

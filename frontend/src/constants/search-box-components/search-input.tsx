@@ -4,13 +4,19 @@ import { useSearchCity } from "@/hooks/useSearch";
 import { Input } from "@base-ui/react";
 import { MapPin, Loader2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion"; // Changed to framer-motion for compatibility
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useHotelStore } from "@/store/hotel.store";
 
 const AddressSearch = () => {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const { results, loading } = useSearchCity(query);
   const searchRef = useRef<HTMLDivElement>(null);
+  const { city, setCity } = useHotelStore();
+  useEffect(() => {
+    console.log(city);
+
+  }, [city])
 
   return (
     <div className="w-full max-w-full relative" ref={searchRef}>
@@ -55,10 +61,11 @@ const AddressSearch = () => {
           >
             {results.map((place: any, i: number) => (
               <div
-                key={ i}
+                key={i}
                 className="p-3 hover:bg-secondary rounded-lg cursor-pointer transition-colors border-b border-border/10 last:border-none"
                 onClick={() => {
                   setQuery(place.properties.name);
+                  setCity(place.properties.name);
                   setIsOpen(false);
                 }}
               >

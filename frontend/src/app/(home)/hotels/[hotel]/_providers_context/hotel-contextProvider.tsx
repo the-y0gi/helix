@@ -36,7 +36,7 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
     }),
     [hotelId, date?.from, date?.to, guests.adults, guests.children]
   );
-  const debouncedFilters = useDebounce(availabilityParams, 2000)
+
 
   const { data: hotelDetailsData } =
     useHotelDetailsQuery(hotelId);
@@ -45,7 +45,7 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
     data: availabilityResponse,
     isLoading: availabilityLoading,
     refetch: refetchAvailability,
-  } = useHotelAvailabilityQuery(debouncedFilters);
+  } = useHotelAvailabilityQuery(availabilityParams, { enabled: false });
 
   const availabilityRooms = availabilityResponse?.roomTypes;
 

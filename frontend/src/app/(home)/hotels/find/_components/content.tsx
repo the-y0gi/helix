@@ -80,7 +80,13 @@ export const Content = ({ className }: { className: string }) => {
 
     <ScrollToTopByParams />
     <div
-      className={cn("flex  px-2", wrap ? "flex-wrap" : isMobile ? "flex-wrap" : "flex-col", className)}
+      className={cn(
+        "grid px-2  gap-y-8",
+        (wrap || isMobile)
+          ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 justify-items-center"
+          : "grid-cols-1",
+        className
+      )}
     >
       {hotels.map((hotel: Hotel) => {
         // Find lowest display price from roomTypes if available
@@ -103,7 +109,7 @@ export const Content = ({ className }: { className: string }) => {
             stars={Math.round(hotel.rating ?? 0)}
             reviews={{ text: hotel.rating >= 4.5 ? "Excellent" : hotel.rating >= 3.5 ? "Very Good" : "Good", count: hotel.numReviews ?? 0 }}
             roomInfo={hotel.description}
-            price={lowestPrice ? `$${lowestPrice}` : "—"}
+            price={lowestPrice ? `₹${lowestPrice.toLocaleString()}` : "—"}
             discount={""}
             wrap={wrap || isMobile}
             amenities={hotel.amenities ?? []}

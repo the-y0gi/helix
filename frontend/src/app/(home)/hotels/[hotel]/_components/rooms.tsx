@@ -609,7 +609,14 @@ export function RoomsBedTabs({
 
       {/* Tabs Content */}
       <TabsContent value="all" className="flex flex-col gap-6">
-        {roomTypes?.map((room) => renderRoomCard(room, hotelId, isBookingMode))}
+        {roomTypes?.map((room) => (
+          <RoomCardItem
+            key={room._id}
+            room={room}
+            hotelId={hotelId}
+            isBookingMode={isBookingMode}
+          />
+        ))}
       </TabsContent>
 
       {bedCounts.map((count) => (
@@ -623,7 +630,14 @@ export function RoomsBedTabs({
               (r) =>
                 r.beds.reduce((acc, curr) => acc + curr.quantity, 0) === count,
             )
-            .map((room) => renderRoomCard(room, hotelId, isBookingMode))}
+            .map((room) => (
+              <RoomCardItem
+                key={room._id}
+                room={room}
+                hotelId={hotelId}
+                isBookingMode={isBookingMode}
+              />
+            ))}
         </TabsContent>
       ))}
     </Tabs>
@@ -669,11 +683,15 @@ export function RoomsBedTabs({
 // }
 
 
-export const renderRoomCard = (
-  room: RoomType,
-  hotelId: string,
-  isBookingMode: boolean,
-) => {
+export const RoomCardItem = ({
+  room,
+  hotelId,
+  isBookingMode,
+}: {
+  room: RoomType;
+  hotelId: string;
+  isBookingMode: boolean;
+}) => {
   const { date: d } = useHotelStore();
   const showReserveButton = !!d?.to && !!d?.from;
   const totalBeds = room.beds.reduce(
@@ -701,7 +719,7 @@ export const renderRoomCard = (
 
   return (
     <HotelRoomCard
-    displayPrice={room.displayPrice || room.basePrice}
+      displayPrice={room.displayPrice || room.basePrice}
       showReserveButton={showReserveButton}
       key={room._id}
       hotelId={hotelId}

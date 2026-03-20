@@ -6,7 +6,7 @@ const { authorize } = require("../../shared/middlewares/roleMiddleware");
 
 // Vendor only
 router.use(protect);
-router.post("/", authorize("vendor"), roomController.createRoom);
+router.post("/", authorize("vendor"), roomController.createRoom);////////////////////////////
 router.get(
   "/hotel/:hotelId",
   authorize("vendor"),

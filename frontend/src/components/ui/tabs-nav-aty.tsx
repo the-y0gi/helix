@@ -33,7 +33,7 @@ export const TabsNav = ({
       initial={false}
       animate={{ y: isVisible ? 0 : -100 }}
       // flex justify-center ensures the stretched bar stays centered over the 910px card
-      className="sticky top-0 z-10 w-full flex justify-center py-2 px-4"
+      className={cn("sticky top-0 z-10 w-full flex justify-center py-2 px-4 ", ismobile?" z-50 ":"")}
     >
       <div
         className={cn(
@@ -41,7 +41,7 @@ export const TabsNav = ({
           "flex items-center w-full max-w-[1010px] mx-auto",
           "bg-white dark:bg-zinc-900 rounded-[14px] p-1.5",
           "border border-black/5 dark:border-white/10 shadow-sm",
-          containerClassName
+          containerClassName,
         )}
       >
         {propTabs.map((tab, index) => (
