@@ -1,20 +1,178 @@
+const mongoose = require("mongoose");
 const Review = require("./review.model");
 const Booking = require("../bookings/booking.model");
 const Hotel = require("../hotels/hotel.model");
 const logger = require("../../shared/utils/logger");
 
-const mongoose = require("mongoose");
+//review card, comment and vendor reply
+exports.getUserReviewBookings = async (userId, query) => {
+  try {
+    const { page = 1, limit = 10 } = query;
+    const skip = (page - 1) * limit;
 
-//Create Review (only after completed booking)
+    const pipeline = [
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+          status: "completed",
+          checkOut: { $lt: new Date() },
+        },
+      },
+
+      // HOTEL
+      {
+        $lookup: {
+          from: "hotels",
+          localField: "hotelId",
+          foreignField: "_id",
+          as: "hotel",
+        },
+      },
+      {
+        $unwind: {
+          path: "$hotel",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // REVIEW JOIN
+      // {
+      //   $lookup: {
+      //     from: "reviews",
+      //     let: { hotelId: "$hotelId", userId: "$userId" },
+      //     pipeline: [
+      //       {
+      //         $match: {
+      //           $expr: {
+      //             $and: [
+      //               { $eq: ["$hotelId", "$$hotelId"] },
+      //               { $eq: ["$userId", "$$userId"] },
+      //             ],
+      //           },
+      //         },
+      //       },
+      //     ],
+      //     as: "reviewData",
+      //   },
+      // },
+      {
+        $lookup: {
+          from: "reviews",
+          let: { hotelId: "$hotelId", userId: "$userId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: ["$hotelId", "$$hotelId"],
+                    },
+                    {
+                      $eq: ["$userId", "$$userId"],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "reviewData",
+        },
+      },
+      {
+        $unwind: {
+          path: "$reviewData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      {
+        $project: {
+          _id: 1,
+          bookingReference: 1,
+          hotelId: 1,
+
+          hotelName: {
+            $ifNull: ["$hotel.name", "N/A"],
+          },
+
+          city: {
+            $ifNull: ["$hotel.city", "N/A"],
+          },
+
+          image: {
+            $arrayElemAt: ["$hotel.images.url", 0],
+          },
+
+          checkIn: 1,
+          checkOut: 1,
+          totalAmount: 1,
+
+          hasReviewed: {
+            $cond: [{ $ifNull: ["$reviewData._id", false] }, true, false],
+          },
+
+          review: {
+            rating: "$reviewData.rating",
+            comment: "$reviewData.comment",
+            breakdown: "$reviewData.breakdown",
+            createdAt: "$reviewData.createdAt",
+          },
+
+          vendorReply: {
+            message: "$reviewData.vendorReply.message",
+            repliedAt: "$reviewData.vendorReply.repliedAt",
+          },
+        },
+      },
+
+      {
+        $sort: { checkOut: -1 },
+      },
+
+      {
+        $facet: {
+          data: [{ $skip: skip }, { $limit: Number(limit) }],
+          totalCount: [{ $count: "count" }],
+        },
+      },
+    ];
+
+    const result = await Booking.aggregate(pipeline);
+
+    const bookings = result[0].data;
+    const total = result[0].totalCount[0]?.count || 0;
+
+    return {
+      bookings,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+      },
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Create Review (only after completed booking)
 exports.createReview = async (data) => {
   try {
     const { userId, hotelId, rating, breakdown, comment } = data;
 
-    //ensure user has completed booking for this hotel
+    if (!hotelId) {
+      throw new Error("Hotel ID is required");
+    }
+
+    if (!rating || rating < 1 || rating > 5) {
+      throw new Error("Rating must be between 1 and 5");
+    }
+
     const hasBooking = await Booking.findOne({
       userId,
       hotelId,
       status: "completed",
+      checkOut: { $lt: new Date() }, // ensure stay completed
     });
 
     if (!hasBooking) {
@@ -31,11 +189,10 @@ exports.createReview = async (data) => {
       userId,
       hotelId,
       rating,
-      breakdown,
-      comment,
+      breakdown: breakdown || {},
+      comment: comment?.trim() || "",
     });
 
-    // update hotel rating (simple avg – can be optimized later)
     const stats = await Review.aggregate([
       { $match: { hotelId } },
       {
