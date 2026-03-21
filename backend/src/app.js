@@ -24,6 +24,7 @@ const adminRoutes = require("./modules/admin/property/property.routes");
 const adminUserRoutes = require("./modules/admin/user/user.routes");
 const adminBookingRoutes = require("./modules/admin/booking/booking.routes");
 const adminReviewRoutes = require("./modules/admin/review/review.routes");
+const adminPaymentRoutes = require("./modules/admin/payment/payment.routes");
 
 const { errorHandler } = require("./shared/middlewares/errorHandler");
 require("./shared/config/passport");
@@ -31,11 +32,14 @@ require("./shared/config/passport");
 const app = express();
 
 app.use(helmet());
+
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
+  "http://localhost:3002",
   process.env.FRONTEND_URL,
   process.env.VENDOR_URL,
+  process.env.ADMIN_URL,
 ];
 
 app.use(
@@ -90,6 +94,7 @@ app.use("/api/v1/admin/property", adminRoutes);
 app.use("/api/v1/admin/users", adminUserRoutes);
 app.use("/api/v1/admin/bookings", adminBookingRoutes);
 app.use("/api/v1/admin/reviews", adminReviewRoutes);
+app.use("/api/v1/admin/payments", adminPaymentRoutes);
 
 app.use(errorHandler);
 

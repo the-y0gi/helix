@@ -175,8 +175,10 @@ const bookingSchema = new mongoose.Schema(
     refundProcessedAt: Date,
 
     cancelledAt: Date,
-    cancellationReason: String,
-
+    cancellationReason: {
+      type: String,
+      trim: true,
+    },
     actualCheckInAt: Date,
     actualCheckOutAt: Date,
 

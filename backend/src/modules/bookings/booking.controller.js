@@ -4,10 +4,7 @@ const logger = require("../../shared/utils/logger");
 //Create Booking
 exports.createBooking = async (req, res, next) => {
   try {
-    const booking = await bookingService.createBooking(
-      req.body,
-      req.user._id
-    );
+    const booking = await bookingService.createBooking(req.body, req.user._id);
 
     res.status(201).json({
       success: true,
@@ -41,7 +38,7 @@ exports.getBookingById = async (req, res, next) => {
   try {
     const booking = await bookingService.getBookingDetail(
       req.params.id,
-      req.user.id
+      req.user.id,
     );
 
     res.status(200).json({
@@ -53,21 +50,40 @@ exports.getBookingById = async (req, res, next) => {
   }
 };
 
-
-//User cancel
-exports.cancelBooking = async (req, res, next) => {
+// Get refund preview before cancellation
+exports.getRefundPreview = async (req, res, next) => {
   try {
-    const booking = await bookingService.cancelBooking(
+    const result = await bookingService.getRefundPreview(
       req.params.id,
-      req.user.id,
-      req.body.mode //automatic or manual
+      req.user._id,
     );
 
     res.status(200).json({
       success: true,
+      data: result,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getRefundPreview", error);
+    next(error);
+  }
+};
+
+// Cancel booking ( refund request)
+exports.cancelBooking = async (req, res, next) => {
+  try {
+    const booking = await bookingService.cancelBooking(
+      req.params.id,
+      req.user._id,
+      req.body.reason,
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Cancellation request submitted",
       data: booking,
     });
   } catch (err) {
+    logger.error("Controller Error: cancelBooking", err);
     next(err);
   }
 };
@@ -77,7 +93,7 @@ exports.handleRefund = async (req, res, next) => {
   try {
     const booking = await bookingService.adminHandleRefund(
       req.params.id,
-      req.body.action //approve | reject
+      req.body.action, //approve | reject
     );
 
     res.status(200).json({
@@ -88,5 +104,3 @@ exports.handleRefund = async (req, res, next) => {
     next(err);
   }
 };
-
-

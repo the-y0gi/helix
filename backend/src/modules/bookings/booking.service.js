@@ -89,7 +89,8 @@ exports.createBooking = async (data, userId) => {
     if (!guests?.adults || guests.adults <= 0)
       throw new Error("At least one adult guest is required");
 
-    const expectedAdditionalGuests = (guests.adults || 0) + (guests.children || 0) - 1;
+    const expectedAdditionalGuests =
+      (guests.adults || 0) + (guests.children || 0) - 1;
     if (additionalGuests.length !== expectedAdditionalGuests)
       throw new Error("Additional guests count mismatch");
 
@@ -214,208 +215,6 @@ exports.createBooking = async (data, userId) => {
   }
 };
 
-// exports.createBooking = async (data, userId) => {
-//   const session = await mongoose.startSession();
-//   session.startTransaction();
-
-//   try {
-//     const {
-//       hotelId,
-//       roomTypeId,
-//       checkIn,
-//       checkOut,
-//       guests,
-//       roomsBooked,
-//       primaryGuest,
-//       additionalGuests = [],
-//     } = data;
-
-//     if (!checkIn || !checkOut)
-//       throw new Error("Check-in and Check-out dates are required");
-
-//     const startDate = new Date(checkIn);
-//     const endDate = new Date(checkOut);
-
-//     // UTC normalization
-//     startDate.setUTCHours(0,0,0,0);
-//     endDate.setUTCHours(0,0,0,0);
-
-//     if (startDate >= endDate)
-//       throw new Error("Invalid check-in/check-out dates");
-
-//     const nights =
-//       (endDate - startDate) / (1000 * 60 * 60 * 24);
-
-//     if (nights <= 0)
-//       throw new Error("Invalid booking duration");
-
-//     // safer rooms validation
-//     const rooms =
-//       Number.isInteger(roomsBooked) && roomsBooked > 0
-//         ? roomsBooked
-//         : 1;
-
-//     if (!guests?.adults || guests.adults <= 0)
-//       throw new Error("At least one adult guest is required");
-
-//     if (additionalGuests.length !== guests.adults - 1)
-//       throw new Error("Additional guests count mismatch");
-
-//     const hotel =
-//       await Hotel.findById(hotelId).session(session);
-
-//     if (!hotel || !hotel.isActive)
-//       throw new Error("Hotel not available");
-
-//     const roomType =
-//       await RoomType.findById(roomTypeId).session(session);
-
-//     if (!roomType || !roomType.isActive)
-//       throw new Error("Room type not available");
-
-//     if (
-//       guests.adults > roomType.capacity.adults ||
-//       guests.children > roomType.capacity.children
-//     ) {
-//       throw new Error("Guest count exceeds room capacity");
-//     }
-
-//     // Fetch availability docs
-//     const availabilityDocs = await Availability.find({
-//       roomTypeId,
-//       date: { $gte: startDate, $lt: endDate },
-//     }).session(session);
-
-//     // Build fast lookup map
-//     const availabilityMap = new Map();
-
-//     for (const doc of availabilityDocs) {
-//       const dateStr =
-//         new Date(doc.date).toISOString().slice(0,10);
-
-//       availabilityMap.set(dateStr, doc);
-//     }
-
-//     // Availability validation
-//     for (let i = 0; i < nights; i++) {
-
-//       const currentDate = new Date(startDate);
-//       currentDate.setUTCDate(currentDate.getUTCDate() + i);
-
-//       const dateStr =
-//         currentDate.toISOString().slice(0,10);
-
-//       const dayDoc = availabilityMap.get(dateStr);
-
-//       const booked = dayDoc?.bookedRooms || 0;
-//       const blocked = dayDoc?.blockedRooms || 0;
-
-//       const available =
-//         roomType.totalRooms - booked - blocked;
-
-//       if (available < rooms) {
-//         throw new Error(
-//           `Insufficient availability on ${currentDate.toDateString()}`
-//         );
-//       }
-//     }
-
-//     // Price calculation
-//     let totalAmount = 0;
-//     let pricePerNight = 0;
-
-//     for (let i = 0; i < nights; i++) {
-
-//       const currentDate = new Date(startDate);
-//       currentDate.setUTCDate(currentDate.getUTCDate() + i);
-
-//       const dateStr =
-//         currentDate.toISOString().slice(0,10);
-
-//       const dayDoc = availabilityMap.get(dateStr);
-
-//       const price =
-//         dayDoc?.priceOverride ??
-//         (roomType.discountPrice > 0
-//           ? roomType.discountPrice
-//           : roomType.basePrice);
-
-//       if (i === 0) {
-//         pricePerNight = price;
-//       }
-
-//       totalAmount += price * rooms;
-//     }
-
-//     const bookingReference =
-//       "BK-" + crypto.randomBytes(6).toString("hex").toUpperCase();
-
-//     const [booking] = await Booking.create(
-//       [
-//         {
-//           userId,
-//           hotelId,
-//           roomTypeId,
-//           bookingReference,
-//           checkIn: startDate,
-//           checkOut: endDate,
-//           nights,
-//           guests,
-//           roomsBooked: rooms,
-//           primaryGuest,
-//           additionalGuests,
-//           pricePerNight,
-//           totalAmount,
-//           status: "pending",
-//           paymentStatus: "pending",
-//         },
-//       ],
-//       { session }
-//     );
-
-//     // Razorpay order
-//     const razorpayOrder = await razorpay.orders.create({
-//       amount: totalAmount * 100,
-//       currency: "INR",
-//       receipt: bookingReference,
-//     });
-
-//     const [payment] = await Payment.create(
-//       [
-//         {
-//           bookingId: booking._id,
-//           userId,
-//           razorpayOrderId: razorpayOrder.id,
-//           amountPaid: totalAmount,
-//           status: "created",
-//         },
-//       ],
-//       { session }
-//     );
-
-//     booking.paymentId = payment._id;
-//     await booking.save({ session });
-
-//     await session.commitTransaction();
-//     session.endSession();
-
-//     return {
-//       booking,
-//       razorpayOrder,
-//     };
-
-//   } catch (err) {
-
-//     await session.abortTransaction();
-//     session.endSession();
-
-//     logger.error("Service Error: createBooking", err);
-//     throw err;
-
-//   }
-// };
-
-//Get bookings for logged-in user
 exports.getUserBookings = async (userId) => {
   try {
     const bookings = await Booking.find({ userId })
@@ -427,7 +226,7 @@ exports.getUserBookings = async (userId) => {
       .lean();
 
     return bookings.map((booking) => ({
-      hotelId:booking.hotelId._id,
+      hotelId: booking.hotelId._id,
       _id: booking._id,
       bookingReference: booking.bookingReference,
       hotelName: booking.hotelId?.name,
@@ -464,7 +263,7 @@ exports.getBookingDetail = async (bookingId, userId) => {
       paymentStatus: booking.paymentStatus,
 
       hotel: {
-        hotelId:booking.hotelId._id,
+        hotelId: booking.hotelId._id,
         name: booking.hotelId.name,
         address: booking.hotelId.address,
         coordinates: booking.hotelId.location?.coordinates,
@@ -499,8 +298,71 @@ exports.getBookingDetail = async (bookingId, userId) => {
   }
 };
 
-//Cancel Booking (with manual or automatic refund)
-exports.cancelBooking = async (bookingId, userId, mode = "manual") => {
+// Refund Preview API
+exports.getRefundPreview = async (bookingId, userId) => {
+  try {
+    const booking = await Booking.findOne({
+      _id: bookingId,
+      userId,
+    });
+
+    if (!booking) throw new Error("Booking not found");
+
+    if (booking.status !== "confirmed") {
+      throw new Error("Only confirmed bookings are eligible for cancellation");
+    }
+
+    const now = new Date();
+
+    if (booking.checkIn <= now) {
+      throw new Error("Cannot cancel past or ongoing bookings");
+    }
+
+    const daysBeforeCheckIn = Math.ceil(
+      (new Date(booking.checkIn) - now) / (1000 * 60 * 60 * 24),
+    );
+
+    let refundPercentage = 0;
+    let policyApplied = "";
+
+    const isWithin24Hours =
+      now - new Date(booking.createdAt) <= 24 * 60 * 60 * 1000;
+
+    if (isWithin24Hours) {
+      refundPercentage = 100;
+      policyApplied = "Free cancellation within 24 hours";
+    } else if (daysBeforeCheckIn >= 30) {
+      refundPercentage = 100;
+      policyApplied = "30+ days before check-in";
+    } else if (daysBeforeCheckIn >= 15) {
+      refundPercentage = 50;
+      policyApplied = "15-30 days before check-in";
+    } else {
+      refundPercentage = 0;
+      policyApplied = "Less than 15 days before check-in";
+    }
+
+    const refundAmount = Math.round(
+      (booking.totalAmount * refundPercentage) / 100,
+    );
+
+    return {
+      bookingId: booking._id,
+      totalAmount: booking.totalAmount,
+      refundPercentage,
+      refundAmount,
+      policyApplied,
+      daysBeforeCheckIn,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
+// Cancel Booking Request
+exports.cancelBooking = async (bookingId, userId, reason) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -512,65 +374,73 @@ exports.cancelBooking = async (bookingId, userId, mode = "manual") => {
 
     if (!booking) throw new Error("Booking not found");
 
-    if (booking.status !== "confirmed")
+    if (booking.status !== "confirmed") {
       throw new Error("Only confirmed bookings can be cancelled");
-
-    if (booking.checkIn <= new Date())
-      throw new Error("Cannot cancel past or ongoing bookings");
-
-    //calculate Refund
-    const now = new Date();
-    const daysBeforeCheckIn = (booking.checkIn - now) / (1000 * 60 * 60 * 24);
-
-    let refundPercentage = 0;
-
-    if (
-      now - booking.createdAt <= 24 * 60 * 60 * 1000 &&
-      daysBeforeCheckIn >= 7
-    ) {
-      refundPercentage = 100;
-    } else if (daysBeforeCheckIn >= 30) {
-      refundPercentage = 100;
-    } else if (daysBeforeCheckIn >= 15) {
-      refundPercentage = 50;
-    } else {
-      refundPercentage = 0;
     }
 
-    const refundAmount = (booking.totalAmount * refundPercentage) / 100;
+    const now = new Date();
 
+    if (new Date(booking.checkIn) <= now) {
+      throw new Error("Cannot cancel past or ongoing bookings");
+    }
+
+    if (!reason || reason.trim() === "") {
+      throw new Error("Cancellation reason is required");
+    }
+
+    //days calculation
+    const daysBeforeCheckIn = Math.ceil(
+      (new Date(booking.checkIn) - now) / (1000 * 60 * 60 * 24),
+    );
+
+    const isWithin24Hours =
+      now - new Date(booking.createdAt) <= 24 * 60 * 60 * 1000;
+
+    let refundPercentage = 0;
+    let policyApplied = "";
+
+    if (isWithin24Hours) {
+      refundPercentage = 100;
+      policyApplied = "Free cancellation within 24 hours";
+    } else if (daysBeforeCheckIn >= 30) {
+      refundPercentage = 100;
+      policyApplied = "30+ days before check-in";
+    } else if (daysBeforeCheckIn >= 15) {
+      refundPercentage = 50;
+      policyApplied = "15-30 days before check-in";
+    } else {
+      refundPercentage = 0;
+      policyApplied = "Less than 15 days before check-in";
+    }
+
+    const refundAmount = Math.round(
+      (booking.totalAmount * refundPercentage) / 100,
+    );
+
+    booking.status = "cancellation_requested";
+    booking.refundStatus = refundPercentage > 0 ? "pending" : "not_applicable";
     booking.refundPercentage = refundPercentage;
     booking.refundAmount = refundAmount;
     booking.refundRequestedAt = now;
-
-    if (mode === "automatic") {
-      //Restore availability immediately
-      await restoreAvailability(booking, session);
-
-      booking.status = "cancelled";
-      booking.refundStatus = "processed";
-      booking.cancelledAt = now;
-      booking.paymentStatus = "refunded";
-
-      await processRefund(booking, session);
-
-      booking.refundProcessedAt = new Date();
-    } else {
-      // Manual mode
-      booking.status = "cancellation_requested";
-      booking.refundStatus = "pending";
-    }
+    booking.cancellationReason = reason.trim();
+    booking.policyApplied = policyApplied;
 
     await booking.save({ session });
 
     await session.commitTransaction();
     session.endSession();
 
-    return booking;
+    return {
+      message: "Cancellation request submitted successfully",
+      bookingId: booking._id,
+      refundPercentage,
+      refundAmount,
+      policyApplied,
+      daysBeforeCheckIn,
+    };
   } catch (err) {
     await session.abortTransaction();
     session.endSession();
-    logger.error("Service Error: cancelBooking", err);
     throw err;
   }
 };
@@ -675,7 +545,7 @@ exports.getVendorBookings = async (vendorId, queryParams) => {
   const total = await Booking.countDocuments(filter);
 
   const formatted = bookings.map((b) => ({
-     bookingId: b._id,
+    bookingId: b._id,
     bookingReference: b.bookingReference,
     guestName: `${b.primaryGuest.firstName} ${b.primaryGuest.lastName}`,
     roomLabel: `${b.roomTypeId?.name || ""} ${b.roomNumber || ""}`,
@@ -842,149 +712,6 @@ exports.generateInvoicePdf = async (bookingId, vendorId, res) => {
 
   doc.end();
 };
-
-//vendor dashboard
-// exports.getVendorDashboard = async (vendorId) => {
-//   const hotels = await Hotel.find({ vendorId }, "_id").lean();
-//   const hotelIds = hotels.map((h) => h._id);
-
-//   const today = new Date();
-//   today.setHours(0, 0, 0, 0);
-
-//   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
-//   //Top Stats
-//   const newBookings = await Booking.countDocuments({
-//     hotelId: { $in: hotelIds },
-//     createdAt: { $gte: today },
-//   });
-
-//   const todayCheckIns = await Booking.countDocuments({
-//     hotelId: { $in: hotelIds },
-//     checkIn: today,
-//   });
-
-//   const todayCheckOuts = await Booking.countDocuments({
-//     hotelId: { $in: hotelIds },
-//     checkOut: today,
-//   });
-
-//   const totalRevenueAgg = await Booking.aggregate([
-//     {
-//       $match: {
-//         hotelId: { $in: hotelIds },
-//         paymentStatus: "paid",
-//         createdAt: { $gte: startOfMonth },
-//       },
-//     },
-//     {
-//       $group: {
-//         _id: null,
-//         total: { $sum: "$totalAmount" },
-//       },
-//     },
-//   ]);
-
-//   const totalRevenue = totalRevenueAgg[0]?.total || 0;
-
-//   //Room Summary
-//   const totalRooms = await Room.countDocuments({
-//     hotelId: { $in: hotelIds },
-//   });
-
-//   const occupiedRooms = await Booking.countDocuments({
-//     hotelId: { $in: hotelIds },
-//     status: { $in: ["checked_in", "staying"] },
-//   });
-
-//   const availableRooms = totalRooms - occupiedRooms;
-
-//   //Revenue Chart (Last 6 Months)
-//   const revenueChart = await Booking.aggregate([
-//     {
-//       $match: {
-//         hotelId: { $in: hotelIds },
-//         paymentStatus: "paid",
-//       },
-//     },
-//     {
-//       $group: {
-//         _id: {
-//           year: { $year: "$createdAt" },
-//           month: { $month: "$createdAt" },
-//         },
-//         revenue: { $sum: "$totalAmount" },
-//       },
-//     },
-//     { $sort: { "_id.year": 1, "_id.month": 1 } },
-//     { $limit: 6 },
-//   ]);
-
-//   //Reservations Chart (Last 7 Days)
-//   const last7Days = new Date();
-//   last7Days.setDate(today.getDate() - 6);
-
-//   const reservationChart = await Booking.aggregate([
-//     {
-//       $match: {
-//         hotelId: { $in: hotelIds },
-//         createdAt: { $gte: last7Days },
-//       },
-//     },
-//     {
-//       $group: {
-//         _id: {
-//           day: { $dayOfMonth: "$createdAt" },
-//         },
-//         count: { $sum: 1 },
-//       },
-//     },
-//     { $sort: { "_id.day": 1 } },
-//   ]);
-
-//   //Recent Bookings
-//   const recentBookings = await Booking.find({
-//     hotelId: { $in: hotelIds },
-//     checkIn: { $lte: today },
-//     checkOut: { $gte: today },
-//     status: {
-//       $in: ["confirmed", "checked_in", "staying"],
-//     },
-//   })
-//     .select(
-//       "bookingReference primaryGuest roomTypeId roomNumber checkIn checkOut status",
-//     )
-//     .populate("roomTypeId", "name")
-//     .sort("checkIn")
-//     .limit(10)
-//     .lean();
-
-//   const formattedRecent = recentBookings.map((b) => ({
-//     bookingReference: b.bookingReference,
-//     guestName: `${b.primaryGuest.firstName} ${b.primaryGuest.lastName}`,
-//     room: `${b.roomTypeId?.name || ""} ${b.roomNumber || ""}`,
-//     checkIn: b.checkIn,
-//     checkOut: b.checkOut,
-//     status: b.status,
-//   }));
-
-//   return {
-//     stats: {
-//       newBookings,
-//       todayCheckIns,
-//       todayCheckOuts,
-//       totalRevenue,
-//     },
-//     roomSummary: {
-//       totalRooms,
-//       occupiedRooms,
-//       availableRooms,
-//     },
-//     revenueChart,
-//     reservationChart,
-//     recentBookings: formattedRecent,
-//   };
-// };
 
 exports.getVendorDashboard = async (
   vendorId,
