@@ -1,8 +1,7 @@
 const propertyService = require("./property.service");
 const logger = require("../../../shared/utils/logger");
 
-
-//all vendor property list 
+//all vendor property list
 exports.getAllProperties = async (req, res, next) => {
   try {
     const result = await propertyService.getAllProperties(req.query);
@@ -17,6 +16,31 @@ exports.getAllProperties = async (req, res, next) => {
   }
 };
 
+exports.updateHotelRank = async (req, res, next) => {
+  try {
+    const { rank } = req.body;
+    const { id } = req.params;
+
+    if (!rank) {
+      return res.status(400).json({
+        success: false,
+        message: "Rank is required",
+      });
+    }
+
+    const updatedHotel = await propertyService.updateHotelRank(id, rank);
+
+    res.status(200).json({
+      success: true,
+      message: "Hotel rank updated successfully",
+      data: updatedHotel,
+    });
+  } catch (error) {
+    logger.error("Controller Error: updatehotelrank", error);
+
+    next(error);
+  }
+};
 
 //vendor property detail
 exports.getPropertyDetail = async (req, res, next) => {
@@ -35,7 +59,6 @@ exports.getPropertyDetail = async (req, res, next) => {
   }
 };
 
-
 //mark issue
 exports.markIssue = async (req, res, next) => {
   try {
@@ -46,7 +69,7 @@ exports.markIssue = async (req, res, next) => {
       vendorId,
       step,
       reason,
-      req.user._id
+      req.user._id,
     );
 
     res.status(200).json({
@@ -73,7 +96,7 @@ exports.verifySection = async (req, res, next) => {
     const vendor = await propertyService.verifySection(
       vendorId,
       step,
-      req.user._id
+      req.user._id,
     );
 
     res.status(200).json({
@@ -99,7 +122,7 @@ exports.rejectVendor = async (req, res, next) => {
     const vendor = await propertyService.rejectVendor(
       vendorId,
       req.body,
-      req.user._id
+      req.user._id,
     );
 
     res.status(200).json({
@@ -122,10 +145,7 @@ exports.approveVendor = async (req, res, next) => {
   try {
     const { vendorId } = req.params;
 
-    const vendor = await propertyService.approveVendor(
-      vendorId,
-      req.user._id
-    );
+    const vendor = await propertyService.approveVendor(vendorId, req.user._id);
 
     res.status(200).json({
       success: true,

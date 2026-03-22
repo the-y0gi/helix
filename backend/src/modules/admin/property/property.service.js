@@ -4,6 +4,128 @@ const VendorBank = require("../../vendorBank/bank.model");
 const Hotel = require("../../hotels/hotel.model");
 const mongoose = require("mongoose");
 
+// exports.getAllProperties = async (query) => {
+//   try {
+//     const { page = 1, limit = 10, status, search } = query;
+
+//     const skip = (page - 1) * limit;
+
+//     const matchStage = {};
+
+//     if (status) {
+//       matchStage.status = status;
+//     }
+
+//     //Aggregation Pipeline
+//     const pipeline = [
+//       {
+//         $match: matchStage,
+//       },
+
+//       // Join User (Vendor Owner)
+//       {
+//         $lookup: {
+//           from: "users",
+//           localField: "userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       { $unwind: "$user" },
+
+//       // Join Hotel
+//       {
+//         $lookup: {
+//           from: "hotels",
+//           localField: "_id",
+//           foreignField: "vendorId",
+//           as: "hotel",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$hotel",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+
+//       //Search filter
+//       ...(search
+//         ? [
+//             {
+//               $match: {
+//                 $or: [
+//                   { "hotel.name": { $regex: search, $options: "i" } },
+//                   { "hotel.city": { $regex: search, $options: "i" } },
+//                   { "user.firstName": { $regex: search, $options: "i" } },
+//                   { "user.lastName": { $regex: search, $options: "i" } },
+//                 ],
+//               },
+//             },
+//           ]
+//         : []),
+
+//       {
+//         $project: {
+//           _id: 1,
+
+//           propertyName: {
+//             $ifNull: ["$hotel.name", "N/A"],
+//           },
+
+//           city: {
+//             $ifNull: ["$hotel.city", "N/A"],
+//           },
+
+//           vendorName: {
+//             $trim: {
+//               input: {
+//                 $concat: [
+//                   { $ifNull: ["$user.firstName", ""] },
+//                   " ",
+//                   { $ifNull: ["$user.lastName", ""] },
+//                 ],
+//               },
+//             },
+//           },
+
+//           status: 1,
+//           submittedAt: 1,
+//         },
+//       },
+//       {
+//         $sort: { submittedAt: -1 },
+//       },
+
+//       // Pagination
+//       {
+//         $facet: {
+//           data: [{ $skip: skip }, { $limit: Number(limit) }],
+//           totalCount: [{ $count: "count" }],
+//         },
+//       },
+//     ];
+
+//     const result = await Vendor.aggregate(pipeline);
+
+//     const properties = result[0].data;
+//     const total = result[0].totalCount[0]?.count || 0;
+
+//     return {
+//       properties,
+//       pagination: {
+//         page: Number(page),
+//         limit: Number(limit),
+//         total,
+//       },
+//     };
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+//get property list with hotel rank
+
 exports.getAllProperties = async (query) => {
   try {
     const { page = 1, limit = 10, status, search } = query;
@@ -16,13 +138,12 @@ exports.getAllProperties = async (query) => {
       matchStage.status = status;
     }
 
-    //Aggregation Pipeline
     const pipeline = [
       {
         $match: matchStage,
       },
 
-      // Join User (Vendor Owner)
+      // Join User
       {
         $lookup: {
           from: "users",
@@ -49,7 +170,7 @@ exports.getAllProperties = async (query) => {
         },
       },
 
-      //Search filter
+      //  Search
       ...(search
         ? [
             {
@@ -91,13 +212,27 @@ exports.getAllProperties = async (query) => {
 
           status: 1,
           submittedAt: 1,
+
+          //ADD THIS
+          rank: {
+            $ifNull: ["$hotel.rank", "C"],
+          },
+
+          //IMPORTANT FLAG check in frontend with canAssignRank
+          canAssignRank: {
+            $cond: [
+              { $eq: ["$hotel.verificationStatus", "verified"] },
+              true,
+              false,
+            ],
+          },
         },
       },
+
       {
         $sort: { submittedAt: -1 },
       },
 
-      // Pagination
       {
         $facet: {
           data: [{ $skip: skip }, { $limit: Number(limit) }],
@@ -122,6 +257,35 @@ exports.getAllProperties = async (query) => {
   } catch (error) {
     throw error;
   }
+};
+
+exports.updateHotelRank = async (hotelId, rank) => {
+  const validRanks = ["A", "B", "C"];
+
+  if (!validRanks.includes(rank)) {
+    throw new Error("Invalid rank value");
+  }
+
+  const hotel = await Hotel.findById(hotelId);
+
+  if (!hotel) {
+    throw new Error("Hotel not found");
+  }
+
+  // Only verified hotels can be ranked
+  if (hotel.verificationStatus !== "verified") {
+    throw new Error("Only verified hotels can be ranked");
+  }
+
+  //avoid unnecessary DB write
+  if (hotel.rank === rank) {
+    return hotel; // already same rank
+  }
+
+  hotel.rank = rank;
+  await hotel.save();
+
+  return hotel;
 };
 
 exports.getPropertyDetail = async (vendorId) => {
@@ -262,7 +426,6 @@ exports.verifySection = async (vendorId, step) => {
       }
     }
 
-
     //Step 2 → vendor docs verify
     if (step === 2) {
       vendor.verificationDocs = vendor.verificationDocs.map((doc) => ({
@@ -345,7 +508,6 @@ exports.approveVendor = async (vendorId, adminId) => {
     if (!vendor.isSubmitted) {
       throw new Error("Vendor has not submitted onboarding");
     }
-
 
     vendor.status = "approved";
     vendor.approvedAt = new Date();
