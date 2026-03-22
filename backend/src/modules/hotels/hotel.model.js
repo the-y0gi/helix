@@ -105,7 +105,14 @@ const hotelSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    
+
+    rank: {
+      type: String,
+      enum: ["A", "B", "C"],
+      default: "C",
+      index: true,
+    },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
