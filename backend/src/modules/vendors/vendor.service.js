@@ -1,6 +1,7 @@
 const Vendor = require("./vendor.model");
 const VendorBank = require("../vendorBank/bank.model");
 const Hotel = require("../hotels/hotel.model");
+const User = require("../../modules/auth/auth.model")
 const logger = require("../../shared/utils/logger");
 
 // Create vendor profile
@@ -29,17 +30,24 @@ const logger = require("../../shared/utils/logger");
 //vendor get me for help to prefiling
 exports.getVendorMe = async (userId) => {
   try {
+    const user = await User.findById(userId).select("firstName lastName email");
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     const vendor = await Vendor.findOne({ userId });
 
     if (!vendor) {
       throw new Error("Vendor not found");
     }
 
-    //optional data
+    // optional data
     const bank = await VendorBank.findOne({ vendorId: vendor._id });
     const hotel = await Hotel.findOne({ vendorId: vendor._id });
 
-    return {
+    // base response 
+    const response = {
       vendor: {
         status: vendor.status,
         currentStep: vendor.currentStep,
@@ -85,6 +93,22 @@ exports.getVendorMe = async (userId) => {
           }
         : null,
     };
+
+    //APPROVED DATA 
+    if (vendor.status === "approved") {
+      response.approvedData = {
+        vendorName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        vendorEmail: user.email,
+
+        businessName: vendor.businessName,
+        businessEmail: vendor.businessEmail,
+
+        hotelId: hotel?._id || null,
+        hotelName: hotel?.name || null,
+      };
+    }
+
+    return response;
   } catch (error) {
     throw error;
   }

@@ -1,4 +1,5 @@
 require("dotenv").config();
+const axios = require("axios");
 const nodemailer = require("nodemailer");
 const logger = require("./logger");
 
@@ -9,6 +10,35 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
+
+const sendWhatsAppOTP = async (phone, otp) => {
+  try {
+    const cleanNumber = phone.replace("+91", "");
+
+    await axios.post(
+      "https://api.interakt.ai/v1/public/message/",
+      {
+        countryCode: "91",
+        phoneNumber: cleanNumber,
+        type: "Template",
+        template: {
+          name: "otp_verification", //template name
+          languageCode: "en",
+          bodyValues: [otp],
+        },
+      },
+      {
+        headers: {
+          Authorization: `Basic ${process.env.INTERAKT_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    throw new Error("Failed to send WhatsApp OTP");
+  }
+};
 
 const sendOTPEmail = async (email, otp) => {
   try {
@@ -69,4 +99,4 @@ const sendBookingConfirmationEmail = async (email, details) => {
   }
 };
 
-module.exports = { sendOTPEmail, sendBookingConfirmationEmail };
+module.exports = { sendWhatsAppOTP ,sendOTPEmail, sendBookingConfirmationEmail };
