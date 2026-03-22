@@ -2,7 +2,7 @@ const User = require("./auth.model");
 const Vendor = require("../vendors/vendor.model");
 const crypto = require("crypto");
 const logger = require("../../shared/utils/logger");
-const { sendOTPEmail } = require("../../shared/utils/sendEmail");
+const { sendOTPEmail,sendWhatsAppOTP } = require("../../shared/utils/sendEmail");
 
 // Helper to generate 6-digit OTP and its hash
 const generateOTP = async () => {
@@ -11,47 +11,144 @@ const generateOTP = async () => {
   return { otp, otpExpires };
 };
 
-// exports.signup = async (email, password, role) => {
-//   try {
-//     let user = await User.findOne({ email });
+//helper function to phone number
+const normalizePhone = (phone) => {
+  if (!phone) throw new Error("Phone number is required");
 
-//     if (user && user.providers.local.isVerified) {
-//       throw new Error("Email already registered. Please login.");
-//     }
+  //remove spaces, dashes, etc
+  phone = phone.replace(/\D/g, "");
 
-//     const { otp, otpExpires } = await generateOTP();
+  // case 1: 10 digit (9876543210)
+  if (phone.length === 10) {
+    return `+91${phone}`;
+  }
 
-//     if (!user) {
-//       user = new User({
-//         email,
-//         password,
-//         role: role || "user",
-//         otp,
-//         otpExpires,
-//         providers: {
-//           local: { isVerified: false },
-//         },
-//       });
-//     } else {
-//       user.password = password;
-//       user.otp = otp;
-//       user.otpExpires = otpExpires;
-//       user.providers.local.isVerified = false;
-//     }
+  // case 2: 12 digit (919876543210)
+  if (phone.length === 12 && phone.startsWith("91")) {
+    return `+${phone}`;
+  }
 
-//     await user.save();
-//     await sendOTPEmail(email, otp);
+  // case 3: already with country but without +
+  if (phone.length > 10 && !phone.startsWith("91")) {
+    throw new Error("Invalid phone number format");
+  }
 
-//     return { message: "OTP sent to your email for verification" };
-//   } catch (error) {
-//     logger.error("Service Error: signup", error);
-//     throw error;
-//   }
-// };
+  // case 4: fallback invalid
+  throw new Error("Invalid phone number");
+};
+
+exports.whatsappSignup = async (phone, password) => {
+  try {
+    if (!phone) throw new Error("Phone number is required");
+
+   const phoneNumber  = normalizePhone(phone);
+
+    let user = await User.findOne({ phoneNumber  });
+
+    if (user && user.providers.local.isVerified) {
+      throw new Error("User already exists. Please login.");
+    }
+
+    const { otp, otpExpires } = await generateOTP();
+
+    if (!user) {
+      user = new User({
+        phoneNumber ,
+        password,
+        role: "user",
+        otp,
+        otpExpires,
+        providers: {
+          local: { isVerified: false },
+        },
+      });
+    } else {
+      if (password) user.password = password;
+
+      user.otp = otp;
+      user.otpExpires = otpExpires;
+      user.providers.local.isVerified = false;
+    }
+
+    await user.save();
+
+    //send WhatsApp OTP
+    await sendWhatsAppOTP(phoneNumber , otp);
+
+    return {
+      message: "OTP sent on WhatsApp",
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.whatsappVerify = async (phone, inputOTP) => {
+  try {
+    if (!phone) throw new Error("Phone number is required");
+
+    const phoneNumber = normalizePhone(phone);
+
+    const user = await User.findOne({ phoneNumber }).select("+otp +otpExpires");
+
+    if (!user) throw new Error("User not found");
+
+    if (!user.otpExpires || Date.now() > user.otpExpires) {
+      throw new Error("OTP expired");
+    }
+
+    if (String(inputOTP) !== String(user.otp)) {
+      throw new Error("Invalid OTP");
+    }
+
+    user.providers.local.isVerified = true;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+
+    await user.save();
+
+    return {
+      user,
+      message: "Verification successful",
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.whatsappLogin = async (phone, password) => {
+  try {
+    if (!phone) throw new Error("Phone number is required");
+
+    const phoneNumber = normalizePhone(phone);
+
+    const user = await User.findOne({ phoneNumber }).select("+password");
+
+    if (!user) throw new Error("Invalid credentials");
+
+    if (!user.password) {
+      throw new Error("Please login using OTP");
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) throw new Error("Invalid credentials");
+
+    if (!user.providers.local.isVerified) {
+      throw new Error("Account not verified. Please verify your OTP.");
+    }
+
+    return {
+      user,
+      message: "Login successful",
+    };
+  } catch (error) {
+    throw error;
+  }
+};
 
 exports.signup = async (email, password, role) => {
   try {
-    const allowedRoles = ["user", "vendor","admin"];
+    const allowedRoles = ["user", "vendor", "admin"];
 
     if (role && !allowedRoles.includes(role)) {
       throw new Error("Invalid role");
@@ -116,7 +213,6 @@ exports.login = async (email, password) => {
   }
 };
 
-
 // exports.login = async (email, password) => {
 //   const user = await User.findOne({ email }).select("+password");
 //   if (!user) throw new Error("Invalid credentials");
@@ -169,7 +265,6 @@ exports.resendOTP = async (email) => {
   }
 };
 
-
 exports.verifyOTP = async (email, inputOTP) => {
   try {
     const user = await User.findOne({ email }).select("+otp +otpExpires");
@@ -215,27 +310,6 @@ exports.verifyOTP = async (email, inputOTP) => {
     throw error;
   }
 };
-
-// exports.verifyOTP = async (email, inputOTP) => {
-//   try {
-//     const user = await User.findOne({ email }).select("+otp +otpExpires");
-//     if (!user) throw new Error("User not found");
-
-//     if (!user.otpExpires || Date.now() > user.otpExpires) {
-//       throw new Error("OTP expired");
-//     }
-//     if (String(inputOTP) !== String(user.otp)) throw new Error("Invalid OTP");
-
-//     user.providers.local.isVerified = true;
-//     user.otp = undefined;
-//     user.otpExpires = undefined;
-//     await user.save();
-
-//     return { user, message: "Verification successful" };
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 
 exports.forgotPassword = async (email) => {
   try {

@@ -261,3 +261,72 @@ exports.changePassword = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+
+
+//whats app auth
+
+exports.whatsappSignup = async (req, res) => {
+  try {
+    const { phone, password } = req.body;
+
+    const result = await authService.whatsappSignup(phone, password);
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.whatsappVerify = async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+
+    const { user, message } = await authService.whatsappVerify(phone, otp);
+
+    const { accessToken, refreshToken } = generateTokens(user._id);
+    setTokenCookie(res, refreshToken);
+
+    res.status(200).json({
+      success: true,
+      message,
+      accessToken,
+      data: {
+        user: filterUserData(user),
+      },
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+exports.whatsappLogin = async (req, res) => {
+  try {
+    const { phone, password } = req.body;
+
+    const { user, message } = await authService.whatsappLogin(phone, password);
+
+    const { accessToken, refreshToken } = generateTokens(user._id);
+    setTokenCookie(res, refreshToken);
+
+    res.status(200).json({
+      success: true,
+      message,
+      accessToken,
+      data: {
+        user: filterUserData(user),
+      },
+    });
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

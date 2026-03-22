@@ -11,13 +11,14 @@ const authLimiter = rateLimit({
   max: 10, // Limit each IP to 10 requests per window
   message: {
     success: false,
-    message: "Too many attempts from this IP, please try again after 15 minutes",
+    message:
+      "Too many attempts from this IP, please try again after 15 minutes",
   },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Stricter limiter for OTP and Login 
+// Stricter limiter for OTP and Login
 const otpLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 5, // Limit each IP to 5 OTP requests per hour
@@ -26,6 +27,11 @@ const otpLimiter = rateLimit({
     message: "OTP limit exceeded, please try again after an hour",
   },
 });
+
+//whats app auth
+router.post("/whatsapp-signup", authLimiter, authController.whatsappSignup);
+router.post("/whatsapp-verify", authLimiter, authController.whatsappVerify);
+router.post("/whatsapp-login", authLimiter, authController.whatsappLogin);
 
 // Applied Routes
 router.post("/resend-otp", otpLimiter, authController.resendOTP);
@@ -45,7 +51,7 @@ router.get(
   passport.authenticate("google", {
     scope: ["profile", "email"],
     session: false,
-  })
+  }),
 );
 
 router.get(
@@ -54,7 +60,7 @@ router.get(
     failureRedirect: `${process.env.FRONTEND_URL}/login`,
     session: false,
   }),
-  authController.socialAuthSuccess
+  authController.socialAuthSuccess,
 );
 
 // Facebook
@@ -63,7 +69,7 @@ router.get(
   passport.authenticate("facebook", {
     scope: ["email"],
     session: false,
-  })
+  }),
 );
 
 router.get(
@@ -72,14 +78,11 @@ router.get(
     failureRedirect: `${process.env.FRONTEND_URL}/login`,
     session: false,
   }),
-  authController.socialAuthSuccess
+  authController.socialAuthSuccess,
 );
 
 // Apple
-router.get(
-  "/apple",
-  passport.authenticate("apple", { session: false })
-);
+router.get("/apple", passport.authenticate("apple", { session: false }));
 
 router.post(
   "/apple/callback",
@@ -87,7 +90,7 @@ router.post(
     failureRedirect: `${process.env.FRONTEND_URL}/login`,
     session: false,
   }),
-  authController.socialAuthSuccess
+  authController.socialAuthSuccess,
 );
 
 module.exports = router;
