@@ -737,7 +737,7 @@ export const RoomCardItem = ({
       rating={room.rating || 5.0}
       reviewCount={room.numReviews || 1245}
       beds={`${totalBeds} ${totalBeds > 1 ? "Beds" : "Bed"} (${bedDescription})`}
-      guests={room.capacity.adults + room.capacity.children}
+      guests={(room.capacity?.adults || 0) + (room.capacity?.children || 0)}
       size={room.roomSizeSqm}
       amenities={room.amenities.map((a: string) => ({
         name: a,
