@@ -20,9 +20,7 @@ exports.setAvailability = async (req, res, next) => {
 
     if (!hotel) throw new Error("Unauthorized hotel access");
 
-    const availability = await availabilityService.upsertAvailability(
-      req.body,
-    );
+    const availability = await availabilityService.upsertAvailability(req.body);
 
     res.status(200).json({
       success: true,
@@ -44,12 +42,11 @@ exports.getAvailability = async (req, res, next) => {
       throw new Error("roomTypeId, startDate and endDate are required");
     }
 
-    const availability =
-      await availabilityService.getAvailabilityForRange(
-        roomTypeId,
-        startDate,
-        endDate,
-      );
+    const availability = await availabilityService.getAvailabilityForRange(
+      roomTypeId,
+      startDate,
+      endDate,
+    );
 
     res.status(200).json({
       success: true,
@@ -62,16 +59,15 @@ exports.getAvailability = async (req, res, next) => {
   }
 };
 
-
 //Get vendor room types
 exports.getVendorRoomTypes = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const { hotelId } = req.params;
 
     const roomTypes = await availabilityService.getVendorRoomTypes(
-      vendorId,
-      hotelId
+      userId,
+      hotelId,
     );
 
     res.status(200).json({
@@ -88,20 +84,20 @@ exports.getVendorRoomTypes = async (req, res, next) => {
 //room tpye calender data return
 exports.getRoomTypeCalendar = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const { roomTypeId } = req.params;
     let { month, year } = req.query;
 
     const now = new Date();
 
-    month = month ? Number(month) : now.getMonth() + 1; 
+    month = month ? Number(month) : now.getMonth() + 1;
     year = year ? Number(year) : now.getFullYear();
 
     const calendar = await availabilityService.getRoomTypeCalendar(
-      vendorId,
+      userId,
       roomTypeId,
       month,
-      year
+      year,
     );
 
     res.status(200).json({
@@ -117,16 +113,16 @@ exports.getRoomTypeCalendar = async (req, res, next) => {
 //date and price over-ride for perticular date
 exports.updateRoomTypeCalendar = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const { roomTypeId } = req.params;
     const { date, blockedRooms, priceOverride } = req.body;
 
     const result = await availabilityService.updateRoomTypeCalendar(
-      vendorId,
+      userId,
       roomTypeId,
       date,
       blockedRooms,
-      priceOverride
+      priceOverride,
     );
 
     res.status(200).json({
@@ -140,7 +136,6 @@ exports.updateRoomTypeCalendar = async (req, res, next) => {
   }
 };
 
-
 exports.resetRoomTypeCalendar = async (req, res, next) => {
   try {
     const vendorId = req.user._id;
@@ -150,7 +145,7 @@ exports.resetRoomTypeCalendar = async (req, res, next) => {
     const result = await availabilityService.resetRoomTypeCalendar(
       vendorId,
       roomTypeId,
-      date
+      date,
     );
 
     res.status(200).json({

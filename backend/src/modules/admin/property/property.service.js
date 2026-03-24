@@ -491,6 +491,38 @@ exports.rejectVendor = async (vendorId, body) => {
   }
 };
 
+// exports.approveVendor = async (vendorId, adminId) => {
+//   try {
+//     if (!mongoose.Types.ObjectId.isValid(vendorId)) {
+//       throw new Error("Invalid vendor ID");
+//     }
+
+//     const vendor = await Vendor.findById(vendorId);
+//     if (!vendor) throw new Error("Vendor not found");
+
+//     //if still issues exist
+//     if (vendor.rejectedSteps && vendor.rejectedSteps.length > 0) {
+//       throw new Error("Resolve all issues before approval");
+//     }
+
+//     if (!vendor.isSubmitted) {
+//       throw new Error("Vendor has not submitted onboarding");
+//     }
+
+//     vendor.status = "approved";
+//     vendor.approvedAt = new Date();
+//     vendor.approvedBy = adminId;
+
+//     await vendor.save();
+
+//     await Hotel.findOneAndUpdate({ vendorId }, { isActive: true });
+
+//     return vendor;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
 exports.approveVendor = async (vendorId, adminId) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(vendorId)) {
@@ -500,22 +532,51 @@ exports.approveVendor = async (vendorId, adminId) => {
     const vendor = await Vendor.findById(vendorId);
     if (!vendor) throw new Error("Vendor not found");
 
-    //if still issues exist
-    if (vendor.rejectedSteps && vendor.rejectedSteps.length > 0) {
-      throw new Error("Resolve all issues before approval");
-    }
-
     if (!vendor.isSubmitted) {
       throw new Error("Vendor has not submitted onboarding");
     }
+
+    //AUTO VERIFY ALL
+
+    // Step 2 → Docs verify
+    if (vendor.verificationDocs && vendor.verificationDocs.length > 0) {
+      vendor.verificationDocs = vendor.verificationDocs.map((doc) => ({
+        ...doc.toObject(),
+        isVerified: true,
+      }));
+    }
+
+    // Step 3 → Bank verify
+    await VendorBank.findOneAndUpdate(
+      { vendorId },
+      { verificationStatus: "verified" },
+    );
+
+    // Step 4 → Hotel verify + hotel docs
+    const hotel = await Hotel.findOne({ vendorId });
+
+    if (hotel) {
+      hotel.verificationStatus = "verified";
+
+      if (hotel.documents && hotel.documents.length > 0) {
+        hotel.documents = hotel.documents.map((doc) => ({
+          ...doc.toObject(),
+          isVerified: true,
+        }));
+      }
+
+      await hotel.save();
+    }
+
+    //CLEAR REJECTIONS (override everything)
+    vendor.rejectedSteps = [];
+    vendor.rejectionReasons = {};
 
     vendor.status = "approved";
     vendor.approvedAt = new Date();
     vendor.approvedBy = adminId;
 
     await vendor.save();
-
-    await Hotel.findOneAndUpdate({ vendorId }, { isActive: true });
 
     return vendor;
   } catch (error) {

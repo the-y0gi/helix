@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+const Vendor = require("../vendors/vendor.model");
 const Availability = require("./availability.model");
 const Hotel = require("../hotels/hotel.model");
 const RoomType = require("../rooms/roomType.model");
@@ -78,11 +79,20 @@ exports.decreaseAvailability = async (roomTypeId, date, qty = 1) => {
 };
 
 //get room type
-exports.getVendorRoomTypes = async (vendorId, hotelId) => {
+exports.getVendorRoomTypes = async (userId, hotelId) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(hotelId)) {
+      throw new Error("Invalid hotel ID");
+    }
+
+    const vendor = await Vendor.findOne({ userId }).lean();
+    if (!vendor) {
+      throw new Error("Vendor not found");
+    }
+
     const hotel = await Hotel.findOne({
       _id: hotelId,
-      vendorId,
+      vendorId: vendor._id,
       isActive: true,
     }).lean();
 
@@ -106,21 +116,29 @@ exports.getVendorRoomTypes = async (vendorId, hotelId) => {
 };
 
 //room type calender data return
-exports.getRoomTypeCalendar = async (vendorId, roomTypeId, month, year) => {
+exports.getRoomTypeCalendar = async (userId, roomTypeId, month, year) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(roomTypeId)) {
+      throw new Error("Invalid room type ID");
+    }
+
     if (!month || !year) {
       throw new Error("Month and year are required");
     }
 
-    const roomType = await RoomType.findById(roomTypeId).lean();
+    const vendor = await Vendor.findOne({ userId }).lean();
+    if (!vendor) {
+      throw new Error("Vendor not found");
+    }
 
+    const roomType = await RoomType.findById(roomTypeId).lean();
     if (!roomType || !roomType.isActive) {
       throw new Error("Room type not found");
     }
 
     const hotel = await Hotel.findOne({
       _id: roomType.hotelId,
-      vendorId,
+      vendorId: vendor._id,
       isActive: true,
     }).lean();
 
@@ -128,11 +146,9 @@ exports.getRoomTypeCalendar = async (vendorId, roomTypeId, month, year) => {
       throw new Error("Not authorized");
     }
 
-    //UTC SAFE RANGE
     const startDate = new Date(Date.UTC(year, month - 1, 1));
     const endDate = new Date(Date.UTC(year, month, 1));
 
-    //Fetch availability docs
     const availabilityDocs = await Availability.find({
       roomTypeId,
       date: { $gte: startDate, $lt: endDate },
@@ -147,7 +163,6 @@ exports.getRoomTypeCalendar = async (vendorId, roomTypeId, month, year) => {
     }
 
     const daysInMonth = new Date(year, month, 0).getDate();
-
     const calendar = [];
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -188,23 +203,50 @@ exports.getRoomTypeCalendar = async (vendorId, roomTypeId, month, year) => {
   }
 };
 
-//price and date over-ride
+// //price and date over-ride
+
 exports.updateRoomTypeCalendar = async (
-  vendorId,
+  userId,
   roomTypeId,
   date,
   blockedRooms,
   priceOverride,
 ) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(roomTypeId)) {
+      throw new Error("Invalid room type ID");
+    }
+
     if (!date) throw new Error("Date is required");
 
+    const vendor = await Vendor.findOne({ userId });
+    if (!vendor) {
+      throw new Error("Vendor not found");
+    }
+
+    const roomType = await RoomType.findById(roomTypeId);
+    if (!roomType || !roomType.isActive) {
+      throw new Error("Room type not found");
+    }
+
+    const hotel = await Hotel.findOne({
+      _id: roomType.hotelId,
+      vendorId: vendor._id,
+      isActive: true,
+    });
+
+    if (!hotel) {
+      throw new Error("Not authorized");
+    }
+
     //UTC SAFE DATE RANGE
+    const parsedDate = new Date(date);
+
     const start = new Date(
       Date.UTC(
-        new Date(date).getFullYear(),
-        new Date(date).getMonth(),
-        new Date(date).getDate(),
+        parsedDate.getFullYear(),
+        parsedDate.getMonth(),
+        parsedDate.getDate(),
         0,
         0,
         0,
@@ -214,9 +256,9 @@ exports.updateRoomTypeCalendar = async (
 
     const end = new Date(
       Date.UTC(
-        new Date(date).getFullYear(),
-        new Date(date).getMonth(),
-        new Date(date).getDate(),
+        parsedDate.getFullYear(),
+        parsedDate.getMonth(),
+        parsedDate.getDate(),
         23,
         59,
         59,
@@ -228,23 +270,6 @@ exports.updateRoomTypeCalendar = async (
       throw new Error("Invalid date");
     }
 
-    const roomType = await RoomType.findById(roomTypeId);
-
-    if (!roomType || !roomType.isActive) {
-      throw new Error("Room type not found");
-    }
-
-    const hotel = await Hotel.findOne({
-      _id: roomType.hotelId,
-      vendorId,
-      isActive: true,
-    });
-
-    if (!hotel) {
-      throw new Error("Not authorized");
-    }
-
-    // validation
     if (blockedRooms !== undefined) {
       if (blockedRooms < 0 || blockedRooms > roomType.totalRooms) {
         throw new Error("Invalid blocked rooms value");
@@ -261,6 +286,7 @@ exports.updateRoomTypeCalendar = async (
       updateData.priceOverride = priceOverride;
     }
 
+    //UPSERT AVAILABILITY
     const availability = await Availability.findOneAndUpdate(
       {
         roomTypeId,
@@ -270,7 +296,7 @@ exports.updateRoomTypeCalendar = async (
         $set: updateData,
         $setOnInsert: {
           roomTypeId,
-          date: start, // always save UTC start
+          date: start,
           bookedRooms: 0,
         },
       },
@@ -280,6 +306,7 @@ exports.updateRoomTypeCalendar = async (
       },
     );
 
+    //CALCULATION
     const availableRooms =
       roomType.totalRooms -
       (availability.bookedRooms || 0) -
