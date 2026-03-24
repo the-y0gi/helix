@@ -27,6 +27,7 @@ const adminBookingRoutes = require("./modules/admin/booking/booking.routes");
 const adminReviewRoutes = require("./modules/admin/review/review.routes");
 const adminPaymentRoutes = require("./modules/admin/payment/payment.routes");
 const adminSupportRoutes = require("./modules/admin/support/support.routes");
+const adminDashboardRoutes = require("./modules/admin/dashboard/dashboard.routes");
 
 const { errorHandler } = require("./shared/middlewares/errorHandler");
 require("./shared/config/passport");
@@ -93,7 +94,7 @@ app.use("/api/v1/favorites", favoriteRoutes);
 app.use("/api/v1/vendor-bank", vendorBank);
 app.use("/api/v1/supports", supportRoutes);
 
-
+app.use("/api/v1/admin/dashboard", adminDashboardRoutes);
 app.use("/api/v1/admin/property", adminRoutes);
 app.use("/api/v1/admin/users", adminUserRoutes);
 app.use("/api/v1/admin/bookings", adminBookingRoutes);
