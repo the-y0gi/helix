@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema(
   {
     email: {
       type: String,
-      required: [true, "Email is required"],
+      // required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
     },
     firstName: { type: String, trim: true },
     lastName: { type: String, trim: true },
-    phoneNumber: { type: String, trim: true },
+    phoneNumber: { type: String, unique: true,trim: true },
     gender: {
       type: String,
       enum: ["male", "female", "other"],
