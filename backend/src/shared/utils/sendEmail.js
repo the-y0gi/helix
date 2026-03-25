@@ -22,9 +22,12 @@ const sendWhatsAppOTP = async (phone, otp) => {
         phoneNumber: cleanNumber,
         type: "Template",
         template: {
-          name: "otp_verification", //template name
+          name: "otp_verification_hilexa",
           languageCode: "en",
           bodyValues: [otp],
+          buttonValues: {
+            0: [otp],
+          },
         },
       },
       {
@@ -99,4 +102,8 @@ const sendBookingConfirmationEmail = async (email, details) => {
   }
 };
 
-module.exports = { sendWhatsAppOTP ,sendOTPEmail, sendBookingConfirmationEmail };
+module.exports = {
+  sendWhatsAppOTP,
+  sendOTPEmail,
+  sendBookingConfirmationEmail,
+};
