@@ -5,6 +5,7 @@ const Vendor = require("../vendors/vendor.model");
 const Hotel = require("./hotel.model");
 const RoomType = require("../rooms/roomType.model");
 const Availability = require("../availability/availability.model");
+const Tax = require("../admin/tax/tax.model");
 
 const Booking = require("../bookings/booking.model");
 const Favorite = require("../favorites/favorite.model");
@@ -882,6 +883,134 @@ exports.getHotelDetails = async (hotelId, userId = null) => {
   };
 };
 
+// exports.getHotelAvailability = async (
+//   hotelId,
+//   checkIn,
+//   checkOut,
+//   adults,
+//   children,
+// ) => {
+//   if (!checkIn || !checkOut) throw new Error("Check-in and check-out required");
+
+//   const startDate = new Date(checkIn);
+//   const endDate = new Date(checkOut);
+
+//   startDate.setUTCHours(0, 0, 0, 0);
+//   endDate.setUTCHours(0, 0, 0, 0);
+
+//   if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+//     throw new Error("Invalid date format");
+//   }
+
+//   if (startDate >= endDate) throw new Error("Invalid date range");
+
+//   const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
+
+//   const hotel = await Hotel.findOne({
+//     _id: hotelId,
+//     isActive: true,
+//   }).lean();
+
+//   if (!hotel) throw new Error("Hotel not found");
+
+//   const roomTypes = await RoomType.find({
+//     hotelId,
+//     isActive: true,
+//   }).lean();
+
+//   if (!roomTypes.length) {
+//     return { roomTypes: [] };
+//   }
+
+//   const roomTypeIds = roomTypes.map((r) => r._id);
+
+//   const availabilityDocs = await Availability.find({
+//     roomTypeId: { $in: roomTypeIds },
+//     date: { $gte: startDate, $lt: endDate },
+//   }).lean();
+
+//   // Build lookup map
+//   const availabilityMap = new Map();
+
+//   for (const doc of availabilityDocs) {
+//     const utcDate = new Date(doc.date);
+//     utcDate.setUTCHours(0, 0, 0, 0);
+
+//     const dateStr = utcDate.toISOString().slice(0, 10);
+
+//     const mapKey = `${doc.roomTypeId.toString()}_${dateStr}`;
+
+//     console.log("MAP INSERT:", mapKey);
+
+//     availabilityMap.set(mapKey, doc);
+//   }
+
+//   const results = [];
+
+//   for (const room of roomTypes) {
+//     if (adults || children) {
+//       if (
+//         room.capacity.adults < adults ||
+//         room.capacity.children < (children || 0)
+//       ) {
+//         continue;
+//       }
+//     }
+
+//     let minAvailable = room.totalRooms;
+//     let totalPrice = 0;
+//     let isAvailable = true;
+
+//     for (let i = 0; i < nights; i++) {
+//       const currentDate = new Date(startDate);
+//       currentDate.setUTCDate(currentDate.getUTCDate() + i);
+
+//       const dateStr = currentDate.toISOString().slice(0, 10);
+
+//       const key = `${room._id.toString()}_${dateStr}`;
+
+//       const dayDoc = availabilityMap.get(key);
+
+//       const booked = dayDoc?.bookedRooms || 0;
+//       const blocked = dayDoc?.blockedRooms || 0;
+
+//       const available = room.totalRooms - booked - blocked;
+
+//       if (available < 1) {
+//         isAvailable = false;
+//         break;
+//       }
+
+//       minAvailable = Math.min(minAvailable, available);
+
+//       const price =
+//         dayDoc?.priceOverride ??
+//         (room.discountPrice > 0 ? room.discountPrice : room.basePrice);
+
+//       console.log("PRICE USED:", price);
+
+//       totalPrice += price;
+//     }
+
+//     if (!isAvailable) {
+//       console.log("ROOM NOT AVAILABLE");
+//       continue;
+//     }
+
+//     results.push({
+//       ...room,
+//       availableRooms: minAvailable,
+//       nights,
+//       totalPrice,
+//     });
+//   }
+
+//   return {
+//     roomTypes: results,
+//   };
+// };
+// Update hotel details
+
 exports.getHotelAvailability = async (
   hotelId,
   checkIn,
@@ -921,6 +1050,9 @@ exports.getHotelAvailability = async (
     return { roomTypes: [] };
   }
 
+  const taxDoc = await Tax.findOne({ isActive: true }).lean();
+  const taxPercentage = taxDoc?.taxPercentage || 0;
+
   const roomTypeIds = roomTypes.map((r) => r._id);
 
   const availabilityDocs = await Availability.find({
@@ -928,7 +1060,6 @@ exports.getHotelAvailability = async (
     date: { $gte: startDate, $lt: endDate },
   }).lean();
 
-  // Build lookup map
   const availabilityMap = new Map();
 
   for (const doc of availabilityDocs) {
@@ -936,10 +1067,7 @@ exports.getHotelAvailability = async (
     utcDate.setUTCHours(0, 0, 0, 0);
 
     const dateStr = utcDate.toISOString().slice(0, 10);
-
     const mapKey = `${doc.roomTypeId.toString()}_${dateStr}`;
-
-    console.log("MAP INSERT:", mapKey);
 
     availabilityMap.set(mapKey, doc);
   }
@@ -961,11 +1089,9 @@ exports.getHotelAvailability = async (
     let isAvailable = true;
 
     for (let i = 0; i < nights; i++) {
-      const currentDate = new Date(startDate);
-      currentDate.setUTCDate(currentDate.getUTCDate() + i);
+      const currentDate = new Date(startDate.getTime() + i * 86400000);
 
       const dateStr = currentDate.toISOString().slice(0, 10);
-
       const key = `${room._id.toString()}_${dateStr}`;
 
       const dayDoc = availabilityMap.get(key);
@@ -986,21 +1112,25 @@ exports.getHotelAvailability = async (
         dayDoc?.priceOverride ??
         (room.discountPrice > 0 ? room.discountPrice : room.basePrice);
 
-      console.log("PRICE USED:", price);
-
       totalPrice += price;
     }
 
-    if (!isAvailable) {
-      console.log("ROOM NOT AVAILABLE");
-      continue;
-    }
+    if (!isAvailable) continue;
+
+    //TAX CALCULATION
+    const totalTax = Number(((totalPrice * taxPercentage) / 100).toFixed(2));
+    const totalPriceWithTax = Number((totalPrice + totalTax).toFixed(2));
 
     results.push({
       ...room,
       availableRooms: minAvailable,
       nights,
+
       totalPrice,
+
+      taxPercentage,
+      totalTax,
+      totalPriceWithTax,
     });
   }
 
@@ -1008,7 +1138,7 @@ exports.getHotelAvailability = async (
     roomTypes: results,
   };
 };
-// Update hotel details
+
 exports.updateHotel = async (hotelId, vendorId, updateData) => {
   try {
     const existingHotel = await Hotel.findOne({

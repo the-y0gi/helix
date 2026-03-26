@@ -674,7 +674,6 @@ exports.getRefundRequests = async (query) => {
   }
 };
 
-
 exports.handleRefund = async (paymentId, action) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -699,9 +698,8 @@ exports.handleRefund = async (paymentId, action) => {
 
     const now = new Date();
 
-    //REFUND RECALCULATION
     const daysBeforeCheckIn = Math.ceil(
-      (new Date(booking.checkIn) - now) / (1000 * 60 * 60 * 24)
+      (new Date(booking.checkIn) - now) / (1000 * 60 * 60 * 24),
     );
 
     const isWithin24Hours =
@@ -715,10 +713,9 @@ exports.handleRefund = async (paymentId, action) => {
     else refundPercentage = 0;
 
     const refundAmount = Math.round(
-      (booking.totalAmount * refundPercentage) / 100
+      (booking.totalAmount * refundPercentage) / 100,
     );
 
-    // APPROVE
     if (action === "approve") {
       // Prevent double refund
       if (payment.refundStatus === "processed") {
@@ -731,35 +728,34 @@ exports.handleRefund = async (paymentId, action) => {
 
       let refund = null;
 
-      //Razorpay refund 
+      //Razorpay refund
       if (refundAmount > 0) {
-        refund = await razorpay.payments.refund(
-          payment.razorpayPaymentId,
-          {
-            amount: refundAmount * 100, // paise
-          }
-        );
+        refund = await razorpay.payments.refund(payment.razorpayPaymentId, {
+          amount: refundAmount * 100,
+        });
       }
 
-      //RELEASE ROOMS
-      const currentDate = new Date(booking.checkIn);
+      //RELEASE INVENTORY
+      for (let i = 0; i < booking.nights; i++) {
+        const currentDate = new Date(booking.checkIn.getTime() + i * 86400000);
 
-      while (currentDate < booking.checkOut) {
+        currentDate.setHours(0, 0, 0, 0);
+
         await Availability.findOneAndUpdate(
           {
             roomTypeId: booking.roomTypeId,
-            date: new Date(currentDate),
+            date: currentDate,
           },
           {
-            $inc: { availableRooms: booking.roomsBooked },
+            $inc: {
+              bookedRooms: -booking.roomsBooked,
+            },
           },
-          { session, upsert: true }
+          { session },
         );
-
-        currentDate.setDate(currentDate.getDate() + 1);
       }
 
-      //UPDATE BOOKING
+      // UPDATE BOOKING
       booking.status = "cancelled";
       booking.refundStatus = refundAmount > 0 ? "processed" : "approved";
       booking.paymentStatus = refundAmount > 0 ? "refunded" : "paid";
@@ -772,6 +768,7 @@ exports.handleRefund = async (paymentId, action) => {
 
       await booking.save({ session });
 
+      //UPDATE PAYMENT
       payment.refundAmount = refundAmount;
       payment.refundStatus = refundAmount > 0 ? "processed" : "none";
 
@@ -779,7 +776,6 @@ exports.handleRefund = async (paymentId, action) => {
         payment.razorpayRefundId = refund.id;
       }
 
-      // Payment status update
       if (refundAmount === booking.totalAmount) {
         payment.status = "refunded";
       } else if (refundAmount > 0) {
@@ -800,7 +796,6 @@ exports.handleRefund = async (paymentId, action) => {
       };
     }
 
-    //REJECT
     if (action === "reject") {
       booking.status = "confirmed";
       booking.refundStatus = "rejected";
@@ -820,3 +815,149 @@ exports.handleRefund = async (paymentId, action) => {
     throw error;
   }
 };
+
+// exports.handleRefund = async (paymentId, action) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     if (!["approve", "reject"].includes(action)) {
+//       throw new Error("Invalid action");
+//     }
+
+//     const payment = await Payment.findById(paymentId).session(session);
+//     if (!payment) throw new Error("Payment not found");
+
+//     const booking = await Booking.findById(payment.bookingId).session(session);
+//     if (!booking) throw new Error("Booking not found");
+
+//     if (
+//       booking.status !== "cancellation_requested" ||
+//       booking.refundStatus !== "pending"
+//     ) {
+//       throw new Error("No pending refund request");
+//     }
+
+//     const now = new Date();
+
+//     //REFUND RECALCULATION
+//     const daysBeforeCheckIn = Math.ceil(
+//       (new Date(booking.checkIn) - now) / (1000 * 60 * 60 * 24)
+//     );
+
+//     const isWithin24Hours =
+//       now - new Date(booking.createdAt) <= 24 * 60 * 60 * 1000;
+
+//     let refundPercentage = 0;
+
+//     if (isWithin24Hours) refundPercentage = 100;
+//     else if (daysBeforeCheckIn >= 30) refundPercentage = 100;
+//     else if (daysBeforeCheckIn >= 15) refundPercentage = 50;
+//     else refundPercentage = 0;
+
+//     const refundAmount = Math.round(
+//       (booking.totalAmount * refundPercentage) / 100
+//     );
+
+//     // APPROVE
+//     if (action === "approve") {
+//       // Prevent double refund
+//       if (payment.refundStatus === "processed") {
+//         throw new Error("Refund already processed");
+//       }
+
+//       if (!payment.razorpayPaymentId || payment.status !== "captured") {
+//         throw new Error("Payment not eligible for refund");
+//       }
+
+//       let refund = null;
+
+//       //Razorpay refund
+//       if (refundAmount > 0) {
+//         refund = await razorpay.payments.refund(
+//           payment.razorpayPaymentId,
+//           {
+//             amount: refundAmount * 100, // paise
+//           }
+//         );
+//       }
+
+//       //RELEASE ROOMS
+//       const currentDate = new Date(booking.checkIn);
+
+//       while (currentDate < booking.checkOut) {
+//         await Availability.findOneAndUpdate(
+//           {
+//             roomTypeId: booking.roomTypeId,
+//             date: new Date(currentDate),
+//           },
+//           {
+//             $inc: { availableRooms: booking.roomsBooked },
+//           },
+//           { session, upsert: true }
+//         );
+
+//         currentDate.setDate(currentDate.getDate() + 1);
+//       }
+
+//       //UPDATE BOOKING
+//       booking.status = "cancelled";
+//       booking.refundStatus = refundAmount > 0 ? "processed" : "approved";
+//       booking.paymentStatus = refundAmount > 0 ? "refunded" : "paid";
+
+//       booking.refundAmount = refundAmount;
+//       booking.refundPercentage = refundPercentage;
+
+//       booking.refundProcessedAt = now;
+//       booking.cancelledAt = now;
+
+//       await booking.save({ session });
+
+//       payment.refundAmount = refundAmount;
+//       payment.refundStatus = refundAmount > 0 ? "processed" : "none";
+
+//       if (refund) {
+//         payment.razorpayRefundId = refund.id;
+//       }
+
+//       // Payment status update
+//       if (refundAmount === booking.totalAmount) {
+//         payment.status = "refunded";
+//       } else if (refundAmount > 0) {
+//         payment.status = "partially_refunded";
+//       }
+
+//       payment.refundedAt = refundAmount > 0 ? now : null;
+
+//       await payment.save({ session });
+
+//       await session.commitTransaction();
+//       session.endSession();
+
+//       return {
+//         message: "Refund approved successfully",
+//         refundAmount,
+//         refundPercentage,
+//       };
+//     }
+
+//     //REJECT
+//     if (action === "reject") {
+//       booking.status = "confirmed";
+//       booking.refundStatus = "rejected";
+
+//       await booking.save({ session });
+
+//       await session.commitTransaction();
+//       session.endSession();
+
+//       return {
+//         message: "Refund request rejected",
+//       };
+//     }
+//   } catch (error) {
+//     await session.abortTransaction();
+//     session.endSession();
+//     throw error;
+//   }
+// };

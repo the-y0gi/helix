@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const logger = require("../../shared/utils/logger");
 const Payment = require("../payments/payment.model");
 const Hotel = require("../hotels/hotel.model");
+const Tax = require("../admin/tax/tax.model");
+
 const razorpay = require("../../shared/config/razorpay");
 
 const Room = require("../rooms/room.model");
@@ -52,6 +54,169 @@ async function processRefund(booking, session) {
 }
 
 //Create Booking + Razorpay Order
+// exports.createBooking = async (data, userId) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     const {
+//       hotelId,
+//       roomTypeId,
+//       checkIn,
+//       checkOut,
+//       guests,
+//       roomsBooked,
+//       primaryGuest,
+//       additionalGuests = [],
+//     } = data;
+
+//     if (!checkIn || !checkOut)
+//       throw new Error("Check-in and Check-out dates are required");
+
+//     const startDate = new Date(checkIn);
+//     const endDate = new Date(checkOut);
+
+//     startDate.setHours(0, 0, 0, 0);
+//     endDate.setHours(0, 0, 0, 0);
+
+//     if (startDate >= endDate)
+//       throw new Error("Invalid check-in/check-out dates");
+
+//     const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
+
+//     if (nights <= 0) throw new Error("Invalid booking duration");
+
+//     const rooms = roomsBooked && roomsBooked > 0 ? roomsBooked : 1;
+
+//     if (!guests?.adults || guests.adults <= 0)
+//       throw new Error("At least one adult guest is required");
+
+//     const expectedAdditionalGuests =
+//       (guests.adults || 0) + (guests.children || 0) - 1;
+//     if (additionalGuests.length !== expectedAdditionalGuests)
+//       throw new Error("Additional guests count mismatch");
+
+//     const hotel = await Hotel.findById(hotelId).session(session);
+//     if (!hotel || !hotel.isActive) throw new Error("Hotel not available");
+
+//     const roomType = await RoomType.findById(roomTypeId).session(session);
+//     if (!roomType || !roomType.isActive)
+//       throw new Error("Room type not available");
+
+//     if (
+//       guests.adults > roomType.capacity.adults ||
+//       guests.children > roomType.capacity.children
+//     ) {
+//       throw new Error("Guest count exceeds room capacity");
+//     }
+
+//     //Fetch availability docs for date range
+//     const availabilityDocs = await Availability.find({
+//       roomTypeId,
+//       date: { $gte: startDate, $lt: endDate },
+//     }).session(session);
+
+//     //Build map for quick lookup
+//     const availabilityMap = {};
+//     for (const doc of availabilityDocs) {
+//       const dateStr = doc.date.toISOString().split("T")[0];
+//       availabilityMap[dateStr] = doc;
+//     }
+
+//     //Availability Validation (derived model)
+//     for (let i = 0; i < nights; i++) {
+//       const currentDate = new Date(startDate);
+//       currentDate.setDate(currentDate.getDate() + i);
+
+//       const dateStr = currentDate.toISOString().split("T")[0];
+
+//       const dayDoc = availabilityMap[dateStr];
+
+//       const booked = dayDoc?.bookedRooms || 0;
+//       const blocked = dayDoc?.blockedRooms || 0;
+
+//       const available = roomType.totalRooms - booked - blocked;
+
+//       if (available < rooms) {
+//         throw new Error(
+//           `Insufficient availability on ${currentDate.toDateString()}`,
+//         );
+//       }
+//     }
+
+//     const priceOverride = availabilityDocs[0]?.priceOverride;
+
+//     const pricePerNight =
+//       priceOverride ??
+//       (roomType.discountPrice > 0
+//         ? roomType.discountPrice
+//         : roomType.basePrice);
+
+//     const totalAmount = pricePerNight * nights * rooms;
+
+//     const bookingReference =
+//       "BK-" + crypto.randomBytes(6).toString("hex").toUpperCase();
+
+//     const [booking] = await Booking.create(
+//       [
+//         {
+//           userId,
+//           hotelId,
+//           roomTypeId,
+//           bookingReference,
+//           checkIn: startDate,
+//           checkOut: endDate,
+//           nights,
+//           guests,
+//           roomsBooked: rooms,
+//           primaryGuest,
+//           additionalGuests,
+//           pricePerNight,
+//           totalAmount,
+//           status: "pending",
+//           paymentStatus: "pending",
+//         },
+//       ],
+//       { session },
+//     );
+
+//     const razorpayOrder = await razorpay.orders.create({
+//       amount: totalAmount * 100,
+//       currency: "INR",
+//       receipt: bookingReference,
+//     });
+
+//     const [payment] = await Payment.create(
+//       [
+//         {
+//           bookingId: booking._id,
+//           userId,
+//           razorpayOrderId: razorpayOrder.id,
+//           amountPaid: totalAmount,
+//           status: "created",
+//         },
+//       ],
+//       { session },
+//     );
+
+//     booking.paymentId = payment._id;
+//     await booking.save({ session });
+
+//     await session.commitTransaction();
+//     session.endSession();
+
+//     return {
+//       booking,
+//       razorpayOrder,
+//     };
+//   } catch (err) {
+//     await session.abortTransaction();
+//     session.endSession();
+//     logger.error("Service Error: createBooking", err);
+//     throw err;
+//   }
+// };
+
 exports.createBooking = async (data, userId) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -81,7 +246,6 @@ exports.createBooking = async (data, userId) => {
       throw new Error("Invalid check-in/check-out dates");
 
     const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
-
     if (nights <= 0) throw new Error("Invalid booking duration");
 
     const rooms = roomsBooked && roomsBooked > 0 ? roomsBooked : 1;
@@ -91,6 +255,7 @@ exports.createBooking = async (data, userId) => {
 
     const expectedAdditionalGuests =
       (guests.adults || 0) + (guests.children || 0) - 1;
+
     if (additionalGuests.length !== expectedAdditionalGuests)
       throw new Error("Additional guests count mismatch");
 
@@ -108,24 +273,28 @@ exports.createBooking = async (data, userId) => {
       throw new Error("Guest count exceeds room capacity");
     }
 
-    //Fetch availability docs for date range
+    const taxDoc = await Tax.findOne({ isActive: true }).lean();
+    const taxPercentage = taxDoc?.taxPercentage || 0;
+
+    //FETCH AVAILABILITY
     const availabilityDocs = await Availability.find({
       roomTypeId,
       date: { $gte: startDate, $lt: endDate },
     }).session(session);
 
-    //Build map for quick lookup
+    //MAP BUILD
     const availabilityMap = {};
     for (const doc of availabilityDocs) {
       const dateStr = doc.date.toISOString().split("T")[0];
       availabilityMap[dateStr] = doc;
     }
 
-    //Availability Validation (derived model)
-    for (let i = 0; i < nights; i++) {
-      const currentDate = new Date(startDate);
-      currentDate.setDate(currentDate.getDate() + i);
+    let totalBasePrice = 0;
+    let firstDayPrice = 0;
 
+    //VALIDATION + PRICE CALCULATION
+    for (let i = 0; i < nights; i++) {
+      const currentDate = new Date(startDate.getTime() + i * 86400000);
       const dateStr = currentDate.toISOString().split("T")[0];
 
       const dayDoc = availabilityMap[dateStr];
@@ -140,17 +309,23 @@ exports.createBooking = async (data, userId) => {
           `Insufficient availability on ${currentDate.toDateString()}`,
         );
       }
+
+      const price =
+        dayDoc?.priceOverride ??
+        (roomType.discountPrice > 0
+          ? roomType.discountPrice
+          : roomType.basePrice);
+
+      if (i === 0) firstDayPrice = price;
+
+      totalBasePrice += price * rooms;
     }
 
-    const priceOverride = availabilityDocs[0]?.priceOverride;
-
-    const pricePerNight =
-      priceOverride ??
-      (roomType.discountPrice > 0
-        ? roomType.discountPrice
-        : roomType.basePrice);
-
-    const totalAmount = pricePerNight * nights * rooms;
+    //TAX CALCULATION
+    const totalTax = Number(
+      ((totalBasePrice * taxPercentage) / 100).toFixed(2),
+    );
+    const finalTotalAmount = Number((totalBasePrice + totalTax).toFixed(2));
 
     const bookingReference =
       "BK-" + crypto.randomBytes(6).toString("hex").toUpperCase();
@@ -169,8 +344,11 @@ exports.createBooking = async (data, userId) => {
           roomsBooked: rooms,
           primaryGuest,
           additionalGuests,
-          pricePerNight,
-          totalAmount,
+
+          pricePerNight: firstDayPrice,
+          taxAmount: totalTax,
+          totalAmount: finalTotalAmount,
+
           status: "pending",
           paymentStatus: "pending",
         },
@@ -178,8 +356,9 @@ exports.createBooking = async (data, userId) => {
       { session },
     );
 
+    //RAZORPAY ORDER (WITH TAX)
     const razorpayOrder = await razorpay.orders.create({
-      amount: totalAmount * 100,
+      amount: finalTotalAmount * 100,
       currency: "INR",
       receipt: bookingReference,
     });
@@ -190,7 +369,7 @@ exports.createBooking = async (data, userId) => {
           bookingId: booking._id,
           userId,
           razorpayOrderId: razorpayOrder.id,
-          amountPaid: totalAmount,
+          amountPaid: finalTotalAmount,
           status: "created",
         },
       ],
@@ -359,8 +538,6 @@ exports.getRefundPreview = async (bookingId, userId) => {
   }
 };
 
-
-
 // Cancel Booking Request
 exports.cancelBooking = async (bookingId, userId, reason) => {
   const session = await mongoose.startSession();
@@ -376,6 +553,9 @@ exports.cancelBooking = async (bookingId, userId, reason) => {
 
     if (booking.status !== "confirmed") {
       throw new Error("Only confirmed bookings can be cancelled");
+    }
+    if (booking.status === "cancellation_requested") {
+      throw new Error("Cancellation already requested");
     }
 
     const now = new Date();
@@ -418,7 +598,7 @@ exports.cancelBooking = async (bookingId, userId, reason) => {
     );
 
     booking.status = "cancellation_requested";
-    booking.refundStatus = refundPercentage > 0 ? "pending" : "not_applicable";
+    booking.refundStatus = refundPercentage > 0 ? "pending" : "none";
     booking.refundPercentage = refundPercentage;
     booking.refundAmount = refundAmount;
     booking.refundRequestedAt = now;
@@ -628,7 +808,7 @@ exports.getVendorInvoices = async (vendorId, queryParams) => {
   const total = await Booking.countDocuments(filter);
 
   const data = bookings.map((b) => ({
-    bookingId:b._id,
+    bookingId: b._id,
     bookingReference: b.bookingReference,
     guestName: `${b.primaryGuest.firstName} ${b.primaryGuest.lastName}`,
     room: `${b.roomTypeId?.name || ""} ${b.roomNumber || ""}`,
