@@ -140,22 +140,25 @@ type SelectedRoom = {
   title: string;
   image: string;
   pricePerNight: number;
+  taxPercentage: number;
+  totalTax: number;
+  totalPriceWithTax: number;
   totalPrice: number;
   nights: number;
 } | null;
 export interface Payment {
-  razorpay_payment_id: string
-  razorpay_order_id: string
-  razorpay_signature: string
-  amount: number
-  currency: string
-  status: string
-  firstname: string
-  lastname: string
-  email: string
-  contact: string
-  phone: string
-  createdAt: string
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+  amount: number;
+  currency: string;
+  status: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  contact: string;
+  phone: string;
+  createdAt: string;
 }
 
 type Guests = {
@@ -232,6 +235,6 @@ export const useHotelStore = create<HotelStoreProps>()(
         date: state.date,
         guests: state.guests,
       }),
-    }
-  )
+    },
+  ),
 );

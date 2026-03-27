@@ -53,6 +53,7 @@ export default function HotelCalender(
 
 ) {
   const { date, setDate } = useHotelStore();
+
   return <Calendar05 setDateRange={setDate} dateRange={date} />;
 };
 

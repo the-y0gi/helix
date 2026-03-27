@@ -5,34 +5,34 @@ import React from 'react'
 import { useFormContext } from 'react-hook-form'
 
 
-const ButtonHandler = ({currentStep, setCurrentStep}:{currentStep:number , setCurrentStep:React.Dispatch<React.SetStateAction<number>>}) => {
+const ButtonHandler = ({ currentStep, setCurrentStep }: { currentStep: number, setCurrentStep: React.Dispatch<React.SetStateAction<number>> }) => {
   const { formState, getFieldState, getValues } = useFormContext<SignUpProps>()
-    const { isDirty: isEmail } = getFieldState('email', formState)
+  const { isDirty: isPhone } = getFieldState('phone', formState)
   const { isDirty: isPassword } = getFieldState('password', formState)
-  const {isDirty:isConfirmPassword}  = getFieldState('confirmPassword', formState)
-  const {onGenerateOtp} = useSignUp()
-    switch (currentStep) {
-      case 1:
-          return (
-              <Button type='submit' variant={"outline"} 
-               {...(
-            isEmail &&
+  const { isDirty: isConfirmPassword } = getFieldState('confirmPassword', formState)
+  const { onGenerateOtp } = useSignUp()
+  switch (currentStep) {
+    case 1:
+      return (
+        <Button type='submit' variant={"outline"}
+          {...(
+            isPhone &&
             isPassword &&
             isConfirmPassword && {
               onClick: () =>
                 onGenerateOtp(
-                  getValues('email'),
+                  getValues('phone'),
                   getValues('password'),
                   setCurrentStep
                 ),
             })}
-              >Get otp</Button>
-          )
-      
-      
+        >Get otp</Button>
+      )
+
+
   }
   return (
-      <Button type='submit'  >create account</Button>
+    <Button type='submit'  >create account</Button>
   )
 }
 

@@ -26,8 +26,6 @@ export const HotelsSearch = async ({
   children: number;
 }) => {
   try {
-    console.log(destination, checkIn, checkOut, adults, children);
-
     const res = await axiosApi.get(`/hotels/search`, {
       params: {
         destination,
@@ -77,8 +75,6 @@ export const getHotels = async (
   page: number = 1,
   limit: number = 9,
 ): Promise<HotelsResponse> => {
-  console.log(filters);
-
   const params: Record<string, unknown> = { page, limit };
 
   const [minPrice, maxPrice] = filters.price ?? [0, 10];
@@ -123,8 +119,10 @@ export const getHotels = async (
   if (filters.Bathrooms?.length > 0)
     params.bathrooms = Math.max(...filters.Bathrooms);
 
-  if ((filters as any).date?.checkIn) params.checkIn = (filters as any).date.checkIn;
-  if ((filters as any).date?.checkOut) params.checkOut = (filters as any).date.checkOut;
+  if ((filters as any).date?.checkIn)
+    params.checkIn = (filters as any).date.checkIn;
+  if ((filters as any).date?.checkOut)
+    params.checkOut = (filters as any).date.checkOut;
 
   if (
     filters.typeOfPlace?.length > 0 &&
@@ -156,7 +154,6 @@ export const getHotelDetails = async (id: string) => {
   const response = await axiosApi.get(`/hotels/${id}`);
   return response.data.data;
 };
-
 export const getHotelAvailability = async ({
   hotelId,
   checkIn,
@@ -170,14 +167,25 @@ export const getHotelAvailability = async ({
   adults: number;
   children: number;
 }): Promise<Hotel> => {
-  if (!checkIn || !checkOut || checkIn > checkOut || checkIn === checkOut) {
-    throw new Error("Check-in and Check-out dates are required");
+  if (!checkIn || !checkOut || checkIn >= checkOut) {
+    throw new Error("Invalid Check-in or Check-out dates");
   }
+
+  // Helper to format Date object to 'YYYY-MM-DD' without timezone shifts
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const formattedCheckIn = formatDate(checkIn);
+  const formattedCheckOut = formatDate(checkOut);
 
   const response = await axiosApi.get(`/hotels/${hotelId}/availability`, {
     params: {
-      checkIn: checkIn.toISOString(),
-      checkOut: checkOut.toISOString(),
+      checkIn: formattedCheckIn,
+      checkOut: formattedCheckOut,
       adults,
       children,
     },
@@ -185,6 +193,37 @@ export const getHotelAvailability = async ({
 
   return response.data.data;
 };
+
+// export const getHotelAvailability = async ({
+//   hotelId,
+//   checkIn,
+//   checkOut,
+//   adults,
+//   children,
+// }: {
+//   hotelId: string;
+//   checkIn?: Date;
+//   checkOut?: Date;
+//   adults: number;
+//   children: number;
+// }): Promise<Hotel> => {
+//   if (!checkIn || !checkOut || checkIn > checkOut || checkIn === checkOut) {
+//     throw new Error("Check-in and Check-out dates are required");
+//   }
+//   console.log("checkIn", checkIn.toISOString());
+//   console.log("checkOut", checkOut.toISOString());
+
+//   const response = await axiosApi.get(`/hotels/${hotelId}/availability`, {
+//     params: {
+//       checkIn: checkIn.toISOString(),
+//       checkOut: checkOut.toISOString(),
+//       adults,
+//       children,
+//     },
+//   });
+
+//   return response.data.data;
+// };
 // type AllProps = {};
 // export const getHotelByPagination = async (data: AllProps) => {
 //   try {

@@ -158,7 +158,7 @@ export function LoopingVideoHero({ VIDEOS }: { VIDEOS: string[] }) {
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
 
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 ">
         {VIDEOS.map((_, i) => (
           <div
             key={i}

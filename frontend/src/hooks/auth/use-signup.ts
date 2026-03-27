@@ -16,7 +16,7 @@ export const useSignUp = () => {
   const methods = useForm<SignUpProps>({
     resolver: zodResolver(SignUpSchema),
     defaultValues: {
-      email: "",
+      phone: "",
       password: "",
       confirmPassword: "",
     },
@@ -25,22 +25,23 @@ export const useSignUp = () => {
   const { refetch } = useCurrentUser();
   const onHandleSubmit = methods.handleSubmit(async (data) => {
     setLoading(true);
-    
+
     try {
-      const result = await verifyOTP({ email: data.email, otp: data.otp });
+      const result = await verifyOTP({ phone: data.phone, otp: data.otp });
       if (result.success) {
         toast.success(result.message || "Account created successfully!");
         await refetch();
         const nextRoute = localStorage.getItem("nextRoute");
         const like = localStorage.getItem("like");
-        if(nextRoute){
+        if (nextRoute) {
           navigate.push(nextRoute);
-          localStorage.removeItem("nextRoute")
-        }else if(like){
+          localStorage.removeItem("nextRoute");
+        } else if (like) {
           await dotoggleLike(like);
-          localStorage.removeItem("like")
+          localStorage.removeItem("like");
           window.location.reload();
-        }else{
+        } else {
+          refetch();
           navigate.push("/");
         }
         // Redirect or close dialog
@@ -55,13 +56,13 @@ export const useSignUp = () => {
   });
 
   const onGenerateOtp = async (
-    email: string,
+    phone: string,
     password: string,
     onNext: React.Dispatch<React.SetStateAction<number>>,
   ) => {
     setLoading(true);
     try {
-      const result = await userSignup({ email, password });
+      const result = await userSignup({ phone, password });
       if (result.success) {
         toast.success(result.message || "OTP sent to your email");
         onNext((prev) => prev + 1);

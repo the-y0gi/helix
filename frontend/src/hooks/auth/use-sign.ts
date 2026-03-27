@@ -8,24 +8,24 @@ import { toast } from "sonner";
 import { useCurrentUser } from "@/services/hotel/querys";
 import { dotoggleLike } from "@/services/hotel/hotel.service";
 
-export const useLogin = () => {
+export const useLogin = ({ refetch }: { refetch: () => void }) => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const navigate = useRouter();
   const { userLogin } = useAuthStore();
-  const { refetch } = useCurrentUser();
+
   // const {nextRoute , setNextRoute} = useRoutingStore()
   const methods = useForm<LoginFormProps>({
     resolver: zodResolver(LoginScshema),
     defaultValues: {
-      email: "",
+      phone: "",
       password: "",
     },
     mode: "onChange",
   });
-const router = useRouter()
+  const router = useRouter();
   const onHandleSubmit = methods.handleSubmit(async (data) => {
     setLoading(true);
-    
+
     try {
       const result = await userLogin(data);
       if (result.success) {
@@ -34,14 +34,14 @@ const router = useRouter()
         await refetch();
         const nextRoute = localStorage.getItem("nextRoute");
         const like = localStorage.getItem("like");
-        if(nextRoute){
+        if (nextRoute) {
           navigate.push(nextRoute);
-          localStorage.removeItem("nextRoute")
-        }else if(like){
+          localStorage.removeItem("nextRoute");
+        } else if (like) {
           await dotoggleLike(like);
-          localStorage.removeItem("like")
+          localStorage.removeItem("like");
           window.location.reload();
-        }else{
+        } else {
           navigate.push("/");
         }
       } else {

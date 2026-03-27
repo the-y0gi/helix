@@ -31,10 +31,10 @@ interface AuthStates {
     data: Login_signup_Data,
   ) => Promise<{ success: boolean; message: string }>;
   verifyOTP: (data: {
-    email: string;
+    phone: string;
     otp: string;
   }) => Promise<{ success: boolean; message: string }>;
-  resendOTP: (email: string) => Promise<{ success: boolean; message: string }>;
+  resendOTP: (phone: string) => Promise<{ success: boolean; message: string }>;
   updateUser: (
     data: Partial<User>,
   ) => Promise<{ success: boolean; message: string }>;
@@ -44,7 +44,7 @@ interface AuthStates {
 }
 
 interface Login_signup_Data {
-  email: string;
+  phone?: string;
   password?: string;
 }
 
@@ -60,7 +60,7 @@ export const useAuthStore = create<AuthStates>()((set) => ({
   userLogin: async (data: Login_signup_Data) => {
     set({ isLoging: true });
     try {
-      const res = await axiosApi.post("/auth/login", data);
+      const res = await axiosApi.post("/auth/whatsapp-login", data);
       if (res.data.success) {
         set({ currUser: res.data.data.user });
         const token = res.data.accessToken;
@@ -82,7 +82,7 @@ export const useAuthStore = create<AuthStates>()((set) => ({
   userSignup: async (data: Login_signup_Data) => {
     set({ isSiging: true });
     try {
-      const res = await axiosApi.post("/auth/signup", data);
+      const res = await axiosApi.post("/auth/whatsapp-signup", data);
       return { success: res.data.success, message: res.data.message };
     } catch (error) {
       const err = error as { response?: { data?: { message?: string } } };
@@ -95,10 +95,10 @@ export const useAuthStore = create<AuthStates>()((set) => ({
     }
   },
 
-  verifyOTP: async (data: { email: string; otp: string }) => {
+  verifyOTP: async (data: { phone: string; otp: string }) => {
     set({ isSiging: true });
     try {
-      const res = await axiosApi.post("/auth/verify-otp", data);
+      const res = await axiosApi.post("/auth/whatsapp-verify", data);
       if (res.data.success) {
         set({ currUser: res.data.data.user });
         return { success: true, message: res.data.message };

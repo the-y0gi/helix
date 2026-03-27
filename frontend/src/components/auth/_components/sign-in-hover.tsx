@@ -37,10 +37,12 @@ import AuthContextProvider, {
 import ButtonHandler from "./buttonhandler";
 import { OTPForm } from "./otp-form";
 import { Loader } from "@/components/loader";
+import { useCurrentUser } from "@/services/hotel/querys";
 export function Sign_in_hover({
   forLike,
   tag,
   variant,
+  className
 }: {
   forLike?: {
     content: React.ReactNode;
@@ -48,6 +50,7 @@ export function Sign_in_hover({
     type: string;
     do: string;
   }
+  className?: string;
   tag?: "Log-in" | "Sign-up";
   variant?:
   | "link"
@@ -58,19 +61,20 @@ export function Sign_in_hover({
   | "ghost";
 }) {
   // console.log("trigger menu");
-  const {type:t , do:d} = forLike || {};
-  
+  const { type: t, do: d } = forLike || {};
+
+
   return (
     <AuthContextProvider>
-      <Dialog  onOpenChange={(value) => {
-         localStorage.setItem(t || "nextRoute", d || "/profile")
-         if(t==="nextRoute"){
+      <Dialog onOpenChange={(value) => {
+        localStorage.setItem(t || "nextRoute", d || "/profile")
+        if (t === "nextRoute") {
 
-           localStorage.removeItem("like");
-         }else{
+          localStorage.removeItem("like");
+        } else {
           localStorage.removeItem("nextRoute");
-         }
-        
+        }
+
 
         if (!value) {
           localStorage.removeItem(forLike?.type || "nextRoute"); // triggers when dialog closes
@@ -80,7 +84,7 @@ export function Sign_in_hover({
           {forLike ? (
             forLike.content
           ) : (
-            <Button variant={variant} className="w-full flex justify-start">{tag}</Button>
+            <Button variant={variant} className={cn("w-full flex justify-start", className)}>{tag}</Button>
           )}
         </DialogTrigger>
         <DialogContent className="md:w-[425px] p-0 rounded-2xl overflow-hidden pb-4 w-[300px]">
@@ -138,15 +142,15 @@ export function SignupForm({
                   <Field>
                     <FormField
                       control={methods.control}
-                      name="email"
+                      name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel>Phone</FormLabel>
                           <FormControl>
                             <Input
-                              id="email"
-                              type="email"
-                              placeholder="Enter your email"
+                              id="phone"
+                              type="number"
+                              placeholder="Enter your phone"
                               disabled={loading}
                               {...field}
                             />
@@ -204,7 +208,7 @@ export function SignupForm({
                       setCurrentStep={setCurrentStep}
                     />
                   </Field>
-                  <FieldSeparator>Or</FieldSeparator>
+                  {/* <FieldSeparator>Or</FieldSeparator>
                   <Field className="grid gap-2 sm:grid-cols-1 md:px-10">
                     {ConnectWithMedia.map((item, i) => (
                       <Button
@@ -219,7 +223,7 @@ export function SignupForm({
                         Continue with {item.title}
                       </Button>
                     ))}
-                  </Field>
+                  </Field> */}
                 </FieldGroup>
 
                 <FieldDescription className="px-6 text-center">
@@ -249,8 +253,9 @@ export function SignInForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const { loading, methods, onHandleSubmit } = useLogin();
-  
+  const { refetch } = useCurrentUser();
+  const { loading, methods, onHandleSubmit } = useLogin({ refetch });
+
 
   return (
     <div className={cn("flex flex-col   ", className)} {...props}>
@@ -263,15 +268,15 @@ export function SignInForm({
             <Field>
               <FormField
                 control={methods.control}
-                name="email"
+                name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Phone</FormLabel>
                     <FormControl>
                       <Input
-                        id="email"
-                        type="email"
-                        placeholder="Enter your email"
+                        id="phone"
+                        type="number"
+                        placeholder="Enter your phone"
                         disabled={loading}
                         {...field}
                       />
@@ -305,7 +310,7 @@ export function SignInForm({
             <Field>
               <Button type="submit">Log in</Button>
             </Field>
-            <FieldSeparator>Or</FieldSeparator>
+            {/* <FieldSeparator>Or</FieldSeparator>
             <Field className="grid gap-2 sm:grid-cols-1 md:px-10">
               {ConnectWithMedia.map((item, i) => (
                 <Button
@@ -320,7 +325,7 @@ export function SignInForm({
                   Continue with {item.title}
                 </Button>
               ))}
-            </Field>
+            </Field> */}
           </FieldGroup>
         </form>
       </Form>

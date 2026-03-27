@@ -143,7 +143,7 @@ export function TabsLine({
       </section>
       <section
         id="reviews"
-        className="py-16 border-t md:pt-16 pt-6 md:mb-16 mb-5"
+        className="py-5 border-t md:pt-5 pt-6 md:mb- mb-5"
       >
         {content.reviews}
       </section>
@@ -279,7 +279,7 @@ export function VisitorsMembers({
       <AccordionItem value="rooms and guests">
         <AccordionTrigger>rooms and guests</AccordionTrigger>
         <AccordionContent>
-          <GuestSelector/>
+          <GuestSelector />
           {/* <HotelVisitorsCounters
             values={["adults", "children"]}
             methods={methods}

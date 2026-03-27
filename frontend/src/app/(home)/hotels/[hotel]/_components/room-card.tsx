@@ -809,6 +809,9 @@ export interface RoomCardProps {
   roomsLeft: number;
   discountPercent?: number;
   isBookingMode: boolean;
+  taxPercentage: number;
+  totalTax: number;
+  totalPriceWithTax: number;
 }
 
 export function HotelRoomCard({
@@ -819,6 +822,9 @@ export function HotelRoomCard({
   originalPrice,
   discountedPrice,
   totalPrice,
+  taxPercentage,
+  totalTax,
+  totalPriceWithTax,
   nights,
   rating,
   reviewCount,
@@ -849,6 +855,9 @@ export function HotelRoomCard({
       image: imageUrl,
       pricePerNight: discountedPrice,
       totalPrice: totalPrice || discountedPrice,
+      taxPercentage,
+      totalTax,
+      totalPriceWithTax,
       nights,
     });
   };
@@ -870,6 +879,9 @@ export function HotelRoomCard({
       image: imageUrl,
       pricePerNight: discountedPrice,
       totalPrice: totalPrice || discountedPrice,
+      taxPercentage,
+      totalTax,
+      totalPriceWithTax,
       nights,
     });
     const nextRoute = localStorage.getItem("nextRoute");
@@ -986,15 +998,23 @@ export function HotelRoomCard({
         {/* PRICING & CTA – smaller button on mobile */}
         <div className="bg-muted/20 p-4 md:p-5 lg:p-6 flex flex-col justify-between items-end">
           <div className="text-right space-y-1.5 md:space-y-2">
-            {originalPrice > displayPrice && (
+            {(
               <span className="text-xs md:text-sm text-muted-foreground line-through">
                 ₹{originalPrice.toLocaleString()}
               </span>
             )}
             <div className="flex items-baseline justify-end gap-1">
-              <span className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground">
-                ₹{displayPrice?.toLocaleString()}
-              </span>
+              {
+                totalPrice ? (
+                  <span className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground">
+                    ₹{totalPrice?.toLocaleString()}
+                  </span>
+                ) : (
+                  <span className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground">
+                    ₹{discountedPrice.toLocaleString()}
+                  </span>
+                )
+              }
               <span className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase">
                 / night
               </span>
@@ -1048,8 +1068,8 @@ export function HotelRoomCard({
                 {isBookingMode && roomsLeft === 0
                   ? "Not Available"
                   : loading
-                  ? <Spinner />
-                  : "Reserve"}
+                    ? <Spinner />
+                    : "Reserve"}
               </Button>
             )}
           </div>

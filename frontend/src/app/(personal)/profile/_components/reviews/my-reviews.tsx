@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {  ThumbsUp } from "lucide-react"
+import { ThumbsUp } from "lucide-react"
 import RattingBadge from "@/app/(home)/hotels/[hotel]/_components/badge"
 import { format, isBefore, parseISO } from 'date-fns'
 interface ReviewCardProps {
@@ -71,24 +71,23 @@ const reviews: Review[] = [
     },
 ]
 
-export function ReviewList({id}: {id?: string}) {
+export function ReviewList({ id }: { id?: string }) {
     const { data: tripsdata_unfiltered, isLoading } = useMyBookingsQuery()
 
-  const completedBookings = useMemo(() => {
-    if (!tripsdata_unfiltered?.data) return []
+    const completedBookings = useMemo(() => {
+        if (!tripsdata_unfiltered?.data) return []
 
-    const today = new Date() 
+        const today = new Date()
 
-    return tripsdata_unfiltered.data.filter((booking:ReservationCardProps) => {
-      const checkOutDate = parseISO(booking.checkOut) 
+        return tripsdata_unfiltered.data.filter((booking: ReservationCardProps) => {
+            const checkOutDate = parseISO(booking.checkOut)
 
-      return isBefore(checkOutDate, today)
-    })
-  }, [tripsdata_unfiltered])
-  console.log(completedBookings);
-  
-    
-    
+            return isBefore(checkOutDate, today)
+        })
+    }, [tripsdata_unfiltered])
+
+
+
     if (reviews.length === 0) {
         return (
             <Noreviews />

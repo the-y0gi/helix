@@ -22,7 +22,7 @@ export function HotelGalleryCard({
   const displayImages = images.slice(0, 3);
 
   return (
-    <CometCard 
+    <CometCard
       className="
         group w-[200px] sm:w-[220px] cursor-pointer 
         rounded-2xl border border-white/10 
@@ -155,14 +155,14 @@ export function GalleryCard({
               `}
               style={{
                 transform: `rotate(${idx === 0 ? -10 : idx === 2 ? 10 : 0}deg)`,
-                zIndex: 10 - idx,
+                // zIndex: 10 - idx,
               }}
             >
               <Image
                 src={src}
                 alt={`Room view ${idx + 1}`}
                 fill
-                className="object-cover"
+                className="object-cove "
               />
             </div>
           ))}
@@ -170,7 +170,7 @@ export function GalleryCard({
       </div>
 
       {/* Label */}
-      <div className="absolute bottom-5 left-0 right-0 text-center" onClick={()=>{
+      <div className="absolute bottom-5 left-0 right-0 text-center" onClick={() => {
         router.push("/hotels/find")
       }}>
         <span className="rounded-full bg-black/60 px-5 py-2 text-sm font-medium text-white backdrop-blur-md">

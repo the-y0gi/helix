@@ -12,7 +12,7 @@ function useDebounce(value: string, delay: number) {
 }
 
 export const useSearchCity = (query: string) => {
-  const debouncedQuery = useDebounce(query, 300);
+  const debouncedQuery = useDebounce(query, 500);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["search_city", debouncedQuery],

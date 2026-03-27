@@ -29,11 +29,11 @@ export const TabsNav = ({
   const active = propTabs.find((tab) => location.endsWith(tab.link)) || propTabs[0];
 
   return (
-    <motion.div 
+    <motion.div
       initial={false}
       animate={{ y: isVisible ? 0 : -100 }}
       // flex justify-center ensures the stretched bar stays centered over the 910px card
-      className={cn("sticky top-0 z-10 w-full flex justify-center py-2 px-4 ", ismobile?" z-50 ":"")}
+      className={cn("sticky top-0 z-10 w-full flex justify-center py-2 px-4 ", ismobile ? " z-50 " : "")}
     >
       <div
         className={cn(
@@ -71,7 +71,7 @@ export const TabsNav = ({
                 {tab.iconUrl && (
                   <div className="flex-shrink-0 -ml-2">
                     <Image
-                      className="rounded-full object-cover"
+                      className="rounded-full object-cover hover:scale-150 transition-all duration-300"
                       src={tab.iconUrl}
                       alt={tab.title}
                       width={imgsize}

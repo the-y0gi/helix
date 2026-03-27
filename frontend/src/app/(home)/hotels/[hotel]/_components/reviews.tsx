@@ -14,12 +14,11 @@ type Props = {
 
 const ReviewsMain = ({ hotel }: Props) => {
     const { data: reviews } = useGetHotelReviews(hotel._id)
-    console.log(reviews);
-    
+
 
 
     return (
-        <Card className="w-full bg-transparent border-none shadow-none">
+        <Card className="w-full bg-transparent border-none shadow-none p-0">
             <CardHeader className="space-y-2">
                 <h3 className="text-2xl font-bold">Reviews</h3>
                 <div className="flex items-center gap-2 text-sm">
@@ -60,7 +59,7 @@ export const ReviewsRanges = () => {
 
     return (
         <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6 md:gap-10 w-full">
-            
+
             {/* 1. Overall Rating Section: Full width on mobile, fixed width on desktop */}
             <div className="w-full lg:w-[220px] shrink-0">
                 <h4 className="font-semibold mb-4 text-center lg:text-left text-sm md:text-base">
@@ -149,7 +148,7 @@ const ReviewsComments = () => {
                 "Simo is very attentive and kind, the apartment was nice, the bed comfortable and you were slightly close to a metro station.",
         },
     ];
-
+    const ismobile = useIsMobile()
     const INITIAL_COUNT = 3;
     const LOAD_MORE_COUNT = 1;
 
@@ -163,14 +162,9 @@ const ReviewsComments = () => {
 
     return (
         <div className="space-y-8">
-            {visibleCount < comments.length && (
-                <div className="flex justify-start">
-                    <Button variant="outline" className="rounded-full" onClick={handleShowMore}>
-                        Show All 100 Reviews
-                    </Button>
-                </div>
-            )}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <div className="flex  gap-6 overflow-x-auto no-scrollbar -mx-14  md:mx-0">
+                <div className="w-17 h-full" />
                 {visibleComments.map((comment, index) => (
                     <ReviewCard
                         key={index}
@@ -179,7 +173,20 @@ const ReviewsComments = () => {
                         review={comment.review}
                     />
                 ))}
+                <div className="w-17 h-full" />
             </div>
+            {visibleCount < comments.length && (
+                <div className="flex justify-start">
+                    {<Button variant="outline" className="rounded-full" onClick={handleShowMore}>
+                        Show All 100 Reviews
+                    </Button>}
+                </div>
+            )}
+            {
+                ismobile && <MoreReviewsSideSheet visibleComments={visibleComments} trigger={<Button variant="outline" className="rounded-full" onClick={handleShowMore}>
+                    Show All 100 Reviews
+                </Button>} />
+            }
 
 
         </div>
@@ -187,8 +194,8 @@ const ReviewsComments = () => {
 };
 const ReviewCard = ({ name, date, review }: ReviewCardProps) => {
     return (
-        <Card className="rounded-2xl  border border-border items-start flex flex-col gap-2">
-            <CardContent className="px-3 py-2 ">
+        <Card className="rounded-2xl  border border-border items-start flex flex-col gap-2 p-1 min-w-[250px]">
+            <CardContent className="px-3 py-2 gap-2 ">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Avatar className="w-10 h-10">
@@ -206,10 +213,52 @@ const ReviewCard = ({ name, date, review }: ReviewCardProps) => {
 
                 <p className="text-sm text-muted-foreground">{review}</p>
 
-                <button className="text-sm text-muted-foreground hover:underline">
+                {/* <button className="text-sm text-muted-foreground hover:underline">
                     Show More
-                </button>
+                </button> */}
             </CardContent>
         </Card>
     );
 };
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet"
+import { useIsMobile } from "@/hooks/use-mobile";
+
+export function MoreReviewsSideSheet({ visibleComments, trigger }: { visibleComments: ReviewCardProps[], trigger: React.ReactNode }) {
+    return (
+        <Sheet>
+            <SheetTrigger asChild>
+                {trigger}
+            </SheetTrigger>
+            <SheetContent className="w-full" side="right">
+                <SheetHeader>
+                    <SheetTitle>Reviews</SheetTitle>
+                    <SheetDescription>
+                        All Reviews
+                    </SheetDescription>
+                </SheetHeader>
+                <div className="flex flex-wrap gap-2 overflow-y-auto h-full px-3 py-2 gap-3 ">
+                    {visibleComments.map((comment, index) => (
+                        <ReviewCard
+                            key={index}
+                            name={comment.name}
+                            date={comment.date}
+                            review={comment.review}
+                        />
+                    ))}
+                </div>
+
+            </SheetContent>
+        </Sheet>
+    )
+}

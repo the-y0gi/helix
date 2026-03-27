@@ -921,7 +921,7 @@ import { useForm, useFormContext, UseFormReturn, useFieldArray } from "react-hoo
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { CheckCircle2, Copy, CreditCard, Calendar, Users, Info, Plus, Mail, Download, Home, Smartphone, User } from "lucide-react";
+import { CheckCircle2, Copy, CreditCard, Calendar, Users, Info, Plus, Mail, Download, Home, Smartphone, User, IndianRupee } from "lucide-react";
 import html2pdf from "html2pdf.js";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1112,18 +1112,24 @@ const BookingCard = ({ loading }: { loading: boolean }) => {
   const totalChildren = methods.watch("guests.children") || 0;
   const nights = selectedRoom.nights || 0;
   const totalPrice = selectedRoom.totalPrice || 0;
+  const totalPriceWithTax = selectedRoom.totalPriceWithTax || 0;
+  const totalTax = selectedRoom.totalTax || 0;
+  const taxPercentage = selectedRoom.taxPercentage || 0;
 
   return (
     <div className="flex items-center justify-between gap-4">
       {/* Price & Summary Section */}
       <div className="flex flex-col">
         <div className="flex items-baseline gap-1">
-          <span className="text-xl font-bold tracking-tight">₹{totalPrice.toLocaleString()}</span>
-          <span className="text-xs text-muted-foreground font-medium">total</span>
+          <span className="text-xl font-bold tracking-tight">₹{totalPriceWithTax.toLocaleString()}</span>
+          <span className="text-xs text-muted-foreground font-medium">total to pay</span>
         </div>
-        <p className="text-[11px] font-semibold text-slate-500 flex items-center gap-1 mt-0.5">
+        {/* <p className="text-[11px] font-semibold text-slate-500 flex items-center gap-1 mt-0.5">
           {nights} nights · {totalAdults + totalChildren} guests
-        </p>
+        </p> */}
+        <p className="hidden md:block">₹{totalTax.toLocaleString()} <span className="text-xs text-muted-foreground font-medium">total tax</span></p>
+        <p>{taxPercentage.toLocaleString()}% <span className="text-xs text-muted-foreground font-medium">tax percentage</span>   </p>
+        <p>₹{totalPrice.toLocaleString()} <span className="text-xs text-muted-foreground font-medium">total without tax</span></p>
         <div className="flex items-center gap-1 mt-1">
           <Check className="w-3 h-3 text-emerald-500 stroke-[3px]" />
           <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-tight">Free cancellation</span>
@@ -1330,6 +1336,9 @@ export const BookingDetailsCard = ({ loading }: { loading?: boolean; hotelid: st
 
   const nights = selectedRoom?.nights || 0;
   const totalPrice = selectedRoom?.totalPrice || 0;
+  const totalPriceWithTax = selectedRoom?.totalPriceWithTax || 0;
+  const totalTax = selectedRoom?.totalTax || 0;
+  const taxPercentage = selectedRoom?.taxPercentage || 0;
 
   return (
     <Card className="shadow-lg border-primary/10 overflow-hidden">
@@ -1350,12 +1359,21 @@ export const BookingDetailsCard = ({ loading }: { loading?: boolean; hotelid: st
 
         <div className="space-y-3">
           <div className="flex justify-between text-sm">
-            <span>Price for {nights} nights</span>
+            <span>Without Tax Price for {nights} nights</span>
             <span className="font-semibold">₹{totalPrice.toLocaleString()}</span>
           </div>
+          <div className="flex justify-between text-sm">
+            <span>Total taxPercentage</span>
+            <span className="font-semibold">{taxPercentage.toLocaleString()}%</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span>Tax ({taxPercentage}%)</span>
+            <span className="font-semibold">₹{totalTax.toLocaleString()}</span>
+          </div>
+
           <div className="flex justify-between text-lg font-black border-t pt-3 text-primary">
             <span>Total Payable</span>
-            <span>₹{totalPrice.toLocaleString()}</span>
+            <span>₹{totalPriceWithTax.toLocaleString()}</span>
           </div>
         </div>
 
