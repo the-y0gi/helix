@@ -15,6 +15,11 @@ export interface RoomType {
   _id: string;
   hotelId: string;
   name: string;
+
+  taxPercentage: number;
+  totalTax: number;
+  totalPriceWithTax: number;
+
   description: string;
   basePrice: number;
   discountPrice: number;

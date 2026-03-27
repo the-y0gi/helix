@@ -516,7 +516,7 @@ import { useHotelStore } from "@/store/hotel.store";
 
 export const RoomsMain = ({
   hotelId,
-  
+
   isBookingMode,
   isLoading,
 }: {
@@ -526,6 +526,7 @@ export const RoomsMain = ({
   isLoading: boolean;
 }) => {
   const { rooms } = useHotelContext();
+
   // const roomTypes = rooms;
   return (
     <div id="rooms" className="w-full space-y-6 scroll-mt-24">
@@ -713,13 +714,18 @@ export const RoomCardItem = ({
   const discountPercent =
     originalPrice > currentNightlyPrice
       ? Math.round(
-          ((originalPrice - currentNightlyPrice) / originalPrice) * 100,
-        )
+        ((originalPrice - currentNightlyPrice) / originalPrice) * 100,
+      )
       : 0;
 
   return (
     <HotelRoomCard
       displayPrice={room.displayPrice || room.basePrice}
+
+      taxPercentage={room.taxPercentage}
+      totalTax={room.totalTax}
+      totalPriceWithTax={room.totalPriceWithTax}
+
       showReserveButton={showReserveButton}
       key={room._id}
       hotelId={hotelId}

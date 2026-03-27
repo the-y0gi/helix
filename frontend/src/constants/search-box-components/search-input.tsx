@@ -14,7 +14,6 @@ const AddressSearch = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const { city, setCity } = useHotelStore();
   useEffect(() => {
-    console.log(city);
 
   }, [city])
 

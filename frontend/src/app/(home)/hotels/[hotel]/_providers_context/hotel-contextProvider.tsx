@@ -45,7 +45,7 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
     data: availabilityResponse,
     isLoading: availabilityLoading,
     refetch: refetchAvailability,
-  } = useHotelAvailabilityQuery(availabilityParams, { enabled: false });
+  } = useHotelAvailabilityQuery(availabilityParams);
 
   const availabilityRooms = availabilityResponse?.roomTypes;
 

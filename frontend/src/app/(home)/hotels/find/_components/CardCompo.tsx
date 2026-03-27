@@ -373,7 +373,7 @@ export function HotelCard({
   if (isMobile) {
     // --- Optimized Compact Mobile View ---
     return (
-      <Card className="group overflow-hidden rounded-xl border bg-card w-full shadow-md pt-0">
+      <Card className="group overflow-hidden rounded-xl border bg-card w-full shadow-md pt-0 ">
         {/* Compact Image Section */}
         <div className="relative w-full h-[180px]">
           <img
@@ -492,7 +492,7 @@ export function HotelCard({
   return (
     <Card
       className={cn(
-        "group overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:shadow-lg",
+        "group overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:shadow-lg min-w-[600px]",
         isHorizontal ? "flex flex-row w-full min-h-[260px]" : "flex flex-col w-full"
       )}
     >

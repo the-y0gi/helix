@@ -104,8 +104,8 @@ export function OTPForm({ onOTP, methods, setOnOTP, ...props }: OTPFormProps) {
               onClick={async () => {
                 const { toast } = await import("sonner");
                 const { useAuthStore } = await import("@/store/auth.store");
-                const email = methods.getValues("email");
-                const result = await useAuthStore.getState().resendOTP(email);
+                const phone = methods.getValues("phone");
+                const result = await useAuthStore.getState().resendOTP(phone);
                 if (result.success) {
                   toast.success(result.message || "OTP resent successfully");
                 } else {

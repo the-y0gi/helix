@@ -35,15 +35,19 @@ export function Footer() {
               <li>Careers</li>
               <li>Privacy Policy</li>
               <li>Terms of Services</li>
+              <li>
+                <a href="https://hilexa-vendor.vercel.app/login" target="_blank" rel="noopener noreferrer" className="cursor-pointer font-bold">Partner with us</a>
+
+              </li>
             </ul>
           </div>
 
-         
+
         </div>
-       
+
       </div>
 
-       <div className="w-full border-1 mt-10 "/>
+      <div className="w-full border-1 mt-10 " />
 
       <div className="w-full px-6 py-6">
         <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">

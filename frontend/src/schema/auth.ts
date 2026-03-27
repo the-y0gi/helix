@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export const LoginScshema = z.object({
-  email: z.email({ message: "Incorrect email format" }),
+  // email: z.email({ message: "Incorrect email format" }),
+  phone: z.string().min(10, { message: "Incorrect phone format" }),
 
   password: z
     .string()
@@ -19,7 +20,8 @@ export type LoginFormProps = z.infer<typeof LoginScshema>;
 
 export const SignUpSchema = z
   .object({
-    email: z.email({ message: "Incorrect email format" }),
+    // email: z.email({ message: "Incorrect email format" }),
+    phone: z.string().min(10, { message: "Incorrect phone format" }),
 
     password: z
       .string()

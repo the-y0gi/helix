@@ -229,7 +229,7 @@ export const useHotelAvailabilityQuery = (
       options?.enabled !== undefined
         ? options.enabled
         : !!params.checkIn && !!params.checkOut,
-    staleTime: Infinity,
+    staleTime: 300000,
   });
 };
 

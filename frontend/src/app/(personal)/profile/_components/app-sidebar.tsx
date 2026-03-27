@@ -16,7 +16,7 @@ import { useAuthStore } from "@/store/auth.store";
 
 export function ProfileSidebar({ className }: { className?: string }) {
   const { navMain, user } = useProfileSidebar();
-  const { data: currUser, refetch} = useCurrentUser();
+  const { data: currUser, refetch } = useCurrentUser();
   const router = useRouter();
 
   return (
@@ -28,7 +28,7 @@ export function ProfileSidebar({ className }: { className?: string }) {
     >
       <div className="flex items-center gap-3 px-2 py-3 hidden md:block">
         <Image
-          src={ currUser?.data?.avatar || user.avatar}
+          src={currUser?.data?.avatar || user.avatar}
           alt={currUser?.data?.name || user.name}
           width={40}
           height={40}
@@ -42,7 +42,7 @@ export function ProfileSidebar({ className }: { className?: string }) {
 
       <div className="my-3 h-px bg-border hidden md:block" />
 
-      <nav className="md:flex-col flex overflow-x-auto md:gap-2 ">
+      <nav className="md:flex-col flex overflow-x-auto md:gap-2 -mx-4 md:mx-0 px-5 md:px-0 ">
         {navMain.map((item) => {
           if (item.value === "settings") return null;
           const Icon = item.icon;
@@ -56,7 +56,7 @@ export function ProfileSidebar({ className }: { className?: string }) {
           }
           return (
             <TabsTrigger
-              className="py-2 md:px-3 justify-start rounded-lg hover:bg-muted/50 transition-colors data-[state=active]:bg-muted data-[state=active]:font-medium"
+              className="py-2 md:px-3  rounded-full md:rounded-lg justify-start hover:bg-muted/50 transition-colors data-[state=active]:bg-muted data-[state=active]:font-medium"
               key={item.name}
               value={item.value}
             >
@@ -66,23 +66,23 @@ export function ProfileSidebar({ className }: { className?: string }) {
           );
         })}
         <div className="my-2 h-px bg-border" />
-        <TabsTrigger className="py-2 px-3 justify-start rounded-lg hover:bg-muted/50 transition-colors data-[state=active]:bg-muted data-[state=active]:font-medium" value="settings">
+        <TabsTrigger className="py-2 px-3 justify-start rounded-full md:rounded-lg hover:bg-muted/50 transition-colors data-[state=active]:bg-muted data-[state=active]:font-medium" value="settings">
           <IconSettings className="h-5 w-5 mr-3 text-muted-foreground" />
           <span className="text-sm">Settings</span>
         </TabsTrigger>
       </nav>
 
-      <div className="mt-auto md:pt-4">
+      {/* <div className="mt-auto md:pt-4">
         <div className="cursor-pointer rounded-lg px-3 md:py-2 py-1 flex items-center gap-3 transition-colors">
           <IconLogout className="h-5 w-5" />
           <Logout refetch={refetch} />
         </div>
-      </div>
+      </div> */}
     </aside>
   );
 }
 
-export const Logout = ({refetch}: {refetch: () => void}) => {
+export const Logout = ({ refetch }: { refetch: () => void }) => {
   const queryClient = useQueryClient();
   const currentUser = useAuthStore();
 
