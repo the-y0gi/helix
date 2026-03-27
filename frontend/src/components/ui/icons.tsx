@@ -1,53 +1,15 @@
 import {
-  Wifi,
-  Utensils,
-  Wind,
-  Ban,
-  Waves,
-  Dumbbell,
-  Sparkles,
-  Car,
-  Shirt,
-  Bell,
-  ConciergeBell,
-  Briefcase,
-  Bus,
-  Baby,
-  Umbrella,
-  Tv,
-  Coffee,
-  Lock,
-  Refrigerator,
-  DoorOpen,
-  ArrowUpDown,
-  Accessibility,
-  Martini,
-  Plane,
-  Speaker,
-  Bath,
-  Map,
-  Users,
-  CreditCard,
-  Building,
-  Activity,
-  Trees,
-  CloudSun,
-  Laptop,
-  Luggage,
-  Clock,
-  Thermometer,
-  Snowflake,
-  VolumeX,
-  Key,
-  Armchair,
-  ShowerHead,
-  CigaretteOff
+  Wifi, Utensils, Wind, Ban, Waves, Dumbbell, Sparkles, Car, Shirt, Bell,
+  ConciergeBell, Briefcase, Bus, Baby, Umbrella, Tv, Coffee, Lock,
+  Refrigerator, DoorOpen, ArrowUpDown, Accessibility, Martini, Plane,
+  Speaker, Bath, Map, Users, CreditCard, Building, Activity, Trees,
+  CloudSun, Laptop, Luggage, Clock, Thermometer, Snowflake, VolumeX,
+  Key, Armchair, ShowerHead, CigaretteOff,
+  MapPin
 } from "lucide-react";
-
 import type { LucideIcon } from "lucide-react";
 
-export const amenityIconMap: Record<string, LucideIcon> = {
-  // Food & Drink
+export const FoodAndDrinks: Record<string, LucideIcon> = {
   breakfast: Utensils,
   restaurant: Utensils,
   bar: Martini,
@@ -56,23 +18,29 @@ export const amenityIconMap: Record<string, LucideIcon> = {
   minibar: Refrigerator,
   kitchen: Utensils,
   kitchenette: Utensils,
+};
 
-  // Connectivity & Business
+export const ConnectivityAndBusiness: Record<string, LucideIcon> = {
   wifi: Wifi,
-  free_wifi: Wifi,
   business_center: Briefcase,
   meeting_rooms: Users,
   workspace: Laptop,
   desk: Laptop,
+  parking: Car,
+  restaurant: Utensils,
+  swimming_pool: Waves,
+  room_service: Bell,
+};
 
-  // Comfort & Climate
+export const ComfortAndClimate: Record<string, LucideIcon> = {
   ac: Wind,
-  air_conditioning: Snowflake, // Or Wind
+  air_conditioning: Snowflake,
   heating: Thermometer,
   soundproof_rooms: VolumeX,
   fan: Wind,
+};
 
-  // Rules & Access
+export const RulesAndAccess: Record<string, LucideIcon> = {
   no_smoking: Ban,
   non_smoking_rooms: CigaretteOff,
   pets_allowed: Activity,
@@ -82,8 +50,9 @@ export const amenityIconMap: Record<string, LucideIcon> = {
   private_entrance: Key,
   "24_hour_front_desk": Clock,
   luggage_storage: Luggage,
+};
 
-  // Facilities
+export const Facilities: Record<string, LucideIcon> = {
   pool: Waves,
   swimming_pool: Waves,
   gym: Dumbbell,
@@ -96,8 +65,9 @@ export const amenityIconMap: Record<string, LucideIcon> = {
   daily_housekeeping: Sparkles,
   dry_cleaning: Shirt,
   concierge: ConciergeBell,
+};
 
-  // Room Features
+export const RoomFeatures: Record<string, LucideIcon> = {
   tv: Tv,
   flat_screen_tv: Tv,
   safe: Lock,
@@ -114,12 +84,36 @@ export const amenityIconMap: Record<string, LucideIcon> = {
   sofa: Armchair,
   seating_area: Armchair,
   wardrobe_or_closet: Shirt,
+};
+export const Locations: Record<string, LucideIcon> = {
+  private_beach_area: Waves,
+  waterfront: MapPin,
+  balcony: DoorOpen,
+};
+export const onsite: Record<string, LucideIcon> = {
+  private_beach_area: Waves,
+  waterfront: MapPin,
+  balcony: DoorOpen,
+};
 
-  // Transport
+export const Transport: Record<string, LucideIcon> = {
   shuttle: Bus,
   airport_shuttle: Plane,
+};
 
-  // Family
+export const Family: Record<string, LucideIcon> = {
   family_rooms: Baby,
   kids_club: Activity,
+};
+
+export const amenityIconMap: Record<string, LucideIcon> = {
+  ...FoodAndDrinks,
+  ...ConnectivityAndBusiness,
+  ...ComfortAndClimate,
+  ...RulesAndAccess,
+  ...Facilities,
+  ...RoomFeatures,
+  ...Transport,
+  ...Family,
+  ...Locations
 };

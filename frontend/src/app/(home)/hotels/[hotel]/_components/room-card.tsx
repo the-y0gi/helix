@@ -888,8 +888,8 @@ export function HotelRoomCard({
     router.push(nextRoute || "/");
   };
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-
+  const rawToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+  const isAuthenticated = !!rawToken && rawToken !== "null" && rawToken !== "undefined" && rawToken.trim().length > 0;
   return (
     <Card
       className={cn(
@@ -1022,7 +1022,7 @@ export function HotelRoomCard({
           </div>
 
           <div className="w-full mt-4 md:mt-5">
-            {(!token && isBookingMode) ? (
+            {(!isAuthenticated) ? (
               <Sign_in_hover
                 tag="Log-in"
                 variant="ghost"

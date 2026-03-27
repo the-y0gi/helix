@@ -15,17 +15,6 @@ export default function Home() {
       router.replace("/hotels")
     } else if (localStorage.getItem("accessToken") === null) {
       router.replace("/hotels")
-      toast(
-        <div className="flex flex-col gap-2">
-          <span>Please login for better experience.</span>
-          <Button
-            size="sm"
-            onClick={() => router.replace("/profile")}
-          >
-            Login
-          </Button>
-        </div>
-      )
 
 
     }

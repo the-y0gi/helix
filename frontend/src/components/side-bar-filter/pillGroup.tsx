@@ -2,11 +2,9 @@
 import React from "react"
 import { Button } from "../ui/button"
 import { HotelFilters, useHotelContext } from "@/context/hotel/HotelContextProvider"
+import { LucideIcon } from "lucide-react"
 
-export type PillOption = {
-  value: string
-  icon?: React.ReactNode
-}
+export type PillOption = Record<string, LucideIcon>
 
 type StringArrayFilterKeys = {
   [K in keyof HotelFilters]: HotelFilters[K] extends string[] ? K : never
@@ -14,8 +12,8 @@ type StringArrayFilterKeys = {
 
 type PillGroupProps = {
   // label:"amenities" |""
-  options: PillOption[]
-  queryKey?: StringArrayFilterKeys    
+  options: PillOption
+  queryKey?: StringArrayFilterKeys
   value?: string[]
   onChange?: (value: string[]) => void
 }
@@ -44,10 +42,16 @@ export default function PillGroup({
       [queryKey]: next,
     })
   }
+  const optionss = Object.entries(options).map(([key, value]) => {
+    return {
+      value: key,
+      icon: value,
+    }
+  })
 
   return (
     <div className="flex flex-wrap gap-2">
-      {options.map((opt) => {
+      {optionss.map((opt) => {
         const active = selectedValues.includes(opt.value)
 
         return (
