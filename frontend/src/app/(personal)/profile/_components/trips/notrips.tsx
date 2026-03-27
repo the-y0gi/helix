@@ -1,27 +1,28 @@
 "use client";
 
+import { RouterPush } from "@/components/RouterPush";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export default function EmptyBookings({variant}: {variant: string}) {
+export default function EmptyBookings({ variant }: { variant: string }) {
   const router = useRouter();
   const value = [{
-    variant:"active",
-    text:"You haven’t booked any stays yet.",
-    
-  },{
-    variant:"pending",
-    text:"there is no pending bookings.",
-  },{
-    variant:"all",
-    text:"there is no  bookings.",
-  },{
-    variant:"cancelled",
-    text:"there is no cancelled bookings.",
-  },{
-    variant:"completed",
-    text:"there is no completed bookings.",
+    variant: "active",
+    text: "You haven’t booked any stays yet.",
+
+  }, {
+    variant: "pending",
+    text: "there is no pending bookings.",
+  }, {
+    variant: "all",
+    text: "there is no  bookings.",
+  }, {
+    variant: "cancelled",
+    text: "there is no cancelled bookings.",
+  }, {
+    variant: "completed",
+    text: "there is no completed bookings.",
   }]
 
   return (
@@ -51,7 +52,7 @@ export default function EmptyBookings({variant}: {variant: string}) {
         <Button
           variant="outline"
           className="rounded-lg mb-6"
-          onClick={() => router.push("/")}
+          onClick={() => { RouterPush(router, "/") }}
         >
           <Search className="mr-2 h-4 w-4" />
           Start searching

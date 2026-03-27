@@ -3,6 +3,7 @@
 import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { RouterPush } from "@/components/RouterPush";
 
 function AuthCallbackHandler() {
   const router = useRouter();
@@ -15,7 +16,7 @@ function AuthCallbackHandler() {
 
     if (error) {
       toast.error("Authentication failed. Please try again.");
-      router.push("/");
+      RouterPush(router, "/");
       return;
     }
 
@@ -25,15 +26,15 @@ function AuthCallbackHandler() {
       // You can optionally fetch user data here using the token
       toast.success("Successfully logged in!");
       const nextRoute = localStorage.getItem("nextRoute");
-        if(nextRoute){
-          router.push(nextRoute);
-        }else{
-          router.push("/");
-        }
-      
+      if (nextRoute) {
+        RouterPush(router, nextRoute);
+      } else {
+        RouterPush(router, "/");
+      }
+
     } else {
       toast.error("No authentication token received");
-      router.push("/");
+      RouterPush(router, "/");
     }
   }, [searchParams, router]);
 

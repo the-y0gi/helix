@@ -26,10 +26,10 @@ export const ContentFrame = (props: Props) => {
           <h2 className="text-2xl font-semibold mb-4 ">
             {total > 0 ? `Explore ${total}+ hotels` : "Explore hotels"}
           </h2>
-          <div className="w-10 min-w-37 md:w-1/2 mb-6">
+          {/* <div className="w-10 min-w-37 md:w-1/2 mb-6">
 
             <ComboboxMultiple />
-          </div>
+          </div> */}
         </div>
         <div>
           {!ismobile && <SwitchGrids />}

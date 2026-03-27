@@ -10,7 +10,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { pages } from "@/constants/pages";
 import { cn } from "@/lib/utils";
-
+import { Spinner } from "../spinner";
+import NProgress from "nprogress";
+import { RouterPush } from "../RouterPush";
 const FilterBox = ({
   FilterBoxValues,
 }: {
@@ -20,7 +22,7 @@ const FilterBox = ({
 }) => {
   const router = useRouter();
   const ismobile = useIsMobile();
-
+  const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -102,10 +104,17 @@ const FilterBox = ({
         </div>
 
         <Button
+          disabled={loading}
           className="w-full bg-[#FE3230] hover:bg-primary/90 mt-2 text-primary-foreground h-12 md:h-14 rounded-[10px] text-lg font-bold shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
-          onClick={() => router.push("/hotels/find")}
+          onClick={() => {
+            // NProgress.start();
+            RouterPush(router, "/hotels/find")
+            setLoading(true)
+          }}
         >
-          Search Hotel
+          {
+            loading ? <Spinner /> : "Search Hotel"
+          }
         </Button>
       </Card>
 

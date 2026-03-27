@@ -32,7 +32,7 @@ const content: Record<ProfileTabKey, React.ReactNode> = {
   payment: <PaymentPage />,
   wishlist: <WishlistSection />,
   support: <p>Support Content</p>,
-  reviews: <ReviewList  />,
+  reviews: <ReviewList />,
   settings: <Settings />,
   all: <AllReservations variant={"all"} />,
   active: <AllReservations variant={"active"} />,
@@ -50,13 +50,13 @@ export default function Page({ className }: { className?: string }) {
 
   return (
     <div className={cn("w-full flex", className)}>
-      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong"/>}>
-              <Suspense fallback={<PageSkeleton/>}>
+      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
+        <Suspense fallback={<PageSkeleton />}>
           {tabValues.map((value) => (
             <TabsContent
               key={value}
               value={value}
-              className="w-full "
+              className="w-full  "
             >
               {content[value as ProfileTabKey]}
             </TabsContent>

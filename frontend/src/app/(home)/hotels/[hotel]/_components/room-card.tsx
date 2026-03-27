@@ -813,7 +813,7 @@ export interface RoomCardProps {
   totalTax: number;
   totalPriceWithTax: number;
 }
-
+import NProgress from "nprogress";
 export function HotelRoomCard({
   hotelId,
   id,
@@ -885,7 +885,9 @@ export function HotelRoomCard({
       nights,
     });
     const nextRoute = localStorage.getItem("nextRoute");
+    NProgress.start()
     router.push(nextRoute || "/");
+    NProgress.done()
   };
 
   const rawToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;

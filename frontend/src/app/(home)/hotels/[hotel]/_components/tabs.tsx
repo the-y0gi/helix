@@ -76,7 +76,7 @@ export function TabsLine({
 
   return (
     <div className="mx-auto w-full max-w-screen-2xl px-4 md:px-6 lg:px-10">
-      <section id="overview" className="py-3">
+      <section id="overview" className="py-3 -mx-5 md:mx-0">
         {content.overview}
       </section>
       <div className="sticky top-0 z-30 bg-white/50 dark:bg-background/30 backdrop-blur-md border-b border-t h-16 flex items-center -mx-4 px-4 md:px-6 mb-8">

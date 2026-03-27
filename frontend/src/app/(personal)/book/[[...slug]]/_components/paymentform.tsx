@@ -1101,6 +1101,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
 
 import { Check } from 'lucide-react';
 import { useIsMobile } from "@/hooks/use-mobile";
+import { RouterPush } from "@/components/RouterPush";
 
 const BookingCard = ({ loading }: { loading: boolean }) => {
   const { selectedRoom, date } = useHotelStore();
@@ -1262,7 +1263,7 @@ export function PaymentSuccess({ payment }: { payment: any }) {
             className="flex-1 h-12 font-bold gap-2 order-2 sm:order-1 transition-all active:scale-95"
             onClick={(e) => {
               e.preventDefault();
-              router.push("/");
+              RouterPush(router, "/");
 
             }}
           >

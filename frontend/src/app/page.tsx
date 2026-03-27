@@ -6,6 +6,7 @@ import { PageSkeleton } from "@/components/loader/skeleton";
 import { useCurrentUser } from "@/services/hotel/querys";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import LogoLoader from "@/components/loader/logoloader";
 export default function Home() {
   const router = useRouter()
 
@@ -19,7 +20,7 @@ export default function Home() {
 
     }
   }, [data])
-  return <PageSkeleton />
+  return <LogoLoader />
 
 }
 

@@ -1,10 +1,10 @@
 'use client'
 import { cn } from "@/lib/utils";
-import  { Suspense } from "react";
+import { Suspense } from "react";
 import { ErrorBoundary } from 'react-error-boundary'
 import HotelFramePage from "@/components/frame-pages/MainFramePage";
 import type { CityTrends } from "@/types";
-import {  useGetNewHotels } from "@/services/hotel/querys";
+import { useGetNewHotels } from "@/services/hotel/querys";
 import { PageSkeleton } from "@/components/loader/skeleton";
 import { MessageModal } from "@/components/messagemodal";
 import HotelSearch from "./search-";
@@ -19,9 +19,9 @@ export interface HotelData {
   data: hoteldata[];
 }
 export type hoteldata = {
-  _id:   string,
-  name:  string,
-  city:  string,
+  _id: string,
+  name: string,
+  city: string,
   image: string,
 }
 // export const  HotelPopularCites:CityTrends[]=[
@@ -50,24 +50,24 @@ export type hoteldata = {
 //   tagline:"Popular stays in Bangalore"
 //  },
 // ]
-const Hotel = ({className}: HotelFramePageProps) => {
+const Hotel: React.FC<HotelFramePageProps> = ({ className }) => {
   localStorage.removeItem("nextRoute")
   localStorage.removeItem("like")
   const ismobile = useIsMobile()
-  
-  
-  return (
-    <div className={cn(" w-full ",ismobile?"":"", className)}>
-      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong"/>}>
-        <Suspense fallback={<PageSkeleton/>}>
-       
-          <HotelFramePage 
-          // popularTrends={HotelPopularCites}
-          type="hotels"
-          
-            
 
-            
+
+  return (
+    <div className={cn(" w-full ", ismobile ? "" : "", className)}>
+      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
+        <Suspense fallback={<PageSkeleton />}>
+
+          <HotelFramePage
+            // popularTrends={HotelPopularCites}
+            type="hotels"
+
+
+
+
           />
         </Suspense>
       </ErrorBoundary>
