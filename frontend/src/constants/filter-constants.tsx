@@ -1,4 +1,5 @@
 import { HotelCheckBoxGroupOfClassification, HotelCheckBoxGroupOfRoomSize, HotelCheckBoxGroupOfScore, HotelCounters, HotelDistanceFromCenter, HotelPileGroup, HotelPileGroupOfAmenities, HotelPileGroupOfEssentials, HotelPileGroupOfFeatures, HotelPileGroupOfLocation, HotelPileGroupOfOnsite, HotelPriceRange } from "@/components/side-bar-filter/hotel/HotelPileGroup";
+import { amenityIconMap, ConnectivityAndBusiness, Facilities, Family, Locations, RoomFeatures, Transport } from "@/components/ui/icons";
 // export const ROOM_COUNTER_KEYS = ["Bedrooms", "Beds", "Bathrooms"] as const;
 
 // export type CounterKeys = typeof ROOM_COUNTER_KEYS[number];
@@ -27,52 +28,117 @@ import {
   DoorOpenIcon,
 } from "lucide-react";
 import { Home, Layers } from "lucide-react";
-export const filterOptions = {
-  typeOfPlace: [
-    { value: "Any type", icon: <Layers size={16} /> },
-    { value: "Room", icon: <DoorOpenIcon size={16} /> },
-    { value: "Entire home", icon: <Home size={16} /> },
-  ],
+// export const filterOptions = {
+//   typeOfPlace: [
+//     { value: "Any type", icon: <Layers size={16} /> },
+//     { value: "Room", icon: <DoorOpenIcon size={16} /> },
+//     { value: "Entire home", icon: <Home size={16} /> },
+//   ],
 
-  amenities: [
-    { value: "Wi-Fi", icon: <Wifi size={16} /> },
-    { value: "Air conditioning", icon: <Snowflake size={16} /> },
-    { value: "BBQ grill", icon: <Flame size={16} /> },
-    { value: "Washing machine", icon: <WashingMachine size={16} /> },
-    { value: "Kitchen", icon: <Utensils size={16} /> },
-    { value: "restaurant", icon: <Utensils size={16} /> }
-  ],
+//   amenities: [
+//     { value: "Wi-Fi", icon: <Wifi size={16} /> },
+//     { value: "Air conditioning", icon: <Snowflake size={16} /> },
+//     { value: "BBQ grill", icon: <Flame size={16} /> },
+//     { value: "Washing machine", icon: <WashingMachine size={16} /> },
+//     { value: "Kitchen", icon: <Utensils size={16} /> },
+//     { value: "restaurant", icon: <Utensils size={16} /> }
+//   ],
+
+//   roomsbeds: ["Bedrooms", "Beds", "Bathrooms"] as const,
+
+//   essentials: [
+//     { value: "Heating", icon: <Wind size={16} /> },
+//     { value: "Iron", icon: <Wind size={16} /> },
+//     { value: "Hair dryer", icon: <Droplet size={16} /> },
+//     { value: "Dedicated workspace", icon: <Briefcase size={16} /> },
+//   ],
+
+//   onsiteServices: [
+//     { value: "24-hour front desk", icon: <ConciergeBell size={16} /> },
+//     { value: "Room service", icon: <Bell size={16} /> },
+//     { value: "Luggage storage", icon: <Luggage size={16} /> },
+//     { value: "Airport shuttle", icon: <Bus size={16} /> },
+//   ],
+
+//   features: [
+//     { value: "Breakfast included", icon: <Coffee size={16} /> },
+//     { value: "Pool", icon: <Waves size={16} /> },
+//     { value: "Hot tub", icon: <Sun size={16} /> },
+//     { value: "Free parking", icon: <ParkingSquare size={16} /> },
+//     { value: "Gym", icon: <Dumbbell size={16} /> },
+//     { value: "Restaurant", icon: <UtensilsCrossed size={16} /> },
+//   ],
+
+//   location: [
+//     { value: "Private beach area", icon: <Waves size={16} /> },
+//     { value: "Waterfront", icon: <MapPin size={16} /> },
+//     { value: "Balcony", icon: <Building size={16} /> },
+//   ],
+//   guest_score: [
+//     {
+//       value: 5,
+//       label: "5.0+ Excellent",
+//     },
+//     {
+//       value: 4,
+//       label: "4.0+ Very Good",
+//     },
+//     {
+//       value: 3,
+//       label: "3.0+ Good",
+//     },
+//     {
+//       value: 2,
+//       label: "2.0+ Fair",
+//     },
+//     {
+//       value: 1,
+//       label: "1.0+ Poor",
+//     },
+//   ],
+//   classification: [
+//     {
+//       value: 5,
+//       label: "5.0+ Excellent",
+//     },
+//     {
+//       value: 4,
+//       label: "4.0+ Very Good",
+//     },
+//     {
+//       value: 3,
+//       label: "3.0+ Good",
+//     },
+//     {
+//       value: 2,
+//       label: "2.0+ Fair",
+//     },
+//     {
+//       value: 1,
+//       label: "1.0+ Poor",
+//     },
+//   ],
+//   roomsize: [
+//     { value: 200, label: "small (<=25 msq" },
+//     { value: 500, label: "medium (25-50 msq)" },
+//     { value: 1000, label: "large (50-100 msq)" },
+
+//   ]
+// };
+export const filterOptions = {
+  typeOfPlace: Family,
+
+  amenities: ConnectivityAndBusiness,
 
   roomsbeds: ["Bedrooms", "Beds", "Bathrooms"] as const,
 
-  essentials: [
-    { value: "Heating", icon: <Wind size={16} /> },
-    { value: "Iron", icon: <Wind size={16} /> },
-    { value: "Hair dryer", icon: <Droplet size={16} /> },
-    { value: "Dedicated workspace", icon: <Briefcase size={16} /> },
-  ],
+  essentials: Facilities,
 
-  onsiteServices: [
-    { value: "24-hour front desk", icon: <ConciergeBell size={16} /> },
-    { value: "Room service", icon: <Bell size={16} /> },
-    { value: "Luggage storage", icon: <Luggage size={16} /> },
-    { value: "Airport shuttle", icon: <Bus size={16} /> },
-  ],
+  onsiteServices: RoomFeatures,
 
-  features: [
-    { value: "Breakfast included", icon: <Coffee size={16} /> },
-    { value: "Pool", icon: <Waves size={16} /> },
-    { value: "Hot tub", icon: <Sun size={16} /> },
-    { value: "Free parking", icon: <ParkingSquare size={16} /> },
-    { value: "Gym", icon: <Dumbbell size={16} /> },
-    { value: "Restaurant", icon: <UtensilsCrossed size={16} /> },
-  ],
+  features: Transport,
 
-  location: [
-    { value: "Private beach area", icon: <Waves size={16} /> },
-    { value: "Waterfront", icon: <MapPin size={16} /> },
-    { value: "Balcony", icon: <Building size={16} /> },
-  ],
+  location: Locations,
   guest_score: [
     {
       value: 5,
@@ -124,7 +190,6 @@ export const filterOptions = {
 
   ]
 };
-
 type bedstype = "Bedrooms" | "Beds" | "Bathrooms"
 export const items = [
   {
