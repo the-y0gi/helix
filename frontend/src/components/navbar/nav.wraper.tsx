@@ -191,39 +191,42 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
       <Footer />
       {/* CUSTOM LOGIN AD POPUP */}
       {showAdPopup && !hasDismissed && (
-        <div className=" fixed bottom-4 right-4 md:bottom-10 md:right-10  w-[320px] bg-card border shadow-2xl rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-right-8 fade-in duration-1200">
+        <div className="fixed bottom-4 right-4 md:bottom-10 md:right-10 w-[280px] md:w-[320px] bg-card border shadow-2xl rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-right-8 fade-in duration-1200">
           <button
             onClick={() => {
               setHasDismissed(true);
               setShowAdPopup(false);
             }}
-            className="absolute top-2 right-2 z-10 p-1.5 bg-black/40 text-white rounded-full hover:bg-black/60 backdrop-blur-sm transition-colors"
+            className="absolute top-2 right-2 z-10 p-1 bg-black/40 text-white rounded-full hover:bg-black/60 backdrop-blur-sm transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
           </button>
 
-          <div className="h-40 bg-muted relative w-full">
+          {/* Reduced height from h-34 to h-24 */}
+          <div className="h-24 md:h-34 bg-muted relative w-full">
             <img
               src="/key.png"
               alt="Login to unlock features"
               className="w-full h-full object-cover object-top"
             />
-
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-              <h3 className="font-semibold text-lg text-white leading-tight">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-3">
+              <h3 className="font-semibold text-base text-white leading-tight">
                 Unlock the best experience
               </h3>
             </div>
           </div>
-          <div className="p-4 flex flex-col gap-3">
-            <p className="text-sm text-foreground/80  ">Log in to save your favorite hotels, access exclusive deals, and manage your bookings effortlessly.</p>
+
+          {/* Reduced padding and gaps */}
+          <div className="p-3 flex flex-col gap-2">
+            <p className="text-xs text-foreground/80 leading-normal">
+              Log in to save favorites, access deals, and manage bookings effortlessly.
+            </p>
             <Sign_in_hover
               forLike={{
                 content: (
                   <Button
                     size="sm"
-                    className="w-full mt-2"
-
+                    className="w-full h-8 mt-1 text-xs"
                   >
                     Log In Now
                   </Button>
@@ -234,6 +237,49 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
             />
           </div>
         </div>
+        // <div className=" fixed bottom-4 right-4 md:bottom-10 md:right-10  w-[320px] bg-card border shadow-2xl rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-right-8 fade-in duration-1200">
+        //   <button
+        //     onClick={() => {
+        //       setHasDismissed(true);
+        //       setShowAdPopup(false);
+        //     }}
+        //     className="absolute top-2 right-2 z-10 p-1.5 bg-black/40 text-white rounded-full hover:bg-black/60 backdrop-blur-sm transition-colors"
+        //   >
+        //     <X className="w-4 h-4" />
+        //   </button>
+
+        //   <div className="h-34 bg-muted relative w-full">
+        //     <img
+        //       src="/key.png"
+        //       alt="Login to unlock features"
+        //       className="w-full h-full object-cover object-top"
+        //     />
+
+        //     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+        //       <h3 className="font-semibold text-lg text-white leading-tight">
+        //         Unlock the best experience
+        //       </h3>
+        //     </div>
+        //   </div>
+        //   <div className="p-4 flex flex-col gap-3">
+        //     <p className="text-sm text-foreground/80  ">Log in to save your favorite hotels, access exclusive deals, and manage your bookings effortlessly.</p>
+        //     <Sign_in_hover
+        //       forLike={{
+        //         content: (
+        //           <Button
+        //             size="sm"
+        //             className="w-full mt-2"
+
+        //           >
+        //             Log In Now
+        //           </Button>
+        //         ),
+        //         type: "nextRoute",
+        //         do: "/profile"
+        //       }}
+        //     />
+        //   </div>
+        // </div>
       )}
       {/* CUSTOM MOBILE BOTTOM BAR (Instagram/YouTube Style) */}
       {/* {isMobile && !open && (

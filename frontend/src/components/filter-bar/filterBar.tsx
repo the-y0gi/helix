@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "../ui/input";
+import { RouterPush } from "../RouterPush";
 
 export const PagesFilterBarButtons = ({
   PagesFilterBarValues,
@@ -78,7 +79,7 @@ export const PagesFilterBarButtons = ({
                     {hv.value}
                   </ItemTitle>
                   <div className="flex justify-center md:w-[150px] w-full ">
-                  
+
                   </div>
                 </ItemContent>
               </Item>
@@ -88,7 +89,7 @@ export const PagesFilterBarButtons = ({
 
         {type === "home" && (
           <Button
-            onClick={() => navigate.push(link || "/")}
+            onClick={() => RouterPush(navigate, link || "/hotels/find")}
             className="z-40 h-10 w-10  rounded-full bg-primary text-text  shadow-xl hover:scale-105 transition-transform ml-2"
           >
             <IconSearch size={24} stroke={3} />
@@ -97,46 +98,45 @@ export const PagesFilterBarButtons = ({
       </div>
 
       {/* 3. The Large Dynamic Drawer (POSITIONING CHANGED) */}
-     {/* 3. The Large Dynamic Drawer */}
-<AnimatePresence>
-  {selectedId !== null && (
-    <motion.div
-      layout // Essential for smooth transition between items
-      key="drawer" // Keep the drawer as one consistent layout element
-      initial={{ opacity: 0, y: -20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -20, scale: 0.95 }}
-      transition={{
-        layout: { type: "spring", bounce: 0.1, duration: 0.3 },
-        opacity: { duration: 0.2 }
-      }}
-      style={{ originX: 0.5 }}
-      className={cn(
-        "absolute left-1/2 -translate-x-1/2 z-40 md:w-[95vw] w-[90vw] min-h-[100px] max-w-xl  overflow-hidden md:rounded-[3rem] rounded-[1rem] border border-border-100 bg-background md:p-2 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.25)]",
-        "bottom-full mb-4 md:bottom-auto md:top-full md:mt-3"
-      )}
-    >
-      <motion.div layout className="p-7">
-        <AnimatePresence mode="popLayout" initial={false}>
-          {/* We use a internal key for content, but keep the parent drawer stable */}
+      {/* 3. The Large Dynamic Drawer */}
+      <AnimatePresence>
+        {selectedId !== null && (
           <motion.div
-            key={selectedId}
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            transition={{ duration: 0.2 }}
+            layout // Essential for smooth transition between items
+            key="drawer" // Keep the drawer as one consistent layout element
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{
+              layout: { type: "spring", bounce: 0.1, duration: 0.3 },
+              opacity: { duration: 0.2 }
+            }}
+            style={{ originX: 0.5 }}
+            className={cn(
+              "absolute left-1/2 -translate-x-1/2 z-40 md:w-[95vw] w-[90vw] min-h-[100px] max-w-xl  overflow-hidden md:rounded-[3rem] rounded-[1rem] border border-border-100 bg-background md:p-2 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.25)]",
+              "bottom-full mb-4 md:bottom-auto md:top-full md:mt-3"
+            )}
           >
-            <div className="min-h-[100px] w-full py-5 ">
-              {PagesFilterBarValues[selectedId].element}
-            </div>
+            <motion.div layout className="p-7">
+              <AnimatePresence mode="popLayout" initial={false}>
+                {/* We use a internal key for content, but keep the parent drawer stable */}
+                <motion.div
+                  key={selectedId}
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="min-h-[300px] w-full py-5 ">
+                    {PagesFilterBarValues[selectedId].element}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
           </motion.div>
-        </AnimatePresence>
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
- 

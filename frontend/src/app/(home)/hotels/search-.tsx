@@ -11,7 +11,8 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { TabsNav } from "@/components/ui/tabs-nav-aty";
 import { pages } from "@/constants/pages";
-
+import NProgress from "nprogress";
+import { RouterPush } from "@/components/RouterPush";
 export default function SearchBox({ tabs: propTabs }: { tabs: Pages[] }) {
   const router = useRouter();
   const location = usePathname();
@@ -19,13 +20,13 @@ export default function SearchBox({ tabs: propTabs }: { tabs: Pages[] }) {
   const ismobile = useIsMobile()
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-2 lg:gap-4 items-center md:px-10 mx-auto ">
-     
+
       <Card className="md:p-6 px-2 gap-2 md:gap-6 shadow-xl border-none bg-card text-card-foreground rounded-[0.5rem] w-full lg:w-[910px] h-[296px] flex flex-col justify-between">
-         {
-        ismobile && (
-          <TabsNav mobile={false} tabs={pages} />
-        )
-      }
+        {
+          ismobile && (
+            <TabsNav mobile={false} tabs={pages} />
+          )
+        }
         <div className="space-y-4">
           <div className="flex items-center gap-4 bg-primary/5 border border-primary/10 rounded-[10px] md:px-5 px-3 py-2">
             <MapPin className="w-5 h-5 text-primary shrink-0" />
@@ -46,16 +47,16 @@ export default function SearchBox({ tabs: propTabs }: { tabs: Pages[] }) {
                 className="flex md:flex-row flex-col w-full   items-center gap-3 bg-secondary/50 border border-border rounded-[10px] px-2 md:px-5 py-3 hover:bg-secondary/80 transition-colors cursor-pointer"
               >
                 <item.icon className="w-4 h-4 text-muted-foreground shrink-0" />
-               {
-                (
-                   <div className="flex-1 min-w-0">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
-                    {item.label}
-                  </p>
-                 {!ismobile&& <p className="text-sm font-medium truncate">{item.text}</p>}
-                </div>
-                )
-               }
+                {
+                  (
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+                        {item.label}
+                      </p>
+                      {!ismobile && <p className="text-sm font-medium truncate">{item.text}</p>}
+                    </div>
+                  )
+                }
               </div>
             ))}
           </div>
@@ -63,7 +64,7 @@ export default function SearchBox({ tabs: propTabs }: { tabs: Pages[] }) {
 
         <Button
           className="w-full bg-[#FE3230] hover:bg-primary/90 mb-10 md:mb-0 text-primary-foreground md:h-14 rounded-[10px] text-lg font-bold shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
-          onClick={() => router.push("/hotels/find")}
+          onClick={() => { RouterPush(router, "/hotels/find"); }}
         >
           Search Hotel
         </Button>
@@ -71,8 +72,8 @@ export default function SearchBox({ tabs: propTabs }: { tabs: Pages[] }) {
 
       <div className="pt-5 md:pt-0">
         <LoopingVideoHero
-        VIDEOS={["/happy.mp4", "/road.mp4", "/hot-air.mp4", "/japan.mp4"]}
-      />
+          VIDEOS={["/happy.mp4", "/road.mp4", "/hot-air.mp4", "/japan.mp4"]}
+        />
       </div>
     </div>
   );

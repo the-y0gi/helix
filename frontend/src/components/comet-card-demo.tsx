@@ -3,6 +3,7 @@
 import { CometCard } from "@/components/ui/comet-card";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { RouterPush } from "./RouterPush";
 
 interface HotelGalleryCardProps {
   images: string[];
@@ -171,7 +172,7 @@ export function GalleryCard({
 
       {/* Label */}
       <div className="absolute bottom-5 left-0 right-0 text-center" onClick={() => {
-        router.push("/hotels/find")
+        RouterPush(router, "/hotels/find")
       }}>
         <span className="rounded-full bg-black/60 px-5 py-2 text-sm font-medium text-white backdrop-blur-md">
           {label}

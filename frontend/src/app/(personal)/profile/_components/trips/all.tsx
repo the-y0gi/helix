@@ -17,9 +17,9 @@ type ReservationStatus =
   | "completed"
   | "active"
   | "all";
-
+import NProgress from "nprogress"
 export interface ReservationCardProps {
-  hotelId:string;
+  hotelId: string;
   _id: string;
   hotelName: string;
   thumbnail: string;
@@ -44,16 +44,16 @@ export function AllReservations({
 
   const trips = tripsdata_unfiltered?.data ?? [];
 
- 
+
 
   const tripsdata =
     variant === "all"
       ? trips
       : trips.filter((val: ReservationCardProps) =>
-          variant === "active"
-            ? val.status === "confirmed" || val.status === "pending"
-            : val.status === variant,
-        );
+        variant === "active"
+          ? val.status === "confirmed" || val.status === "pending"
+          : val.status === variant,
+      );
   const [details, setDetails] = useState<{ id: string; open: boolean }>({
     id: "",
     open: false,
@@ -76,30 +76,30 @@ export function AllReservations({
 
       {isLoading
         ? [...Array(6)].map((_, i) => {
-            return <SkeletonAvatar key={i} />;
-          })
+          return <SkeletonAvatar key={i} />;
+        })
         : tripsdata?.map((val: ReservationCardProps) => {
-            return (
-              <div key={val._id}>
-                <ReservationCard
+          return (
+            <div key={val._id}>
+              <ReservationCard
                 hotelId={val.hotelId}
-                  _id={val._id}
-                  hotelName={val.hotelName}
-                  thumbnail={val.thumbnail}
-                  checkIn={val.checkIn}
-                  checkOut={val.checkOut}
-                  guests={{
-                    adults: val.guests.adults,
-                    children: val.guests.children,
-                  }}
-                  bookingId={val.bookingId}
-                  status={val.status}
-                  onCheckDetails={() => setDetails({ id: val._id, open: true })}
-                />
-                <Separator />
-              </div>
-            );
-          })}
+                _id={val._id}
+                hotelName={val.hotelName}
+                thumbnail={val.thumbnail}
+                checkIn={val.checkIn}
+                checkOut={val.checkOut}
+                guests={{
+                  adults: val.guests.adults,
+                  children: val.guests.children,
+                }}
+                bookingId={val.bookingId}
+                status={val.status}
+                onCheckDetails={() => setDetails({ id: val._id, open: true })}
+              />
+              <Separator />
+            </div>
+          );
+        })}
     </div>
   );
 }
@@ -121,6 +121,7 @@ const Skel = () => {
 
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { RouterPush } from "@/components/RouterPush";
 
 
 
@@ -158,7 +159,9 @@ export function ReservationCard({
             {/* Hotel Details */}
             <div className="flex-1 space-y-3 sm:space-y-2">
               <h3
-                onClick={() => router.push(`/hotels/${hotelId}`)}
+                onClick={() => {
+                  RouterPush(router, `/hotels/${hotelId}`)
+                }}
                 className="font-semibold text-lg sm:text-base cursor-pointer hover:text-primary transition-colors line-clamp-2"
               >
                 {hotelName}
@@ -185,7 +188,7 @@ export function ReservationCard({
                 </p>
                 <p>
                   <span className="font-medium text-foreground">Guests:</span>{" "}
-                  {guests.adults + guests.children} 
+                  {guests.adults + guests.children}
                   {guests.adults + guests.children === 1 ? " person" : " people"}
                 </p>
               </div>

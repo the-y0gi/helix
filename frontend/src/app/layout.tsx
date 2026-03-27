@@ -43,6 +43,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import MainProvider from "@/providers/main-provider/main-provider";
 import { Toaster } from "@/components/ui/sonner";
+import TopLoader from "./toploader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -65,7 +66,6 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -77,8 +77,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <MainProvider>
+          <TopLoader />
           {children}
-          <Toaster position="bottom-left" expand={true} richColors />
+          <Toaster position="bottom-left" expand={true} />
         </MainProvider>
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
       </body>

@@ -7,6 +7,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/services/hotel/querys";
 import { dotoggleLike } from "@/services/hotel/hotel.service";
+import { RouterPush } from "@/components/RouterPush";
 
 export const useSignUp = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -34,7 +35,7 @@ export const useSignUp = () => {
         const nextRoute = localStorage.getItem("nextRoute");
         const like = localStorage.getItem("like");
         if (nextRoute) {
-          navigate.push(nextRoute);
+          RouterPush(navigate, nextRoute);
           localStorage.removeItem("nextRoute");
         } else if (like) {
           await dotoggleLike(like);

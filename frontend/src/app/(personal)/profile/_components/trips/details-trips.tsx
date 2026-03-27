@@ -74,7 +74,8 @@ export default function ReservationDetailsPage({
     </div>
   );
 }
-
+import NProgress from 'nprogress'
+import { RouterPush } from "@/components/RouterPush";
 export function PropertyHeaderCard({ booking }: { booking: BookingDetails }) {
   const { hotel, checkIn, checkOut, status, roomsBooked } = booking;
   const checkInDate = new Date(checkIn);
@@ -87,7 +88,9 @@ export function PropertyHeaderCard({ booking }: { booking: BookingDetails }) {
         <div className="flex gap-4">
           <div
             className="w-20 h-20 md:w-24 md:h-24 rounded-md overflow-hidden shrink-0 cursor-pointer"
-            onClick={() => router.push(`/hotels/${hotel.hotelId}`)}
+            onClick={() => {
+              RouterPush(router, `/hotels/${hotel.hotelId}`)
+            }}
           >
             <img src={hotel?.thumbnail} alt={hotel?.name} className="w-full h-full object-cover" />
           </div>
@@ -95,7 +98,9 @@ export function PropertyHeaderCard({ booking }: { booking: BookingDetails }) {
           <div className="space-y-1 md:space-y-2">
             <h2
               className="text-base md:text-lg font-semibold cursor-pointer"
-              onClick={() => router.push(`/hotels/${hotel.hotelId}`)}
+              onClick={() => {
+                RouterPush(router, `/hotels/${hotel.hotelId}`)
+              }}
             >
               {hotel.name}
             </h2>

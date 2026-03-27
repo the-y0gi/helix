@@ -343,7 +343,7 @@ type HotelCardProps = {
   amenities?: string[];
   left?: number;
 };
-
+import NProgress from "nprogress";
 export function HotelCard({
   hotelId,
   left,
@@ -492,7 +492,7 @@ export function HotelCard({
   return (
     <Card
       className={cn(
-        "group overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:shadow-lg min-w-[600px]",
+        "group overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:shadow-lg ",
         isHorizontal ? "flex flex-row w-full min-h-[260px]" : "flex flex-col w-full"
       )}
     >
@@ -529,7 +529,11 @@ export function HotelCard({
             <div className="flex items-center gap-2">
               <h3
                 className="text-xl font-bold leading-tight cursor-pointer hover:text-blue-600 transition-colors line-clamp-1"
-                onClick={() => navigate.push(`/hotels/${hotelId}`)}
+                onClick={() => {
+                  NProgress.start();
+                  navigate.push(`/hotels/${hotelId}`)
+
+                }}
               >
                 {title}
               </h3>

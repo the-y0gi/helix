@@ -25,85 +25,85 @@ import FilterBox from "@/components/filter-bar/fiter_box";
 // };
 export const FilterOfPages: Pages[] = [
   {
-    type:"filter",
+    type: "filter",
     link: "/hotels/find",
     title: "Filter Hotels",
-    icon:IconHome,
-    filter_bar:(
-      <PagesFilterBarButtons PagesFilterBarValues={HotelFilterBarValues}  type="home" />
+    icon: IconHome,
+    filter_bar: (
+      <PagesFilterBarButtons PagesFilterBarValues={HotelFilterBarValues} type="home" />
     ),
-    home_filter_box:(
-      <FilterBox FilterBoxValues={Search_box_values[0]}  type="home" link="/hotels" />
+    home_filter_box: (
+      <FilterBox FilterBoxValues={Search_box_values[0]} type="home" link="/hotels" />
     )
   },
 ];
 export const pages: Pages[] = [
-  
+
   {
     type: "home",
     link: "/hotels",
     icon: IconHome,
-    iconUrl:"/hotel-logo.png",
+    iconUrl: "/hotel-logo.png",
     title: "Hotels",
     filter_bar: (
-      <PagesFilterBarButtons PagesFilterBarValues={HotelFilterBarValues} link="/hotels/find" type="home"/>
+      <PagesFilterBarButtons PagesFilterBarValues={HotelFilterBarValues} link="/hotels/find" type="home" />
     ),
-    home_filter_box:(
-      <FilterBox FilterBoxValues={Search_box_values[0]}  type="home" link="/hotels" />
+    home_filter_box: (
+      <FilterBox FilterBoxValues={Search_box_values[0]} type="home" link="/hotels" />
     )
   },
   {
     type: "home",
     link: "/cabs",
     icon: IconHome,
-    iconUrl:"/cabs-logo.png",
+    iconUrl: "/cabs-logo.png",
     title: "Cabs",
     filter_bar: (
-      <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/cabs/find" type="home"/>
+      <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/cabs/find" type="home" />
     ),
-    home_filter_box:(
-      <FilterBox FilterBoxValues={Search_box_values[1]}  type="home" link="/cabs" />
+    home_filter_box: (
+      <FilterBox FilterBoxValues={Search_box_values[1]} type="home" link="/cabs" />
     )
   },
 
   {
     link: "/bikes",
     icon: IconHome,
-    iconUrl:"/bikes-logo.png",
+    iconUrl: "/bikes-logo.png",
     title: "Bikes",
     filter_bar: (
-      <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/bikes/find" type="home"/>
+      <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/bikes/find" type="home" />
     ),
     type: "home",
-    home_filter_box:(
-      <FilterBox FilterBoxValues={Search_box_values[2]}  type="home" link="/bikes" />
+    home_filter_box: (
+      <FilterBox FilterBoxValues={Search_box_values[2]} type="home" link="/bikes" />
     )
   },
-  
+
   {
     type: "home",
     link: "/tours",
     icon: IconHome,
-    iconUrl:"/tours-logo.png",
+    iconUrl: "/tours-logo.png",
     title: "Tours",
     filter_bar: (
-      <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/tours/find" type="home"/>
+      <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/tours/find" type="home" />
     ),
-    home_filter_box:(
-      <FilterBox FilterBoxValues={Search_box_values[3]}  type="home" link="/tours" />
+    home_filter_box: (
+      <FilterBox FilterBoxValues={Search_box_values[3]} type="home" link="/tours" />
     )
   },
   {
     type: "home",
     link: "/adventures",
     icon: IconHome,
-    iconUrl:"/adventures-logo.png",
+    iconUrl: "/adventures-logo.png",
     title: "Adventures",
     filter_bar: (
-      <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/adventures/find" type="home"/>
+      <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/adventures/find" type="home" />
     ),
-    home_filter_box:(
-      <FilterBox FilterBoxValues={Search_box_values[4]}  type="home" link="/adventures" />
+    home_filter_box: (
+      <FilterBox FilterBoxValues={Search_box_values[4]} type="home" link="/adventures" />
     )
   },
 ];

@@ -1,5 +1,6 @@
 "use client";
 
+import { RouterPush } from "@/components/RouterPush";
 import { useRouter } from "next/navigation";
 
 export const useNextGoingRoute = () => {
@@ -9,11 +10,11 @@ export const useNextGoingRoute = () => {
     if (!isAuthenticated) {
       localStorage.setItem("nextRoute", nextRoute);
 
-      router.push("/login");
+      RouterPush(router, "/login");
       return;
     }
 
-    router.push(nextRoute);
+    RouterPush(router, nextRoute);
   };
 
   return { goWithAuth };

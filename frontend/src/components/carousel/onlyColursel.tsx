@@ -7,6 +7,7 @@ import Image, { StaticImageData } from "next/image";
 import { useRouter } from "next/navigation";
 import { useHotelsQuery } from "@/services/hotel/querys";
 import { GalleryCard, HotelGalleryCard } from "../comet-card-demo";
+import { RouterPush } from "../RouterPush";
 // import { GalleryCard } from "../comet-card-demo";
 // import HotelGalleryCard from "../comet-card-demo";
 
@@ -105,7 +106,7 @@ export const OnlyCarousel = ({ type, tagline,items,isLoading }: Props) => {
             <Card
               key={`${item.title}-${i}`}
               item={item}
-              onClick={() => router.push(item.href)}
+              onClick={() => RouterPush(router, item.href)}
             />
           ))}
          

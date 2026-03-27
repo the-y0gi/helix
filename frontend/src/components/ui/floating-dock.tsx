@@ -11,6 +11,7 @@ import {
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { RouterPush } from "../RouterPush";
 
 export const FloatingDock = ({
   items,
@@ -64,7 +65,7 @@ const FloatingDockMobile = ({
                 transition={{ delay: (items.length - 1 - idx) * 0.05 }}
               >
                 <a
-                  onClick={() => router.push(item.href)}
+                  onClick={() => RouterPush(router, item.href)}
                   key={item.title}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 dark:bg-neutral-900"
                 >
@@ -106,7 +107,7 @@ const FloatingDockDesktop = ({
       {items.map((item, i) => (
         <div
           key={i}
-          onClick={() => router.push(item.href)}
+          onClick={() => RouterPush(router, item.href)}
           className="flex gap-3 rounded-r-3xl items-center"
         >
           <IconContainer mouseX={mouseX} key={item.title} {...item} />
