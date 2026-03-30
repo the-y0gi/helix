@@ -1066,7 +1066,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
       <form onSubmit={methods.handleSubmit(onSubmit)} className={cn("container max-w-7xl mx-auto px-4", ismobile && "pb-32")}>
         <StepsView />
         {!loading ? (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+          <div className={cn("grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8 w-full", currentstep === 3 && "grid-cols-1 lg:grid-cols-1")}>
             <div className="lg:col-span-8">
               <PaymentForm methods={methods} />
             </div>
@@ -1168,10 +1168,23 @@ export const FinalStep = () => {
   return (
     <>
       <ScrollToTop />
-      <div className="w-full flex flex-col items-center justify-center">
+      <div className="w-full flex items-center justify-center relative">
         <ScrollToTop />
         <PaymentSuccess payment={payments} />
-      </div></>
+
+        <div className="h-[1200px] flex justify-center hidden md:block ">
+          <div className="sticky top-10 right-0 h-[600px]  self-start">
+            <img
+              src="/payment-done.png"
+              alt="Thankyou for payment"
+              className="w-full h-full object-contain hover:scale-105 transition-all duration-300 hover:drop-shadow-2xl hover:shadow-primary/20"
+            />
+          </div>
+        </div>
+      </div>
+
+
+    </>
   );
 };
 
@@ -1198,8 +1211,8 @@ export function PaymentSuccess({ payment }: { payment: any }) {
     });
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 dark:bg-zinc-950 flex items-center justify-center p-4 md:p-8">
-      <Card className="w-full overflow-hidden shadow-2xl border-none ring-1 ring-black/5 dark:ring-white/10">
+    <div className="min-h-screen w-full  dark:bg-zinc-950 flex items-center justify-center p-4 md:p-8">
+      <Card className="w-full overflow-hidden hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 hover:scale-101 border-none ring-1 ring-black/5 dark:ring-white/10">
 
         {/* Modern Success Header */}
         <div className="relative bg-primary text-primary-foreground p-8 md:p-12 text-center overflow-hidden ">

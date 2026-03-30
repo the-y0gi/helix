@@ -34,11 +34,9 @@ const Gallery = ({ sections }: { sections: GallerySection[] }) => {
                   className="relative w-full h-full overflow-hidden"
                 >
                   <img
-                    src={image.src}
+                    src={image.src.length > 50 ? image.src : "/roomIdeal.png"}
                     alt={image.alt}
-                    /* object-cover is key here: it fills the box without 
-                       stretching the actual pixels of the person/building.
-                    */
+
                     className='absolute inset-0 w-full h-full object-cover'
                   />
                 </div>
@@ -203,7 +201,7 @@ const InnerGallery = ({ sections }: { sections: GallerySection[] }) => {
                   onClick={() => setSelectedIndex(globalIndex)}
                 >
                   <img
-                    src={image.src}
+                    src={image.src.length > 50 ? image.src : "/roomIdeal.png"}
                     alt={image.alt}
                     className={cn(
                       'w-full h-full object-cover transition-transform duration-500 group-hover:scale-105',
@@ -235,7 +233,7 @@ const InnerGallery = ({ sections }: { sections: GallerySection[] }) => {
 
           <div className="relative max-w-[90vw] max-h-[85vh] flex flex-col items-center gap-4">
             <img
-              src={allImages[selectedIndex].src}
+              src={allImages[selectedIndex].src.length > 50 ? allImages[selectedIndex].src : "/roomIdeal.png"}
               alt={allImages[selectedIndex].alt}
               className="max-w-full max-h-full object-contain shadow-2xl animate-in zoom-in-95 duration-300"
               onClick={(e) => e.stopPropagation()}

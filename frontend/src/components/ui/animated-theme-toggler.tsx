@@ -75,7 +75,9 @@ export const AnimatedThemeToggler = ({
       className={cn(className, "flex items-center gap-2")}
       {...props}
     >
-      {!isDark ? " Dark mode" :"Light mode "}
+      {!isDark ? <Moon size={17}/> : <Sun size={17} />}
+      {" "}
+      {!isDark ? "Dark mode" : "Light mode"}
       
       <span className="sr-only">Toggle theme</span>
     </button>

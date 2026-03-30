@@ -155,6 +155,7 @@ import { Logout } from "@/app/(personal)/profile/_components/app-sidebar";
 import { useNextGoingRoute } from "@/hooks/auth/route.hook";
 import { Skeleton } from "./ui/skeleton";
 import { useCurrentUser } from "@/services/hotel/querys";
+import { IconLogout } from "@tabler/icons-react";
 
 export function MenuBar() {
   const { data: user, isLoading, refetch } = useCurrentUser();

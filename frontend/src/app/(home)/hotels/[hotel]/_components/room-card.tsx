@@ -1024,7 +1024,7 @@ export function HotelRoomCard({
           </div>
 
           <div className="w-full mt-4 md:mt-5">
-            {(!isAuthenticated) ? (
+            {(!isAuthenticated && isBookingMode) ? (
               <Sign_in_hover
                 tag="Log-in"
                 variant="ghost"

@@ -49,7 +49,7 @@ export function UserProfileFields({
     defaultValues: {
       firstName: currUser?.data?.firstName || "",
       lastName: currUser?.data?.lastName || "",
-      phoneNumber: currUser?.data?.phoneNumber || "",
+      email: currUser?.data?.email || "",
       gender:
         (currUser?.data?.gender as "male" | "female" | "other") || "other",
       country: currUser?.data?.country || "India",
@@ -63,7 +63,8 @@ export function UserProfileFields({
       reset({
         firstName: currUser?.data?.firstName || "",
         lastName: currUser?.data?.lastName || "",
-        phoneNumber: currUser?.data?.phoneNumber || "",
+        email: currUser?.data?.email || "",
+        
         gender:
           (currUser?.data?.gender as "male" | "female" | "other") || "other",
         country: currUser?.data?.country || "India",
@@ -127,17 +128,23 @@ export function UserProfileFields({
                 <Field>
                   <FieldLabel>Email Address</FieldLabel>
                   <Input
-                    value={currUser?.data?.email || ""}
-                    disabled
-                    className="bg-muted cursor-not-allowed"
+                    {...register("email")}
+                    placeholder="enter email"
+                    className="bg-background   "
                   />
+                  {errors.email && (
+                    <span className="text-destructive text-xs">
+                      {errors.email.message}
+                    </span>
+                  )}
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="phone">Phone Number</FieldLabel>
                   <Input
-                    {...register("phoneNumber")}
-                    className="bg-background"
-                    id="phone"
+                  disabled
+                    value={currUser?.data?.phoneNumber || ""}
+                    className="bg-muted cursor-not-allowed"
+                    
                     placeholder="+1 (555) 000-0000"
                     type="tel"
                   />
