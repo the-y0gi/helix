@@ -418,7 +418,7 @@ const ReviewCard = ({ name, date, review }: { name: string; date: string; review
                 <RattingBadge rating={5} variant="left" className="w-6 h-6 scale-90" />
             </div>
             <p className="text-sm text-zinc-600 leading-relaxed line-clamp-3">
-                "{review}"
+                {review}
             </p>
         </Card>
     );
