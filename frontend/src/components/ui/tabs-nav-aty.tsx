@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import Image from "next/image";
+import { RouterPush } from "../RouterPush";
 
 export const TabsNav = ({
   tabs: propTabs,
@@ -47,7 +48,7 @@ export const TabsNav = ({
         {propTabs.map((tab, index) => (
           <div key={tab.title} className="flex flex-1 items-center">
             <button
-              onClick={() => navigate.push(tab.link)}
+              onClick={() => RouterPush(navigate, tab.link)}
               className={cn(
                 // STRETCH: Increased horizontal padding (px-14) to fill the extra width
                 "relative flex-1 flex items-center justify-center md:px-14 px-5 py-2 rounded-[14px]",

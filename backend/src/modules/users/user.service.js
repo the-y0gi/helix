@@ -7,8 +7,8 @@ exports.getUserProfile = async (userId) => {
 
 exports.updateUserProfile = async (userId, updateData) => {
   // Block email updates for security
-  if (updateData.email) {
-    throw new Error("Email address cannot be updated");
+  if (updateData.phoneNumber) {
+    throw new Error("Phone number cannot be updated");
   }
 
   const updatedUser = await User.findByIdAndUpdate(

@@ -95,7 +95,7 @@ export const Content = ({ className }: { className: string }) => {
           ? Math.min(...roomTypes.map((r: any) => r.discountPrice > 0 ? r.discountPrice : r.basePrice))
           : (hotel as any).startingPrice ?? 0
 
-        const firstImage = hotel.images?.[0]?.url ?? "/img2.png"
+        const firstImage = hotel.images?.[0]?.url ?? "/hotels/hotel-temp.png"
 
         return (
           <HotelCard

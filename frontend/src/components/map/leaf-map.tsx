@@ -22,18 +22,18 @@ const customIcon = new L.Icon({
 
 const MapLeaf = ({ className, height = '400px', cordinates }: Props) => {
   return (
-    <div 
+    <div
       // 1. Use 'relative' and a specific z-index lower than your Navbar (e.g., 0 or 10)
       // 2. 'mt-20' provides the gap from the top of the screen/navbar
-      className={cn('w-full md:mt-10 relative z-0', className)} 
+      className={cn('w-full md:mt-10 relative z-0', className)}
       style={{ height }}
     >
       <MapContainer
-        center={cordinates || [19.0760, 72.8777]} 
+        center={cordinates || [19.0760, 72.8777]}
         zoom={11}
         scrollWheelZoom={true}
         // REMOVE 'z-0' from here. Let Leaflet handle its internal layering.
-        className="h-full w-full rounded-lg" 
+        className="h-full w-full rounded-lg"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

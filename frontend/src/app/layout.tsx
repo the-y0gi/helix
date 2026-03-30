@@ -77,7 +77,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <MainProvider>
-          <TopLoader />
+          <TopLoader /> 
           {children}
           <Toaster position="bottom-left" expand={true} />
         </MainProvider>

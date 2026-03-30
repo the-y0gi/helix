@@ -42,7 +42,11 @@ export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; c
   return (
     <button
       className={cn(className)}
-      onClick={handleClick}
+      onClick={(e)=>{
+        e.stopPropagation()
+        e.preventDefault()
+        handleClick()
+      }}
       disabled={isPending}
     >
       {!hasToken ? (

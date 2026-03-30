@@ -317,7 +317,7 @@ import { IconStarFilled } from "@tabler/icons-react";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { LikeIcon } from "@/services/dailyfunctions";
-import { MapPin, Users, Moon, CheckCircle2 } from "lucide-react";
+import { MapPin, Users, Moon, CheckCircle2, ZoomIn } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 type HotelCardProps = {
@@ -344,6 +344,7 @@ type HotelCardProps = {
   left?: number;
 };
 import NProgress from "nprogress";
+import { ImagePreview } from "@/app/(personal)/profile/_components/image-preview";
 export function HotelCard({
   hotelId,
   left,
@@ -375,9 +376,11 @@ export function HotelCard({
     return (
       <Card className="group overflow-hidden rounded-xl border bg-card w-full shadow-md pt-0 ">
         {/* Compact Image Section */}
+        <ImagePreview src={image} alt={title}>
+
         <div className="relative w-full h-[180px]">
           <img
-            src={image || "/img2.png"}
+            src={image || "/hotels/hotel-temp.png"}
             alt={title}
             className="h-full w-full object-cover rounded-t-xl"
           />
@@ -393,6 +396,8 @@ export function HotelCard({
             className="absolute right-2.5 top-2.5 h-7 w-7 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm"
           />
         </div>
+        </ImagePreview>
+
 
         {/* Optimized Compact Content Section */}
         <CardContent className="p-3.5 flex flex-col gap-2">
@@ -497,17 +502,22 @@ export function HotelCard({
       )}
     >
       {/* Image Container */}
+       <ImagePreview src={image} alt={title}>
+
       <div
         className={cn(
-          "relative",
+          "relative cursor-zoom-in group",
           isHorizontal ? "w-[250px] shrink-0" : "w-full h-[200px]"
         )}
       >
         <img
-          src={image || "/img2.png"}
+          src={image}
           alt={title}
           className="h-full w-full aspect-video rounded-md object-cover transition-transform duration-500 group-hover:scale-105"
         />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
+                    <ZoomIn className="text-white drop-shadow-md" size={32} />
+                  </div>
         {tag && (
           <div className="absolute left-3 top-3 bg-green-600 text-white rounded-lg px-2.5 py-1 text-[11px] font-bold tracking-wide uppercase shadow-md">
             {tag}
@@ -520,6 +530,8 @@ export function HotelCard({
           className="absolute right-3 top-3 h-9 w-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white shadow-sm"
         />
       </div>
+       </ImagePreview>
+
 
       {/* Content Container */}
       <CardContent className={cn("p-5 flex flex-col flex-1 gap-3", isHorizontal ? "justify-between" : "")}>

@@ -45,17 +45,17 @@ export const wishlistData: WishListCardProps[] = [
 ];
 
 export function WishlistSection() {
-    const {data:mytrips , isLoading} = useGetFavouriteSummary()
-
-  
+    const { data: mytrips, isLoading } = useGetFavouriteSummary()
 
 
-    const [wishListOpen, setWishListOpen] = React.useState<{open:boolean,id:string,label:labelType}>
-    ({
-        open: false,
-        id: "",
-        label:"wishlists"
-    })
+
+
+    const [wishListOpen, setWishListOpen] = React.useState<{ open: boolean, id: string, label: labelType }>
+        ({
+            open: false,
+            id: "",
+            label: "wishlists"
+        })
 
     if (wishListOpen.open) {
         return <SavedTripsSection setDetails={setWishListOpen} label={wishListOpen.label} />
@@ -77,39 +77,39 @@ export function WishlistSection() {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-1  lg:grid-cols-3">
-                 {
-                    isLoading?
-                    
-                        <PageSkeleton/>
-                    :<WishlistCard
-                                id={"1"}
-                                title={mytrips?.data?.name}
-                                savedCount={mytrips?.data?.totalSaved}
-                                images={mytrips?.data?.coverImages}
-                                large={mytrips?.data?.coverImages?.length < 2}
-                                onCheckDetails={() => setWishListOpen({ id: "1", open: true , label:"favourites" })}
-                            />
-                 }
                 {
-                   isLoading?[...Array(2)].map((_,i)=>{
-                    return (
-                         <PageSkeleton key={i}/>
-                    )
-                   }):(
-                     wishlistData.map((val, i) => {
+                    isLoading ?
+
+                        <PageSkeleton />
+                        : <WishlistCard
+                            id={"1"}
+                            title={mytrips?.data?.name}
+                            savedCount={mytrips?.data?.totalSaved}
+                            images={mytrips?.data?.coverImages}
+                            large={mytrips?.data?.coverImages?.length < 2}
+                            onCheckDetails={() => setWishListOpen({ id: "1", open: true, label: "favourites" })}
+                        />
+                }
+                {
+                    isLoading ? [...Array(2)].map((_, i) => {
                         return (
-                            <WishlistCard
-                                key={val.id}
-                                id={val.id}
-                                title={val.title}
-                                savedCount={val.savedCount}
-                                images={val.images}
-                                large={val.large}
-                                onCheckDetails={() => setWishListOpen({ id: val.id, open: true , label:"wishlists" })}
-                            />
+                            <PageSkeleton key={i} />
                         )
-                    })
-                   )
+                    }) : (
+                        wishlistData.map((val, i) => {
+                            return (
+                                <WishlistCard
+                                    key={val.id}
+                                    id={val.id}
+                                    title={val.title}
+                                    savedCount={val.savedCount}
+                                    images={val.images || ["/roomIdeal.png"]}
+                                    large={val.large}
+                                    onCheckDetails={() => setWishListOpen({ id: val.id, open: true, label: "wishlists" })}
+                                />
+                            )
+                        })
+                    )
                 }
             </div>
         </div>
@@ -126,7 +126,7 @@ export function WishlistCard({
     onCheckDetails
 
 }: WishListCardProps) {
-    
+
     return (
         <Card className="overflow-hidden min-w-[150px] rounded-xl shadow-sm hover:shadow-md transition bg-background" onClick={onCheckDetails} >
             <div className="p-3 space-y-4">
@@ -134,7 +134,7 @@ export function WishlistCard({
                 {large ? (
                     <div className="relative w-full h-60 rounded-lg overflow-hidden">
                         <Image
-                            src={images[0]}
+                            src={images[0] || "/roomIdeal.png"}
                             alt={title}
                             fill
                             className="object-cover"
@@ -148,7 +148,7 @@ export function WishlistCard({
                                 className="relative h-28 rounded-lg overflow-hidden"
                             >
                                 <Image
-                                    src={img}
+                                    src={img || "/roomIdeal.png"}
                                     alt={`${title}-${index}`}
                                     fill
                                     className="object-cover"

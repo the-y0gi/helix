@@ -25,30 +25,53 @@ type Props = {
   isLoading?:boolean;
 };
 
-export const OnlyCarousel = ({ type, tagline,items,isLoading }: Props) => {
+
+
+export const OnlyCarousel = ({ type, tagline, items, isLoading }: Props) => {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
+  
+  // Tracking touch for overscroll redirect
+  const touchStartRef = useRef<number>(0);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
-
-  
 
   const updateScrollButtons = useCallback(() => {
     const el = scrollRef.current;
     if (el) {
       const { scrollLeft, scrollWidth, clientWidth } = el;
-      setCanLeft(scrollLeft > 5); // 5px buffer for sub-pixel rendering
+      setCanLeft(scrollLeft > 5);
       setCanRight(scrollLeft + clientWidth < scrollWidth - 5);
     }
   }, []);
+
+  // --- OVERSCROLL REDIRECT LOGIC ---
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const touchCurrent = e.touches[0].clientX;
+    const touchDiff = touchStartRef.current - touchCurrent; // Positive means sliding left
+
+    // Check if we are at the far right end of the scroll
+    const isAtEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 10;
+
+    // If user pulls left more than 100px while already at the end
+    if (isAtEnd && touchDiff > 100) {
+       // Optional: Add a slight haptic feel or visual cue here
+       RouterPush(router, "/hotels/find");
+    }
+  };
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
 
     updateScrollButtons();
-    
-    // Listen for scroll and window resize
     el.addEventListener("scroll", updateScrollButtons);
     window.addEventListener("resize", updateScrollButtons);
     
@@ -60,7 +83,7 @@ export const OnlyCarousel = ({ type, tagline,items,isLoading }: Props) => {
 
   const scroll = (dir: "left" | "right") => {
     if (!scrollRef.current) return;
-    const scrollAmount = scrollRef.current.clientWidth * 0.8; // Scroll 80% of view
+    const scrollAmount = scrollRef.current.clientWidth * 0.8;
     scrollRef.current.scrollBy({
       left: dir === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
@@ -70,12 +93,11 @@ export const OnlyCarousel = ({ type, tagline,items,isLoading }: Props) => {
   if (!isLoading && items.length === 0) return null;
 
   return (
-    <div className="relative group  bg-transparent">
-      {/* Header & Controls */}
+    <div className="relative group bg-transparent">
       <div className="mb-4 flex items-center justify-between px-2 md:px-0">
-        <h2 className="text-md md:text-xl font-semibold capitalize flex gap-2 items-center  text-nowrap" >{tagline} 
-          {/* <ChevronRight className="h-4 w-4" /> */}
-          </h2>
+        <h2 className="text-md md:text-xl font-semibold capitalize flex gap-2 items-center text-nowrap">
+          {tagline}
+        </h2>
         <div className="flex gap-2">
           <CarouselButton 
             onClick={() => scroll("left")} 
@@ -90,36 +112,34 @@ export const OnlyCarousel = ({ type, tagline,items,isLoading }: Props) => {
         </div>
       </div>
 
-      {/* Carousel Container */}
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide scroll-smooth pt-5 px-3 "
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide scroll-smooth pt-5 px-3"
       >
         {isLoading ? (
-          // Simple Skeleton Loader
           Array.from({ length: 7 }).map((_, i) => (
             <div key={i} className="min-w-[220px] h-[200px] animate-pulse bg-gray-200 rounded-xl" />
           ))
         ) : (
           <>
-          {items.map((item, i) => (
-            <Card
-              key={`${item.title}-${i}`}
-              item={item}
-              onClick={() => RouterPush(router, item.href)}
-            />
-          ))}
-         
-            
-            <div className="min-w-[240px]  ">
-            <GalleryCard  images={["/room1.png", "/room2.png", "/room3.png"]}/>
+            {items.map((item, i) => (
+              <Card
+                key={`${item.title}-${i}`}
+                item={item}
+                onClick={() => RouterPush(router, item.href)}
+              />
+            ))}
+            <div className="min-w-[240px]">
+              <GalleryCard images={["/room1.png", "/room2.png", "/room3.png"]} />
             </div>
-            </>
+          </>
         )}
       </div>
     </div>
   );
-};
+}
 
 const CarouselButton = ({ onClick, disabled, icon }: { onClick: () => void, disabled: boolean, icon: React.ReactNode }) => (
   <button

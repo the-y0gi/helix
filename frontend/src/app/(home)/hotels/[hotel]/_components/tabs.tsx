@@ -46,6 +46,8 @@ export function TabsLine({
   isBookingMode: boolean;
   isAvailabilityLoading: boolean;
 }) {
+
+
   const hotelId = hotel._id;
   if (!hotel) return null;
 
@@ -79,7 +81,7 @@ export function TabsLine({
       <section id="overview" className="py-3 -mx-5 md:mx-0">
         {content.overview}
       </section>
-      <div className="sticky top-0 z-30 bg-white/50 dark:bg-background/30 backdrop-blur-md border-b border-t h-16 flex items-center -mx-4 px-4 md:px-6 mb-8">
+      <div className="sticky top-0 z-0 bg-white/50 dark:bg-background/30 backdrop-blur-md border-b border-t h-16 flex items-center -mx-4 px-4 md:px-6 mb-8">
         <div className="flex gap-6 overflow-x-auto no-scrollbar">
           {values.map((tab) => (
             <a
@@ -228,7 +230,7 @@ function BookingCard({
             </div>
           )}
         </div>
-        <div className="rounded-2xl border border-border p-1 bg-background">
+        <div className="rounded-2xl border border-border p-1 bg-background w-full">
           <VisitorsMembers showCalendar={showCalendar} />
         </div>
         <div className="py-2">
@@ -273,7 +275,7 @@ export function VisitorsMembers({
     <Accordion
       type="single"
       collapsible
-      className="max-w-lg px-5"
+      className="w-full px-5"
       style={{ display: showCalendar ? "none" : "block" }}
     >
       <AccordionItem value="rooms and guests">

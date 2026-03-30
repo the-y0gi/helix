@@ -14,8 +14,15 @@ const AddressSearch = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const { city, setCity } = useHotelStore();
   useEffect(() => {
+    const t = localStorage.getItem("hotel-storage")
+    if (!t) return;
+    const hotel = JSON.parse(t);
+    if (hotel.state?.city) {
+      setQuery(hotel.state.city);
+    }
 
-  }, [city])
+
+  }, [])
 
   return (
     <div className="w-full max-w-full relative" ref={searchRef}>
@@ -34,7 +41,7 @@ const AddressSearch = () => {
 
       <div className="relative z-50">
         <Input
-          placeholder="Search places (e.g. 'Goa')"
+          placeholder={query || "Search places (e.g. 'Goa')"}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);

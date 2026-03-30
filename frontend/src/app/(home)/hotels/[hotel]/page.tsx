@@ -133,7 +133,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { ScrollToTop } from "../../../../../scrolltoto";
 import { useParams } from "next/navigation";
@@ -150,6 +150,7 @@ import { PageSkeleton, PlaneSkeleton, SkeletonText } from "@/components/loader/s
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const HotelDetails = ({ className }: { className?: string }) => {
+  const [isBookingMode, setIsBookingMode] = React.useState(false);
   const ismobile = useIsMobile();
   localStorage.removeItem("nextRoute")
   localStorage.removeItem("like")
@@ -159,7 +160,14 @@ const HotelDetails = ({ className }: { className?: string }) => {
     ? hotelIdParam[0]
     : hotelIdParam || "";
 
-  const { date, guests, isBookingMode } = useHotelStore();
+  const { date, guests } = useHotelStore();
+  const hotelStorage = localStorage.getItem("hotel-storage");
+  useEffect(() => {
+    if (hotelStorage) {
+      const hotel = JSON.parse(hotelStorage);
+      setIsBookingMode(!!hotel.state.date?.to && !!hotel.state.date?.from);
+    }
+  }, [hotelStorage]);
 
   const { data: hotelDetailsData } =
     useHotelDetailsQuery(hotelId);
