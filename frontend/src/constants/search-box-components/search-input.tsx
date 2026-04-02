@@ -19,6 +19,7 @@ const AddressSearch = () => {
     const hotel = JSON.parse(t);
     if (hotel.state?.city) {
       setQuery(hotel.state.city);
+      setCity(hotel.state.city)
     }
 
 
@@ -41,7 +42,7 @@ const AddressSearch = () => {
 
       <div className="relative z-50">
         <Input
-          placeholder={query || "Search places (e.g. 'Goa')"}
+          placeholder={city || "Search places (e.g. 'Goa')"}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);

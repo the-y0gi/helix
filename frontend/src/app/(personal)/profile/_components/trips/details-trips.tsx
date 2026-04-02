@@ -33,7 +33,14 @@ export default function ReservationDetailsPage({
     cancelBooking(id)?.then(() => refetch());
     setCanceled("Cancelled");
   };
-
+  const handelDownload =async ()=>{
+        try {
+        const res =await downloadBookings(id);
+          
+        } catch (error) {
+          console.error(error)
+        }
+      }
   return (
     <div className="max-w-6xl mx-auto p-4 space-y-3">
       <Button
@@ -65,7 +72,11 @@ export default function ReservationDetailsPage({
           >
             {canceled}
           </Button>
-          <Button className="gap-2 w-full sm:w-auto">
+          <Button className="gap-2 w-full sm:w-auto"
+          onClick={()=>{
+  handelDownload()
+
+          }}>
             <Download size={16} />
             Download Invoice
           </Button>
@@ -76,6 +87,8 @@ export default function ReservationDetailsPage({
 }
 import NProgress from 'nprogress'
 import { RouterPush } from "@/components/RouterPush";
+import Rupee from "@/components/Rupee";
+import { downloadBookings } from "@/app/(personal)/book/[[...slug]]/_components/book.service";
 export function PropertyHeaderCard({ booking }: { booking: BookingDetails }) {
   const { hotel, checkIn, checkOut, status, roomsBooked } = booking;
   const checkInDate = new Date(checkIn);
@@ -166,23 +179,23 @@ export function PriceSection({ booking }: { booking: BookingDetails }) {
       <div className="max-w-md space-y-2">
         <div className="flex justify-between text-sm text-muted-foreground">
           <span>Price per night</span>
-          <span className="text-foreground">€ {priceBreakdown.pricePerNight}</span>
+          <span className="text-foreground"><Rupee/> {priceBreakdown.pricePerNight}</span>
         </div>
         <div className="flex justify-between text-sm text-muted-foreground">
           <span>Tax</span>
-          <span className="text-foreground">€ {priceBreakdown.taxAmount}</span>
+          <span className="text-foreground"><Rupee/> {priceBreakdown.taxAmount}</span>
         </div>
         <div className="flex justify-between text-sm text-muted-foreground">
           <span>Cleaning Fee</span>
-          <span className="text-foreground">€ {priceBreakdown.cleaningFee}</span>
+          <span className="text-foreground"><Rupee/> {priceBreakdown.cleaningFee}</span>
         </div>
         <div className="flex justify-between text-sm text-muted-foreground">
           <span>Discount</span>
-          <span className="text-red-500">- € {priceBreakdown.discountAmount}</span>
+          <span className="text-red-500">- <Rupee/> {priceBreakdown.discountAmount}</span>
         </div>
         <div className="flex justify-between font-semibold pt-2 border-t">
           <span>Total Price</span>
-          <span>€ {priceBreakdown.totalAmount}</span>
+          <span><Rupee/> {priceBreakdown.totalAmount}</span>
         </div>
       </div>
     </div>

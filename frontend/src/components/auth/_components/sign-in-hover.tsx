@@ -87,7 +87,7 @@ export function Sign_in_hover({
             <Button variant={variant} className={cn("w-full flex justify-start", className)}>{tag}</Button>
           )}
         </DialogTrigger>
-        <DialogContent className="md:w-[425px] p-0 rounded-2xl overflow-hidden pb-4 w-[300px]">
+        <DialogContent className="md:w-[425px] p-0 rounded-2xl overflow-hidden pb-4 w-[300px] z-65">
           <VisuallyHidden>
             <DialogTitle className="sr-only">Login</DialogTitle>
           </VisuallyHidden>

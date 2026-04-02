@@ -1019,6 +1019,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
           email: booking.primaryGuest.email,
           phone: booking.primaryGuest.phoneNumber,
           createdAt: booking.createdAt,
+          bookingId:booking._id
         });
 
 
@@ -1102,6 +1103,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
 import { Check } from 'lucide-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { RouterPush } from "@/components/RouterPush";
+import { downloadBookings } from "./book.service";
 
 const BookingCard = ({ loading }: { loading: boolean }) => {
   const { selectedRoom, date } = useHotelStore();
@@ -1129,8 +1131,8 @@ const BookingCard = ({ loading }: { loading: boolean }) => {
           {nights} nights · {totalAdults + totalChildren} guests
         </p> */}
         <p className="hidden md:block">₹{totalTax.toLocaleString()} <span className="text-xs text-muted-foreground font-medium">total tax</span></p>
-        <p>{taxPercentage.toLocaleString()}% <span className="text-xs text-muted-foreground font-medium">tax percentage</span>   </p>
-        <p>₹{totalPrice.toLocaleString()} <span className="text-xs text-muted-foreground font-medium">total without tax</span></p>
+        {/* <p>{taxPercentage.toLocaleString()}% <span className="text-xs text-muted-foreground font-medium"></span>   </p> */}
+        <p>₹{totalTax.toLocaleString()} <span className="text-xs text-muted-foreground font-medium">tax</span></p>
         <div className="flex items-center gap-1 mt-1">
           <Check className="w-3 h-3 text-emerald-500 stroke-[3px]" />
           <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-tight">Free cancellation</span>
@@ -1210,6 +1212,15 @@ export function PaymentSuccess({ payment }: { payment: any }) {
       minute: "2-digit",
     });
 
+    const handelDownload =async ()=>{
+      try {
+      const res =await downloadBookings(payment.bookingId);
+        
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
   return (
     <div className="min-h-screen w-full  dark:bg-zinc-950 flex items-center justify-center p-4 md:p-8">
       <Card className="w-full overflow-hidden hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 hover:scale-101 border-none ring-1 ring-black/5 dark:ring-white/10">
@@ -1286,6 +1297,7 @@ export function PaymentSuccess({ payment }: { payment: any }) {
           <Button
             onClick={(e) => {
               e.preventDefault();
+              handelDownload();
               // router.push("/");
             }}
             className="flex-1 h-12 font-bold gap-2 order-1 sm:order-2 shadow-xl shadow-primary/20 transition-all active:scale-95"
@@ -1376,10 +1388,10 @@ export const BookingDetailsCard = ({ loading }: { loading?: boolean; hotelid: st
             <span>Without Tax Price for {nights} nights</span>
             <span className="font-semibold">₹{totalPrice.toLocaleString()}</span>
           </div>
-          <div className="flex justify-between text-sm">
+          {/* <div className="flex justify-between text-sm">
             <span>Total taxPercentage</span>
             <span className="font-semibold">{taxPercentage.toLocaleString()}%</span>
-          </div>
+          </div> */}
           <div className="flex justify-between text-sm">
             <span>Tax ({taxPercentage}%)</span>
             <span className="font-semibold">₹{totalTax.toLocaleString()}</span>
