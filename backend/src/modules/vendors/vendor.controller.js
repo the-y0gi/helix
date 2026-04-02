@@ -23,7 +23,6 @@ const logger = require("../../shared/utils/logger");
 //   }
 // };
 
-
 //get me help for prefilling data
 exports.getVendorMe = async (req, res, next) => {
   try {
