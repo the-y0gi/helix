@@ -191,13 +191,13 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
       <Footer />
       {/* CUSTOM LOGIN AD POPUP */}
       {showAdPopup && !hasDismissed && (
-        <div className="fixed bottom-4 right-4 md:bottom-10 md:right-10 w-[280px] md:w-[320px] bg-card border shadow-2xl rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-right-8 fade-in duration-1200">
+        <div className="fixed bottom-4 z-60 right-4 md:bottom-10 md:right-10 w-[280px] md:w-[320px] bg-card border shadow-2xl rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-right-8 fade-in duration-1200">
           <button
             onClick={() => {
               setHasDismissed(true);
               setShowAdPopup(false);
             }}
-            className="absolute top-2 right-2 z-10 p-1 bg-black/40 text-white rounded-full hover:bg-black/60 backdrop-blur-sm transition-colors"
+            className="absolute z-61 top-2 right-2  p-1 bg-black/40 text-white rounded-full hover:bg-black/60 backdrop-blur-sm transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>

@@ -18,13 +18,14 @@ type Props = {};
 export const ContentFrame = (props: Props) => {
   const ismobile = useIsMobile()
   const { total } = useHotelContext()
+  const { city, setCity } = useHotelStore();
 
   return (
     <div className="md:w-full">
       <div className="flex justify-between px-4 sm:px-0">
         <div className="w-full">
           <h2 className="text-2xl font-semibold mb-4 ">
-            {total > 0 ? `Explore ${total}+ hotels` : "Explore hotels"}
+            {total > 0 ? `Explore ${total}+ hotels in ${city}` : `Explore hotels in ${city}`}
           </h2>
           {/* <div className="w-10 min-w-37 md:w-1/2 mb-6">
 
@@ -44,7 +45,7 @@ export const ContentFrame = (props: Props) => {
 };
 
 export const Content = ({ className }: { className: string }) => {
-  const { wrap } = useHotelStore();
+  const { wrap , city } = useHotelStore();
   const isMobile = useIsMobile()
   const { hotels, isLoading } = useHotelContext()
 
@@ -95,7 +96,9 @@ export const Content = ({ className }: { className: string }) => {
           ? Math.min(...roomTypes.map((r: any) => r.discountPrice > 0 ? r.discountPrice : r.basePrice))
           : (hotel as any).startingPrice ?? 0
 
-        const firstImage = hotel.images?.[0]?.url ?? "/hotels/hotel-temp.png"
+        const firstImage = hotel.images[0]?.url ?? "/hotels/hotel-temp.png"
+        // console.log( hotel);
+        
 
         return (
           <HotelCard
@@ -104,7 +107,7 @@ export const Content = ({ className }: { className: string }) => {
             image={firstImage}
             favourite={hotel.isFavorite}
             title={hotel.name}
-            location={hotel.city ?? ""}
+            location={hotel.city ?? city}
             rating={hotel.rating ?? 0}
             stars={Math.round(hotel.rating ?? 0)}
             reviews={{ text: hotel.rating >= 4.5 ? "Excellent" : hotel.rating >= 3.5 ? "Very Good" : "Good", count: hotel.numReviews ?? 0 }}

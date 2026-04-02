@@ -81,7 +81,7 @@ export function TabsLine({
       <section id="overview" className="py-3 -mx-5 md:mx-0">
         {content.overview}
       </section>
-      <div className="sticky top-0 z-0 bg-white/50 dark:bg-background/30 backdrop-blur-md border-b border-t h-16 flex items-center -mx-4 px-4 md:px-6 mb-8">
+      <div className="z-30 sticky top-0 z-0 bg-white/50 dark:bg-background/30 backdrop-blur-md border-b border-t h-16 flex items-center -mx-4 px-4 md:px-6 mb-8">
         <div className="flex gap-6 overflow-x-auto no-scrollbar">
           {values.map((tab) => (
             <a

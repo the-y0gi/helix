@@ -192,7 +192,7 @@ export const useHotelStore = create<HotelStoreProps>()(
   persist(
     (set) => ({
       payments: {} as Payment,
-      city: "Goa",
+      city: "indore",
       wrap: false,
 
       guests: {

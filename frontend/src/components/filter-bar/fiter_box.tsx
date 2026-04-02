@@ -13,8 +13,10 @@ import { cn } from "@/lib/utils";
 import { Spinner } from "../spinner";
 import NProgress from "nprogress";
 import { RouterPush } from "../RouterPush";
+import { useHotelStore } from "@/store/hotel.store";
 const FilterBox = ({
   FilterBoxValues,
+  link
 }: {
   FilterBoxValues: SearchBoxValuesProps;
   link?: string;
@@ -22,9 +24,19 @@ const FilterBox = ({
 }) => {
   const router = useRouter();
   const ismobile = useIsMobile();
+  const { city, setCity } = useHotelStore();
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [iscity , setiscity] = useState(false);
+ const hotelStorage = localStorage.getItem("hotel-storage");
+   useEffect(() => {
+     if (hotelStorage) {
+       const hotel = JSON.parse(hotelStorage);
+       setiscity(!!hotel?.state?.city);
+     }
+   }, [hotelStorage]);
+  
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -38,6 +50,7 @@ const FilterBox = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-2 lg:gap-4 items-center md:px-10 mx-auto relative md:py-3">
@@ -104,7 +117,7 @@ const FilterBox = ({
         </div>
 
         <Button
-          disabled={loading}
+          disabled={loading || !city}
           className="w-full bg-[#FE3230] hover:bg-primary/90 mt-2 text-primary-foreground h-12 md:h-14 rounded-[10px] text-lg font-bold shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
           onClick={() => {
             // NProgress.start();
@@ -113,7 +126,7 @@ const FilterBox = ({
           }}
         >
           {
-            loading ? <Spinner /> : "Search Hotel"
+            loading ? <Spinner /> : iscity?`Search ${link?.substring(1,link.length)}`:`Select city`
           }
         </Button>
       </Card>

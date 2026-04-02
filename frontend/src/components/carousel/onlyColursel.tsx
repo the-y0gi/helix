@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useHotelsQuery } from "@/services/hotel/querys";
 import { GalleryCard, HotelGalleryCard } from "../comet-card-demo";
 import { RouterPush } from "../RouterPush";
+import { useHotelStore } from "@/store/hotel.store";
 // import { GalleryCard } from "../comet-card-demo";
 // import HotelGalleryCard from "../comet-card-demo";
 
@@ -49,20 +50,18 @@ export const OnlyCarousel = ({ type, tagline, items, isLoading }: Props) => {
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = e.touches[0].clientX;
   };
-
+  const {city,setCity } = useHotelStore();
   const handleTouchMove = (e: React.TouchEvent) => {
     const el = scrollRef.current;
     if (!el) return;
 
     const touchCurrent = e.touches[0].clientX;
-    const touchDiff = touchStartRef.current - touchCurrent; // Positive means sliding left
+    const touchDiff = touchStartRef.current - touchCurrent; 
 
-    // Check if we are at the far right end of the scroll
     const isAtEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 10;
 
-    // If user pulls left more than 100px while already at the end
     if (isAtEnd && touchDiff > 100) {
-       // Optional: Add a slight haptic feel or visual cue here
+       setCity(tagline?.split(" ")?.[tagline.split(" ").length - 1] || "indore");
        RouterPush(router, "/hotels/find");
     }
   };

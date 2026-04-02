@@ -26,13 +26,13 @@ export function ProfileSidebar({ className }: { className?: string }) {
         className,
       )}
     >
-      <div className="flex items-center gap-3 px-2 py-3 hidden md:block">
+      <div className="flex items-center gap-3 px-2 py-3 hidden md:block ">
         <Image
           src={currUser?.data?.avatar || user.avatar}
           alt={currUser?.data?.name || user.name}
           width={40}
           height={40}
-          className="rounded-full object-cover"
+          className="rounded-full object-cover h-10 w-10"
         />
         <div>
           <p className="text-sm font-medium">{currUser?.data?.firstName}</p>
