@@ -140,7 +140,7 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "https://www.hilexa.com",
     siteName: "Hilexa - Stays, Rides & Adventures",
-    title: "Hilexa | One App for All Your Travel Needs",
+    title: "Hilexa | One Web App for All Your Travel Needs",
     description:
       "Discover luxury stays, seamless cab rides, and adrenaline-pumping adventures. Hilexa makes travel simple and memorable.",
     images: [
