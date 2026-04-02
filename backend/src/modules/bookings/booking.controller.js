@@ -1,4 +1,5 @@
 const bookingService = require("./booking.service");
+const Booking = require("./booking.model");
 const logger = require("../../shared/utils/logger");
 
 //Create Booking
@@ -30,6 +31,35 @@ exports.getMyBookings = async (req, res, next) => {
   } catch (err) {
     logger.error("Controller Error: getMyBookings", error);
     next(err);
+  }
+};
+
+// user booking invoice download
+exports.downloadMyInvoice = async (req, res, next) => {
+  try {
+    const booking = await Booking.findOne({
+      _id: req.params.bookingId,
+      userId: req.user._id,
+    })
+      .populate({
+        path: "roomTypeId",
+        select: "name basePrice discountPrice roomSizeSqm beds amenities",
+      })
+      .lean();
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Booking not found or you are not authorized to view this invoice",
+      });
+    }
+
+    // Generate and Stream PDF
+    await bookingService.userInvoiceDownload(booking, res);
+  } catch (error) {
+    logger.error("User Invoice Download Error:", error);
+    next(error);
   }
 };
 
