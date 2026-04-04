@@ -238,6 +238,24 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
+exports.otpVerify = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const result = await authService.otpVerify(email, otp);
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 exports.resetPassword = async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;

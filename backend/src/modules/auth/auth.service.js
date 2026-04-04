@@ -329,6 +329,24 @@ exports.forgotPassword = async (email) => {
   }
 };
 
+exports.otpVerify = async (email, otp) => {
+  try {
+    const user = await User.findOne({ email }).select("+otp +otpExpires");
+
+    if (
+      !user ||
+      user.otp.toString() !== otp.toString() ||
+      Date.now() > user.otpExpires
+    ) {
+      throw new Error("Invalid or expired OTP");
+    }
+
+    return { message: "OTP verified successfully" };
+  } catch (error) {
+    throw error;
+  }
+};
+
 exports.resetPassword = async (email, otp, newPassword) => {
   try {
     const user = await User.findOne({ email }).select("+otp +otpExpires");
