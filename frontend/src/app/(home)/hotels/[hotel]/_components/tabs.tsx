@@ -87,7 +87,7 @@ export function TabsLine({
             <a
               key={tab.id}
               href={`#${tab.title}`}
-              className="capitalize whitespace-nowrap pb-2 border-b-2 border-transparent hover:border-orange-500 text-sm font-semibold transition-all text-slate-600 hover:text-slate-900"
+              className="capitalize whitespace-nowrap pb-2 border-b-2 border-transparent hover:border-orange-500 text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 dark:hover:text-primary"
               onClick={(e) => {
                 e.preventDefault();
                 document
@@ -164,7 +164,7 @@ function BookingCard({
   const { date, guests } = useHotelStore();
   const [showCalendar, setShowCalendar] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { FetchRoomTypes, rooms } = useHotelContext();
+  const { FetchRoomTypes, rooms, setFetch } = useHotelContext();
 
   const validPrices = rooms
     .map((r: RoomType) => r.finalPrice || r.displayPrice || r.totalPrice)
@@ -251,7 +251,8 @@ function BookingCard({
             e.preventDefault();
             const el = document.getElementById("rooms");
             if (el) el.scrollIntoView({ behavior: "smooth" });
-            FetchRoomTypes();
+            // FetchRoomTypes();
+            setFetch(true);
           }}
         >
           Show Rooms

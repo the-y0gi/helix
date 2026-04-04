@@ -26,10 +26,12 @@ const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
           </div>
 
           <div className="flex gap-9 p-1 justify-center items-center">
-            {/* <div>
-              <Headset color="blue" size={25} />
-            </div> */}
+            <div>
+              <DialogDemo trigger={<Headset color="blue" size={25} />} />
+
+            </div>
             <Suspense>
+
               <MenuBar />
             </Suspense>
           </div>
@@ -45,3 +47,35 @@ const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default PersonalNavWroper;
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Field, FieldGroup } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+// import RaiseTicketForm from "./TicketRaise";
+
+export function DialogDemo({ trigger }: { trigger: React.ReactNode }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        {trigger}
+      </DialogTrigger>
+      {/* sm:max-w-[425px] ensures it doesn't get too wide, p-4 is tighter */}
+      <DialogContent className="sm:max-w-[500px] p-4 gap-0 overflow-hidden">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Raise Ticket</DialogTitle>
+        </DialogHeader>
+        {/* <RaiseTicketForm /> */}
+      </DialogContent>
+    </Dialog>
+  );
+}

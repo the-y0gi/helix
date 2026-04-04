@@ -18,6 +18,7 @@ import SearchBox from "@/app/(home)/hotels/search-";
 import FilterBarLayout from "../filter-bar/filter-bar-layout";
 import { Sign_in_hover } from "../auth/_components/sign-in-hover";
 import { toast } from "sonner";
+import Link from "next/link";
 const MenuBar = dynamic(
   () => import("../menubar").then((mod) => ({ default: mod.MenuBar })),
   {
@@ -143,8 +144,8 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
 
           <LOGO />
 
-          {!isMobile && (
-            <div className="hidden md:flex flex-col items-center gap-[5px] h-full ">
+          {(
+            <div className="hidden md:flex flex-col items-center gap-[5px] h-full md:block">
               {shouldShowNavbar ? (
                 <FindTabsNav mobile={false} tabs={FilterOfPages} />
               ) : (
@@ -205,7 +206,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
           {/* Reduced height from h-34 to h-24 */}
           <div className="h-24 md:h-34 bg-muted relative w-full">
             <img
-              src="/key.png"
+              src="/story/key.png"
               alt="Login to unlock features"
               className="w-full h-full object-cover object-top"
             />
@@ -221,7 +222,13 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
             <p className="text-xs text-foreground/80 leading-normal">
               Log in to save favorites, access deals, and manage bookings effortlessly.
             </p>
-            <Sign_in_hover
+            {isMobile ? <Link href={"/login"}><Button
+              size="sm"
+              className="w-full h-8 mt-1 text-xs"
+            >
+              Log In Now
+            </Button></Link> : <Sign_in_hover
+              tag="Log-in"
               forLike={{
                 content: (
                   <Button
@@ -234,7 +241,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
                 type: "nextRoute",
                 do: "/profile"
               }}
-            />
+            />}
           </div>
         </div>
         // <div className=" fixed bottom-4 right-4 md:bottom-10 md:right-10  w-[320px] bg-card border shadow-2xl rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-right-8 fade-in duration-1200">

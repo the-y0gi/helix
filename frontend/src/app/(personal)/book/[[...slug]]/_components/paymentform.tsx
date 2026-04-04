@@ -1019,7 +1019,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
           email: booking.primaryGuest.email,
           phone: booking.primaryGuest.phoneNumber,
           createdAt: booking.createdAt,
-          bookingId:booking._id
+          bookingId: booking._id
         });
 
 
@@ -1212,14 +1212,14 @@ export function PaymentSuccess({ payment }: { payment: any }) {
       minute: "2-digit",
     });
 
-    const handelDownload =async ()=>{
-      try {
-      const res =await downloadBookings(payment.bookingId);
-        
-      } catch (error) {
-        console.error(error)
-      }
+  const handelDownload = async () => {
+    try {
+      const res = await downloadBookings(payment.bookingId);
+
+    } catch (error) {
+      console.error(error)
     }
+  }
 
   return (
     <div className="min-h-screen w-full  dark:bg-zinc-950 flex items-center justify-center p-4 md:p-8">
@@ -1368,7 +1368,7 @@ export const BookingDetailsCard = ({ loading }: { loading?: boolean; hotelid: st
 
   return (
     <Card className="shadow-lg border-primary/10 overflow-hidden">
-      <img src={selectedRoom.image || "/img1.png"} alt="Room" className="w-full h-48 object-cover" />
+      <img src={selectedRoom.image || "/hotels/img1.png"} alt="Room" className="w-full h-48 object-cover" />
       <CardContent className="p-6 space-y-6">
         <div>
           <h3 className="text-xl font-bold">{selectedRoom.title}</h3>

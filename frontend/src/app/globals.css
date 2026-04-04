@@ -125,6 +125,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  p{
+    @apply text-sm dark:text-white/80 text-slate-600;
+  }
 
 }
 
@@ -348,3 +351,4 @@ html {
   35% { opacity: 0.6; filter: blur(45px) brightness(0.9); } /* Brief dropout */
   60% { opacity: 0.9; filter: blur(40px) brightness(1.1); }
 }
+

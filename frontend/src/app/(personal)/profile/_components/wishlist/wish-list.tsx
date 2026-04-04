@@ -32,14 +32,14 @@ export const wishlistData: WishListCardProps[] = [
         id: "2",
         title: "Falkensee, Germany 2025",
         savedCount: 2,
-        images: ["/img4.png"],
+        images: ["/hotels/img4.png"],
         large: true,
     },
     {
         id: "3",
         title: "Prague, Czechia 2025",
         savedCount: 1,
-        images: ["/img4.png"],
+        images: ["/hotels/img4.png"],
         large: true,
     },
 ];
@@ -103,7 +103,7 @@ export function WishlistSection() {
                                     id={val.id}
                                     title={val.title}
                                     savedCount={val.savedCount}
-                                    images={val.images || ["/roomIdeal.png"]}
+                                    images={val.images || ["/hotels/roomIdeal.png"]}
                                     large={val.large}
                                     onCheckDetails={() => setWishListOpen({ id: val.id, open: true, label: "wishlists" })}
                                 />
@@ -134,7 +134,7 @@ export function WishlistCard({
                 {large ? (
                     <div className="relative w-full h-60 rounded-lg overflow-hidden">
                         <Image
-                            src={images[0] || "/roomIdeal.png"}
+                            src={images[0] || "/hotels/roomIdeal.png"}
                             alt={title}
                             fill
                             className="object-cover"
@@ -148,7 +148,7 @@ export function WishlistCard({
                                 className="relative h-28 rounded-lg overflow-hidden"
                             >
                                 <Image
-                                    src={img || "/roomIdeal.png"}
+                                    src={img || "/hotels/roomIdeal.png"}
                                     alt={`${title}-${index}`}
                                     fill
                                     className="object-cover"

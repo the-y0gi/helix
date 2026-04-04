@@ -123,6 +123,7 @@ export const metadata: Metadata = {
     shortcut: "/hilexa-logo.svg",
     apple: "/hilexa-logo.svg",
   },
+  // manifest: "/manifest.json",
 
   keywords: [
     "Hilexa",

@@ -30,9 +30,6 @@ export function SavedTripsSection({ setDetails, label }: {
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold px-2">My next trip</h2>
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon">
-                        <Share2 size={18} />
-                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => setDetails({ open: false, id: "", label: "favourites" })}>
                         Back
                     </Button>
@@ -105,7 +102,7 @@ export function SavedPropertyCard({
             {/* Image Container - Height stays fixed or aspect-ratio */}
             <div className="relative h-64 md:h-56 w-full">
                 <Image
-                    src={thumbnail || "/room1.png"}
+                    src={thumbnail || "/hotels/room1.png"}
                     alt={title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -157,13 +154,13 @@ export function SavedPropertyCard({
                         {city}
                     </p>
                     {/* Hide distance and input on mobile overlay to prevent clutter, similar to Reels */}
-                    <p className="hidden md:block text-muted-foreground text-xs">
+                    {/* <p className="hidden md:block text-muted-foreground text-xs">
                         {distance}
-                    </p>
-                    <Input
+                    </p> */}
+                    {/* <Input
                         placeholder="Add note"
                         className="hidden md:flex h-8 bg-secondary/50 border-none text-xs"
-                    />
+                    /> */}
                 </div>
             </CardContent>
         </Card>

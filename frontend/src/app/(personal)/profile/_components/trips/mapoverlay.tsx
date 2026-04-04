@@ -25,7 +25,7 @@ export const AnimatedModalDemo = ({
           <div className="relative w-full h-full rounded-md overflow-hidden group">
             {/* The Map Image with Blur */}
             <Image
-              src="/map.png"
+              src="/map-icons/map.png"
               alt="Hotel Arts Barcelona"
               fill
               className="object-cover blur-[2px] brightness-75 transition-all duration-300 group-hover:blur-sm group-hover:scale-110"

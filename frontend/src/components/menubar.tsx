@@ -156,14 +156,15 @@ import { useNextGoingRoute } from "@/hooks/auth/route.hook";
 import { Skeleton } from "./ui/skeleton";
 import { useCurrentUser } from "@/services/hotel/querys";
 import { IconLogout } from "@tabler/icons-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import Link from "next/link";
 
 export function MenuBar() {
   const { data: user, isLoading, refetch } = useCurrentUser();
   const pathname = usePathname();
   const { goWithAuth } = useNextGoingRoute();
-
+  const isMobile = useIsMobile()
   const isLoggedIn = !!user?.data;
-  console.log(user);
 
   const handleNavigate = (path: string) => {
     if (pathname === path) return;
@@ -181,11 +182,11 @@ export function MenuBar() {
         <Button
           variant="ghost"
           // Reduced size on mobile (h-9), standard on desktop (sm:h-10)
-          className="relative h-9 w-9 sm:h-10 sm:w-10 rounded-full border-2 border-transparent hover:border-orange-400 p-0 transition-all duration-300"
+          className="relative h-9 w-9 sm:h-10 sm:w-10 md:h-12 md:w-12 lg:h-14 lg:w-14  rounded-full border-2 border-transparent hover:border-orange-400 p-0 transition-all duration-300"
         >
           <div className="relative h-full w-full overflow-hidden rounded-full border border-border">
             <Image
-              src={user?.data?.avatar || "/user.png"}
+              src={user?.data?.avatar || "/icons/user.png"}
               alt="Profile"
               fill
               className="object-cover"
@@ -263,20 +264,36 @@ export function MenuBar() {
         {!isLoggedIn ? (
           <DropdownMenuGroup>
             <DropdownMenuItem asChild className="cursor-pointer">
-              <Sign_in_hover
-                tag="Log-in"
-                variant="ghost"
-                className="w-full justify-start gap-2 h-8 sm:h-9 text-sm"
-              />
+              {isMobile ? (
+                <Link href="/login">
+                  Log-in or Sign-up
+                </Link>
+              ) : (
+                <Sign_in_hover
+                  tag="Log-in"
+                  variant="ghost"
+                  className="w-full justify-start gap-2 h-8 sm:h-9 text-sm"
+                />
+              )
+
+              }
             </DropdownMenuItem>
 
-            <DropdownMenuItem asChild className="cursor-pointer text-orange-500 focus:text-orange-600">
-              <Sign_in_hover
-                tag="Sign-up"
-                variant="ghost"
-                className="w-full justify-start gap-2 h-8 sm:h-9 text-sm"
-              />
-            </DropdownMenuItem>
+            {/* <DropdownMenuItem asChild className="cursor-pointer text-orange-500 focus:text-orange-600">
+              {isMobile ? (
+                <Link href="/signup">
+                  Sign-up
+                </Link>
+              ) : (
+                <Sign_in_hover
+                  tag="Sign-up"
+                  variant="ghost"
+                  className="w-full justify-start gap-2 h-8 sm:h-9 text-sm"
+                />
+              )
+
+              }
+            </DropdownMenuItem> */}
           </DropdownMenuGroup>
         ) : (
           <DropdownMenuGroup>

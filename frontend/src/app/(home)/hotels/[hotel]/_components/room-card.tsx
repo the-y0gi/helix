@@ -915,7 +915,7 @@ export function HotelRoomCard({
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
           >
             <img
-              src={imageUrl || "/img1.png"}
+              src={imageUrl || "/hotels/img1.png"}
               alt={title}
               className="w-full h-full object-cover rounded-xl md:rounded-2xl"
             />

@@ -378,24 +378,24 @@ export function HotelCard({
         {/* Compact Image Section */}
         <ImagePreview src={image} alt={title}>
 
-        <div className="relative w-full h-[180px]">
-          <img
-            src={image || "/hotels/hotel-temp.png"}
-            alt={title}
-            className="h-full w-full object-cover rounded-t-xl"
-          />
-          {tag && (
-            <div className="absolute left-2.5 top-2.5 bg-green-600 text-white rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase shadow-sm">
-              {tag}
-            </div>
-          )}
-          <LikeIcon
-            _id={hotelId}
-            isFavourite={favourite || false}
-            name="card"
-            className="absolute right-2.5 top-2.5 h-7 w-7 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm"
-          />
-        </div>
+          <div className="relative w-full h-[180px]">
+            <img
+              src={image || "/hotels/hotel-temp.png"}
+              alt={title}
+              className="h-full w-full object-cover rounded-t-xl"
+            />
+            {tag && (
+              <div className="absolute left-2.5 top-2.5 bg-green-600 text-white rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase shadow-sm">
+                {tag}
+              </div>
+            )}
+            <LikeIcon
+              _id={hotelId}
+              isFavourite={favourite || false}
+              name="card"
+              className="absolute right-2.5 top-2.5 h-7 w-7 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-sm"
+            />
+          </div>
         </ImagePreview>
 
 
@@ -502,35 +502,35 @@ export function HotelCard({
       )}
     >
       {/* Image Container */}
-       <ImagePreview src={image} alt={title}>
+      <ImagePreview src={image} alt={title}>
 
-      <div
-        className={cn(
-          "relative cursor-zoom-in group",
-          isHorizontal ? "w-[250px] shrink-0" : "w-full h-[200px]"
-        )}
-      >
-        <img
-          src={image}
-          alt={title}
-          className="h-full w-full aspect-video rounded-md object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
-                    <ZoomIn className="text-white drop-shadow-md" size={32} />
-                  </div>
-        {tag && (
-          <div className="absolute left-3 top-3 bg-green-600 text-white rounded-lg px-2.5 py-1 text-[11px] font-bold tracking-wide uppercase shadow-md">
-            {tag}
+        <div
+          className={cn(
+            "relative cursor-zoom-in group",
+            isHorizontal ? "w-[250px] shrink-0" : "w-full h-[200px]"
+          )}
+        >
+          <img
+            src={image}
+            alt={title}
+            className="h-full w-full aspect-video rounded-md object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
+            <ZoomIn className="text-white drop-shadow-md" size={32} />
           </div>
-        )}
-        <LikeIcon
-          _id={hotelId}
-          isFavourite={favourite || false}
-          name="card"
-          className="absolute right-3 top-3 h-9 w-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white shadow-sm"
-        />
-      </div>
-       </ImagePreview>
+          {tag && (
+            <div className="absolute left-3 top-3 bg-green-600 text-white rounded-lg px-2.5 py-1 text-[11px] font-bold tracking-wide uppercase shadow-md">
+              {tag}
+            </div>
+          )}
+          <LikeIcon
+            _id={hotelId}
+            isFavourite={favourite || false}
+            name="card"
+            className="absolute right-3 top-3 h-9 w-9 rounded-full bg-transparent backdrop-blur-sm flex items-center justify-center hover:bg-white shadow-sm"
+          />
+        </div>
+      </ImagePreview>
 
 
       {/* Content Container */}
@@ -540,7 +540,7 @@ export function HotelCard({
           <div className="space-y-2 flex-1">
             <div className="flex items-center gap-2">
               <h3
-                className="text-xl font-bold leading-tight cursor-pointer hover:text-blue-600 transition-colors line-clamp-1"
+                className="text-xl font-bold leading-tight cursor-pointer hover:text-primary transition-colors line-clamp-1"
                 onClick={() => {
                   NProgress.start();
                   navigate.push(`/hotels/${hotelId}`)
@@ -584,10 +584,10 @@ export function HotelCard({
           {/* Rating & Review Side (Right side on Desktop List) */}
           <div className={cn("flex items-center md:items-end gap-3 shrink-0", isHorizontal ? "flex-col justify-start" : "flex-row")}>
             <div className={cn("text-right hidden md:block", isHorizontal ? "text-right" : "text-left")}>
-              <p className="font-bold text-blue-600 leading-none">{reviews.text}</p>
+              <p className="font-bold text-primary leading-none">{reviews.text}</p>
               <p className="text-xs text-muted-foreground">{reviews.count} reviews</p>
             </div>
-            <div className="bg-blue-600 text-white font-bold h-10 w-10 flex items-center justify-center rounded-lg rounded-bl-none text-lg shadow-sm">
+            <div className="bg-primary text-white font-bold h-10 w-10 flex items-center justify-center rounded-lg rounded-bl-none text-lg shadow-sm">
               {rating.toFixed(1)}
             </div>
           </div>

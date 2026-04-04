@@ -67,7 +67,7 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use("/api", limiter);
+// app.use("/api", limiter);
 
 app.use(express.json({ limit: "10kb" }));
 

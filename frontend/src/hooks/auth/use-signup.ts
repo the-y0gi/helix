@@ -28,7 +28,11 @@ export const useSignUp = () => {
     setLoading(true);
 
     try {
-      const result = await verifyOTP({ phone: data.phone, otp: data.otp });
+      const result = await verifyOTP({
+        phone: data.phone,
+        otp: data.otp,
+        endpoint: "/auth/whatsapp-verify",
+      });
       if (result.success) {
         toast.success(result.message || "Account created successfully!");
         await refetch();

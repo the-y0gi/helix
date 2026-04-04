@@ -49,6 +49,7 @@ export interface RoomType {
 }
 
 export interface Hotel {
+  thumbnail: string;
   _id: string;
   vendorId?: string;
   name: string;

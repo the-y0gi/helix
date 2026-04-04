@@ -33,8 +33,22 @@ interface AuthStates {
   verifyOTP: (data: {
     phone: string;
     otp: string;
+    endpoint: string;
+  }) => Promise<{ success: boolean; message: string }>;
+  verifyForgotPasswordOTP: (data: {
+    phone: string;
+    otp: string;
+    endpoint: string;
   }) => Promise<{ success: boolean; message: string }>;
   resendOTP: (phone: string) => Promise<{ success: boolean; message: string }>;
+  forgotPassword: (
+    data: ForgotPassword_Data,
+  ) => Promise<{ success: boolean; message: string }>;
+  resetPassword: (data: {
+    phone: string;
+    otp: string;
+    newPassword: string;
+  }) => Promise<{ success: boolean; message: string }>;
   updateUser: (
     data: Partial<User>,
   ) => Promise<{ success: boolean; message: string }>;
@@ -46,6 +60,9 @@ interface AuthStates {
 interface Login_signup_Data {
   phone?: string;
   password?: string;
+}
+interface ForgotPassword_Data {
+  phone?: string;
 }
 
 export const useAuthStore = create<AuthStates>()((set) => ({
@@ -79,6 +96,25 @@ export const useAuthStore = create<AuthStates>()((set) => ({
     }
   },
 
+  resetPassword: async (data: {
+    phone: string;
+    otp: string;
+    newPassword: string;
+  }) => {
+    set({ isSiging: true });
+    try {
+      const res = await axiosApi.patch("/auth/reset-password", data);
+      return { success: res.data.success, message: res.data.message };
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return {
+        success: false,
+        message: err.response?.data?.message || "Signup failed",
+      };
+    } finally {
+      set({ isSiging: false });
+    }
+  },
   userSignup: async (data: Login_signup_Data) => {
     set({ isSiging: true });
     try {
@@ -94,11 +130,31 @@ export const useAuthStore = create<AuthStates>()((set) => ({
       set({ isSiging: false });
     }
   },
-
-  verifyOTP: async (data: { phone: string; otp: string }) => {
+  forgotPassword: async (data: ForgotPassword_Data) => {
     set({ isSiging: true });
     try {
-      const res = await axiosApi.post("/auth/whatsapp-verify", data);
+      const res = await axiosApi.post("/auth/forgot-password", data);
+      return { success: res.data.success, message: res.data.message };
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return {
+        success: false,
+        message: err.response?.data?.message || "Signup failed",
+      };
+    } finally {
+      set({ isSiging: false });
+    }
+  },
+
+  verifyOTP: async (data: { phone: string; otp: string; endpoint: string }) => {
+    set({ isSiging: true });
+    try {
+      const res = await axiosApi.post(data.endpoint, {
+        phone: data.phone,
+        otp: data.otp,
+      });
+      console.log(res);
+
       if (res.data.success) {
         set({ currUser: res.data.data.user });
         return { success: true, message: res.data.message };
@@ -117,7 +173,37 @@ export const useAuthStore = create<AuthStates>()((set) => ({
       set({ isSiging: false });
     }
   },
+  verifyForgotPasswordOTP: async (data: {
+    phone: string;
+    otp: string;
+    endpoint: string;
+  }) => {
+    set({ isSiging: true });
+    try {
+      const res = await axiosApi.post(data.endpoint, {
+        phone: data.phone,
+        otp: data.otp,
+      });
+      console.log(res);
 
+      if (res.data.success) {
+        // set({ currUser: res.data.data.user });
+        return { success: true, message: res.data.message };
+      }
+      return {
+        success: false,
+        message: res.data.message || "Verification failed",
+      };
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return {
+        success: false,
+        message: err.response?.data?.message || "Verification failed",
+      };
+    } finally {
+      set({ isSiging: false });
+    }
+  },
   resendOTP: async (email: string) => {
     try {
       const res = await axiosApi.post("/auth/resend-otp", { email });

@@ -45,7 +45,7 @@ export const ContentFrame = (props: Props) => {
 };
 
 export const Content = ({ className }: { className: string }) => {
-  const { wrap , city } = useHotelStore();
+  const { wrap, city } = useHotelStore();
   const isMobile = useIsMobile()
   const { hotels, isLoading } = useHotelContext()
 
@@ -96,9 +96,9 @@ export const Content = ({ className }: { className: string }) => {
           ? Math.min(...roomTypes.map((r: any) => r.discountPrice > 0 ? r.discountPrice : r.basePrice))
           : (hotel as any).startingPrice ?? 0
 
-        const firstImage = hotel.images[0]?.url ?? "/hotels/hotel-temp.png"
+        const firstImage = hotel.thumbnail ?? "/hotels/hotel-temp.png"
         // console.log( hotel);
-        
+
 
         return (
           <HotelCard
