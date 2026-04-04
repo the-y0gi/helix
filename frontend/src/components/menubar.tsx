@@ -182,7 +182,7 @@ export function MenuBar() {
         <Button
           variant="ghost"
           // Reduced size on mobile (h-9), standard on desktop (sm:h-10)
-          className="relative h-9 w-9 sm:h-10 sm:w-10 md:h-12 md:w-12 lg:h-14 lg:w-14  rounded-full border-2 border-transparent hover:border-orange-400 p-0 transition-all duration-300"
+          className="relative h-9 w-9 sm:h-10 sm:w-10 md:h-12 md:w-12   rounded-full border-2 border-transparent hover:border-orange-400 p-0 transition-all duration-300"
         >
           <div className="relative h-full w-full overflow-hidden rounded-full border border-border">
             <Image
