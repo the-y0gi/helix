@@ -16,10 +16,13 @@ const HotelContext = React.createContext<{
   availabilityResponse: Hotel | undefined;
   availabilityLoading: boolean;
   FetchRoomTypes: () => void;
+  fetch: boolean;
+  setFetch: React.Dispatch<React.SetStateAction<boolean>>;
   refetchAvailability: () => void;
 } | null>(null);
 
 const HotelContextProvider = ({ hotelId, children }: Props) => {
+  const [fetch, setFetch] = useState(false);
   // ✅ Zustand selectors (IMPORTANT)
   const date = useHotelStore((s) => s.date);
   const guests = useHotelStore((s) => s.guests);
@@ -45,7 +48,7 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
     data: availabilityResponse,
     isLoading: availabilityLoading,
     refetch: refetchAvailability,
-  } = useHotelAvailabilityQuery(availabilityParams);
+  } = useHotelAvailabilityQuery(availabilityParams, fetch, setFetch);
 
   const availabilityRooms = availabilityResponse?.roomTypes;
 
@@ -61,8 +64,12 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
       FetchRoomTypes: refetchAvailability,
       refetchAvailability,
       rooms,
+      fetch,
+      setFetch
     }),
     [
+      fetch,
+      setFetch,
       availabilityResponse,
       availabilityLoading,
       refetchAvailability,

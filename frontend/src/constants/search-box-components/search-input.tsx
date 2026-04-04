@@ -40,7 +40,7 @@ const AddressSearch = () => {
         )}
       </AnimatePresence>
 
-      <div className="relative z-50">
+      <div className="relative z-10">
         <Input
           placeholder={city || "Search places (e.g. 'Goa')"}
           value={query}

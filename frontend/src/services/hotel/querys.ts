@@ -213,7 +213,8 @@ type AvailabilityParams = {
 
 export const useHotelAvailabilityQuery = (
   params: AvailabilityParams,
-  options?: { enabled?: boolean },
+  fetch: boolean,
+  setFetch: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
   return useQuery({
     queryKey: [
@@ -224,11 +225,12 @@ export const useHotelAvailabilityQuery = (
       params.adults,
       params.children,
     ],
-    queryFn: () => getHotelAvailability(params),
-    enabled:
-      options?.enabled !== undefined
-        ? options.enabled
-        : !!params.checkIn && !!params.checkOut,
+    queryFn: () => {
+      const res = getHotelAvailability(params);
+      setFetch(false);
+      return res;
+    },
+    enabled: fetch && !!params.checkIn && !!params.checkOut,
     staleTime: 300000,
   });
 };

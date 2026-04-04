@@ -131,7 +131,7 @@ export const OnlyCarousel = ({ type, tagline, items, isLoading }: Props) => {
               />
             ))}
             <div className="min-w-[240px]">
-              <GalleryCard images={["/room1.png", "/room2.png", "/room3.png"]} />
+              <GalleryCard images={["/hotels/room1.png", "/hotels/room2.png", "/hotels/room3.png"]} />
             </div>
           </>
         )}

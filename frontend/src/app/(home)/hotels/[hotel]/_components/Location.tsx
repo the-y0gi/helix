@@ -27,12 +27,12 @@ const MapLocation = ({ address, cordinates }: LocationProps) => {
         <div className="overflow-hidden sm:rounded-2xl aspect-video w-full relative cursor-pointer ">
           <HotelFilterBar
             content={
-              <div className="w-full h-[500px]">
-                <MapLeaf cordinates={cordinates} height="500px" />
+              <div className="w-full h-full">
+                <MapLeaf cordinates={cordinates} height="100%" />
               </div>
             }
           >
-            <div className="w-full h-full">
+            <div className="w-full h-[400px]">
               <Suspense
                 fallback={
                   <div className="h-full w-full bg-muted animate-pulse" />

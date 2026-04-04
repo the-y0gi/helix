@@ -42,7 +42,7 @@ export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; c
   return (
     <button
       className={cn(className)}
-      onClick={(e)=>{
+      onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
         handleClick()
@@ -51,6 +51,7 @@ export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; c
     >
       {!hasToken ? (
         <Sign_in_hover
+          tag="Log-in"
           forLike={{
             content: (
               <IconHeart

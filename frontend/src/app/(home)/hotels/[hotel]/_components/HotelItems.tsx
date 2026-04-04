@@ -5,29 +5,30 @@ import React, { useEffect, useState } from "react";
 import { TabsLine } from "./tabs";
 import { Hotel } from "@/types";
 import { handleCopy, LikeIcon } from "@/services/dailyfunctions";
+import { useHotelContext } from "../_providers_context/hotel-contextProvider";
+import { ShareModal } from "./shareComponent";
 
 type HotelItemsProps = {
   hotel: Hotel;
   isBookingMode: boolean;
-  isAvailabilityLoading: boolean;
 };
 
 const HotelItems = ({
   hotel,
   isBookingMode,
-  isAvailabilityLoading,
 }: HotelItemsProps) => {
+  const { availabilityLoading } = useHotelContext();
   return (
     <div className="flex flex-col gap-6 w-full md:py-8 px-4 md:px-0">
       <div className="flex flex-col gap-4 md:px-10">
-        
+
         <div className="flex justify-between items-start gap-4">
-          
+
           <div className="flex flex-col gap-1.5 min-w-0 flex-1">
             <h1 className="text-2xl md:text-4xl font-extrabold text-foreground/80 tracking-tight leading-tight break-words">
               {hotel.name}
             </h1>
-            
+
             <div className="flex items-center gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <IconStarFilled
@@ -48,16 +49,17 @@ const HotelItems = ({
 
           <div className="flex items-center gap-2 flex-shrink-0 pt-1">
             <div className="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 rounded-full border border-border bg-background shadow-sm active:scale-90 transition-transform">
-               <LikeIcon _id={hotel._id} isFavourite={hotel.isFavorite} name={hotel.name}/>
+              <LikeIcon _id={hotel._id} isFavourite={hotel.isFavorite} name={hotel.name} />
             </div>
 
-            <button
+            {/* <button
               onClick={handleCopy}
               className="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 rounded-full border border-border bg-background shadow-sm active:scale-90 transition-transform"
               title="Share"
             >
               <IconShare size={20} className="text-muted-foreground" />
-            </button>
+            </button> */}
+            <ShareModal />
           </div>
         </div>
 
@@ -73,7 +75,7 @@ const HotelItems = ({
         <TabsLine
           hotel={hotel}
           isBookingMode={isBookingMode}
-          isAvailabilityLoading={isAvailabilityLoading}
+          isAvailabilityLoading={availabilityLoading}
           values={[
             { title: "overview", id: 1 },
             { title: "rooms", id: 5 },

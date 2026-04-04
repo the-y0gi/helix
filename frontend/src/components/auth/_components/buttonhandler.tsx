@@ -14,7 +14,7 @@ const ButtonHandler = ({ currentStep, setCurrentStep }: { currentStep: number, s
   switch (currentStep) {
     case 1:
       return (
-        <Button type='submit' variant={"outline"}
+        <Button type='submit' variant={"outline"} className="rounded-full "
           {...(
             isPhone &&
             isPassword &&
@@ -32,7 +32,7 @@ const ButtonHandler = ({ currentStep, setCurrentStep }: { currentStep: number, s
 
   }
   return (
-    <Button type='submit'  >create account</Button>
+    <Button type='submit' className="rounded-full bg-primary" >create account</Button>
   )
 }
 

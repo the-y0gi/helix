@@ -74,7 +74,11 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
               isLoading={isLoading}
             />
 
-            {i === 1 && <ImagesSliderDemo />}
+            {i === 1 && (
+              <div className="px-2 md:px-0">
+                <ImagesSliderDemo />
+              </div>
+            )}
           </React.Fragment>
         );
       })}

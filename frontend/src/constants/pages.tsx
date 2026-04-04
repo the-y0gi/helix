@@ -43,7 +43,7 @@ export const pages: Pages[] = [
     type: "home",
     link: "/hotels",
     icon: IconHome,
-    iconUrl: "/hotel-logo.png",
+    iconUrl: "/nav-icons/hotel-logo.png",
     title: "Hotels",
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={HotelFilterBarValues} link="/hotels/find" type="home" />
@@ -56,7 +56,7 @@ export const pages: Pages[] = [
     type: "home",
     link: "/cabs",
     icon: IconHome,
-    iconUrl: "/cabs-logo.png",
+    iconUrl: "/nav-icons/cabs-logo.png",
     title: "Cabs",
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/cabs/find" type="home" />
@@ -69,7 +69,7 @@ export const pages: Pages[] = [
   {
     link: "/bikes",
     icon: IconHome,
-    iconUrl: "/bikes-logo.png",
+    iconUrl: "/nav-icons/bikes-logo.png",
     title: "Bikes",
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/bikes/find" type="home" />
@@ -84,7 +84,7 @@ export const pages: Pages[] = [
     type: "home",
     link: "/tours",
     icon: IconHome,
-    iconUrl: "/tours-logo.png",
+    iconUrl: "/nav-icons/tours-logo.png",
     title: "Tours",
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/tours/find" type="home" />
@@ -97,7 +97,7 @@ export const pages: Pages[] = [
     type: "home",
     link: "/adventures",
     icon: IconHome,
-    iconUrl: "/adventures-logo.png",
+    iconUrl: "/nav-icons/adventures-logo.png",
     title: "Adventures",
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/adventures/find" type="home" />

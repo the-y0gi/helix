@@ -31,7 +31,10 @@ const content: Record<ProfileTabKey, React.ReactNode> = {
   personal_data: <PersonProfilePersonalData />,
   payment: <PaymentPage />,
   wishlist: <WishlistSection />,
-  support: <p>Support Content</p>,
+  support: <div className="border border-border rounded-2xl p-6">
+    {/* <RaiseTicketForm /> */}
+    <p>support</p>
+  </div>,
   reviews: <ReviewList />,
   settings: <Settings />,
   all: <AllReservations variant={"all"} />,

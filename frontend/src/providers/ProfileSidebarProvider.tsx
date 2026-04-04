@@ -47,7 +47,7 @@ let sidebarData: SidebarContextValue = {
   user: {
     name: "user",
     email: "user@gmail.com",
-    avatar: "/user.png",
+    avatar: "/icons/user.png",
   },
   navMain: [
     {
@@ -133,7 +133,7 @@ export const ProfileSidebarProvider = ({
   children: React.ReactNode;
   className?: string;
 }) => {
-  
+
   const [tab, setTab] = useQueryState("tab", {
     defaultValue: sidebarData.navMain[0].value,
     shallow: true,

@@ -24,6 +24,7 @@ import ButtonHandler from "./buttonhandler";
 import { useFormContext, type UseFormReturn } from "react-hook-form";
 import type { SignUpProps } from "@/schema/auth";
 import { useEffect } from "react";
+import { useResetPasswordForm } from "@/context/auth/resetpasswordsteps";
 
 type OTPFormProps = React.ComponentProps<typeof Card> & {
   onOTP: string;
@@ -35,7 +36,7 @@ const OTP_LENGTH = 4;
 
 export function OTPForm({ onOTP, methods, setOnOTP, ...props }: OTPFormProps) {
   const { setValue } = useFormContext<SignUpProps>();
-  const { currentStep, setCurrentStep } = useAuthForm();
+  const { currentStep, setCurrentStep } = useResetPasswordForm();
 
   // ✅ update form value safely
   useEffect(() => {

@@ -142,7 +142,6 @@ import HotelItems from "./_components/HotelItems";
 import { useHotelStore } from "@/store/hotel.store";
 import {
   useHotelDetailsQuery,
-  useHotelAvailabilityQuery,
 } from "@/services/hotel/querys";
 import HotelContextProvider from "./_providers_context/hotel-contextProvider";
 import { MessageModal } from "@/components/messagemodal";
@@ -173,14 +172,7 @@ const HotelDetails = ({ className }: { className?: string }) => {
     useHotelDetailsQuery(hotelId);
 
 
-  const { isLoading: availabilityLoading, refetch: refetchAvailability } =
-    useHotelAvailabilityQuery({
-      hotelId,
-      checkIn: date?.from,
-      checkOut: date?.to,
-      adults: guests.adults,
-      children: guests.children,
-    });
+
 
 
 
@@ -216,7 +208,6 @@ const HotelDetails = ({ className }: { className?: string }) => {
               hotel={hotelDetailsData}
               // rooms={rooms}
               isBookingMode={isBookingMode}
-              isAvailabilityLoading={availabilityLoading}
             />
           </HotelContextProvider>
         </Suspense>

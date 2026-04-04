@@ -37,7 +37,7 @@ const reviews: Review[] = [
     {
         id: "1",
         hotelName: "Via Golden Tulip Hotel",
-        image: "/room2.png",
+        image: "/hotels/room2.png",
         date: "24 Oct 2024",
         rating: 3.0,
         status: "posted",
@@ -51,7 +51,7 @@ const reviews: Review[] = [
     {
         id: "2",
         hotelName: "Via Forest Whisper Cabin",
-        image: "/room1.png",
+        image: "/hotels/room1.png",
         date: "24 Jul 2023",
         rating: 3.0,
         status: "rejected",
@@ -61,7 +61,7 @@ const reviews: Review[] = [
     {
         id: "3",
         hotelName: "Via Golden Tulip Hotel",
-        image: "/room3.png",
+        image: "/hotels/room3.png",
         date: "24 Jul 2023",
         rating: 7.0,
         status: "pending",

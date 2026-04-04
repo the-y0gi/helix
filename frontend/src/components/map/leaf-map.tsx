@@ -13,8 +13,8 @@ type Props = {
 };
 
 const customIcon = new L.Icon({
-  iconUrl: '/map_marker.png',
-  iconRetinaUrl: '/map_marker.png',
+  iconUrl: '/map-icons/map_marker.png',
+  iconRetinaUrl: '/map-icons/map_marker.png',
   iconSize: [38, 45],
   iconAnchor: [19, 45],
   popupAnchor: [0, -45],
@@ -25,7 +25,7 @@ const MapLeaf = ({ className, height = '400px', cordinates }: Props) => {
     <div
       // 1. Use 'relative' and a specific z-index lower than your Navbar (e.g., 0 or 10)
       // 2. 'mt-20' provides the gap from the top of the screen/navbar
-      className={cn('w-full md:mt-10 relative z-0', className)}
+      className={cn('w-full  relative z-0', className)}
       style={{ height }}
     >
       <MapContainer

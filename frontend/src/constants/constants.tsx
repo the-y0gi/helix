@@ -117,16 +117,20 @@ export type FilterBarValues = {
   tagline?: string;
   // icon?:Icon;
 };
-export type BoxFilterBarVaues ={
-   label: string;
-   icon: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
-   element?: React.ReactNode;
-   text: string;
+export type BoxFilterBarVaues = {
+  label: string;
+  icon: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
+  element?: React.ReactNode;
+  text: string;
 }
-export type SearchBoxValuesProps={
-  search:React.ReactNode,
-  filterBlocks:BoxFilterBarVaues[],
-  videos:string[]
+export type SearchBoxValuesProps = {
+  search: React.ReactNode,
+  filterBlocks: BoxFilterBarVaues[],
+  videos: {
+    title: string
+    description: string
+    link: string
+  }[]
 }
 
 export const HotelFilterBarValues: FilterBarValues[] = [
@@ -134,7 +138,7 @@ export const HotelFilterBarValues: FilterBarValues[] = [
     value: "Where",
     description: "Search Destination",
     element: (
-      <LocationSuggestionDropdown items={items} onSelect={(item) => {}} />
+      <LocationSuggestionDropdown items={items} onSelect={(item) => { }} />
     ),
     tagline: "Where do you want to go?",
   },
@@ -152,7 +156,7 @@ export const HotelFilterBarValues: FilterBarValues[] = [
   },
 ];
 export const Hotel_Box_FilterBarValues: BoxFilterBarVaues[] = [
- {
+  {
     label: "Check In",
     icon: Calendar,
     element: <HotelCalendern />,
@@ -166,13 +170,13 @@ export const Hotel_Box_FilterBarValues: BoxFilterBarVaues[] = [
   },
   {
     label: "Guests",
-    icon:User,
+    icon: User,
     element: <GuestSelector />,
     text: "Add Guests",
   },
 ];
 export const Cabs_Box_FilterBarValues: BoxFilterBarVaues[] = [
- {
+  {
     label: "Company",
     icon: Calendar,
     element: <HotelCalendern />,
@@ -196,7 +200,7 @@ export const CabsFilterBarValues: FilterBarValues[] = [
     value: "Pickup Location",
     description: "Enter Pickup point",
     element: (
-      <LocationSuggestionDropdown items={items} onSelect={(item) => {}} />
+      <LocationSuggestionDropdown items={items} onSelect={(item) => { }} />
     ),
     tagline: "Where do you want to go?",
   },
@@ -216,37 +220,115 @@ export const CabsFilterBarValues: FilterBarValues[] = [
     value: "Who",
     description: "Add Passengers",
     element: (
-      <LocationSuggestionDropdown items={items} onSelect={(item) => {}} />
+      <LocationSuggestionDropdown items={items} onSelect={(item) => { }} />
     ),
     tagline: "Who is coming?",
   },
 ];
-export const Search_box_values:SearchBoxValuesProps[] = [
-    {
-        search:<SearchInput />,
-        filterBlocks:Hotel_Box_FilterBarValues,
-        videos:["/happy.mp4", "/road.mp4", "/hot-air.mp4"]
-    },
-    {
-        search:<SearchInput />,
-        filterBlocks:Cabs_Box_FilterBarValues,
-        videos:["/happy.mp4", "/road.mp4",  "/japan.mp4"]
-    },
-    {
-        search:<SearchInput />,
-        filterBlocks:Hotel_Box_FilterBarValues,
-        videos:["/happy.mp4",  "/japan.mp4"]
-    },
-    {
-        search:<SearchInput />,
-        filterBlocks:Hotel_Box_FilterBarValues,
-        videos:[ "/road.mp4", "/hot-air.mp4", "/japan.mp4"]
-    },
-    {
-        search:<SearchInput />,
-        filterBlocks:Hotel_Box_FilterBarValues,
-        videos:["/happy.mp4", "/road.mp4", "/hot-air.mp4", "/japan.mp4"]
-    }
+export const Search_box_values: SearchBoxValuesProps[] = [
+  {
+    search: <SearchInput />,
+    filterBlocks: Hotel_Box_FilterBarValues,
+    videos: [
+      {
+        title: "Capture the Joy.",
+        description: "450+ vacation rentals, 120 local guides, and endless memories.",
+        link: "/search-box-videos/happy.mp4"
+      },
+      {
+        title: "The Open Road.",
+        description: "800+ car rentals, 50 scenic routes, and 24/7 roadside support.",
+        link: "/search-box-videos/road.mp4"
+      },
+      {
+        title: "Reach New Heights.",
+        description: "15 balloon tours, 3 private flight paths, and breathtaking sunrise views.",
+        link: "/search-box-videos/hot-air.mp4"
+      }
+    ]
+  },
+  {
+    search: <SearchInput />,
+    filterBlocks: Cabs_Box_FilterBarValues,
+    videos: [
+      {
+        title: "Happy",
+        description: "Happy",
+        link: "/search-box-videos/happy.mp4"
+      },
+      {
+        title: "Road",
+        description: "Road",
+        link: "/search-box-videos/road.mp4"
+      },
+      {
+        title: "Japan",
+        description: "Japan",
+        link: "/search-box-videos/japan.mp4"
+      }
+    ]
+  },
+  {
+    search: <SearchInput />,
+    filterBlocks: Hotel_Box_FilterBarValues,
+    videos: [
+      {
+        title: "Happy",
+        description: "Happy",
+        link: "/search-box-videos/happy.mp4"
+      },
+      {
+        title: "Japan",
+        description: "Japan",
+        link: "/search-box-videos/japan.mp4"
+      }]
+  },
+  {
+    search: <SearchInput />,
+    filterBlocks: Hotel_Box_FilterBarValues,
+    videos: [
+      {
+        title: "Happy",
+        description: "Happy",
+        link: "/search-box-videos/happy.mp4"
+      },
+      {
+        title: "Road",
+        description: "Road",
+        link: "/search-box-videos/road.mp4"
+      },
+      {
+        title: "Hot Air",
+        description: "Hot Air",
+        link: "/search-box-videos/hot-air.mp4"
+      }
+    ]
+  },
+  {
+    search: <SearchInput />,
+    filterBlocks: Hotel_Box_FilterBarValues,
+    videos: [
+      {
+        title: "Happy",
+        description: "Happy",
+        link: "/search-box-videos/happy.mp4"
+      },
+      {
+        title: "Road",
+        description: "Road",
+        link: "/search-box-videos/road.mp4"
+      },
+      {
+        title: "Hot Air",
+        description: "Hot Air",
+        link: "/search-box-videos/hot-air.mp4"
+      },
+      {
+        title: "Japan",
+        description: "Japan",
+        link: "/search-box-videos/japan.mp4"
+      }]
+  }
 ]
 
 
@@ -280,37 +362,37 @@ export const destinations: {
   location: string;
   image: string;
 }[] = [
-  {
-    title: "Louvre Museum",
-    location: "Paris, France",
-    image: "/img1.png",
-  },
-  {
-    title: "Golden Hands Bridge",
-    location: "Da Nang, Vietnam",
-    image: "/img2.png",
-  },
-  {
-    title: "Elizabeth Tower",
-    location: "London, England",
-    image: "/img3.jpg",
-  },
-  {
-    title: "Louvre Museum",
-    location: "Paris, France",
-    image: "/img4.png",
-  },
-  {
-    title: "Golden Hands Bridge",
-    location: "Da Nang, Vietnam",
-    image: "/img1.png",
-  },
-  {
-    title: "Elizabeth Tower",
-    location: "London, England",
-    image: "/img2.png",
-  },
-];
+    {
+      title: "Louvre Museum",
+      location: "Paris, France",
+      image: "/hotels/img1.png",
+    },
+    {
+      title: "Golden Hands Bridge",
+      location: "Da Nang, Vietnam",
+      image: "/hotels/img2.png",
+    },
+    {
+      title: "Elizabeth Tower",
+      location: "London, England",
+      image: "/hotels/img3.jpg",
+    },
+    {
+      title: "Louvre Museum",
+      location: "Paris, France",
+      image: "/hotels/img4.png",
+    },
+    {
+      title: "Golden Hands Bridge",
+      location: "Da Nang, Vietnam",
+      image: "/hotels/img1.png",
+    },
+    {
+      title: "Elizabeth Tower",
+      location: "London, England",
+      image: "/hotels/img2.png",
+    },
+  ];
 export const cars = [
   {
     title: "Tesla Model S",
