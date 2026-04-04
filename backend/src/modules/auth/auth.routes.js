@@ -41,6 +41,7 @@ router.post("/login", authLimiter, authController.login);
 
 // Password Management
 router.post("/forgot-password", otpLimiter, authController.forgotPassword);
+router.post("/otp-verify", otpLimiter, authController.otpVerify);
 router.patch("/reset-password", authLimiter, authController.resetPassword);
 router.patch("/change-password", protect, authController.changePassword);
 
