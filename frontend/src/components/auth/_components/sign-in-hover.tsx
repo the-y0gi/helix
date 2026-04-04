@@ -111,7 +111,7 @@ export function Sign_in_hover({
             <Button variant={variant} className={cn("w-full flex justify-start", className)}>{tg} or Sign-up</Button>
           )}
         </DialogTrigger>
-        <DialogContent className="md:w-[425px]  p-0 rounded-2xl overflow-hidden pb-4 w-[300px] z-65">
+        <DialogContent className="md:w-[500px]  p-0 rounded-2xl overflow-hidden pb-4 w-[340px] z-65">
           <VisuallyHidden>
             <DialogTitle className="sr-only">Login</DialogTitle>
           </VisuallyHidden>
@@ -401,7 +401,7 @@ export function SignInForm({ setTag, className }: {
               />
             </Field>
             <Field>
-              <Button type="submit" className="rounded-full bg-primary">Log in</Button>
+              <Button type="submit" className={cn("rounded-full ", loading && "cursor-not-allowed")} disabled={loading} >{loading ? "Logging in..." : "Log in"}</Button>
             </Field>
 
           </FieldGroup>
@@ -535,7 +535,7 @@ export function ResetPassword({ setTag, className }: {
             )}
 
             {currentStep === 2 && (
-              <ForgotPasswordOTPForm methods={methods} onOTP={onOTP} setOnOTP={setOnOTP} />
+              <ForgotPasswordOTPForm className="bg-transparent w-full" methods={methods} onOTP={onOTP} setOnOTP={setOnOTP} />
             )}
             {
               currentStep == 3 && (

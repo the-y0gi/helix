@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { useSignUp } from '@/hooks/auth/use-signup'
+import { cn } from '@/lib/utils'
 import type { SignUpProps } from '@/schema/auth'
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -10,11 +11,11 @@ const ButtonHandler = ({ currentStep, setCurrentStep }: { currentStep: number, s
   const { isDirty: isPhone } = getFieldState('phone', formState)
   const { isDirty: isPassword } = getFieldState('password', formState)
   const { isDirty: isConfirmPassword } = getFieldState('confirmPassword', formState)
-  const { onGenerateOtp } = useSignUp()
+  const { onGenerateOtp, loading } = useSignUp()
   switch (currentStep) {
     case 1:
       return (
-        <Button type='submit' variant={"outline"} className="rounded-full "
+        <Button type='submit' variant={"outline"} className={cn("rounded-full ", loading && "cursor-not-allowed")} disabled={loading}
           {...(
             isPhone &&
             isPassword &&
@@ -26,13 +27,13 @@ const ButtonHandler = ({ currentStep, setCurrentStep }: { currentStep: number, s
                   setCurrentStep
                 ),
             })}
-        >Get otp</Button>
+        >{loading ? "Generating otp..." : "Get otp"}</Button>
       )
 
 
   }
   return (
-    <Button type='submit' className="rounded-full bg-primary" >create account</Button>
+    <Button type='submit' className={cn("rounded-full ", loading && "cursor-not-allowed")} disabled={loading} >{loading ? "Creating account..." : "create account"}</Button>
   )
 }
 
