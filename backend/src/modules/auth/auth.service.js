@@ -2,7 +2,10 @@ const User = require("./auth.model");
 const Vendor = require("../vendors/vendor.model");
 const crypto = require("crypto");
 const logger = require("../../shared/utils/logger");
-const { sendOTPEmail,sendWhatsAppOTP } = require("../../shared/utils/sendEmail");
+const {
+  sendOTPEmail,
+  sendWhatsAppOTP,
+} = require("../../shared/utils/sendEmail");
 
 // Helper to generate 6-digit OTP and its hash
 const generateOTP = async () => {
@@ -41,9 +44,9 @@ exports.whatsappSignup = async (phone, password) => {
   try {
     if (!phone) throw new Error("Phone number is required");
 
-   const phoneNumber  = normalizePhone(phone);
+    const phoneNumber = normalizePhone(phone);
 
-    let user = await User.findOne({ phoneNumber  });
+    let user = await User.findOne({ phoneNumber });
 
     if (user && user.providers.local.isVerified) {
       throw new Error("User already exists. Please login.");
@@ -53,7 +56,7 @@ exports.whatsappSignup = async (phone, password) => {
 
     if (!user) {
       user = new User({
-        phoneNumber ,
+        phoneNumber,
         password,
         role: "user",
         otp,
@@ -73,7 +76,7 @@ exports.whatsappSignup = async (phone, password) => {
     await user.save();
 
     //send WhatsApp OTP
-    await sendWhatsAppOTP(phoneNumber , otp);
+    await sendWhatsAppOTP(phoneNumber, otp);
 
     return {
       message: "OTP sent on WhatsApp",
@@ -311,31 +314,43 @@ exports.verifyOTP = async (email, inputOTP) => {
   }
 };
 
-exports.forgotPassword = async (email) => {
+exports.forgotPassword = async (phone) => {
   try {
+    if (!phone) throw new Error("Phone number is required");
+
+    const phoneNumber = normalizePhone(phone);
+
     const { otp, otpExpires } = await generateOTP();
+
     const user = await User.findOneAndUpdate(
-      { email },
+      { phoneNumber },
       { otp, otpExpires },
       { new: true },
     );
 
     if (!user) throw new Error("User not found");
 
-    await sendOTPEmail(email, otp);
-    return { message: "Password reset OTP sent to email" };
+    await sendWhatsAppOTP(phoneNumber, otp);
+
+    return { message: "Password reset OTP sent on WhatsApp" };
   } catch (error) {
     throw error;
   }
 };
 
-exports.otpVerify = async (email, otp) => {
+exports.otpVerify = async (phone, inputOTP) => {
   try {
-    const user = await User.findOne({ email }).select("+otp +otpExpires");
+    if (!phone) throw new Error("Phone number is required");
+
+    const phoneNumber = normalizePhone(phone);
+
+    const user = await User.findOne({ phoneNumber }).select("+otp +otpExpires");
+
+    if (!user) throw new Error("User not found");
 
     if (
-      !user ||
-      user.otp.toString() !== otp.toString() ||
+      !user.otp ||
+      String(user.otp) !== String(inputOTP) ||
       Date.now() > user.otpExpires
     ) {
       throw new Error("Invalid or expired OTP");
@@ -347,16 +362,28 @@ exports.otpVerify = async (email, otp) => {
   }
 };
 
-exports.resetPassword = async (email, otp, newPassword) => {
+exports.resetPassword = async (phone, otp, newPassword) => {
   try {
-    const user = await User.findOne({ email }).select("+otp +otpExpires");
-    if (!user || user.otp !== otp || Date.now() > user.otpExpires) {
+    if (!phone) throw new Error("Phone number is required");
+
+    const phoneNumber = normalizePhone(phone);
+
+    const user = await User.findOne({ phoneNumber }).select("+otp +otpExpires");
+
+    if (!user) throw new Error("User not found");
+
+    if (
+      !user.otp ||
+      String(user.otp) !== String(otp) ||
+      Date.now() > user.otpExpires
+    ) {
       throw new Error("Invalid or expired OTP");
     }
 
     user.password = newPassword;
     user.otp = undefined;
     user.otpExpires = undefined;
+
     await user.save();
 
     return { message: "Password reset successful" };
@@ -364,6 +391,60 @@ exports.resetPassword = async (email, otp, newPassword) => {
     throw error;
   }
 };
+
+// exports.forgotPassword = async (email) => {
+//   try {
+//     const { otp, otpExpires } = await generateOTP();
+//     const user = await User.findOneAndUpdate(
+//       { email },
+//       { otp, otpExpires },
+//       { new: true },
+//     );
+
+//     if (!user) throw new Error("User not found");
+
+//     await sendOTPEmail(email, otp);
+//     return { message: "Password reset OTP sent to email" };
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+// exports.otpVerify = async (email, otp) => {
+//   try {
+//     const user = await User.findOne({ email }).select("+otp +otpExpires");
+
+//     if (
+//       !user ||
+//       user.otp.toString() !== otp.toString() ||
+//       Date.now() > user.otpExpires
+//     ) {
+//       throw new Error("Invalid or expired OTP");
+//     }
+
+//     return { message: "OTP verified successfully" };
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+// exports.resetPassword = async (email, otp, newPassword) => {
+//   try {
+//     const user = await User.findOne({ email }).select("+otp +otpExpires");
+//     if (!user || user.otp !== otp || Date.now() > user.otpExpires) {
+//       throw new Error("Invalid or expired OTP");
+//     }
+
+//     user.password = newPassword;
+//     user.otp = undefined;
+//     user.otpExpires = undefined;
+//     await user.save();
+
+//     return { message: "Password reset successful" };
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 exports.changePassword = async (userId, oldPassword, newPassword) => {
   try {
