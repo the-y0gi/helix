@@ -231,40 +231,89 @@ exports.verifyOTP = async (req, res) => {
 
 exports.forgotPassword = async (req, res) => {
   try {
-    const result = await authService.forgotPassword(req.body.email);
-    res.status(200).json({ success: true, message: result.message });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
+    const { phone } = req.body;
 
-exports.otpVerify = async (req, res) => {
-  try {
-    const { email, otp } = req.body;
-
-    const result = await authService.otpVerify(email, otp);
+    const result = await authService.forgotPassword(phone);
 
     res.status(200).json({
       success: true,
       message: result.message,
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
+    handleError(res, error);
+  }
+};
+
+exports.otpVerify = async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+
+    const result = await authService.otpVerify(phone, otp);
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
     });
+  } catch (error) {
+    handleError(res, error);
   }
 };
 
 exports.resetPassword = async (req, res) => {
   try {
-    const { email, otp, newPassword } = req.body;
-    const result = await authService.resetPassword(email, otp, newPassword);
-    res.status(200).json({ success: true, message: result.message });
+    const { phone, otp, newPassword } = req.body;
+
+    const result = await authService.resetPassword(
+      phone,
+      otp,
+      newPassword
+    );
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
+    });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    handleError(res, error);
   }
 };
+
+// exports.forgotPassword = async (req, res) => {
+//   try {
+//     const result = await authService.forgotPassword(req.body.email);
+//     res.status(200).json({ success: true, message: result.message });
+//   } catch (error) {
+//     res.status(400).json({ success: false, message: error.message });
+//   }
+// };
+
+// exports.otpVerify = async (req, res) => {
+//   try {
+//     const { email, otp } = req.body;
+
+//     const result = await authService.otpVerify(email, otp);
+
+//     res.status(200).json({
+//       success: true,
+//       message: result.message,
+//     });
+//   } catch (error) {
+//     res.status(400).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
+// exports.resetPassword = async (req, res) => {
+//   try {
+//     const { email, otp, newPassword } = req.body;
+//     const result = await authService.resetPassword(email, otp, newPassword);
+//     res.status(200).json({ success: true, message: result.message });
+//   } catch (error) {
+//     res.status(400).json({ success: false, message: error.message });
+//   }
+// };
 
 exports.changePassword = async (req, res) => {
   try {
