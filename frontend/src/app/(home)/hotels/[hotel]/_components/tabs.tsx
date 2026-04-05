@@ -26,6 +26,7 @@ import { UseFormReturn } from "react-hook-form";
 import { useHotelContext } from "../_providers_context/hotel-contextProvider";
 import SliderIfNotChooseDate from "../_providers_context/SliderIfNotChooseDate";
 import GuestSelector from "@/components/filter-bar/newui-selectedCounter";
+import { CometCard } from "@/components/ui/comet-card";
 
 type TabKey =
   | "overview"
@@ -121,11 +122,14 @@ export function TabsLine({
           </section>
         </main>
         <aside className="lg:w-[380px] flex-shrink-0">
+
           <div className="lg:sticky lg:top-24">
-            <BookingCard
-              isBookingMode={isBookingMode}
-              isLoading={isAvailabilityLoading}
-            />
+            <CometCard translateDepth={5}>
+              <BookingCard
+                isBookingMode={isBookingMode}
+                isLoading={isAvailabilityLoading}
+              />
+            </CometCard>
           </div>
         </aside>
       </div>
@@ -193,7 +197,7 @@ function BookingCard({
   }, [showCalendar]);
 
   return (
-    <Card className="border border-border shadow-xl rounded-[32px] bg-background/50 text-foreground overflow-visible relative">
+    <Card className="border border-border shadow-xl rounded-2xl bg-background/90 text-foreground overflow-visible relative">
       <CardContent className="p-6 space-y-6">
         <div
           ref={containerRef}

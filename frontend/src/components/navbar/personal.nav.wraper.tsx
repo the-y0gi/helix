@@ -27,7 +27,7 @@ const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
 
           <div className="flex gap-9 p-1 justify-center items-center">
             <div>
-              <DialogDemo trigger={<Headset color="blue" size={25} />} />
+              {/* <DialogDemo trigger={<Headset color="blue" size={25} />} /> */}
 
             </div>
             <Suspense>

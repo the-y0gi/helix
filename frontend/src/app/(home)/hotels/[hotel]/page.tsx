@@ -140,6 +140,7 @@ import { useParams } from "next/navigation";
 
 import HotelItems from "./_components/HotelItems";
 import { useHotelStore } from "@/store/hotel.store";
+import { Skeleton } from 'boneyard-js/react'
 import {
   useHotelDetailsQuery,
 } from "@/services/hotel/querys";
@@ -204,9 +205,11 @@ const HotelDetails = ({ className }: { className?: string }) => {
           <ScrollToTop />
           <HotelContextProvider hotelId={hotelId}>
 
+
             <HotelItems
               hotel={hotelDetailsData}
               // rooms={rooms}
+              loading={!hotelDetailsData || !hotelDetailsData.name}
               isBookingMode={isBookingMode}
             />
           </HotelContextProvider>
