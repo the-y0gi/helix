@@ -455,12 +455,12 @@ export function LoopingVideoHero({ VIDEOS }: {
         ))}
       </div>
 
-      <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 z-20">
+      {/* <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 z-20">
         <span className="flex items-center gap-2 text-white text-[10px] font-bold tracking-widest uppercase">
           <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
           Live Preview
         </span>
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -16,8 +16,8 @@ type Props = {
   tagline: string
   tabs?: TabItem[]
   type: "cabs" | "adventures" | "tours" | "bikes" | "hotels"
-  items:Item[]
-  isLoading?:boolean
+  items: Item[]
+  isLoading?: boolean
 }
 
 export function PopularDestinationCarousel({
@@ -33,7 +33,7 @@ export function PopularDestinationCarousel({
   const containerRef = useRef<HTMLDivElement>(null)
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
   const [pill, setPill] = useState({ left: 0, width: 0 })
-  
+
 
   useLayoutEffect(() => {
     const el = tabRefs.current[activeIndex]
@@ -107,7 +107,7 @@ export function PopularDestinationCarousel({
       </div>
 
       {/* Content */}
-      <div className="mt-2 min-h-[260px]">
+      <div className="mt-2 min-h-[190px] sm:min-h-[260px]">
         <OnlyCarousel key={active} type={type} items={items} isLoading={isLoading} />
       </div>
     </div>

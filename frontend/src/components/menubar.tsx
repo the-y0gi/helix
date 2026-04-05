@@ -215,24 +215,34 @@ export function MenuBar() {
 
         <DropdownMenuGroup>
           {!isLoggedIn ? (
-            <Sign_in_hover
-              tag="Log-in"
-              variant="ghost"
-              forLike={{
-                content: (
-                  <div className="flex w-full items-center justify-between px-2 py-1 text-sm transition-colors hover:text-orange-500">
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      <span>Profile</span>
+            !isMobile ? (
+              <Sign_in_hover
+                tag="Log-in"
+                variant="ghost"
+                forLike={{
+                  content: (
+                    <div className="flex w-full items-center justify-between px-2 py-1 text-sm transition-colors hover:text-orange-500">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        <span>Profile</span>
+                      </div>
+                      <ChevronRight className="h-3 w-3 opacity-50" />
                     </div>
-                    <ChevronRight className="h-3 w-3 opacity-50" />
-                  </div>
-                ),
-                type: "nextRoute",
-                do: "/profile",
-                id: "/profile",
-              }}
-            />
+                  ),
+                  type: "nextRoute",
+                  do: "/profile",
+                  id: "/profile",
+                }}
+              />
+            ) : (
+              <DropdownMenuItem
+                onClick={() => handleNavigate("/login")}
+                className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 cursor-pointer focus:bg-orange-50 focus:text-orange-600 dark:focus:bg-orange-950/20"
+              >
+                <User className="h-4 w-4" />
+                <span className="text-sm">Profile</span>
+              </DropdownMenuItem>
+            )
           ) : (
             <DropdownMenuItem
               onClick={() => handleNavigate("/profile")}

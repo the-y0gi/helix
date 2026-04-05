@@ -11,21 +11,24 @@ import { ShareModal } from "./shareComponent";
 type HotelItemsProps = {
   hotel: Hotel;
   isBookingMode: boolean;
+  loading: boolean;
 };
 
 const HotelItems = ({
   hotel,
   isBookingMode,
+  loading
 }: HotelItemsProps) => {
   const { availabilityLoading } = useHotelContext();
   return (
     <div className="flex flex-col gap-6 w-full md:py-8 px-4 md:px-0">
+
       <div className="flex flex-col gap-4 md:px-10">
 
         <div className="flex justify-between items-start gap-4">
 
           <div className="flex flex-col gap-1.5 min-w-0 flex-1">
-            <h1 className="text-2xl md:text-4xl font-extrabold text-foreground/80 tracking-tight leading-tight break-words">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground/80 tracking-tight leading-tight break-words">
               {hotel.name}
             </h1>
 
@@ -56,7 +59,7 @@ const HotelItems = ({
               onClick={handleCopy}
               className="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 rounded-full border border-border bg-background shadow-sm active:scale-90 transition-transform"
               title="Share"
-            >
+              >
               <IconShare size={20} className="text-muted-foreground" />
             </button> */}
             <ShareModal />

@@ -131,7 +131,7 @@ export const OnlyCarousel = ({ type, tagline, items, isLoading }: Props) => {
               />
             ))}
             <div className="min-w-[240px]">
-              <GalleryCard images={["/hotels/room1.png", "/hotels/room2.png", "/hotels/room3.png"]} />
+              <GalleryCard handleTouchMove={()=>{RouterPush(router , "/hotels/find")}} images={["/hotels/room1.png", "/hotels/room2.png", "/hotels/room3.png"]} />
             </div>
           </>
         )}

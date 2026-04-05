@@ -37,12 +37,15 @@ const Gallery = ({ sections }: { sections: GallerySection[] }) => {
                     src={image.src.length > 50 ? image.src : "/hotels/roomIdeal.png"}
                     alt={image.alt}
 
-                    className='absolute inset-0 w-full h-full object-cover'
+                    className='absolute inset-0 w-full h-full object-cover hover:grayscale-60 '
                   />
                 </div>
               ))}
             </div>
           ))}
+          {/* <div className='absolute bottom-[5%] right-[5%] flex items-center gap-2'>
+            <Button variant={"ghost"} className="bg-foreground/80 text-background"><Grid3X3 /> View All</Button>
+          </div> */}
         </div>
       }
     />
@@ -85,7 +88,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { Minus, Plus } from "lucide-react"
+import { Grid3X3, Minus, Plus } from "lucide-react"
 
 
 
@@ -155,6 +158,7 @@ export function DrawerDemo({ content, sections }: { content: React.ReactNode, se
 // }
 import { useState, useEffect, useCallback } from "react"
 import { X, ChevronLeft, ChevronRight } from "lucide-react"
+import { IconView360 } from '@tabler/icons-react'
 
 const InnerGallery = ({ sections }: { sections: GallerySection[] }) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)

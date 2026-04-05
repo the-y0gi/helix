@@ -117,12 +117,14 @@ interface GalleryCardProps {
   images: string[];
   label?: string;
   className?: string;
+  handleTouchMove?: (e: React.TouchEvent) => void;
 }
 
 export function GalleryCard({
   images = [],
   label = "See all",
   className = "",
+  handleTouchMove,
 }: GalleryCardProps) {
   const displayImages = images.slice(0, 3);
   const router = useRouter()

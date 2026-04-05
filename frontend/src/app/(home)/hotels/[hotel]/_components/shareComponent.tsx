@@ -84,28 +84,27 @@ export function ShareModal() {
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="w-[95%] sm:max-w-[500px] bg-background border-border text-foreground p-0 overflow-hidden rounded-2xl sm:rounded-3xl">
+            <DialogContent className="w-[95vw] sm:max-w-[500px] bg-background border-border text-foreground p-0 overflow-hidden rounded-2xl sm:rounded-3xl">
                 <DialogHeader className="px-6 py-4 flex flex-row items-center justify-between border-b border-border">
                     <DialogTitle className="text-lg font-medium">Share</DialogTitle>
                 </DialogHeader>
 
                 <div className="py-6">
                     {/* Social Icons Grid (Responsive) */}
-                    <div className="px-2 sm:px-3">
-                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 place-items-center overflow-x-auto scrollbar-hide ">
+                    <div className="px-2 sm:px-3 overflow-x-hidden">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 px-2  overflow-x-hidden">
                             {SOCIAL_PLATFORMS.map((platform) => (
                                 <button
                                     key={platform.name}
                                     onClick={() => platform.action(videoUrl)}
-                                    className="flex flex-col items-center gap-2 w-full max-w-[90px] transition-transform active:scale-90"
+                                    className="flex flex-col items-center w-[60px] sm:w-[70px] md:w-[90px] transition-transform active:scale-90"
                                 >
                                     <div
-                                        className={`h-12 w-12 sm:h-14 sm:w-14 rounded-full flex items-center justify-center text-white shadow-md ${platform.bg}`}
+                                        className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full flex items-center justify-center text-white shadow-md ${platform.bg}`}
                                     >
                                         {platform.icon}
                                     </div>
-
-                                    <span className="text-[11px] sm:text-xs font-medium text-zinc-400 text-center">
+                                    <span className="text-[10px] sm:text-xs font-medium text-zinc-400 text-center truncate w-full">
                                         {platform.name}
                                     </span>
                                 </button>
@@ -113,20 +112,20 @@ export function ShareModal() {
                         </div>
                     </div>
 
-                    <div className="px-4 sm:px-6 mt-6 space-y-5">
+                    <div className="px-4 mt-6 space-y-5">
                         {/* URL Copy Section */}
                         <div className="flex items-center gap-2 sm:gap-3 bg-secondary/50 border border-border rounded-xl p-2 pl-3 sm:pl-4">
-                            <span className="text-xs sm:text-sm text-foreground truncate flex-1" onClick={handleCopy}>
+                            <span className="text-xs sm:text-sm text-foreground truncate sm:overflow-visible flex-1 cursor-pointer max-w-full " onClick={handleCopy}>
                                 {videoUrl}
                             </span>
 
-                            <Button
+                            {/* <Button
                                 onClick={handleCopy}
                                 size="sm"
                                 className="bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg px-3 sm:px-5 h-8 sm:h-9 shrink-0"
                             >
                                 {copied ? "Copied" : "Copy"}
-                            </Button>
+                            </Button> */}
                         </div>
 
 
