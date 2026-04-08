@@ -386,7 +386,7 @@ export function LoopingVideoHero({ VIDEOS }: {
         <motion.video
           key={`video-${index}`}
           ref={videoRef}
-          src={VIDEOS[index].link}
+          src={VIDEOS[index]?.link}
           initial={{ opacity: 0, scale: 1.1 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
@@ -422,7 +422,7 @@ export function LoopingVideoHero({ VIDEOS }: {
       sm:text-3xl     
         
     ">
-                {VIDEOS[index].title}
+                {VIDEOS[index]?.title}
               </h2>
 
               <p className="text-zinc-300 font-medium drop-shadow-md leading-relaxed
@@ -431,7 +431,7 @@ export function LoopingVideoHero({ VIDEOS }: {
           
       max-w-prose     
     ">
-                {VIDEOS[index].description}
+                {VIDEOS[index]?.description}
               </p>
             </motion.div>
           </AnimatePresence>

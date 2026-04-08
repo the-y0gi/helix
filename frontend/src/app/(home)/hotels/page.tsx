@@ -2,17 +2,18 @@
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { ErrorBoundary } from 'react-error-boundary'
-import HotelFramePage from "@/components/frame-pages/MainFramePage";
+import HotelFramePage from "@/components/frame-pages/HotelFramePage";
 import type { CityTrends } from "@/types";
 import { useGetNewHotels } from "@/services/hotel/querys";
 import { PageSkeleton } from "@/components/loader/skeleton";
 import { MessageModal } from "@/components/messagemodal";
 import HotelSearch from "./search-";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Categories } from "@/types";
 
 export type HotelFramePageProps = {
   className?: string;
-  type: "hotels" | "cabs";
+  type: Categories;
   popularTrends?: CityTrends[];
 };
 export interface HotelData {

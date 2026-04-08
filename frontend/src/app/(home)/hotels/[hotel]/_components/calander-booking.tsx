@@ -8,15 +8,20 @@ import { type DateRange } from "react-day-picker"
 import { useHotelStore } from "@/store/hotel.store"
 import { UseFormReturn } from "react-hook-form"
 import { PaymentProps } from "@/schema/payment.schema"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { RangeCalender_singlepage } from "@/components/navbar/filter-nav-bar/calander05"
 
 export function BookingCalender({ className, setDateRange, dateRange, methods }: { className?: string, setDateRange: (dateRange: DateRange | undefined) => void, dateRange: DateRange | undefined, methods?: UseFormReturn<PaymentProps> }) {
-
-const today = new Date();
-today.setHours(0, 0, 0, 0);
+    const isMobile = useIsMobile({
+        breakpoint: 540
+    })
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     return (
-        <Card className="mx-auto w-fit p-0">
-            <CardContent className="p-0">
-                <Calendar
+        <Card className="mx-auto w-fit p-0 ">
+            <CardContent className="p-0 ">
+                {isMobile && <RangeCalender_singlepage setDateRange={setDateRange} dateRange={dateRange} className={className} />}
+                {!isMobile && <Calendar
                     mode="range"
                     disabled={{ before: today }}
                     // defaultMonth={dateRange?.from}
@@ -32,8 +37,8 @@ today.setHours(0, 0, 0, 0);
                     // disabled={(date) =>
                     //     date > new Date() || date < new Date("1900-01-01")
                     // }
-                    className="border-none shadow-none"
-                />
+                    className="border-none shadow-none no-flex"
+                />}
             </CardContent>
         </Card>
     )

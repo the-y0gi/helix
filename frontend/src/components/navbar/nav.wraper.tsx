@@ -147,7 +147,10 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
           {(
             <div className="hidden md:flex flex-col items-center gap-[5px] h-full md:block">
               {shouldShowNavbar ? (
-                <FindTabsNav mobile={false} tabs={FilterOfPages} />
+                <div className="md:w-[485px] lg:w-[585px] ">
+
+                  <FindTabsNav mobile={false} tabs={FilterOfPages} />
+                </div>
               ) : (
                 <TabsNav mobile={false} tabs={pages} />
               )}
@@ -160,7 +163,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
             </Suspense>
           </div>
         </div>
-        {shouldShowNavbar && showChevronRight && <div className="block md:hidden h-10 w-full    ">
+        {/* {shouldShowNavbar && showChevronRight && <div className="block xl:hidden h-10 w-full    ">
           <SheetNavigation
             setOpen={setOpen}
             content={
@@ -169,7 +172,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
               </Button>
             }
           />
-        </div>}
+        </div>} */}
       </div>
 
       <main

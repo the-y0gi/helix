@@ -43,7 +43,7 @@ type HotelContextProps = {
   setPage: (page: number) => void
 }
 
-const DEFAULT_PRICE: PriceTuple = [0, 10]
+export const DEFAULT_PRICE: PriceTuple = [0, 100000]
 
 const HotelContext = React.createContext<HotelContextProps | null>(null)
 

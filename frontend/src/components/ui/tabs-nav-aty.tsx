@@ -146,6 +146,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import Image from "next/image";
 import { RouterPush } from "../RouterPush";
+import Link from "next/link";
 
 export const TabsNav = ({
   tabs: propTabs,
@@ -188,8 +189,8 @@ export const TabsNav = ({
       >
         {propTabs.map((tab, index) => (
           <div key={tab.title} className="flex flex-1 items-center">
-            <button
-              onClick={() => RouterPush(navigate, tab.link)}
+            <Link
+              href={tab.link}
               className={cn(
                 /* FIX: Removed hardcoded px-14. 
                    Using flex-1 and smaller padding lets the buttons 
@@ -232,7 +233,7 @@ export const TabsNav = ({
                   </span>
                 )}
               </span>
-            </button>
+            </Link>
 
             {/* Visual Separator */}
             {index < propTabs.length - 1 && !ismobile && (

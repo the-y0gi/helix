@@ -429,10 +429,10 @@ export function HotelCard({
           {/* Rating Block & Review Count */}
           <div className="flex items-center justify-between gap-3 pt-1">
             <div className="flex flex-col items-start gap-0.5">
-              <span className="text-xs font-bold text-blue-600">{reviews.text}</span>
+              <span className="text-xs font-bold text-primary">{reviews.text}</span>
               <span className="text-[10px] text-muted-foreground">{reviews.count} reviews</span>
             </div>
-            <div className="bg-blue-600 text-white font-black h-8 w-8 flex items-center justify-center rounded-lg rounded-bl-none text-sm shadow-inner">
+            <div className="bg-primary text-white font-black h-8 w-8 flex items-center justify-center rounded-lg rounded-bl-none text-sm shadow-inner">
               {rating.toFixed(1)}
             </div>
           </div>

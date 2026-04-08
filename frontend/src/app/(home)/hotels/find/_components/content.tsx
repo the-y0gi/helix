@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { HotelCard } from "./CardCompo";
 import { cn } from "@/lib/utils";
 import { ComboboxMultiple } from "./combobox-multiple";
@@ -12,6 +12,8 @@ import { useHotelContext } from "@/context/hotel/HotelContextProvider";
 import { Hotel } from "@/types";
 import { ScrollToTop } from "../../../../../../scrolltoto";
 import { ScrollToTopByParams } from "./ScrollToTopByParams";
+import { SheetNavigation } from "./sheetNavigation";
+import { ChevronRight } from "lucide-react";
 
 type Props = {};
 
@@ -19,18 +21,30 @@ export const ContentFrame = (props: Props) => {
   const ismobile = useIsMobile()
   const { total } = useHotelContext()
   const { city, setCity } = useHotelStore();
-
+  const [open, setOpen] = useState(false)
   return (
     <div className="md:w-full">
       <div className="flex justify-between px-4 sm:px-0">
-        <div className="w-full">
-          <h2 className="text-2xl font-semibold mb-4 ">
-            {total > 0 ? `Explore ${total}+ hotels in ${city}` : `Explore hotels in ${city}`}
-          </h2>
-          {/* <div className="w-10 min-w-37 md:w-1/2 mb-6">
+        <div className="flex gap-3 w-full">
+          {<div className="block xl:hidden h-10    ">
+            <SheetNavigation
+              setOpen={setOpen}
+              content={
+                <Button variant={"ghost"} className="border-r">
+                  {<ChevronRight className="h-4 w-4" />}
+                </Button>
+              }
+            />
+          </div>}
+          <div className="w-full">
+            <h2 className="text-2xl font-semibold mb-4 ">
+              {total > 0 ? `Explore ${total}+ hotels in ${city}` : `Explore hotels in ${city}`}
+            </h2>
+            {/* <div className="w-10 min-w-37 md:w-1/2 mb-6">
 
             <ComboboxMultiple />
           </div> */}
+          </div>
         </div>
         <div>
           {!ismobile && <SwitchGrids />}
@@ -84,7 +98,7 @@ export const Content = ({ className }: { className: string }) => {
       className={cn(
         "grid px-2  gap-y-8",
         (wrap || isMobile)
-          ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 justify-items-center"
+          ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 justify-items-center"
           : "grid-cols-1",
         className
       )}
@@ -96,7 +110,7 @@ export const Content = ({ className }: { className: string }) => {
           ? Math.min(...roomTypes.map((r: any) => r.discountPrice > 0 ? r.discountPrice : r.basePrice))
           : (hotel as any).startingPrice ?? 0
 
-        const firstImage = hotel.thumbnail ?? "/hotels/hotel-temp.png"
+        const firstImage = hotel.thumbnail.length > 50 ? hotel.thumbnail : "/hotels/hotel-temp.png"
         // console.log( hotel);
 
 

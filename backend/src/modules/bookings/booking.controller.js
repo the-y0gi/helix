@@ -4,8 +4,10 @@ const logger = require("../../shared/utils/logger");
 
 //Create Booking
 exports.createBooking = async (req, res, next) => {
+  console.log("req.body", req.body);
   try {
     const booking = await bookingService.createBooking(req.body, req.user._id);
+    console.log("booking", booking);
 
     res.status(201).json({
       success: true,
