@@ -948,7 +948,7 @@ import { handleRefresh } from "@/services/dailyfunctions";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const BookingForm = ({ slug }: { slug: string[] }) => {
-  const { setPayments, date, guests } = useHotelStore();
+  const { setPayments, payments, date, guests } = useHotelStore();
   const { setCurrentStep, currentstep } = usePaymentsContext();
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useRouter();
@@ -960,8 +960,8 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
     resolver: zodResolver(PaymentSchema),
     defaultValues: {
       dates: {
-        checkin: date?.from ? new Date(date.from).toISOString() : "",
-        checkout: date?.to ? new Date(date.to).toISOString() : "",
+        checkin: date?.from ? format(date.from, "yyyy-MM-dd") : "",
+        checkout: date?.to ? format(date.to, "yyyy-MM-dd") : "",
       },
       guests: {
         adults: guests?.adults || 0,
@@ -978,8 +978,17 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
     },
     mode: "onChange",
   });
+  React.useEffect(() => {
+    if (date?.from && date?.to) {
+      methods.setValue("dates.checkin", format(date.from, "yyyy-MM-dd"));
+      methods.setValue("dates.checkout", format(date.to, "yyyy-MM-dd"));
+    }
+  }, [date, methods]);
 
   const onSubmit = async (data: PaymentProps) => {
+
+
+
     try {
       setLoading(true);
       const bookingData = {
@@ -1001,8 +1010,11 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
         })),
         specialRequest: data.specialRequest,
       };
+      console.log("bookingData", bookingData);
 
       const result = await createBooking(bookingData);
+      console.log("result", result);
+
 
       if (result?.success) {
         const { razorpayOrder, booking } = result.data;
@@ -1021,6 +1033,9 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
           createdAt: booking.createdAt,
           bookingId: booking._id
         });
+
+        console.log("payments", payments);
+
 
 
         const options = {
@@ -1177,7 +1192,7 @@ export const FinalStep = () => {
         <div className="h-[1200px] flex justify-center hidden md:block ">
           <div className="sticky top-10 right-0 h-[600px]  self-start">
             <img
-              src="/payment-done.png"
+              src="/story/payment-done.png"
               alt="Thankyou for payment"
               className="w-full h-full object-contain hover:scale-105 transition-all duration-300 hover:drop-shadow-2xl hover:shadow-primary/20"
             />

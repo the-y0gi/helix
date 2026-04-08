@@ -132,7 +132,7 @@ export function GalleryCard({
   return (
     <div
       className={`
-        group relative w-[280px]  overflow-hidden rounded-2xl border bg-gradient-to-b from-neutral-900/60 to-black/80
+        group relative min-w-[200px]  overflow-hidden rounded-2xl border bg-gradient-to-b from-neutral-900/60 to-black/80
         shadow-lg transition-all hover:shadow-2xl hover:scale-[1.02] ${className}
       `}
     >

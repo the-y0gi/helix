@@ -195,6 +195,16 @@ export const Cabs_Box_FilterBarValues: BoxFilterBarVaues[] = [
   //   text: "Add Guests",
   // },
 ];
+
+export const Adventures_Box_FilterBarValues: BoxFilterBarVaues[] = [
+  {
+    label: "Check In",
+    icon: Calendar,
+    element: <HotelCalendern />,
+    text: "Add dates",
+  },
+
+];
 export const CabsFilterBarValues: FilterBarValues[] = [
   {
     value: "Pickup Location",
@@ -306,7 +316,7 @@ export const Search_box_values: SearchBoxValuesProps[] = [
   },
   {
     search: <SearchInput />,
-    filterBlocks: Hotel_Box_FilterBarValues,
+    filterBlocks: Adventures_Box_FilterBarValues,
     videos: [
       {
         title: "Happy",

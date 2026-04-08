@@ -49,12 +49,21 @@ export function Calendar05({
     />
   );
 }
+import { format } from "date-fns";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { PaymentProps } from "@/schema/payment.schema";
+import { UseFormReturn } from "react-hook-form";
 export default function HotelCalender(
 
 ) {
   const { date, setDate } = useHotelStore();
+  const isMobile = useIsMobile({ breakpoint: 540 })
+  // const isgreterthenSm = 
 
-  return <Calendar05 setDateRange={setDate} dateRange={date} />;
+  return <>
+    {isMobile && <RangeCalender_singlepage setDateRange={setDate} dateRange={date} />}
+    {!isMobile && <Calendar05 setDateRange={setDate} dateRange={date} />}
+  </>;
 };
 
 
@@ -64,11 +73,15 @@ export default function HotelCalender(
 
 
 export const RangeCalender_singlepage = ({
+  className,
   dateRange,
   setDateRange,
+  methods
 }: {
   dateRange: DateRange | undefined;
   setDateRange: (dateRange: DateRange | undefined) => void;
+  className?: string;
+  methods?: UseFormReturn<PaymentProps>
 }) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -81,7 +94,7 @@ export const RangeCalender_singlepage = ({
         defaultMonth={dateRange?.from}
         selected={dateRange}
         onSelect={setDateRange}
-        className='rounded-md'
+        className={cn('rounded-md', className)}
         classNames={{
           range_start: 'bg-primary/20 dark:bg-primary/10 rounded-l-full',
           range_end: 'bg-primary/20 dark:bg-primary/10 rounded-r-full',

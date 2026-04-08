@@ -1,5 +1,5 @@
 import { Slider } from "@/components/ui/slider";
-import { useHotelContext } from "@/context/hotel/HotelContextProvider";
+import { DEFAULT_PRICE, useHotelContext } from "@/context/hotel/HotelContextProvider";
 import React from "react";
 
 // type Props = {
@@ -18,7 +18,7 @@ export default function PriceRange() {
       <Slider
         value={filters.price}
         onValueChange={(value) => setFilters({ price: value as [number, number] })}
-        max={100}
+        max={DEFAULT_PRICE[1]}
         step={1}
         className="w-full"
       />

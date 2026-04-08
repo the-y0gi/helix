@@ -78,7 +78,7 @@ export const PagesFilterBarButtons = ({
                   <ItemTitle className="text-sm font-bold uppercase tracking-wide justify-start">
                     {hv.value}
                   </ItemTitle>
-                  <div className="flex justify-center md:w-[150px] w-full ">
+                  <div className="flex justify-center md:w-[120px]  lg:w-[150px] w-full ">
 
                   </div>
                 </ItemContent>

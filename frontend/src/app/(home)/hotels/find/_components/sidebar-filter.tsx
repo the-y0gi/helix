@@ -4,8 +4,8 @@ import Image from "next/image";
 export const SideBarFilter = () => {
   return (
 
-    <div className="flex flex-col gap-2 p-1 md:min-w-[270px] w-full md:max-w-[270px]">
-      <div className="relative gap-2 p-1 md:min-w-[270px] w-full md:max-w-[270px] h-40 rounded-md overflow-hidden group">
+    <div className="flex flex-col gap-2 p-1 xl:min-w-[270px] w-full ">
+      <div className="relative gap-2 p-1  w-full h-40 rounded-md overflow-hidden group">
         {/* The Map Image with Blur */}
         <Image
           src="/map-icons/map.png"

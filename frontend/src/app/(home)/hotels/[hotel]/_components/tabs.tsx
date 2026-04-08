@@ -27,6 +27,7 @@ import { useHotelContext } from "../_providers_context/hotel-contextProvider";
 import SliderIfNotChooseDate from "../_providers_context/SliderIfNotChooseDate";
 import GuestSelector from "@/components/filter-bar/newui-selectedCounter";
 import { CometCard } from "@/components/ui/comet-card";
+import { cn } from "@/lib/utils";
 
 type TabKey =
   | "overview"
@@ -124,12 +125,12 @@ export function TabsLine({
         <aside className="lg:w-[380px] flex-shrink-0">
 
           <div className="lg:sticky lg:top-24">
-            <CometCard translateDepth={5}>
-              <BookingCard
-                isBookingMode={isBookingMode}
-                isLoading={isAvailabilityLoading}
-              />
-            </CometCard>
+            {/* <CometCard translateDepth={5}> */}
+            <BookingCard
+              isBookingMode={isBookingMode}
+              isLoading={isAvailabilityLoading}
+            />
+            {/* </CometCard> */}
           </div>
         </aside>
       </div>
@@ -227,7 +228,11 @@ function BookingCard({
           </div>
           {showCalendar && (
             <div
-              className="absolute md:-ml-30 -ml-10 top-0 md:top-20 z-[1000] bg-background border border-border shadow-2xl rounded-2xl p-2 min-w-[320px]"
+              className={cn(
+                "absolute p-2 z-[1000] bg-background border border-border shadow-2xl rounded-2xl",
+                "top-full mt-2 left-1/2 -translate-x-1/2",
+                "w-[95vw] md:w-auto"
+              )}
               onClick={(e) => e.stopPropagation()}
             >
               <HotelCalender />

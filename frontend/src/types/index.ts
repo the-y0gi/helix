@@ -1,3 +1,5 @@
+export type Categories = "hotels" | "cabs" | "adventures" | "tours" | "bikes";
+
 export interface Tabs {
   name: string;
   title?: string;
