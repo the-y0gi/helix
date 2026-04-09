@@ -59,7 +59,7 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
   }, [groupedByCity]);
 
   return (
-    <div className={cn(className, "flex flex-col gap-y-5 ")}>
+    <div className={cn(className, "flex flex-col gap-y-2 md:gap-y-4  ")}>
       {POPULAR_SECTIONS.map((section, i) => {
         const items = sectionItems[i] || [];
 

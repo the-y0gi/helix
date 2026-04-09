@@ -25,26 +25,30 @@ import { useFormContext, type UseFormReturn } from "react-hook-form";
 import type { SignUpProps } from "@/schema/auth";
 import { useEffect } from "react";
 import { useResetPasswordForm } from "@/context/auth/resetpasswordsteps";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 type OTPFormProps = React.ComponentProps<typeof Card> & {
   onOTP: string;
   methods: UseFormReturn<SignUpProps>;
   setOnOTP: React.Dispatch<React.SetStateAction<string>>;
+  className?: string
+
 };
+
 
 const OTP_LENGTH = 4;
 
-export function OTPForm({ onOTP, methods, setOnOTP, ...props }: OTPFormProps) {
+export function OTPForm({ onOTP, methods, setOnOTP, className, ...props }: OTPFormProps) {
   const { setValue } = useFormContext<SignUpProps>();
-  const { currentStep, setCurrentStep } = useResetPasswordForm();
+  const { currentStep, setCurrentStep } = useAuthForm();
 
-  // ✅ update form value safely
   useEffect(() => {
     setValue("otp", onOTP);
   }, [onOTP, setValue]);
 
   return (
-    <Card {...props} className="w-full max-w-md mx-auto rounded-2xl shadow-sm">
+    <Card {...props} className={cn("w-full w-70 sm:w-80 md:w-90 lg:w-100 xl:w-110    rounded-2xl shadow-sm", className)}>
       <CardHeader className="text-center space-y-2">
         <CardTitle className="text-xl font-semibold">
           Enter verification code
@@ -54,8 +58,8 @@ export function OTPForm({ onOTP, methods, setOnOTP, ...props }: OTPFormProps) {
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
-        <FieldGroup className="space-y-6">
+      <CardContent className="w-full">
+        <FieldGroup className="space-y-6 w-full">
           <Field>
             <FieldLabel htmlFor="otp" className="sr-only">
               Verification code
@@ -117,6 +121,7 @@ export function OTPForm({ onOTP, methods, setOnOTP, ...props }: OTPFormProps) {
             >
               Resend
             </button>
+            <Button variant={"ghost"} className="text-primary" onClick={() => setCurrentStep(currentStep - 1)}>Back</Button>
           </FieldDescription>
         </FieldGroup>
       </CardContent>

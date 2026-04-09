@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 export function ImagesSliderDemo({ images, title, subtitle, description, link }: { images: string[], title: string, subtitle: string, description: string, link: string }) {
   const router = useRouter()
   return (
-    <ImagesSlider className="h-[30rem] rounded-2xl my-10 " images={images}>
+    <ImagesSlider className="h-[15rem] sm:h-[20rem] md:h-[25rem] lg:h-[30rem] rounded-2xl my-10 " images={images}>
       <motion.div
         initial={{
           opacity: 0,
