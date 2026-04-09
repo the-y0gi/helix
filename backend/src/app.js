@@ -21,6 +21,12 @@ const favoriteRoutes = require("./modules/favorites/favorite.routes");
 const vendorBank = require("./modules/vendorBank/bank.routes");
 const supportRoutes = require("./modules/support/support.routes");
 
+const adventureRoutes = require("./modules/adventure/category/adventure.routes");
+const serviceRoutes = require("./modules/adventure/service/service.routes");
+
+const serviceBookingRoutes = require("./modules/serviceBookings/booking.routes");
+
+
 const adminRoutes = require("./modules/admin/property/property.routes");
 const adminUserRoutes = require("./modules/admin/user/user.routes");
 const adminBookingRoutes = require("./modules/admin/booking/booking.routes");
@@ -67,7 +73,7 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-// app.use("/api", limiter);
+app.use("/api", limiter);
 
 app.use(express.json({ limit: "10kb" }));
 
@@ -95,6 +101,15 @@ app.use("/api/v1/favorites", favoriteRoutes);
 app.use("/api/v1/vendor-bank", vendorBank);
 app.use("/api/v1/supports", supportRoutes);
 
+//adventure
+app.use("/api/v1/adventures", adventureRoutes);
+app.use("/api/v1/services", serviceRoutes);
+
+//generic booking
+app.use("/api/v1/service-bookings", serviceBookingRoutes);
+
+
+//admin
 app.use("/api/v1/admin/dashboard", adminDashboardRoutes);
 app.use("/api/v1/admin/property", adminRoutes);
 app.use("/api/v1/admin/users", adminUserRoutes);
