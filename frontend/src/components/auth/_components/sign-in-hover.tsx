@@ -89,45 +89,46 @@ export function Sign_in_hover({
 
 
   return (
-    <AuthContextProvider>
-      <Dialog onOpenChange={(value) => {
-        localStorage.setItem(t || "nextRoute", d || "/profile")
-        if (t === "nextRoute") {
+    <Dialog onOpenChange={(value) => {
+      localStorage.setItem(t || "nextRoute", d || "/profile")
+      if (t === "nextRoute") {
 
-          localStorage.removeItem("like");
-        } else {
-          localStorage.removeItem("nextRoute");
-        }
+        localStorage.removeItem("like");
+      } else {
+        localStorage.removeItem("nextRoute");
+      }
 
 
-        if (!value) {
-          localStorage.removeItem(forLike?.type || "nextRoute"); // triggers when dialog closes
-        }
-      }}>
-        <DialogTrigger asChild >
-          {forLike ? (
-            forLike.content
-          ) : (
-            <Button variant={variant} className={cn("w-full flex justify-start", className)}>{tg} or Sign-up</Button>
-          )}
-        </DialogTrigger>
-        <DialogContent className="md:w-[500px]  p-0 rounded-2xl overflow-hidden pb-4 w-[340px] z-65">
-          <VisuallyHidden>
-            <DialogTitle className="sr-only">Login</DialogTitle>
-          </VisuallyHidden>
+      if (!value) {
+        localStorage.removeItem(forLike?.type || "nextRoute"); // triggers when dialog closes
+      }
+    }}>
+      <DialogTrigger asChild >
+        {forLike ? (
+          forLike.content
+        ) : (
+          <Button variant={variant} className={cn("w-full flex justify-start", className)}>{tg} or Sign-up</Button>
+        )}
+      </DialogTrigger>
+      <DialogContent className="md:w-[500px]  p-0 rounded-2xl overflow-hidden pb-4 w-[340px] z-65">
+        <VisuallyHidden>
+          <DialogTitle className="sr-only">Login</DialogTitle>
+        </VisuallyHidden>
 
-          {tag === "Sign-up" ? (
+        {tag === "Sign-up" ? (
+          <AuthContextProvider>
+
             <SignupForm setTag={setTag} />
-          ) : tag === "ResetPassword" ? (
-            <ResetPasswordContextProvider>
-              <ResetPassword setTag={setTag} />
-            </ResetPasswordContextProvider>
-          ) : (
-            <SignInForm setTag={setTag} />
-          )}
-        </DialogContent>
-      </Dialog>
-    </AuthContextProvider>
+          </AuthContextProvider>
+        ) : tag === "ResetPassword" ? (
+          <ResetPasswordContextProvider>
+            <ResetPassword setTag={setTag} />
+          </ResetPasswordContextProvider>
+        ) : (
+          <SignInForm setTag={setTag} />
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -145,7 +146,7 @@ export function SignupForm({ setTag, className }: {
     <Form {...methods}>
       <form onSubmit={onHandleSubmit}>
         <Loader loading={loading}>
-          <div className={cn("flex flex-col", className)} >
+          <div className={cn("flex flex-col w-full", className)} >
             {currentStep === 1 && (
               <div className={cn("flex flex-col   ", className)} >
                 <div className="flex flex-col items-center gap-2 text-center mt-5">
@@ -302,7 +303,7 @@ export function SignupForm({ setTag, className }: {
             )}
 
             {currentStep === 2 && (
-              <OTPForm methods={methods} onOTP={onOTP} setOnOTP={setOnOTP} />
+              <OTPForm className="bg-transparent border-none " methods={methods} onOTP={onOTP} setOnOTP={setOnOTP} />
             )}
 
           </div>

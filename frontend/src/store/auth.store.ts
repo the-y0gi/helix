@@ -153,10 +153,11 @@ export const useAuthStore = create<AuthStates>()((set) => ({
         phone: data.phone,
         otp: data.otp,
       });
-      console.log(res);
 
       if (res.data.success) {
         set({ currUser: res.data.data.user });
+        const token = res.data.accessToken;
+        localStorage.setItem("accessToken", token);
         return { success: true, message: res.data.message };
       }
       return {
