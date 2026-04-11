@@ -187,7 +187,7 @@
   );
 }
 html {
-  overflow-y: scroll;   /* or overflow-y: auto; if you prefer */
+  overflow-y: scroll; 
 }
 
 /* Or more precise (recommended for Next.js / shadcn apps) */

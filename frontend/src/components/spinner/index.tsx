@@ -3,11 +3,12 @@ import React from 'react'
 
 type SpinnerProps = {
   noPadding?: boolean
+  className?:string
 }
 
-export const Spinner = ({ noPadding }: SpinnerProps) => {
+export const Spinner = ({ noPadding, className }: SpinnerProps) => {
   return (
-    <div className={cn('w-full flex justify-center', noPadding ? '' : 'py-10')}>
+    <div className={cn('w-full flex justify-center', noPadding ? '' : 'py-10' , className)}>
       <div role="status">
         <svg
           aria-hidden="true"

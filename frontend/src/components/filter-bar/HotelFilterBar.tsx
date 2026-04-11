@@ -22,18 +22,16 @@ const HotelFilterBar = ({ children, content, tagline }: Props) => {
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="md:min-w-screen flex flex-col h-screen gap-2 p-0" >
+      <DialogContent className="w-screen flex flex-col h-screen p-0 m-0 " >
         <DialogHeader className="hidden">
           <DialogTitle>
 
 
           </DialogTitle>
         </DialogHeader>
-        {/* 2. Wrap content in a div that grows to fill the dialog */}
-        <div className="flex-1 w-full relative min-h-screen">
+       
 
           {content || <div className="text-center">No content available</div>}
-        </div>
       </DialogContent>
     </Dialog>
   );

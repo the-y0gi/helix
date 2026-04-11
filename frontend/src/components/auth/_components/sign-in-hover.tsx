@@ -303,7 +303,9 @@ export function SignupForm({ setTag, className }: {
             )}
 
             {currentStep === 2 && (
-              <OTPForm className="bg-transparent border-none " methods={methods} onOTP={onOTP} setOnOTP={setOnOTP} />
+              <div className="w-full flex justify-center">
+                <OTPForm className="bg-transparent border-none " methods={methods} onOTP={onOTP} setOnOTP={setOnOTP} />
+              </div>
             )}
 
           </div>
@@ -536,7 +538,10 @@ export function ResetPassword({ setTag, className }: {
             )}
 
             {currentStep === 2 && (
+              <div className="w-full flex justify-center">
               <ForgotPasswordOTPForm className="bg-transparent w-full" methods={methods} onOTP={onOTP} setOnOTP={setOnOTP} />
+              </div>
+              
             )}
             {
               currentStep == 3 && (

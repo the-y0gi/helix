@@ -46,7 +46,7 @@ export function ProfileSidebar({ className }: { className?: string }) {
         {navMain.map((item) => {
           if (item.value === "settings") return null;
           const Icon = item.icon;
-          if (item.value === "trips") {
+          if (item.value === "bookings") {
             return (
               <div key={item.value} className="flex py-2 px-3 cursor-pointer items-center rounded-lg hover:bg-muted/50 transition-colors">
                 {Icon && <Icon className="h-5 w-5 mr-3 text-muted-foreground" />}

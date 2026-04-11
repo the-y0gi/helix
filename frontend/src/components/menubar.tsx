@@ -130,12 +130,14 @@
 "use client";
 
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   User,
   Home,
-  ChevronRight
+  ChevronRight,
+  Logs,
+  CircleQuestionMark
 } from "lucide-react";
 
 import { AnimatedThemeTogglerDemo } from "./ui/theme-toggle";
@@ -155,9 +157,10 @@ import { Logout } from "@/app/(personal)/profile/_components/app-sidebar";
 import { useNextGoingRoute } from "@/hooks/auth/route.hook";
 import { Skeleton } from "./ui/skeleton";
 import { useCurrentUser } from "@/services/hotel/querys";
-import { IconLogout } from "@tabler/icons-react";
+import { IconLogout, IconQuestionMark } from "@tabler/icons-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Link from "next/link";
+import { RouterPush } from "./RouterPush";
 
 export function MenuBar() {
   const { data: user, isLoading, refetch } = useCurrentUser();
@@ -182,7 +185,7 @@ export function MenuBar() {
         <Button
           variant="ghost"
           // Reduced size on mobile (h-9), standard on desktop (sm:h-10)
-          className="relative h-9 w-9 sm:h-10 sm:w-10 md:h-12 md:w-12   rounded-full border-2 border-transparent hover:border-orange-400 p-0 transition-all duration-300"
+          className="relative h-8 w-8 sm:h-8 sm:w-8 md:h-10 md:w-10   rounded-full border-2 border-transparent hover:border-orange-400 p-0 transition-all duration-300"
         >
           <div className="relative h-full w-full overflow-hidden rounded-full border border-border">
             <Image
@@ -221,7 +224,7 @@ export function MenuBar() {
                 variant="ghost"
                 forLike={{
                   content: (
-                    <div className="flex w-full items-center justify-between px-2 py-1 text-sm transition-colors hover:text-orange-500">
+                    <div className="flex w-full cursor-pointer items-center justify-between px-2 py-1 text-sm transition-colors hover:text-orange-500">
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4" />
                         <span>Profile</span>
@@ -236,7 +239,10 @@ export function MenuBar() {
               />
             ) : (
               <DropdownMenuItem
-                onClick={() => handleNavigate("/login")}
+                onClick={() =>{ 
+                  
+                  localStorage.setItem( "nextRoute", "/profile")
+                  handleNavigate("/login")}}
                 className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 cursor-pointer focus:bg-orange-50 focus:text-orange-600 dark:focus:bg-orange-950/20"
               >
                 <User className="h-4 w-4" />
@@ -253,25 +259,102 @@ export function MenuBar() {
             </DropdownMenuItem>
           )}
 
-          {/* <DropdownMenuItem
-            onClick={() => handleNavigate("/")}
-            className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 cursor-pointer"
-          >
-            <Home className="h-4 w-4" />
-            <span className="text-sm">Home</span>
-          </DropdownMenuItem> */}
+          
         </DropdownMenuGroup>
+
+        {/* <DropdownMenuSeparator className="my-1 sm:my-2" /> */}
+
+        {/* <div className="px-1 py-0.5 sm:py-1">
+          <AnimatedThemeTogglerDemo />
+        </div> */}
 
         <DropdownMenuSeparator className="my-1 sm:my-2" />
 
-        <div className="px-1 py-0.5 sm:py-1">
+        {/* {!isLoggedIn ? (
+          <DropdownMenuGroup>
+            <DropdownMenuItem asChild className="cursor-pointer">
+              {isMobile ? (
+                <Link href="/login">
+                  Log-in or Sign-up
+                </Link>
+              ) : (
+                <Sign_in_hover
+                  tag="Log-in"
+                  variant="ghost"
+                  className="w-full justify-start gap-2 h-8 sm:h-9 text-sm"
+                />
+              )
+
+              }
+            </DropdownMenuItem>
+
+           
+          </DropdownMenuGroup>
+        ) : (
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              asChild
+              className="flex items-center gap-2 px-3 py-1.5 text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer text-sm"
+            >
+              <Logout refetch={refetch} />
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        )} */}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+export function AppPrefrence() {
+  const router = useRouter()
+  const { data: user, isLoading, refetch } = useCurrentUser();
+  const pathname = usePathname();
+  const { goWithAuth } = useNextGoingRoute();
+  const isMobile = useIsMobile()
+  const isLoggedIn = !!user?.data;
+
+
+
+ 
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          // Reduced size on mobile (h-9), standard on desktop (sm:h-10)
+          className="relative  h-8 w-8 sm:h-8 sm:w-8 md:h-10 md:w-10 bg-zinc-100 dark:bg-zinc-600   rounded-full border-2 border-transparent hover:border-primary/50 p-0 transition-all duration-300"
+        >
+          <div className="relative h-full w-full overflow-hidden rounded-full">
+            <Image
+              src={ "/logs.png"}
+              alt="Profile"
+              fill
+              className="object-cover p-1 md:p-2"
+            />
+            
+          </div>
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent
+        // Responsive width: 85% of viewport on mobile, fixed 56 on desktop
+        className="w-[45vw] sm:w-56  mr-2 p-1.5 sm:p-2 rounded-xl border border-border/50 shadow-xl backdrop-blur-md"
+        align="end"
+      >
+        
+
+       
+
+
+        <div className="px-3 py-0.5 sm:py-1 cursor-pointer">
           <AnimatedThemeTogglerDemo />
         </div>
 
-        <DropdownMenuSeparator className="my-1 sm:my-2" />
-
-        {/* Auth Section */}
-        {!isLoggedIn ? (
+        <DropdownMenuSeparator className="my-1 sm:my-2 cursor-pointer" />
+               <DropdownMenuLabel className="px-2 py-1.5 sm:px-3 sm:py-2 flex gap-3 cursor-pointer">
+                <CircleQuestionMark onClick={()=>RouterPush(router , '/profile?tab=support')} /><span>Help center</span>
+               </DropdownMenuLabel>
+                {!isLoggedIn ? (
           <DropdownMenuGroup>
             <DropdownMenuItem asChild className="cursor-pointer">
               {isMobile ? (
@@ -315,6 +398,7 @@ export function MenuBar() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
         )}
+       
       </DropdownMenuContent>
     </DropdownMenu>
   );

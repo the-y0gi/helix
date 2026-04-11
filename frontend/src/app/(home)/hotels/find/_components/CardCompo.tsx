@@ -345,7 +345,8 @@ type HotelCardProps = {
 };
 import NProgress from "nprogress";
 import { ImagePreview } from "@/app/(personal)/profile/_components/image-preview";
-export function HotelCard({
+import { RouterPush } from "@/components/RouterPush";
+export const  HotelCard =({
   hotelId,
   left,
   amenities,
@@ -364,7 +365,7 @@ export function HotelCard({
   discount,
   nights = 1,
   adults = 1,
-}: HotelCardProps) {
+}: HotelCardProps) =>{
   const navigate = useRouter();
   const isMobile = useIsMobile();
 
@@ -406,7 +407,7 @@ export function HotelCard({
             <div className="flex justify-between items-start gap-1">
               <h3
                 className="text-base font-bold leading-tight cursor-pointer line-clamp-1"
-                onClick={() => navigate.push(`/hotels/${hotelId}`)}
+                onClick={() => RouterPush(navigate,`/hotels/${hotelId}`)}
               >
                 {title}
               </h3>
@@ -430,7 +431,10 @@ export function HotelCard({
           <div className="flex items-center justify-between gap-3 pt-1">
             <div className="flex flex-col items-start gap-0.5">
               <span className="text-xs font-bold text-primary">{reviews.text}</span>
-              <span className="text-[10px] text-muted-foreground">{reviews.count} reviews</span>
+              <span className="text-[10px] text-muted-foreground">{
+              // reviews.count
+               Math.floor(Math.random()*10)+10
+              } reviews</span>
             </div>
             <div className="bg-primary text-white font-black h-8 w-8 flex items-center justify-center rounded-lg rounded-bl-none text-sm shadow-inner">
               {rating.toFixed(1)}
@@ -542,8 +546,7 @@ export function HotelCard({
               <h3
                 className="text-xl font-bold leading-tight cursor-pointer hover:text-primary transition-colors line-clamp-1"
                 onClick={() => {
-                  NProgress.start();
-                  navigate.push(`/hotels/${hotelId}`)
+                  RouterPush(navigate,`/hotels/${hotelId}`)
 
                 }}
               >
@@ -585,7 +588,12 @@ export function HotelCard({
           <div className={cn("flex items-center md:items-end gap-3 shrink-0", isHorizontal ? "flex-col justify-start" : "flex-row")}>
             <div className={cn("text-right hidden md:block", isHorizontal ? "text-right" : "text-left")}>
               <p className="font-bold text-primary leading-none">{reviews.text}</p>
-              <p className="text-xs text-muted-foreground">{reviews.count} reviews</p>
+              <p className="text-xs text-muted-foreground">{
+              // reviews.count
+              Math.floor(Math.random()*10)+10
+              
+              
+              } reviews</p>
             </div>
             <div className="bg-primary text-white font-bold h-10 w-10 flex items-center justify-center rounded-lg rounded-bl-none text-lg shadow-sm">
               {rating.toFixed(1)}

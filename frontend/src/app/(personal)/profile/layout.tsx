@@ -18,6 +18,7 @@ import React, { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderOne } from "@/components/ui/acer-loader";
 import { PageSkeleton } from "@/components/loader/skeleton";
+import { RouterPush } from "@/components/RouterPush";
 export default function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useRouter();
 
@@ -30,7 +31,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setToken(storedToken);
     setLoading(false);
     if (!storedToken) {
-      navigate.push("/");
+      RouterPush(navigate ,'/');
     }
   }, [navigate]);
 

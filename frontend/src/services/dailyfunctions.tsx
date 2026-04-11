@@ -66,12 +66,12 @@ export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; c
         />
       ) : liked ? (
         <IconHeartFilled
-          className="text-destructive transition-colors"
-          size={24}
+          className="text-destructive transition-colors h-5 w-5 md:h-6 md:w-6"
+          size={16}
         />
       ) : (
         <IconHeart
-          className="text-muted-foreground hover:text-destructive transition-colors"
+          className="text-muted-foreground hover:text-destructive transition-colors h-5 w-5 md:h-6 md:w-6"
           size={24}
         />
       )}

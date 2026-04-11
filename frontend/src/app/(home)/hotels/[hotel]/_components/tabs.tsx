@@ -104,8 +104,8 @@ export function TabsLine({
       </div>
       <div className="flex flex-col lg:flex-row lg:gap-6 mb-5">
         <main className="flex-1 space-y-5">
-          <section id="description" className="scroll-mt-6 md:pt-4 pt-2">
-            <h3 className="text-xl font-bold mb-6">Description</h3>
+          <section id="description" className=" py-2 gap-2">
+            <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">Description</h3>
             {content.description}
           </section>
           <section

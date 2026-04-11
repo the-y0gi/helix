@@ -7,6 +7,7 @@ import { Hotel } from "@/types";
 import { handleCopy, LikeIcon } from "@/services/dailyfunctions";
 import { useHotelContext } from "../_providers_context/hotel-contextProvider";
 import { ShareModal } from "./shareComponent";
+import { cn } from "@/lib/utils";
 
 type HotelItemsProps = {
   hotel: Hotel;
@@ -28,7 +29,7 @@ const HotelItems = ({
         <div className="flex justify-between items-start gap-4">
 
           <div className="flex flex-col gap-1.5 min-w-0 flex-1">
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground/80 tracking-tight leading-tight break-words">
+            <h1 className="text-md sm:text-xl md:text-2xl font-bold text-foreground/80 tracking-tight leading-tight break-words">
               {hotel.name}
             </h1>
 
@@ -37,11 +38,11 @@ const HotelItems = ({
                 <IconStarFilled
                   key={i}
                   className={
-                    i < Math.round(hotel.rating)
+                    cn(i < Math.round(hotel.rating)
                       ? "text-yellow-400"
-                      : "text-muted/30"
+                      : "text-muted/30" , "h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5")
                   }
-                  size={16}
+                  
                 />
               ))}
               <span className="ml-2 text-xs font-bold text-muted-foreground">
@@ -51,7 +52,7 @@ const HotelItems = ({
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0 pt-1">
-            <div className="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 rounded-full border border-border bg-background shadow-sm active:scale-90 transition-transform">
+            <div className="flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-full border border-border bg-background shadow-sm active:scale-90 transition-transform">
               <LikeIcon _id={hotel._id} isFavourite={hotel.isFavorite} name={hotel.name} />
             </div>
 
@@ -62,7 +63,7 @@ const HotelItems = ({
               >
               <IconShare size={20} className="text-muted-foreground" />
             </button> */}
-            <ShareModal />
+            <ShareModal  />
           </div>
         </div>
 

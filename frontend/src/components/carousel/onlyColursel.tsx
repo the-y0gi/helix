@@ -198,6 +198,8 @@ import { useRouter } from "next/navigation";
 import { RouterPush } from "../RouterPush";
 import { useHotelStore } from "@/store/hotel.store";
 import { cn } from "@/lib/utils";
+import { HotelsCardSkleton, PageSkeleton } from "../loader/skeleton";
+import { Skeleton } from "../ui/skeleton";
 
 export type Item = {
   title: string;
@@ -303,14 +305,21 @@ export const OnlyCarousel = ({ type, tagline, items, isLoading }: Props) => {
         ref={scrollRef}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className="flex gap-1 md:gap-3 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide scroll-smooth pt-2  pr-3"
+        className={cn("flex gap-1 md:gap-3 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide scroll-smooth pt-2  pr-3", isLoading&&"pl-1")}
       >
         {isLoading ? (
           Array.from({ length: 7 }).map((_, i) => (
             <div
               key={i}
-              className="min-w-[170px] md:min-w-[215px] h-[155px] md:h-[195px] animate-pulse bg-muted rounded-xl"
-            />
+              className="min-w-[170px] md:min-w-[216px] h-[165px] gap-1 flex flex-col  md:h-[195px]   rounded-xl"
+            >
+              <Skeleton className="aspect-video w-full" />
+              <div className="mt-2.5 md:mt-3 space-y-1 px-1 flex flex-col gap-2">
+
+      <Skeleton className="h-3 w-full" />
+      <Skeleton className="h-3 w-3/4" />
+            </div>
+            </div>
           ))
         ) : (
           <>
@@ -366,7 +375,7 @@ const Card = React.memo(({ item, onClick }: { item: Item; onClick: () => void })
   return (
     <div
       onClick={onClick}
-      className="min-w-[170px] pl-1 md:min-w-[216px] snap-start cursor-pointer group/card"
+      className=" pl-1 min-w-[170px] md:min-w-[216px] snap-start cursor-pointer group/card"
     >
       <div className="aspect-[4/3] overflow-hidden rounded-xl bg-card border border-border shadow-sm">
         <Image

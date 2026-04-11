@@ -17,19 +17,17 @@ export type LocationProps = {
 
 const MapLocation = ({ address, cordinates }: LocationProps) => {
   return (
-    <Card className="w-full bg-transparent border-none shadow-none">
+    <Card className="w-full bg-transparent border-none shadow-none p-0">
       <CardHeader className="px-0">
-        <h3 className="text-xl font-bold">Location</h3>
-        <p className="text-sm text-muted-foreground">{address}</p>
+        <h3 className="text-xl font-bold dark:text-zinc-400 text-zinc-800">Location</h3>
+        <p className="text-xs sm:text-sm text-muted-foreground">{address}</p>
       </CardHeader>
       <CardContent className="p-0 -mx-2 sm:mx-0">
         {/* Ensure this container has a height! aspect-video handles this. */}
-        <div className="overflow-hidden sm:rounded-2xl aspect-video w-full relative cursor-pointer ">
+        <div className="overflow-hidden rounded-md sm:rounded-2xl aspect-video w-full relative cursor-pointer ">
           <HotelFilterBar
             content={
-              <div className="w-full h-full">
-                <MapLeaf cordinates={cordinates} height="100%" />
-              </div>
+                <MapLeaf cordinates={cordinates } className="w-full "  height="100%" width="100%"  />
             }
           >
             <div className="w-full h-[400px]">
