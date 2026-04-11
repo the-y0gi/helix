@@ -516,39 +516,35 @@ const FilterBox = ({
     }
   }, [hotelStorage]);
 
+  // Handle ESC key to close
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setActiveIdx(null);
-      }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setActiveIdx(null);
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-
-  if(link?.substring(1, link.length)!=="hotels")return null;
+  if(link?.substring(1, link.length)!=="hotels") return null;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start md:px-6 lg:px-10 mx-auto py-3 ">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start md:px-6 lg:px-10 mx-auto md:py-3 ">
       
       {/* LEFT SIDE: SEARCH CARD */}
       <div className="lg:col-span-3 relative w-full group bg-transparent">
         <Card
           className={cn(
-            "w-full flex flex-col gap-4 shadow-2xl dark:shadow-zinc-950 border-none  bg-card/10 text-card-foreground rounded-[1.5rem] px-4 pt-6 pb-12 md:px-8 md:pt-8 md:pb-14 transition-all",
-            ismobile && "py-4 pb-12"
+            "w-full flex flex-col gap-4 shadow-2xl dark:shadow-zinc-950 border-none bg-card/10 text-card-foreground rounded-[1.5rem] px-4 pt-6 pb-12 md:px-8 md:pt-8 md:pb-14 transition-all",
+            ismobile && "py-2 pb-12"
           )}
         >
-          <div className="space-y-6">
-            {/* Search Input Section */}
+          <div className="md:space-y-6 space-y-2">
             <div className="w-full">
               {FilterBoxValues.search}
             </div>
 
-            {/* Filter Blocks Section */}
             <div className="relative" ref={containerRef}>
-              <div className="flex gap-2 md:gap-4">
+              <div className="flex gap-2 md:gap-3">
                 {FilterBoxValues.filterBlocks.map((item, idx) => {
                   const IconValues = item.icon;
                   const isActive = activeIdx === idx;
@@ -558,7 +554,7 @@ const FilterBox = ({
                       <div
                         onClick={() => setActiveIdx(isActive ? null : idx)}
                         className={cn(
-                          "flex md:flex-row flex-col w-full items-center gap-2 md:gap-3 bg-secondary/30 border border-border rounded-[12px] px-3 py-3 hover:bg-secondary/60 transition-all cursor-pointer relative z-10",
+                          "flex md:flex-row flex-col w-full items-center gap-2 md:gap-3 bg-secondary/30 border border-border rounded-[12px] px-3 py-3 hover:bg-secondary/60 transition-all cursor-pointer relative z-30", // Higher Z to stay above overlay
                           isActive && "border-primary ring-2 ring-primary/10 bg-secondary"
                         )}
                       >
@@ -577,34 +573,33 @@ const FilterBox = ({
                 })}
               </div>
 
-              {/* Dropdown Elements */}
+              {/* MODAL-LIKE DROPDOWN */}
               <AnimatePresence>
-              {activeIdx !== null && FilterBoxValues.filterBlocks[activeIdx]?.element && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.98 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className={cn(
-                    "absolute top-full mt-2 z-50 bg-background border border-border shadow-2xl rounded-2xl p-4",
-                    "left-0 right-0 mx-auto w-full max-w-[90%] md:max-w-[600px]"
-                  )}
-                >
-                  {FilterBoxValues.filterBlocks[activeIdx].element}
-                </motion.div>
-              )}
-            </AnimatePresence>
+              {activeIdx !== null && FilterBoxValues.filterBlocks[activeIdx]?.element && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-45%" }}
+                  animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
+                  exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-45%" }}
+                  transition={{ duration: 0.2 }}
+                  className={cn(
+                    "fixed top-1/2 left-1/2 z-[60] bg-background border border-border shadow-2xl rounded-2xl p-6",
+                    "w-[95%] max-w-[500px] md:max-w-[650px] max-h-[80vh] overflow-y-auto justify-center flex"
+                  )}
+                >
+                  {FilterBoxValues.filterBlocks[activeIdx].element}
+                </motion.div>
+              )}
+            </AnimatePresence>
             </div>
           </div>
         </Card>
 
-        {/* FLOATING SEARCH BUTTON: Positioned on the bottom edge */}
+        {/* FLOATING SEARCH BUTTON */}
         <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-30 w-full flex justify-center">
           <Button
             disabled={loading || !city}
             className={cn(
-              "min-w-[180px] md:min-w-[240px] px-8 bg-primary flex items-center justify-center hover:bg-primary/60 dark:border-none text-white h-12 md:h-14 rounded-full text-lg font-extrabold shadow-[0_10px_20px_rgba(254, 50, 48,0.3)] transition-all  border-[3px] border-zinc-100 ",
-             
+              "min-w-[180px] md:min-w-[240px] px-8 bg-primary flex items-center justify-center hover:bg-primary/60 dark:border-none text-white h-12 md:h-14 rounded-full text-lg font-extrabold shadow-[0_10px_20px_rgba(254, 50, 48,0.3)] transition-all border-[3px] border-zinc-100 ",
             )}
             onClick={() => {
               RouterPush(router, "/hotels/find");
@@ -621,14 +616,15 @@ const FilterBox = ({
         <LoopingVideoHero VIDEOS={FilterBoxValues?.videos || []} />
       </div>
 
-      {/* Background Overlay when active */}
+      {/* Background Overlay */}
       <AnimatePresence>
         {activeIdx !== null && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/10 backdrop-blur-[2px] z-20 pointer-events-none"
+            onClick={() => setActiveIdx(null)} // Click to close
+            className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 cursor-pointer pointer-events-auto"
           />
         )}
       </AnimatePresence>
@@ -668,7 +664,7 @@ export function LoopingVideoHero({ VIDEOS }: {
           autoPlay
           muted
           playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-60"
+          className="absolute inset-0 w-full h-full object-cover opacity-60 rounded-[1.5rem]"
         />
 
         <motion.div
@@ -690,7 +686,7 @@ export function LoopingVideoHero({ VIDEOS }: {
         </motion.div>
       </AnimatePresence>
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent pointer-events-none" />
+      <div className="absolute rounded-[1.5rem] inset-0 bg-gradient-to-r from-black/60 to-transparent pointer-events-none" />
 
       {/* Pagination Dots */}
       <div className="absolute bottom-4 left-6 flex gap-1.5 z-20">

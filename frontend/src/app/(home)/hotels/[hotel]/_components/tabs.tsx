@@ -211,7 +211,7 @@ function BookingCard({
             <span className="text-[10px] uppercase font-black text-muted-foreground block mb-1">
               Check-in
             </span>
-            <p className="text-sm font-bold text-foreground">
+            <p className="text-xs md:text-sm font-bold text-foreground">
               {date?.from ? format(date.from, "dd/MM/yyyy") : "Add date"}
             </p>
           </div>
@@ -222,16 +222,16 @@ function BookingCard({
             <span className="text-[10px] uppercase font-black text-muted-foreground block mb-1">
               Check-out
             </span>
-            <p className="text-sm font-bold text-foreground">
+            <p className="text-xs md:text-sm font-bold text-foreground">
               {date?.to ? format(date.to, "dd/MM/yyyy") : "Add date"}
             </p>
           </div>
           {showCalendar && (
             <div
               className={cn(
-                "absolute p-2 z-[1000] bg-background border border-border shadow-2xl rounded-2xl",
+                "absolute p-2 z-[100px] bg-background border border-border shadow-2xl rounded-2xl",
                 "top-full mt-2 left-1/2 -translate-x-1/2",
-                "w-[95vw] md:w-auto"
+                " w-[98vw] md:w-auto"
               )}
               onClick={(e) => e.stopPropagation()}
             >
@@ -240,7 +240,7 @@ function BookingCard({
           )}
         </div>
         <div className="rounded-2xl border border-border p-1 bg-background w-full">
-          <VisitorsMembers showCalendar={showCalendar} />
+          <VisitorsMembers showCalendar={false} />
         </div>
         <div className="py-2">
           <p className="text-xs text-muted-foreground font-bold uppercase mb-1">

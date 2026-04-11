@@ -351,8 +351,8 @@ export function AppPrefrence() {
         </div>
 
         <DropdownMenuSeparator className="my-1 sm:my-2 cursor-pointer" />
-               <DropdownMenuLabel className="px-2 py-1.5 sm:px-3 sm:py-2 flex gap-3 cursor-pointer">
-                <CircleQuestionMark onClick={()=>RouterPush(router , '/profile?tab=support')} /><span>Help center</span>
+               <DropdownMenuLabel onClick={()=>RouterPush(router , '/profile?tab=support')} className="px-2 py-1.5 sm:px-3 sm:py-2 flex gap-3 cursor-pointer">
+                <CircleQuestionMark  /><span>Help center</span>
                </DropdownMenuLabel>
                 {!isLoggedIn ? (
           <DropdownMenuGroup>

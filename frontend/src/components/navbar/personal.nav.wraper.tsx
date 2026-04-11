@@ -44,14 +44,7 @@ const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
       <div className="w-full border-1 mt-10" />
 
       <Footer />
-      {isMobile &&  (
-              <nav className="fixed bottom-0 left-0 right-0 z-[100]  bg-background rounded-tl-3xl rounded-tr-3xl  dark:border-zinc-800 px-2 pb-safe shadow-[0_-1px_10px_rgba(0,0,0,0.05)]">
-                <div className="flex h-full items-center justify-around ">
-                  <BottomNav/>
-                  
-                </div>
-              </nav>
-            )}
+      {<MobileNavWrapper  isMobile={isMobile}/>}
     </div>
   );
 };
@@ -73,7 +66,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useIsMobile } from "@/hooks/use-mobile";
 import TopRight from "./topRight";
-import { BottomNav } from "./mobilenav";
+import { BottomNav, MobileNavWrapper } from "./mobilenav";
 // import RaiseTicketForm from "./TicketRaise";
 
 export function DialogDemo({ trigger }: { trigger: React.ReactNode }) {

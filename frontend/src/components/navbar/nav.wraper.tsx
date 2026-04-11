@@ -26,9 +26,9 @@ const pagesNames = pages.map((page) => page.link.split("/")[1]);
 const NavWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = usePathname();
   const isMobile = useIsMobile();
-  const [open, setOpen] = useState(false)
   const [showAdPopup, setShowAdPopup] = useState(false);
   const [hasDismissed, setHasDismissed] = useState(false);
+  
   const router = useRouter()
   const showChevronRight = location.includes("/hotels/find")
   const segments = location.split("/").filter(Boolean);
@@ -54,6 +54,8 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
       return () => clearTimeout(timer);
     }
   }, [location, hasDismissed]);
+  
+  
   // useEffect(() => {
 
 
@@ -178,7 +180,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
         )}
       >
         {!shouldShowNavbar && (
-          <div className=" ">
+          <div className="mb-3 ">
             <FilterBarLayout pages={pages} />
             {/* <SearchBox tabs={FilterOfPages}/> */}
           </div>
@@ -286,7 +288,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
         //   </div>
         // </div>
       )}
-      <MobileNavWrapper isMobile={isMobile}/>
+     <MobileNavWrapper isMobile={isMobile}/>
     </div>
   );
 };

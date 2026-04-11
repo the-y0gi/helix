@@ -19,12 +19,14 @@ import { useRouter } from "next/navigation";
 import { LoaderOne } from "@/components/ui/acer-loader";
 import { PageSkeleton } from "@/components/loader/skeleton";
 import { RouterPush } from "@/components/RouterPush";
+import { useCurrentUser } from "@/services/hotel/querys";
 export default function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useRouter();
 
   // Use a state for token to avoid hydration mismatch
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const {data, isLoading} = useCurrentUser()
 
   useEffect(() => {
     const storedToken = localStorage.getItem("accessToken");
@@ -35,7 +37,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }, [navigate]);
 
-  if (loading) {
+  if (loading || !data || isLoading) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
         <LoaderOne />
