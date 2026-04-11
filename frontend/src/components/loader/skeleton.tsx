@@ -56,3 +56,12 @@ export function SkeletonText() {
     </div>
   )
 }
+export function HotelsCardSkleton() {
+  return (
+    <div className="flex w-full max-w-xs flex-col gap-2">
+      <Skeleton className="aspect-video w-full" />
+      <Skeleton className="h-2 w-full" />
+      <Skeleton className="h-42 w-3/4" />
+    </div>
+  )
+}

@@ -199,7 +199,7 @@ export function HotelPolicies({ id }: { id: string }) {
     return (
         <div className="w-full mx-auto space-y-4">
             <div className="px-1">
-                <h2 className="text-lg md:text-xl font-bold tracking-tight">Hotel Policies</h2>
+                <h2 className="text-lg md:text-xl font-bold tracking-tight dark:text-zinc-400 text-zinc-800">Hotel Policies</h2>
                 <p className="text-xs md:text-sm text-muted-foreground">
                     Specific rules and information about your stay at this property.
                 </p>

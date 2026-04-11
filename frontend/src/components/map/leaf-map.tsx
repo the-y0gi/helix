@@ -9,24 +9,25 @@ import L from 'leaflet';
 type Props = {
   className?: string;
   height?: string;
+  width?:string
   cordinates?: [number, number];
 };
 
 const customIcon = new L.Icon({
-  iconUrl: '/map-icons/map_marker.png',
-  iconRetinaUrl: '/map-icons/map_marker.png',
+  iconUrl: '/map-icons/map_marker2.png',
+  iconRetinaUrl: '/map-icons/map_marker2.png',
   iconSize: [38, 45],
   iconAnchor: [19, 45],
   popupAnchor: [0, -45],
 });
 
-const MapLeaf = ({ className, height = '400px', cordinates }: Props) => {
+const MapLeaf = ({ className,width, height = '400px', cordinates }: Props) => {
   return (
     <div
       // 1. Use 'relative' and a specific z-index lower than your Navbar (e.g., 0 or 10)
       // 2. 'mt-20' provides the gap from the top of the screen/navbar
       className={cn('w-full  relative z-0', className)}
-      style={{ height }}
+      style={{ height, width }}
     >
       <MapContainer
         center={cordinates || [19.0760, 72.8777]}

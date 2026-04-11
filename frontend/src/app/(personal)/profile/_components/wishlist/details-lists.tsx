@@ -98,7 +98,9 @@ export function SavedPropertyCard({
 }: SavedPropertyCardProps) {
     const router = useRouter()
     return (
-        <Card className="group relative rounded-none md:rounded-xl min-w-[150px] overflow-hidden shadow-sm transition bg-background border-none py-0">
+        <Card  onClick={() => {
+                    RouterPush(router, `/hotels/${_id}`);
+                }} className="group relative rounded-none md:rounded-xl min-w-[150px] overflow-hidden shadow-sm transition bg-background border-none py-0">
             {/* Image Container - Height stays fixed or aspect-ratio */}
             <div className="relative h-64 md:h-56 w-full">
                 <Image
@@ -130,10 +132,10 @@ export function SavedPropertyCard({
 
                 {/* Review/Rating Row */}
                 <div className="flex items-center gap-2">
-                    <Badge className="bg-blue-600 text-white border-none px-1.5 py-0 text-[10px] md:text-xs">
+                    <Badge className="bg-primary text-white border-none px-1.5 py-0 text-[10px] md:text-xs">
                         {rating}
                     </Badge>
-                    <span className="text-blue-400 md:text-blue-600 font-medium text-[10px] md:text-xs">
+                    <span className="text-primary/50 md:text-primary font-medium text-[10px] md:text-xs">
                         Excellent
                     </span>
                     <span className="text-zinc-300 md:text-muted-foreground text-[10px] md:text-xs">
@@ -142,15 +144,13 @@ export function SavedPropertyCard({
                 </div>
 
                 {/* Title */}
-                <h3 className="font-semibold text-sm md:text-base leading-tight truncate" onClick={() => {
-                    RouterPush(router, `/hotels/${_id}`);
-                }}>
+                <h3 className="font-semibold text-sm md:text-base leading-tight truncate">
                     {title}
                 </h3>
 
                 {/* Location & Note - Hidden or smaller on mobile to keep it clean */}
                 <div className="space-y-1">
-                    <p className="text-zinc-200 md:text-blue-600 text-xs">
+                    <p className="text-primary/80 md:text-primary/60 text-xs">
                         {city}
                     </p>
                     {/* Hide distance and input on mobile overlay to prevent clutter, similar to Reels */}

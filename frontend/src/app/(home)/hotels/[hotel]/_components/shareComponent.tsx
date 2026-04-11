@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const SOCIAL_PLATFORMS = [
     {
@@ -60,7 +61,7 @@ const SOCIAL_PLATFORMS = [
     // },
 ];
 
-export function ShareModal() {
+export function ShareModal({ className }: { className?: string }) {
     const videoUrl = typeof window !== "undefined" ? window.location.href : "";
     const [copied, setCopied] = useState(false);
 
@@ -78,9 +79,9 @@ export function ShareModal() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2 rounded-full px-6">
-                    <Share2 className="h-4 w-4" />
-                    Share
+                <Button variant="outline" className={cn("gap-2 rounded-full px-3 sm:px-6 text-xs md:text-md " , className)}>
+                    <Share2 className="h-2 w-2 md:h-4 md:w-4" />
+                    <span className="hidden sm:block">Share</span>
                 </Button>
             </DialogTrigger>
 

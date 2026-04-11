@@ -288,12 +288,12 @@ const ReviewsMain = ({ hotel }: Props) => {
     return (
         <Card className="w-full bg-transparent border-none shadow-none p-0">
             <CardHeader className="space-y-2 px-0">
-                <h3 className="text-2xl font-bold">Reviews</h3>
+                <h3 className="text-2xl font-bold dark:text-zinc-400 text-zinc-800">Reviews</h3>
                 <div className="flex items-center gap-2 text-sm">
-                    <Badge className="bg-blue-600 text-white hover:bg-blue-700 px-2 py-0">
+                    <Badge className="bg-primary/80 text-white hover:bg-primary px-2 py-0">
                         5.0
                     </Badge>
-                    <span className="font-semibold text-blue-600">Excellent</span>
+                    <span className="font-semibold text-primary">Excellent</span>
                     <Separator orientation="vertical" className="h-4" />
                     <span className="text-muted-foreground font-medium">1,260 reviews</span>
                 </div>
@@ -392,9 +392,14 @@ const ReviewsComments = () => {
                         } 
                     />
                 ) : (
-                    <Button variant="outline" className="rounded-full font-semibold">
-                        Show all 1,260 reviews
-                    </Button>
+                     <MoreReviewsSideSheet 
+                        comments={comments} 
+                        trigger={
+                            <Button variant="outline" className="rounded-full font-semibold">
+                                Show all reviews
+                            </Button>
+                        } 
+                    />
                 )}
             </div>
         </div>

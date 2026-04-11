@@ -26,11 +26,13 @@ import type { ResetPasswordProps, SignUpProps } from "@/schema/auth";
 import { useEffect } from "react";
 import { useResetPasswordForm } from "@/context/auth/resetpasswordsteps";
 import ForgetPasswordHandeler from "./forgetpasswordhandelser";
+import { cn } from "@/lib/utils";
 
 type OTPFormProps = React.ComponentProps<typeof Card> & {
     onOTP: string;
     methods: UseFormReturn<ResetPasswordProps>;
     setOnOTP: React.Dispatch<React.SetStateAction<string>>;
+    className?:string
 };
 
 const OTP_LENGTH = 4;
@@ -45,18 +47,18 @@ export function ForgotPasswordOTPForm({ onOTP, methods, setOnOTP, ...props }: OT
     }, [onOTP, setValue]);
 
     return (
-        <Card {...props} className="w-full min-w-md mx-auto rounded-2xl shadow-sm">
+        <Card {...props} className={cn("w-full w-70 sm:w-80 md:w-90 lg:w-100 xl:w-110    rounded-2xl shadow-sm" , "bg-transparent border-none")}>
             <CardHeader className="text-center space-y-2">
                 <CardTitle className="text-xl font-semibold">
                     Enter verification code
                 </CardTitle>
                 <CardDescription>
-                    We sent a {OTP_LENGTH}-digit code to your email.
+                    We sent a {OTP_LENGTH}-digit code to your phone number.
                 </CardDescription>
             </CardHeader>
 
-            <CardContent>
-                <FieldGroup className="space-y-6">
+            <CardContent className="w-full">
+                <FieldGroup className="space-y-6 w-full">
                     <Field>
                         <FieldLabel htmlFor="otp" className="sr-only">
                             Verification code

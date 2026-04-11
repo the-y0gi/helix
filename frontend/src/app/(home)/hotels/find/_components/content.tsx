@@ -104,7 +104,6 @@ export const Content = ({ className }: { className: string }) => {
       )}
     >
       {hotels.map((hotel: Hotel) => {
-        // Find lowest display price from roomTypes if available
         const roomTypes = (hotel as any).roomTypes ?? []
         const lowestPrice = roomTypes.length > 0
           ? Math.min(...roomTypes.map((r: any) => r.discountPrice > 0 ? r.discountPrice : r.basePrice))

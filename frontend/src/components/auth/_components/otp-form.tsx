@@ -54,7 +54,7 @@ export function OTPForm({ onOTP, methods, setOnOTP, className, ...props }: OTPFo
           Enter verification code
         </CardTitle>
         <CardDescription>
-          We sent a {OTP_LENGTH}-digit code to your email.
+          We sent a {OTP_LENGTH}-digit code to your phone number.
         </CardDescription>
       </CardHeader>
 

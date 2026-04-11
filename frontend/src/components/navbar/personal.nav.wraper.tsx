@@ -12,8 +12,9 @@ const MenuBar = dynamic(() => import("../menubar").then(mod => ({ default: mod.M
 type Props = {};
 
 const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
+  const isMobile = useIsMobile()
   return (
-    <div className="min-h-screen flex flex-col w-full">
+    <div className="min-h-screen pb-20 md:pb-0 flex flex-col w-full">
       <div
         className={cn(
           "fixed top-0 left-0 z-50 w-full bg-card   flex flex-col justify-center h-15 md:h-20 bg-gradient-to-br from-zinc-200 to-transparent backdrop-blur-md dark:bg-gradient-to-br dark:from-zinc-700 dark:to-transparent backdrop-blur-lg border-b border-gray-300 dark:border-gray-700",
@@ -25,16 +26,17 @@ const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
           <div className="hidden md:flex flex-col items-center gap-[5px] h-full justify-evenly">
           </div>
 
-          <div className="flex gap-9 p-1 justify-center items-center">
+          {/* <div className="flex gap-9 p-1 justify-center items-center">
             <div>
-              {/* <DialogDemo trigger={<Headset color="blue" size={25} />} /> */}
+              <DialogDemo trigger={<Headset color="blue" size={25} />} />
 
             </div>
             <Suspense>
 
               <MenuBar />
             </Suspense>
-          </div>
+          </div> */}
+          <TopRight isMobile={isMobile}/>
         </div>
       </div>
 
@@ -42,6 +44,14 @@ const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
       <div className="w-full border-1 mt-10" />
 
       <Footer />
+      {isMobile &&  (
+              <nav className="fixed bottom-0 left-0 right-0 z-[100]  bg-background rounded-tl-3xl rounded-tr-3xl  dark:border-zinc-800 px-2 pb-safe shadow-[0_-1px_10px_rgba(0,0,0,0.05)]">
+                <div className="flex h-full items-center justify-around ">
+                  <BottomNav/>
+                  
+                </div>
+              </nav>
+            )}
     </div>
   );
 };
@@ -61,6 +71,9 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { BottomNav } from "./nav.wraper";
+import { useIsMobile } from "@/hooks/use-mobile";
+import TopRight from "./topRight";
 // import RaiseTicketForm from "./TicketRaise";
 
 export function DialogDemo({ trigger }: { trigger: React.ReactNode }) {
