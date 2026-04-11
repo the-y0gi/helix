@@ -11,20 +11,25 @@ interface TimeLeft {
   seconds: number;
 }
 
-export default function UnderConstruction({cat}:{cat:string}) {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 20, hours: 0, minutes: 0, seconds: 0 });
+export default function UnderConstruction({ cat }: { cat: string }) {
+  // Initialize with zeros to avoid hydration mismatch
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 20);
+    // Set target date to April 30th of the current year
+    const currentYear = new Date().getFullYear();
+    const targetDate = new Date(`April 30, ${currentYear} 00:00:00`).getTime();
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
-      const distance = targetDate.getTime() - now;
+      const distance = targetDate - now;
+
       if (distance < 0) {
         clearInterval(timer);
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         return;
       }
+
       setTimeLeft({
         days: Math.floor(distance / (1000 * 60 * 60 * 24)),
         hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
@@ -38,7 +43,7 @@ export default function UnderConstruction({cat}:{cat:string}) {
 
   return (
     <div className="relative flex flex-col items-center justify-center bg-card py-12 md:mt-10  w-full px-4 overflow-hidden rounded-xl border h-full">
-      {/* Subtle Glows using Shadcn Primary color */}
+      {/* Subtle Glows */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-20">
         <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary blur-[100px] rounded-full" />
       </div>
@@ -62,7 +67,7 @@ export default function UnderConstruction({cat}:{cat:string}) {
          {`${cat} services Coming`} <span className="text-primary">Soon</span>
         </h2>
         <p className="text-muted-foreground text-sm mb-8">
-          We&apos;re polishing the final details.
+          We&apos;re polishing the final details for our April 30 launch.
         </p>
 
         {/* Compact Timer Grid */}
@@ -72,18 +77,6 @@ export default function UnderConstruction({cat}:{cat:string}) {
           <CountdownBox value={timeLeft.minutes} label="Min" />
           <CountdownBox value={timeLeft.seconds} label="Sec" />
         </div>
-
-        {/* Small Notify Form */}
-        {/* <div className="mt-10 flex flex-col sm:flex-row items-center gap-2 max-w-sm mx-auto">
-          <input 
-            type="email" 
-            placeholder="Email address" 
-            className="w-full bg-secondary text-secondary-foreground border border-input h-10 px-4 rounded-md text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
-          />
-          <button className="w-full sm:w-auto bg-primary text-primary-foreground h-10 px-6 rounded-md text-sm font-semibold hover:opacity-90 transition-all active:scale-95">
-            Notify
-          </button>
-        </div> */}
       </motion.div>
     </div>
   );

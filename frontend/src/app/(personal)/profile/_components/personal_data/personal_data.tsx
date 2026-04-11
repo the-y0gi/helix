@@ -355,7 +355,7 @@ const ProfileAvatar = ({
     <div className={cn("flex items-center gap-3 px-2 py-3 w-full ", className)}>
       <div className="relative group cursor-pointer" onClick={handleImageClick}>
         <Image
-          src={currUser?.data?.avatar || "/user.png"}
+          src={currUser?.data?.avatar || "/icons/user.png"}
           alt="user"
           width={100}
           height={100}

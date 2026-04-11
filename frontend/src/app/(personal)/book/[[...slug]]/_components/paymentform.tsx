@@ -1090,7 +1090,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
               <div className="lg:col-span-4">
                 <div className="sticky top-24">
                   {ismobile ? (
-                    <div className="fixed bottom-0 left-0 right-0 z-[100] w-full border-t bg-background/95 backdrop-blur-sm p-4 animate-in slide-in-from-bottom duration-300">
+                    <div className="fixed bottom-0 left-0 right-0 z-101 w-full border-t bg-background/95 backdrop-blur-sm p-4 animate-in slide-in-from-bottom duration-300">
                       <BookingCard loading={loading} />
                     </div>
                   ) : (

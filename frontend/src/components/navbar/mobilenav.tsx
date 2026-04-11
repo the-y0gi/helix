@@ -4,22 +4,32 @@ import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-
 import { Home, Search, Percent, History, User } from "lucide-react";
 import { RouterPush } from "../RouterPush";
 import { useCurrentUser } from "@/services/hotel/querys";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQueryState } from "nuqs";
 export function MobileNavWrapper({ isMobile }: { isMobile: boolean }) {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
+  const pathname = usePathname();
+  useEffect(()=>{
+    
+    if(pathname.split('/')[1]==='book'){
+      setHidden(true);
+    }else{
+      setHidden(false);
+    }
+  },[pathname])
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = scrollY.getPrevious() ?? 0;
     
     if (latest > previous && latest > 50) {
-      setHidden(true);
+      setHidden(true );
     } 
     else {
-      setHidden(false);
+      setHidden( (pathname.split('/')[1]==='book') );
     }
   });
 
@@ -33,7 +43,8 @@ export function MobileNavWrapper({ isMobile }: { isMobile: boolean }) {
       }}
       animate={hidden ? "hidden" : "visible"}
       transition={{ duration: 0.35, ease: "easeInOut" }}
-      className="fixed bottom-0 left-0 right-0 z-[100] bg-background rounded-tl-3xl rounded-tr-3xl border-t border-zinc-200 dark:border-zinc-800 px-2 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.05)]"
+      className={cn("fixed bottom-0 left-0 right-0 z-[100] bg-background rounded-tl-3xl rounded-tr-3xl border-t border-zinc-200 dark:border-zinc-800 px-2 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.05)]"
+      )}
     >
       <div className="flex h-16 items-center justify-around">
         <BottomNav />
@@ -181,9 +192,14 @@ export function BottomNav() {
   const router = useRouter();
   const isMobile = useIsMobile();
   const isLoggedIn = !!user?.data;
-
+  const [light , setLight] = useState(false);
   const iconSize = 22;
   const isActive = (path: string) => pathname === path;
+   const [tab, setTab] = useQueryState("tab", {
+    defaultValue: "/",
+    shallow: true,
+  });
+
 
   return (
     <nav className="flex items-center justify-around w-full max-w-lg mx-auto h-16 px-4">
@@ -218,10 +234,15 @@ export function BottomNav() {
       {/* 4. Bookings Button (Conditional) */}
       {isLoggedIn && (
         <IndividualNavButton
-          active={pathname.includes("/profile") && pathname.includes("tab=all")}
+          // Use the 'tab' value directly for the active state
+          active={pathname.includes("/profile") &&( tab === "all" || tab === "active" || tab === "cancelled" || tab === "completed")}
           label="Bookings"
           icon={History}
-          onClick={() => RouterPush(router, "/profile?tab=all")}
+          onClick={() => {
+            // This updates the URL and the 'tab' state simultaneously
+            setTab("all");
+            RouterPush(router, "/profile?tab=all");
+          }}
           size={iconSize}
         />
       )}
@@ -245,7 +266,7 @@ export function BottomNav() {
           )
         ) : (
           <IndividualNavButton
-            active={isActive("/profile") && !pathname.includes("tab=all")}
+            active={isActive("/profile") &&( tab !== "all" && tab !== "active" && tab !== "cancelled" && tab !== "completed")}
             onClick={() => RouterPush(router, "/profile")}
             icon={User}
             label="You"
