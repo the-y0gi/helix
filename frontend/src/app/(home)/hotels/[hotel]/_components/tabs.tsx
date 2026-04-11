@@ -103,7 +103,7 @@ export function TabsLine({
         </div>
       </div>
       <div className="flex flex-col lg:flex-row lg:gap-6 mb-5">
-        <main className="flex-1 space-y-5">
+        <main className="flex-1 space-y-5 border-b-1 mb-4">
           <section id="description" className=" py-2 gap-2">
             <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">Description</h3>
             {content.description}
@@ -116,7 +116,7 @@ export function TabsLine({
           </section>
           <section
             id="location"
-            className="scroll-mt-5 border-t md:pt-4 pt-5"
+            className="scroll-mt-5 border-t md:pt-4 pt-5 my-4"
             ref={sectionRef}
           >
             {content.location}

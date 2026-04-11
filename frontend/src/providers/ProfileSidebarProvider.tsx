@@ -324,7 +324,7 @@ export const ProfileSidebarProvider = ({
         <Tabs
           value={tab ?? sidebarData.navMain[0].value}
           onValueChange={(val) => setTab(val)}
-          className="flex w-full flex-row items-start justify-between gap-4"
+          className="flex w-full flex-col md:flex-row items-start justify-between gap-4 px-2 md:px-0"
           orientation="vertical"
         >
           {children}

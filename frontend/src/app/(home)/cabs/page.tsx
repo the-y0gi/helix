@@ -57,7 +57,10 @@ export const HotelPopularCites: CityTrends[] = [
 ]
 const Cabs = ({ className }: { className?: string }) => {
   return (
+     <div className="px-2 md:px-0 w-full">
+
     <UnderConstruction cat='Cabs'/>
+     </div>
     // <div className={cn(" w-full", className)}>
     //   <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
     //     <Suspense fallback={<PageSkeleton />}>

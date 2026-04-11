@@ -34,7 +34,9 @@ const Hotel: React.FC<AdventuresFramePageProps> = ({ className }) => {
 
 
   return (
-    <UnderConstruction cat='Adventures'/>
+    <div className="px-2 md:px-0  w-full">
+      <UnderConstruction cat='Adventures'/>
+    </div>
     // <div className={cn(" w-full ", ismobile ? "" : "", className)}>
     //   <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
     //     <Suspense fallback={<PageSkeleton />}>

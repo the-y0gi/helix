@@ -19,8 +19,8 @@ import FilterBarLayout from "../filter-bar/filter-bar-layout";
 import { Sign_in_hover } from "../auth/_components/sign-in-hover";
 import { toast } from "sonner";
 import Link from "next/link";
-import { MobileNavWrapper } from "./mobilenav";
 import TopRight from "./topRight";
+import { MobileNavWrapper } from "./mobilenav";
 
 const pagesNames = pages.map((page) => page.link.split("/")[1]);
 const NavWrapper = ({ children }: { children: React.ReactNode }) => {
