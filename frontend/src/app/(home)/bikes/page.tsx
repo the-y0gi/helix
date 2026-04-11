@@ -1,6 +1,8 @@
+import UnderConstruction from "@/components/blankpages/contruction"
+
 const page = () => {
   return (
-    <div>page</div>
+    <UnderConstruction cat='Bikes'/>
   )
 }
 

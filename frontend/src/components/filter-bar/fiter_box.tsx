@@ -527,13 +527,13 @@ const FilterBox = ({
   }, []);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start md:px-6 lg:px-10 mx-auto py-3">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start md:px-6 lg:px-10 mx-auto py-3 ">
       
       {/* LEFT SIDE: SEARCH CARD */}
-      <div className="lg:col-span-3 relative w-full group">
+      <div className="lg:col-span-3 relative w-full group bg-transparent">
         <Card
           className={cn(
-            "w-full flex flex-col gap-4 shadow-2xl border-none bg-card text-card-foreground rounded-[1.5rem] px-4 pt-6 pb-12 md:px-8 md:pt-8 md:pb-14 transition-all",
+            "w-full flex flex-col gap-4 shadow-2xl dark:shadow-zinc-950 border-none  bg-card/10 text-card-foreground rounded-[1.5rem] px-4 pt-6 pb-12 md:px-8 md:pt-8 md:pb-14 transition-all",
             ismobile && "py-4 pb-12"
           )}
         >
@@ -600,7 +600,7 @@ const FilterBox = ({
           <Button
             disabled={loading || !city}
             className={cn(
-              "min-w-[180px] md:min-w-[240px] px-8 bg-[#E111D1] flex items-center justify-center hover:bg-[#c00eb3] text-white h-12 md:h-14 rounded-full text-lg font-extrabold shadow-[0_10px_20px_rgba(225,17,209,0.3)] transition-all  border-[3px] border-white dark:border-zinc-950",
+              "min-w-[180px] md:min-w-[240px] px-8 bg-primary flex items-center justify-center hover:bg-primary/60 dark:border-none text-white h-12 md:h-14 rounded-full text-lg font-extrabold shadow-[0_10px_20px_rgba(254, 50, 48,0.3)] transition-all  border-[3px] border-zinc-100 ",
              
             )}
             onClick={() => {
@@ -652,7 +652,7 @@ export function LoopingVideoHero({ VIDEOS }: {
   }, [VIDEOS.length]);
 
   return (
-    <div className="relative rounded-[1.5rem] overflow-hidden shadow-2xl w-full h-[140px] sm:h-[200px] md:h-[320px] lg:h-full group bg-black min-h-[140px]">
+    <div className="relative rounded-[1.5rem] overflow-hidden shadow-2xl w-full h-[140px] sm:h-[200px] md:h-[320px] lg:h-full group bg-transparent min-h-[140px]">
       <AnimatePresence mode="popLayout">
         <motion.video
           key={`video-${index}`}

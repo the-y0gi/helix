@@ -1,9 +1,10 @@
+import UnderConstruction from '@/components/blankpages/contruction'
 import React from 'react'
 
 
 const page = () => {
   return (
-    <div>page</div>
+    <UnderConstruction cat='Tours'/>
   )
 }
 
