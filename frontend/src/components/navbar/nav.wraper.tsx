@@ -19,6 +19,8 @@ import FilterBarLayout from "../filter-bar/filter-bar-layout";
 import { Sign_in_hover } from "../auth/_components/sign-in-hover";
 import { toast } from "sonner";
 import Link from "next/link";
+import { MobileNavWrapper } from "./mobilenav";
+import TopRight from "./topRight";
 
 const pagesNames = pages.map((page) => page.link.split("/")[1]);
 const NavWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -284,109 +286,10 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
         //   </div>
         // </div>
       )}
-      {/* CUSTOM MOBILE BOTTOM BAR (Instagram/YouTube Style) */}
-      {isMobile &&  (
-        <nav className="fixed bottom-0 left-0 right-0 z-[100]  bg-background rounded-tl-3xl rounded-tr-3xl  dark:border-zinc-800 px-2 pb-safe shadow-[0_-1px_10px_rgba(0,0,0,0.05)]">
-          <div className="flex h-full items-center justify-around ">
-            <BottomNav/>
-            
-          </div>
-        </nav>
-      )}
+      <MobileNavWrapper isMobile={isMobile}/>
     </div>
   );
 };
 
+
 export default NavWrapper;
-
-import React from 'react';
-import { Home, Search, Percent, History, User } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useNextGoingRoute } from "@/hooks/auth/route.hook";
-import { useCurrentUser } from "@/services/hotel/querys";
-import { RouterPush } from "../RouterPush";
-import TopRight from "./topRight";
-import { FloatingDockFeatues } from "./not-in-use-features-bar";
-
-export function BottomNav() {
-  const { data: user, isLoading, refetch } = useCurrentUser();
-    const pathname = usePathname();
-    const { goWithAuth } = useNextGoingRoute();
-    const isMobile = useIsMobile()
-    const isLoggedIn = !!user?.data;
-    const router = useRouter()
-  const iconSize = 26;
-  const labelStyle = "text-[11px] font-medium text-white mt-1";
-  const itemStyle = "flex flex-col items-center justify-center flex-1";
-
-  return (
-    <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-white/10 px-2 py-3">
-      <nav className="flex items-center justify-around max-w-lg mx-auto">
-        
-        {/* Home */}
-        <motion.button whileTap={{ scale: 0.9 }} className={itemStyle} onClick={()=>RouterPush(router , `/hotels`)}>
-          <Home size={iconSize} color="white" fill="white" />
-          <span className={labelStyle}>Home</span>
-        </motion.button>
-
-        {/* Search */}
-        <motion.button whileTap={{ scale: 0.9 }} className={itemStyle} 
-        // onClick={()=>RouterPush(router , `/login`)}
-        >
-          <Search size={iconSize} color="white" strokeWidth={2.0} />
-          <span className={labelStyle}>Search</span>
-        </motion.button>
-
-        {/* Offers */}
-        <motion.button whileTap={{ scale: 0.9 }} className={itemStyle}
-        //  onClick={()=>RouterPush(router , `/login`)}
-         >
-          <Percent size={iconSize} color="white" strokeWidth={2.0} />
-          <span className={labelStyle}>Offers</span>
-        </motion.button>
-
-        {/* My Bookings */}
-        {isLoggedIn&&<motion.button whileTap={{ scale: 0.9 }} className={itemStyle} onClick={()=>RouterPush(router , `/profile?tab=all`)}>
-          <History size={iconSize} color="white" strokeWidth={2.0} />
-          <span className={labelStyle}>Bookings</span>
-        </motion.button>}
-
-        {/* You */}
-       
-         {!isLoggedIn ? (
-                    !isMobile ? (
-                      <Sign_in_hover
-                        tag="Log-in"
-                        variant="ghost"
-                        forLike={{
-                          content: (
-                            <div className="flex w-full items-center justify-between px-2 py-1 text-sm transition-colors hover:text-orange-500">
-                              <div className="flex items-center gap-2">
-          <User size={iconSize} color="white" fill="white" />
-          <span className={labelStyle}>You</span>
-                              </div>
-                              <ChevronRight className="h-3 w-3 opacity-50" />
-                            </div>
-                          ),
-                          type: "nextRoute",
-                          do: "/profile",
-                          id: "/profile",
-                        }}
-                      />
-                    ) : (
-                       <motion.button whileTap={{ scale: 0.9 }} className={itemStyle} onClick={()=>RouterPush(router , `/login`)}>
-                        <User size={iconSize} color="white" fill="white" />
-          <span className={labelStyle}>You</span>
-                       </motion.button>
-                    )
-                  ) : (
-                    <motion.button whileTap={{ scale: 0.9 }} className={itemStyle} onClick={()=>RouterPush(router , `/profile`)}>
-          <User size={iconSize} color="white" fill="white" />
-          <span className={labelStyle}>You</span>
-        </motion.button>
-                  )}
-
-      </nav>
-    </div>
-  );
-}

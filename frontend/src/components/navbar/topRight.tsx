@@ -36,7 +36,8 @@ const TopRight = ({isMobile}:{isMobile:boolean}) => {
  
   return (
      <div className="flex gap-1 md:gap-1.5 px-2 px-1 h-full items-center self-center">
-           {!showfav? <Button asChild variant={"secondary"} className="w-15 sm:w-17 md:w-19 lg:w-23 xl:w-25 text-xs py-0 px-2 ">
+           {!showfav? 
+           <Button asChild variant={"secondary"} className="w-17 sm:w-17 md:w-19 lg:w-23 xl:w-25 text-xs py-0  ">
               <a href="https://hilexa-vendor.vercel.app/login" target="_blank" rel="noopener noreferrer" className="cursor-pointer font-bold">Get Listed</a>
             </Button>:(
               <Button onClick={()=>{

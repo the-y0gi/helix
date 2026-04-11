@@ -71,9 +71,9 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { BottomNav } from "./nav.wraper";
 import { useIsMobile } from "@/hooks/use-mobile";
 import TopRight from "./topRight";
+import { BottomNav } from "./mobilenav";
 // import RaiseTicketForm from "./TicketRaise";
 
 export function DialogDemo({ trigger }: { trigger: React.ReactNode }) {

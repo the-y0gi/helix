@@ -10,6 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import AdventureSection from "./_components/activityDummy";
 import { OnlyCarousel } from "@/components/carousel/onlyColursel";
 import { PopularDestinationCarousel } from "@/components/carousel/tabs-carousel";
+import UnderConstruction from "@/components/blankpages/contruction";
 
 export type AdventuresFramePageProps = {
   className?: string;
@@ -33,24 +34,25 @@ const Hotel: React.FC<AdventuresFramePageProps> = ({ className }) => {
 
 
   return (
-    <div className={cn(" w-full ", ismobile ? "" : "", className)}>
-      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
-        <Suspense fallback={<PageSkeleton />}>
+    <UnderConstruction cat='Adventures'/>
+    // <div className={cn(" w-full ", ismobile ? "" : "", className)}>
+    //   <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
+    //     <Suspense fallback={<PageSkeleton />}>
 
-          <AdventureSection />
-
-
-          <AdventureFramePage
-            // popularTrends={HotelPopularCites}
-            type="adventures"
+    //       <AdventureSection />
 
 
+    //       <AdventureFramePage
+    //         // popularTrends={HotelPopularCites}
+    //         type="adventures"
 
 
-          />
-        </Suspense>
-      </ErrorBoundary>
-    </div>
+
+
+    //       />
+    //     </Suspense>
+    //   </ErrorBoundary>
+    // </div>
   );
 };
 

@@ -6,6 +6,7 @@ import MainFramePage from '../../../components/frame-pages/HotelFramePage'
 import type { CityTrends } from '@/types'
 import { MessageModal } from '@/components/messagemodal'
 import { PageSkeleton } from '@/components/loader/skeleton'
+import UnderConstruction from '@/components/blankpages/contruction'
 
 
 
@@ -56,21 +57,22 @@ export const HotelPopularCites: CityTrends[] = [
 ]
 const Cabs = ({ className }: { className?: string }) => {
   return (
-    <div className={cn(" w-full", className)}>
-      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
-        <Suspense fallback={<PageSkeleton />}>
-          <MainFramePage
-            type="cabs"
-            popularTrends={HotelPopularCites}
+    <UnderConstruction cat='Cabs'/>
+    // <div className={cn(" w-full", className)}>
+    //   <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
+    //     <Suspense fallback={<PageSkeleton />}>
+    //       <MainFramePage
+    //         type="cabs"
+    //         popularTrends={HotelPopularCites}
 
-          // searchHotels={<SearchHotels/>}
+    //       // searchHotels={<SearchHotels/>}
 
 
 
-          />
-        </Suspense>
-      </ErrorBoundary>
-    </div>
+    //       />
+    //     </Suspense>
+    //   </ErrorBoundary>
+    // </div>
   )
 }
 
