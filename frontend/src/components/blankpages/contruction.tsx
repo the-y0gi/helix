@@ -62,7 +62,7 @@ export default function UnderConstruction({cat}:{cat:string}) {
          {`${cat} Coming`} <span className="text-primary">Soon</span>
         </h2>
         <p className="text-muted-foreground text-sm mb-8">
-          We're polishing the final details.
+          We&apos;re polishing the final details.
         </p>
 
         {/* Compact Timer Grid */}
