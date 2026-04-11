@@ -526,6 +526,9 @@ const FilterBox = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+
+  if(link?.substring(1, link.length)!=="hotels")return null;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start md:px-6 lg:px-10 mx-auto py-3 ">
       

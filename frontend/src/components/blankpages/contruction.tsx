@@ -37,7 +37,7 @@ export default function UnderConstruction({cat}:{cat:string}) {
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center justify-center bg-background py-12 mt-10 w-full px-4 overflow-hidden rounded-xl border">
+    <div className="relative flex flex-col items-center justify-center bg-card py-12 md:mt-10  w-full px-4 overflow-hidden rounded-xl border h-full">
       {/* Subtle Glows using Shadcn Primary color */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-20">
         <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary blur-[100px] rounded-full" />
@@ -59,7 +59,7 @@ export default function UnderConstruction({cat}:{cat:string}) {
         </div>
 
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-2">
-         {`${cat} Coming`} <span className="text-primary">Soon</span>
+         {`${cat} services Coming`} <span className="text-primary">Soon</span>
         </h2>
         <p className="text-muted-foreground text-sm mb-8">
           We&apos;re polishing the final details.

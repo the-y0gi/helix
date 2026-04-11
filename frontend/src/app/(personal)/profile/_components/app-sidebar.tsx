@@ -22,7 +22,7 @@ export function ProfileSidebar({ className }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "md:w-[280px] w-full rounded-xl bg-background p-4 shadow-sm flex flex-col md:block border border-border",
+        "md:w-[280px] w-full rounded-xl bg-background p-4 shadow-none md:shadow-sm flex flex-col md:block border border-border ",
         className,
       )}
     >
