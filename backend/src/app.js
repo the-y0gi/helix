@@ -24,8 +24,8 @@ const supportRoutes = require("./modules/support/support.routes");
 const adventureRoutes = require("./modules/adventure/category/adventure.routes");
 const serviceRoutes = require("./modules/adventure/service/service.routes");
 
-const serviceBookingRoutes = require("./modules/serviceBookings/booking.routes");
-
+const multiServiceBookingRoutes = require("./modules/multiServiceBookings/booking.routes");
+const multiServiceVendorRoutes = require("./modules/multiServiceVendor/vendor.routes");
 
 const adminRoutes = require("./modules/admin/property/property.routes");
 const adminUserRoutes = require("./modules/admin/user/user.routes");
@@ -106,8 +106,10 @@ app.use("/api/v1/adventures", adventureRoutes);
 app.use("/api/v1/services", serviceRoutes);
 
 //generic booking
-app.use("/api/v1/service-bookings", serviceBookingRoutes);
+app.use("/api/v1/service-bookings", multiServiceBookingRoutes);
 
+//multi-service vendor dashboard
+app.use("/api/v1/multi-service-vendor", multiServiceVendorRoutes);
 
 //admin
 app.use("/api/v1/admin/dashboard", adminDashboardRoutes);
