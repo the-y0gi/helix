@@ -104,6 +104,8 @@ exports.createBooking = async (data, userId) => {
     const bookingReference =
       "BK-" + crypto.randomBytes(6).toString("hex").toUpperCase();
 
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiry
+
     //CREATE BOOKING
     const [booking] = await Booking.create(
       [
@@ -140,6 +142,7 @@ exports.createBooking = async (data, userId) => {
 
           status: "pending",
           paymentStatus: "pending",
+          expiresAt,
         },
       ],
       { session },
@@ -165,6 +168,7 @@ exports.createBooking = async (data, userId) => {
             serviceType,
             bookingReference,
           },
+          expiresAt,
         },
       ],
       { session },
@@ -187,6 +191,96 @@ exports.createBooking = async (data, userId) => {
   }
 };
 
+// exports.verifyPayment = async (data) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
+
+//     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+//       throw new Error("Missing payment verification data");
+//     }
+
+//     //Find Payment
+//     const payment = await Payment.findOne({
+//       gatewayOrderId: razorpay_order_id,
+//     }).session(session);
+
+//     if (!payment) {
+//       throw new Error("Payment record not found");
+//     }
+
+//     //Idempotency Check
+//     if (payment.isVerified && payment.status === "captured") {
+//       const existingBooking = await Booking.findById(payment.bookingId)
+//         .lean()
+//         .session(session);
+
+//       await session.commitTransaction();
+//       session.endSession();
+
+//       return existingBooking;
+//     }
+
+//     if (payment.status !== "created") {
+//       throw new Error("Invalid payment state");
+//     }
+
+//     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
+
+//     const expectedSignature = crypto
+//       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+//       .update(body)
+//       .digest("hex");
+
+//     if (expectedSignature !== razorpay_signature) {
+//       throw new Error("Invalid payment signature");
+//     }
+
+//     payment.gatewayPaymentId = razorpay_payment_id;
+//     payment.gatewaySignature = razorpay_signature;
+//     payment.status = "captured";
+//     payment.isVerified = true;
+//     payment.expiresAt = undefined;
+
+//     await payment.save({ session });
+
+//     const booking = await Booking.findById(payment.bookingId).session(session);
+
+//     if (!booking) {
+//       throw new Error("Booking not found");
+//     }
+
+//     if (booking.status !== "pending") {
+//       throw new Error("Invalid booking state");
+//     }
+
+//     if (payment.amount !== booking.pricing.totalAmount) {
+//       throw new Error("Payment amount mismatch");
+//     }
+
+//     booking.status = "confirmed";
+//     booking.paymentStatus = "paid";
+//     booking.expiresAt = undefined;
+
+//     await booking.save({ session });
+
+//     await session.commitTransaction();
+//     session.endSession();
+
+//     // (Optional) Send Email
+//     // await sendBookingConfirmationEmail(...)
+
+//     return booking;
+//   } catch (error) {
+//     await session.abortTransaction();
+//     session.endSession();
+//     logger.error("Service Error: verifyPayment", error);
+//     throw error;
+//   }
+// };
+
 exports.verifyPayment = async (data) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -198,7 +292,6 @@ exports.verifyPayment = async (data) => {
       throw new Error("Missing payment verification data");
     }
 
-    //Find Payment
     const payment = await Payment.findOne({
       gatewayOrderId: razorpay_order_id,
     }).session(session);
@@ -207,7 +300,7 @@ exports.verifyPayment = async (data) => {
       throw new Error("Payment record not found");
     }
 
-    //Idempotency Check
+    // Idempotency
     if (payment.isVerified && payment.status === "captured") {
       const existingBooking = await Booking.findById(payment.bookingId)
         .lean()
@@ -223,6 +316,11 @@ exports.verifyPayment = async (data) => {
       throw new Error("Invalid payment state");
     }
 
+    //pAYMENT EXPIRY CHECK
+    if (payment.expiresAt && payment.expiresAt < new Date()) {
+      throw new Error("Payment session expired");
+    }
+
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
 
     const expectedSignature = crypto
@@ -234,10 +332,14 @@ exports.verifyPayment = async (data) => {
       throw new Error("Invalid payment signature");
     }
 
+    const razorpayPayment = await razorpay.payments.fetch(razorpay_payment_id);
+
     payment.gatewayPaymentId = razorpay_payment_id;
     payment.gatewaySignature = razorpay_signature;
     payment.status = "captured";
     payment.isVerified = true;
+    payment.paymentMethod = razorpayPayment.method || "unknown";
+    payment.expiresAt = undefined;
 
     await payment.save({ session });
 
@@ -245,6 +347,11 @@ exports.verifyPayment = async (data) => {
 
     if (!booking) {
       throw new Error("Booking not found");
+    }
+
+    //BOOKING EXPIRY CHECK
+    if (booking.expiresAt && booking.expiresAt < new Date()) {
+      throw new Error("Booking expired. Please create a new booking.");
     }
 
     if (booking.status !== "pending") {
@@ -255,18 +362,29 @@ exports.verifyPayment = async (data) => {
       throw new Error("Payment amount mismatch");
     }
 
-    booking.status = "confirmed";
-    booking.paymentStatus = "paid";
+    // ATOMIC UPDATE
+    const updatedBooking = await Booking.findOneAndUpdate(
+      {
+        _id: booking._id,
+        status: "pending",
+        expiresAt: { $gt: new Date() },
+      },
+      {
+        status: "confirmed",
+        paymentStatus: "paid",
+        expiresAt: undefined,
+      },
+      { new: true, session },
+    );
 
-    await booking.save({ session });
+    if (!updatedBooking) {
+      throw new Error("Booking expired or already processed");
+    }
 
     await session.commitTransaction();
     session.endSession();
 
-    // (Optional) Send Email
-    // await sendBookingConfirmationEmail(...)
-
-    return booking;
+    return updatedBooking;
   } catch (error) {
     await session.abortTransaction();
     session.endSession();

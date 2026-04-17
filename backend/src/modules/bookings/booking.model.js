@@ -186,6 +186,10 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    expiresAt: {
+      type: Date,
+      index: { expires: "0s" },
+    },
   },
   { timestamps: true },
 );

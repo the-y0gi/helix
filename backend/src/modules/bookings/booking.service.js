@@ -330,6 +330,8 @@ exports.createBooking = async (data, userId) => {
     const bookingReference =
       "BK-" + crypto.randomBytes(6).toString("hex").toUpperCase();
 
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes expiry
+
     const [booking] = await Booking.create(
       [
         {
@@ -351,6 +353,7 @@ exports.createBooking = async (data, userId) => {
 
           status: "pending",
           paymentStatus: "pending",
+          expiresAt,
         },
       ],
       { session },
@@ -371,6 +374,7 @@ exports.createBooking = async (data, userId) => {
           razorpayOrderId: razorpayOrder.id,
           amountPaid: finalTotalAmount,
           status: "created",
+          expiresAt,
         },
       ],
       { session },
