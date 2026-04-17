@@ -84,6 +84,12 @@ const paymentSchema = new mongoose.Schema(
     metadata: {
       type: Object, 
     },
+
+    expiresAt: {
+      type: Date,
+      index: { expires: "0s" },
+    },
+    
   },
   { timestamps: true }
 );

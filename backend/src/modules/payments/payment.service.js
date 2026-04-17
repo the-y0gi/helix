@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const crypto = require("crypto");
+const razorpay = require("../../shared/config/razorpay");
 const Booking = require("../bookings/booking.model");
 const Payment = require("./payment.model");
 const Availability = require("../availability/availability.model");
@@ -27,7 +28,7 @@ const {
 
 //     if (!payment) throw new Error("Payment record not found");
 
-//     //Idempotency check
+//     // Idempotency check
 //     if (payment.isVerified && payment.status === "captured") {
 //       const existingBooking = await Booking.findById(payment.bookingId).session(
 //         session,
@@ -41,7 +42,7 @@ const {
 //       throw new Error("Invalid payment state");
 //     }
 
-//     //Signature verify
+//     // Signature verification
 //     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
 //     const expectedSignature = crypto
 //       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -56,6 +57,7 @@ const {
 //     payment.razorpaySignature = razorpay_signature;
 //     payment.status = "captured";
 //     payment.isVerified = true;
+//     payment.expiresAt = undefined;
 
 //     await payment.save({ session });
 
@@ -66,6 +68,7 @@ const {
 //       throw new Error("Invalid booking state");
 //     }
 
+//     // amount validation (WITH TAX)
 //     if (payment.amountPaid !== booking.totalAmount) {
 //       throw new Error("Payment amount mismatch");
 //     }
@@ -84,13 +87,12 @@ const {
 
 //     const startDate = new Date(booking.checkIn);
 
-//     //INVENTORY LOCK (Atomic)
+//     //INVENTORY LOCK
 //     for (let i = 0; i < booking.nights; i++) {
-//       const currentDate = new Date(startDate);
-//       currentDate.setDate(currentDate.getDate() + i);
+//       const currentDate = new Date(startDate.getTime() + i * 86400000);
+
 //       currentDate.setHours(0, 0, 0, 0);
 
-//       //Check if availability doc exists
 //       const existingDoc = await Availability.findOne({
 //         roomTypeId: booking.roomTypeId,
 //         date: currentDate,
@@ -136,13 +138,14 @@ const {
 
 //     booking.status = "confirmed";
 //     booking.paymentStatus = "paid";
+//     booking.expiresAt = undefined;
 
 //     await booking.save({ session });
 
 //     await session.commitTransaction();
 //     session.endSession();
 
-//     // 🔹 Send email after commit
+//     // Send confirmation email
 //     try {
 //       await sendBookingConfirmationEmail(booking.primaryGuest.email, {
 //         customerName: booking.primaryGuest.firstName,
@@ -197,7 +200,11 @@ exports.verifyPayment = async (data) => {
       throw new Error("Invalid payment state");
     }
 
-    // Signature verification
+    // EXPIRY CHECK (Payment)
+    if (payment.expiresAt && payment.expiresAt < new Date()) {
+      throw new Error("Payment session expired");
+    }
+
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -208,25 +215,34 @@ exports.verifyPayment = async (data) => {
       throw new Error("Invalid payment signature");
     }
 
+    const razorpayPayment = await razorpay.payments.fetch(razorpay_payment_id);
+
     payment.razorpayPaymentId = razorpay_payment_id;
     payment.razorpaySignature = razorpay_signature;
     payment.status = "captured";
     payment.isVerified = true;
+    payment.paymentMethod = razorpayPayment.method || "unknown";
+    payment.expiresAt = undefined;
 
     await payment.save({ session });
 
     const booking = await Booking.findById(payment.bookingId).session(session);
     if (!booking) throw new Error("Booking not found");
 
+    //expiry check
+    if (booking.expiresAt && booking.expiresAt < new Date()) {
+      throw new Error("Booking expired. Please create a new booking.");
+    }
+
     if (booking.status !== "pending") {
       throw new Error("Invalid booking state");
     }
 
-    // amount validation (WITH TAX)
     if (payment.amountPaid !== booking.totalAmount) {
       throw new Error("Payment amount mismatch");
     }
 
+    //Validate hotel + room
     const hotel = await Hotel.findById(booking.hotelId).session(session);
     if (!hotel || !hotel.isActive) {
       throw new Error("Hotel no longer available");
@@ -244,7 +260,6 @@ exports.verifyPayment = async (data) => {
     //INVENTORY LOCK
     for (let i = 0; i < booking.nights; i++) {
       const currentDate = new Date(startDate.getTime() + i * 86400000);
-
       currentDate.setHours(0, 0, 0, 0);
 
       const existingDoc = await Availability.findOne({
@@ -290,30 +305,42 @@ exports.verifyPayment = async (data) => {
       }
     }
 
-    booking.status = "confirmed";
-    booking.paymentStatus = "paid";
+    const updatedBooking = await Booking.findOneAndUpdate(
+      {
+        _id: booking._id,
+        status: "pending",
+        expiresAt: { $gt: new Date() },
+      },
+      {
+        status: "confirmed",
+        paymentStatus: "paid",
+        expiresAt: undefined,
+      },
+      { new: true, session },
+    );
 
-    await booking.save({ session });
+    if (!updatedBooking) {
+      throw new Error("Booking expired or already processed");
+    }
 
     await session.commitTransaction();
     session.endSession();
 
-    // Send confirmation email
     try {
-      await sendBookingConfirmationEmail(booking.primaryGuest.email, {
-        customerName: booking.primaryGuest.firstName,
-        bookingId: booking.bookingReference,
+      await sendBookingConfirmationEmail(updatedBooking.primaryGuest.email, {
+        customerName: updatedBooking.primaryGuest.firstName,
+        bookingId: updatedBooking.bookingReference,
         hotelName: hotel.name,
         roomName: roomTypeData.name,
-        checkIn: booking.checkIn,
-        checkOut: booking.checkOut,
-        amount: booking.totalAmount,
+        checkIn: updatedBooking.checkIn,
+        checkOut: updatedBooking.checkOut,
+        amount: updatedBooking.totalAmount,
       });
     } catch (mailErr) {
       logger.error("Booking Confirmation Email failed:", mailErr);
     }
 
-    return booking;
+    return updatedBooking;
   } catch (err) {
     await session.abortTransaction();
     session.endSession();
