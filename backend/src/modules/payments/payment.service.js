@@ -136,11 +136,11 @@ const {
 //       }
 //     }
 
-//     booking.status = "confirmed";
-//     booking.paymentStatus = "paid";
-//     booking.expiresAt = undefined;
+// booking.status = "confirmed";
+// booking.paymentStatus = "paid";
+// booking.expiresAt = undefined;
 
-//     await booking.save({ session });
+// await booking.save({ session });
 
 //     await session.commitTransaction();
 //     session.endSession();
@@ -305,23 +305,29 @@ exports.verifyPayment = async (data) => {
       }
     }
 
-    const updatedBooking = await Booking.findOneAndUpdate(
-      {
-        _id: booking._id,
-        status: "pending",
-        expiresAt: { $gt: new Date() },
-      },
-      {
-        status: "confirmed",
-        paymentStatus: "paid",
-        expiresAt: undefined,
-      },
-      { new: true, session },
-    );
+    // const updatedBooking = await Booking.findOneAndUpdate(
+    //   {
+    //     _id: booking._id,
+    //     status: "pending",
+    //     expiresAt: { $gt: new Date() },
+    //   },
+    //   {
+    //     status: "confirmed",
+    //     paymentStatus: "paid",
+    //     expiresAt: undefined,
+    //   },
+    //   { new: true, session },
+    // );
 
-    if (!updatedBooking) {
-      throw new Error("Booking expired or already processed");
-    }
+    // if (!updatedBooking) {
+    //   throw new Error("Booking expired or already processed");
+    // }
+
+    booking.status = "confirmed";
+    booking.paymentStatus = "paid";
+    booking.expiresAt = undefined;
+
+    await booking.save({ session });
 
     await session.commitTransaction();
     session.endSession();
