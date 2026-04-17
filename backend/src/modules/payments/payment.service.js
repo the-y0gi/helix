@@ -333,20 +333,20 @@ exports.verifyPayment = async (data) => {
     session.endSession();
 
     try {
-      await sendBookingConfirmationEmail(updatedBooking.primaryGuest.email, {
-        customerName: updatedBooking.primaryGuest.firstName,
-        bookingId: updatedBooking.bookingReference,
+      await sendBookingConfirmationEmail(booking.primaryGuest.email, {
+        customerName: booking.primaryGuest.firstName,
+        bookingId: booking.bookingReference,
         hotelName: hotel.name,
         roomName: roomTypeData.name,
-        checkIn: updatedBooking.checkIn,
-        checkOut: updatedBooking.checkOut,
-        amount: updatedBooking.totalAmount,
+        checkIn: booking.checkIn,
+        checkOut: booking.checkOut,
+        amount: booking.totalAmount,
       });
     } catch (mailErr) {
       logger.error("Booking Confirmation Email failed:", mailErr);
     }
 
-    return updatedBooking;
+    return booking;
   } catch (err) {
     await session.abortTransaction();
     session.endSession();
