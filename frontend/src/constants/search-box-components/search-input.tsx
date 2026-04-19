@@ -49,7 +49,7 @@ const AddressSearch = () => {
             if (!isOpen) setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          className="md:h-12 h-10 w-full rounded-xl border-none px-4 outline-none bg-transparent text-sm md:text-base"
+          className="md:h-12 h-6 w-full rounded-xl border-none px-4 outline-none bg-transparent text-sm md:text-base"
         />
         {loading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">

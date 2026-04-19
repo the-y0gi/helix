@@ -1,8 +1,6 @@
 'use client'
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CommonPagesStyles } from "@/styles/commonpages-styles";
-import { IconArrowRampRight } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
 import React from "react";
 const NavWrapper = dynamic(() => import("@/components/navbar/nav.wraper"), {

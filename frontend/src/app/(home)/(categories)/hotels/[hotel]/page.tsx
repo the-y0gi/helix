@@ -135,7 +135,7 @@
 import { cn } from "@/lib/utils";
 import React, { Suspense, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { ScrollToTop } from "../../../../../scrolltoto";
+import { ScrollToTop } from "../../../../../../scrolltoto";
 import { useParams } from "next/navigation";
 
 import HotelItems from "./_components/HotelItems";

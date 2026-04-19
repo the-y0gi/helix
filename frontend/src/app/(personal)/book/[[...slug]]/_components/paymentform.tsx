@@ -941,8 +941,8 @@ import { usePaymentsContext } from "@/context/payments-form-provider";
 import { Payment, useHotelStore } from "@/store/hotel.store";
 import { PaymentProps, PaymentSchema } from "@/schema/payment.schema";
 import { createBooking, verifyPayment } from "@/services/booking/booking.service";
-import { VisitorsMembers } from "@/app/(home)/hotels/[hotel]/_components/tabs";
-import { HotelCalender } from "@/app/(home)/hotels/[hotel]/_components/calander-booking";
+import { VisitorsMembers } from "@/app/(home)/(categories)/hotels/[hotel]/_components/tabs";
+import { HotelCalender } from "@/app/(home)/(categories)/hotels/[hotel]/_components/calander-booking";
 import { handleRefresh } from "@/services/dailyfunctions";
 
 import { useQueryClient } from "@tanstack/react-query";
@@ -1010,10 +1010,9 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
         })),
         specialRequest: data.specialRequest,
       };
-      console.log("bookingData", bookingData);
+      // console.log("bookingData", bookingData);
 
       const result = await createBooking(bookingData);
-      console.log("result", result);
 
 
       if (result?.success) {
@@ -1034,7 +1033,6 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
           bookingId: booking._id
         });
 
-        console.log("payments", payments);
 
 
 
@@ -1051,6 +1049,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
               toast.success("Payment successful! Booking confirmed.");
               setCurrentStep((val) => val + 1);
               handleRefresh(queryClient, ["hotel_details", "hotel_availability"]);
+              setLoading(false);
             } else {
               toast.error("Payment verification failed.");
             }
@@ -1065,7 +1064,6 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
 
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
-        // setCurrentStep((val) => val + 1);
 
       } else {
         toast.error(result?.message || "Failed to create booking.");
@@ -1073,7 +1071,7 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
     } catch (error: any) {
       toast.error(error.response?.data?.message || "An error occurred.");
     } finally {
-      setLoading(false);
+
     }
   };
   const ismobile = useIsMobile();

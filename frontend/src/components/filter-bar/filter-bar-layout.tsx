@@ -13,20 +13,20 @@ import { pages } from '@/constants/pages';
 
 
 const FilterBarLayout = ({
-    pages
-}:{
-    pages:Pages[]
+  pages
+}: {
+  pages: Pages[]
 }) => {
   const router = useRouter();
   const location = usePathname();
-  const active =  pages.find((page) => location.endsWith(page.link))
+  const active = pages.find((page) => location.endsWith(page.link)) || pages[0]
   const ismobile = useIsMobile()
   return (
     <>
       {ismobile && <TabsNav mobile={false} tabs={pages} />}
-        {
-            active?.home_filter_box
-        }
+      {
+        active?.home_filter_box
+      }
     </>
   );
 }

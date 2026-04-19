@@ -115,10 +115,10 @@ export const useAuthStore = create<AuthStates>()((set) => ({
       set({ isSiging: false });
     }
   },
-  userSignup: async (data: Login_signup_Data) => {
+  forgotPassword: async (data: ForgotPassword_Data) => {
     set({ isSiging: true });
     try {
-      const res = await axiosApi.post("/auth/whatsapp-signup", data);
+      const res = await axiosApi.post("/auth/forgot-password", data);
       return { success: res.data.success, message: res.data.message };
     } catch (error) {
       const err = error as { response?: { data?: { message?: string } } };
@@ -130,10 +130,10 @@ export const useAuthStore = create<AuthStates>()((set) => ({
       set({ isSiging: false });
     }
   },
-  forgotPassword: async (data: ForgotPassword_Data) => {
+  userSignup: async (data: Login_signup_Data) => {
     set({ isSiging: true });
     try {
-      const res = await axiosApi.post("/auth/forgot-password", data);
+      const res = await axiosApi.post("/auth/whatsapp-signup", data);
       return { success: res.data.success, message: res.data.message };
     } catch (error) {
       const err = error as { response?: { data?: { message?: string } } };
@@ -185,7 +185,6 @@ export const useAuthStore = create<AuthStates>()((set) => ({
         phone: data.phone,
         otp: data.otp,
       });
-      console.log(res);
 
       if (res.data.success) {
         // set({ currUser: res.data.data.user });

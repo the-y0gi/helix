@@ -10,7 +10,7 @@ import { useHotelStore } from "@/store/hotel.store";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHotelContext } from "@/context/hotel/HotelContextProvider";
 import { Hotel } from "@/types";
-import { ScrollToTop } from "../../../../../../scrolltoto";
+import { ScrollToTop } from "../../../../../../../scrolltoto";
 import { ScrollToTopByParams } from "./ScrollToTopByParams";
 import { SheetNavigation } from "./sheetNavigation";
 import { ChevronRight } from "lucide-react";

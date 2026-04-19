@@ -430,7 +430,7 @@
 //               <h2 className="text-zinc-100 font-bold drop-shadow-2xl tracking-tight
 //       text-md        
 //       sm:text-2xl     
-        
+
 //     ">
 //                 {VIDEOS[index]?.title}
 //               </h2>
@@ -438,7 +438,7 @@
 //               <p className="text-zinc-300 font-medium drop-shadow-md leading-relaxed
 //       text-xs         
 //       sm:text-sm      
-          
+
 //       max-w-prose     
 //     ">
 //                 {VIDEOS[index]?.description}
@@ -493,18 +493,19 @@ import { useRouter } from "next/navigation";
 
 const FilterBox = ({
   FilterBoxValues,
-  link
+  link,
+  type
 }: {
-  FilterBoxValues: SearchBoxValuesProps;
+  FilterBoxValues: SearchBoxValuesProps; // Using any for brevity based on your snippet
   link?: string;
-  type?: "filter" | "home";
+  type?: string;
+
 }) => {
   const router = useRouter();
   const ismobile = useIsMobile();
   const { city } = useHotelStore();
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const [iscity, setiscity] = useState(true);
 
   const hotelStorage = typeof window !== 'undefined' ? localStorage.getItem("hotel-storage") : null;
@@ -516,7 +517,40 @@ const FilterBox = ({
     }
   }, [hotelStorage]);
 
-  // Handle ESC key to close
+  // FIX 1: LOCK BACKGROUND SCROLL
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+
+    if (activeIdx !== null) {
+      // Save current scroll position to prevent the page from jumping to the top
+      const scrollY = window.scrollY;
+
+      body.style.position = 'fixed';
+      body.style.top = `-${scrollY}px`;
+      body.style.width = '100%';
+      body.style.overflowY = 'scroll'; // Keeps scrollbar visible to prevent layout shift
+    } else {
+      // Retrieve scroll position
+      const scrollY = body.style.top;
+
+      body.style.position = '';
+      body.style.top = '';
+      body.style.width = '';
+      body.style.overflowY = '';
+
+      // Scroll back to where the user was
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }
+
+    return () => {
+      body.style.position = '';
+      body.style.top = '';
+      body.style.width = '';
+      body.style.overflowY = '';
+    };
+  }, [activeIdx]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setActiveIdx(null);
@@ -525,25 +559,20 @@ const FilterBox = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  if(link?.substring(1, link.length)!=="hotels") return null;
+  if (link?.substring(1, link.length) !== "hotels") return null;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start md:px-6 lg:px-10 mx-auto md:py-3 ">
-      
-      {/* LEFT SIDE: SEARCH CARD */}
-      <div className="lg:col-span-3 relative w-full group bg-transparent">
-        <Card
-          className={cn(
-            "w-full flex flex-col gap-4 shadow-2xl dark:shadow-zinc-950 border-none bg-card/10 text-card-foreground rounded-[1.5rem] px-4 pt-6 pb-12 md:px-8 md:pt-8 md:pb-14 transition-all",
-            ismobile && "py-2 pb-12"
-          )}
-        >
-          <div className="md:space-y-6 space-y-2">
-            <div className="w-full">
-              {FilterBoxValues.search}
-            </div>
 
-            <div className="relative" ref={containerRef}>
+      <div className="lg:col-span-3 relative w-full group bg-transparent">
+        <Card className={cn(
+          "w-full flex flex-col gap-4 shadow-2xl dark:shadow-zinc-950 border-none bg-card/10 rounded-[1.5rem] px-4 pt-6 pb-12 md:px-8 md:pt-8 md:pb-14",
+          ismobile && "py-2 pb-7"
+        )}>
+          <div className="md:space-y-6 space-y-2">
+            <div className="w-full">{FilterBoxValues.search}</div>
+
+            <div className="relative">
               <div className="flex gap-2 md:gap-3">
                 {FilterBoxValues.filterBlocks.map((item, idx) => {
                   const IconValues = item.icon;
@@ -554,18 +583,14 @@ const FilterBox = ({
                       <div
                         onClick={() => setActiveIdx(isActive ? null : idx)}
                         className={cn(
-                          "flex md:flex-row flex-col w-full items-center gap-2 md:gap-3 bg-secondary/30 border border-border rounded-[12px] px-3 py-3 hover:bg-secondary/60 transition-all cursor-pointer relative z-30", // Higher Z to stay above overlay
+                          "flex md:flex-row flex-col w-full items-center gap-2 md:gap-3 bg-secondary/30 border border-border rounded-[12px] px-3 py-2 md:py-3 cursor-pointer relative z-[30]",
                           isActive && "border-primary ring-2 ring-primary/10 bg-secondary"
                         )}
                       >
-                        <IconValues className="w-5 h-5 text-primary shrink-0" />
+                        <IconValues className="w-3 h-3 sm:w-5 sm:h-5 text-primary shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-[9px] md:text-[10px] uppercase tracking-tighter md:tracking-wider text-muted-foreground font-bold">
-                            {item.label}
-                          </p>
-                          {!ismobile && (
-                            <p className="text-sm font-semibold truncate text-foreground">{item.text}</p>
-                          )}
+                          <p className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground">{item.label}</p>
+                          {!ismobile && <p className="text-sm font-semibold truncate text-foreground">{item.text}</p>}
                         </div>
                       </div>
                     </div>
@@ -573,64 +598,219 @@ const FilterBox = ({
                 })}
               </div>
 
-              {/* MODAL-LIKE DROPDOWN */}
-              <AnimatePresence>
+              {/* FIX 2: REMOVED ANIMATION FROM MODAL */}
               {activeIdx !== null && FilterBoxValues.filterBlocks[activeIdx]?.element && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-45%" }}
-                  animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
-                  exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-45%" }}
-                  transition={{ duration: 0.2 }}
+                <div
                   className={cn(
-                    "fixed top-1/2 left-1/2 z-[60] bg-background border border-border shadow-2xl rounded-2xl p-6",
-                    "w-[95%] max-w-[500px] md:max-w-[650px] max-h-[80vh] overflow-y-auto justify-center flex"
+                    "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[70] bg-background border border-border shadow-2xl rounded-2xl p-6",
+                    "w-[95%] max-w-[500px] md:max-w-[650px] max-h-[80vh] overflow-y-auto flex justify-center"
                   )}
                 >
                   {FilterBoxValues.filterBlocks[activeIdx].element}
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
             </div>
           </div>
         </Card>
 
-        {/* FLOATING SEARCH BUTTON */}
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-30 w-full flex justify-center">
+        {/* SEARCH BUTTON */}
+        <div className="absolute -bottom-4 md:-bottom-6 left-1/2 -translate-x-1/2 z-30 w-full flex justify-center">
           <Button
+
+            variant={"default"}
+
             disabled={loading || !city}
+
             className={cn(
-              "min-w-[180px] md:min-w-[240px] px-8 bg-primary flex items-center justify-center hover:bg-primary/60 dark:border-none text-white h-12 md:h-14 rounded-full text-lg font-extrabold shadow-[0_10px_20px_rgba(254, 50, 48,0.3)] transition-all border-[3px] border-zinc-100 ",
+
+              "w-[140px]  md:min-w-[240px]  md:px-7 hover:scale-105 flex backdrop-blur-md transition-all duration-300 items-center justify-center bg-primary dark:border-none text-zinc-100 h-9 md:h-14 rounded-full text-lg font-extrabold shadow-[0_10px_20px_rgba(254, 50, 48,0.3)] transition-all border-[3px] border-zinc-100",
+
+              "disabled:opacity-100 text-xs md:text-lg"
+
             )}
+
             onClick={() => {
+
               RouterPush(router, "/hotels/find");
+
               setLoading(true);
+
             }}
+
           >
-           {loading ? <Spinner /> : iscity ? `Search ${link?.substring(1, link.length)}` : `Select city`}
+
+            {loading ? <Spinner /> :
+
+              iscity ?
+
+                `Search ${link?.substring(1, link.length)}`
+
+
+
+                : `Select city`}
+
           </Button>
         </div>
       </div>
 
-      {/* RIGHT SIDE: VIDEO HERO */}
       <div className="lg:col-span-2 w-full h-full lg:px-0 px-2 mt-4 lg:mt-0">
         <LoopingVideoHero VIDEOS={FilterBoxValues?.videos || []} />
       </div>
 
-      {/* Background Overlay */}
-      <AnimatePresence>
-        {activeIdx !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setActiveIdx(null)} // Click to close
-            className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 cursor-pointer pointer-events-auto"
-          />
-        )}
-      </AnimatePresence>
+      {/* FIX 3: REMOVED ANIMATION FROM OVERLAY */}
+      {activeIdx !== null && (
+        <div
+          onClick={() => setActiveIdx(null)}
+          className="fixed inset-0 bg-black/40 backdrop-blur-md z-[50] cursor-pointer"
+        />
+      )}
     </div>
   );
 };
+
+// const FilterBox = ({
+//   FilterBoxValues,
+//   link
+// }: {
+//   FilterBoxValues: SearchBoxValuesProps;
+//   link?: string;
+//   type?: "filter" | "home";
+// }) => {
+//   const router = useRouter();
+//   const ismobile = useIsMobile();
+//   const { city } = useHotelStore();
+//   const [loading, setLoading] = useState(false);
+//   const [activeIdx, setActiveIdx] = useState<number | null>(null);
+//   const containerRef = useRef<HTMLDivElement | null>(null);
+//   const [iscity, setiscity] = useState(true);
+
+//   const hotelStorage = typeof window !== 'undefined' ? localStorage.getItem("hotel-storage") : null;
+
+//   useEffect(() => {
+//     if (hotelStorage) {
+//       const hotel = JSON.parse(hotelStorage);
+//       setiscity(!!hotel?.state?.city);
+//     }
+//   }, [hotelStorage]);
+
+//   // Handle ESC key to close
+//   useEffect(() => {
+//     const handleKeyDown = (e: KeyboardEvent) => {
+//       if (e.key === "Escape") setActiveIdx(null);
+//     };
+//     window.addEventListener("keydown", handleKeyDown);
+//     return () => window.removeEventListener("keydown", handleKeyDown);
+//   }, []);
+
+//   if (link?.substring(1, link.length) !== "hotels") return null;
+
+//   return (
+//     <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start md:px-6 lg:px-10 mx-auto md:py-3 ">
+
+//       {/* LEFT SIDE: SEARCH CARD */}
+//       <div className="lg:col-span-3 relative w-full group bg-transparent">
+//         <Card
+//           className={cn(
+//             "w-full flex flex-col gap-4 shadow-2xl dark:shadow-zinc-950 border-none bg-card/10 text-card-foreground rounded-[1.5rem] px-4 pt-6 pb-12 md:px-8 md:pt-8 md:pb-14 transition-all",
+//             ismobile && "py-2 pb-7"
+//           )}
+//         >
+//           <div className="md:space-y-6 space-y-2">
+//             <div className="w-full">
+//               {FilterBoxValues.search}
+//             </div>
+
+//             <div className="relative" ref={containerRef}>
+//               <div className="flex gap-2 md:gap-3">
+//                 {FilterBoxValues.filterBlocks.map((item, idx) => {
+//                   const IconValues = item.icon;
+//                   const isActive = activeIdx === idx;
+
+//                   return (
+//                     <div key={idx} className="flex-1">
+//                       <div
+//                         onClick={() => setActiveIdx(isActive ? null : idx)}
+//                         className={cn(
+//                           "flex md:flex-row flex-col w-full items-center gap-2 md:gap-3 bg-secondary/30 border border-border rounded-[12px] px-3 py-2 sm:py-2 md:py-3 hover:bg-secondary/60 transition-all cursor-pointer relative z-30", // Higher Z to stay above overlay
+//                           isActive && "border-primary ring-2 ring-primary/10 bg-secondary"
+//                         )}
+//                       >
+//                         <IconValues className="w-3 h-3 sm:w-5 sm:h-5 text-primary shrink-0" />
+//                         <div className="flex-1 min-w-0">
+//                           <p className="text-[9px] md:text-[10px] uppercase tracking-tighter md:tracking-wider text-muted-foreground font-bold">
+//                             {item.label}
+//                           </p>
+//                           {!ismobile && (
+//                             <p className="text-sm font-semibold truncate text-foreground">{item.text}</p>
+//                           )}
+//                         </div>
+//                       </div>
+//                     </div>
+//                   );
+//                 })}
+//               </div>
+
+//               {/* MODAL-LIKE DROPDOWN */}
+//               <AnimatePresence>
+//                 {activeIdx !== null && FilterBoxValues.filterBlocks[activeIdx]?.element && (
+//                   <motion.div
+//                     initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-45%" }}
+//                     animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
+//                     exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-45%" }}
+//                     transition={{ duration: 0.2 }}
+//                     className={cn(
+//                       "fixed top-1/2 left-1/2 z-[60] bg-background border border-border shadow-2xl rounded-2xl p-6",
+//                       "w-[95%] max-w-[500px] md:max-w-[650px] max-h-[80vh] overflow-y-auto justify-center flex"
+//                     )}
+//                   >
+//                     {FilterBoxValues.filterBlocks[activeIdx].element}
+//                   </motion.div>
+//                 )}
+//               </AnimatePresence>
+//             </div>
+//           </div>
+//         </Card>
+
+//         <div className="absolute -bottom-4 md:-bottom-6 left-1/2 -translate-x-1/2 z-30 w-full flex justify-center">
+//           <Button
+//             variant={"default"}
+//             disabled={loading || !city}
+//             className={cn(
+//               "w-[140px]  md:min-w-[240px]  md:px-7 hover:scale-105 flex backdrop-blur-md transition-all duration-300 items-center justify-center bg-primary dark:border-none text-zinc-100 h-9 md:h-14 rounded-full text-lg font-extrabold shadow-[0_10px_20px_rgba(254, 50, 48,0.3)] transition-all border-[3px] border-zinc-100",
+//               "disabled:opacity-100 text-xs md:text-lg"
+//             )}
+//             onClick={() => {
+//               RouterPush(router, "/hotels/find");
+//               setLoading(true);
+//             }}
+//           >
+//             {loading ? <Spinner /> :
+//               iscity ?
+//                 `Search ${link?.substring(1, link.length)}`
+
+//                 : `Select city`}
+//           </Button>
+//         </div>
+//       </div>
+
+//       <div className="lg:col-span-2 w-full h-full lg:px-0 px-2 mt-4 lg:mt-0">
+//         <LoopingVideoHero VIDEOS={FilterBoxValues?.videos || []} />
+//       </div>
+
+//       <AnimatePresence>
+//         {activeIdx !== null && (
+//           <motion.div
+//             initial={{ opacity: 0 }}
+//             animate={{ opacity: 1 }}
+//             exit={{ opacity: 0 }}
+//             onClick={() => setActiveIdx(null)} // Click to close
+//             className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 cursor-pointer pointer-events-auto"
+//           />
+//         )}
+//       </AnimatePresence>
+//     </div>
+//   );
+// };
 
 export function LoopingVideoHero({ VIDEOS }: {
   VIDEOS: {
@@ -688,7 +868,6 @@ export function LoopingVideoHero({ VIDEOS }: {
 
       <div className="absolute rounded-[1.5rem] inset-0 bg-gradient-to-r from-black/60 to-transparent pointer-events-none" />
 
-      {/* Pagination Dots */}
       <div className="absolute bottom-4 left-6 flex gap-1.5 z-20">
         {VIDEOS.map((_, i) => (
           <div key={i} className="h-1 w-6 rounded-full bg-white/20 overflow-hidden">
