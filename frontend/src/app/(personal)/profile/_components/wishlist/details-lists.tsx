@@ -36,7 +36,7 @@ export function SavedTripsSection({ setDetails, label }: {
                 </div>
             </div>
 
-            <div className="grid md:gap-6 grid-cols-2 lg:grid-cols-3">
+            <div className="grid md:gap-6 grid-cols-2 lg:grid-cols-3 -mx-3">
 
 
                 {isLoading ? [...Array(6)].map((_, i) => {
@@ -98,9 +98,9 @@ export function SavedPropertyCard({
 }: SavedPropertyCardProps) {
     const router = useRouter()
     return (
-        <Card  onClick={() => {
-                    RouterPush(router, `/hotels/${_id}`);
-                }} className="group relative rounded-none md:rounded-xl min-w-[150px] overflow-hidden shadow-sm transition bg-background border-none py-0">
+        <Card onClick={() => {
+            RouterPush(router, `/hotels/${_id}`);
+        }} className="group relative rounded-none md:rounded-xl min-w-[150px] overflow-hidden shadow-sm transition bg-background border-none py-0">
             {/* Image Container - Height stays fixed or aspect-ratio */}
             <div className="relative h-64 md:h-56 w-full">
                 <Image

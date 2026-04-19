@@ -64,7 +64,7 @@ export function UserProfileFields({
         firstName: currUser?.data?.firstName || "",
         lastName: currUser?.data?.lastName || "",
         email: currUser?.data?.email || "",
-        
+
         gender:
           (currUser?.data?.gender as "male" | "female" | "other") || "other",
         country: currUser?.data?.country || "India",
@@ -98,7 +98,7 @@ export function UserProfileFields({
         <FieldGroup>
           <FieldSet>
             <FieldGroup className="flex flex-grid">
-              <div className="md:flex justify-between items-center gap-5">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-5">
                 <Field>
                   <FieldLabel>First name</FieldLabel>
                   <Input
@@ -124,7 +124,7 @@ export function UserProfileFields({
                   )}
                 </Field>
               </div>
-              <div className="md:flex justify-between items-center gap-5">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-5">
                 <Field>
                   <FieldLabel>Email Address</FieldLabel>
                   <Input
@@ -141,16 +141,16 @@ export function UserProfileFields({
                 <Field>
                   <FieldLabel htmlFor="phone">Phone Number</FieldLabel>
                   <Input
-                  disabled
+                    disabled
                     value={currUser?.data?.phoneNumber || ""}
                     className="bg-muted cursor-not-allowed"
-                    
+
                     placeholder="+1 (555) 000-0000"
                     type="tel"
                   />
                 </Field>
               </div>
-              <div className="md:flex justify-between items-center gap-5">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-5">
                 <Field>
                   <FieldLabel>Gender</FieldLabel>
                   <Controller
@@ -203,7 +203,7 @@ export function UserProfileFields({
                   />
                 </Field>
               </div>
-              <div className="md:flex justify-between items-center gap-5">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-5">
                 <Field>
                   <FieldLabel>Address</FieldLabel>
                   <Input
@@ -261,7 +261,7 @@ export const PersonProfilePersonalData = ({
   const { data: currUser, isLoading, isError, refetch } = useCurrentUser();
 
   if (isLoading) {
-    return <PageSkeleton/>;
+    return <PageSkeleton />;
   }
 
   if (isError) {
@@ -388,7 +388,7 @@ const ProfileAvatar = ({
         <p className="text-xl font-medium">
           {currUser
             ? `${currUser.data.firstName || ""} ${currUser.data.lastName || ""}`.trim() ||
-              currUser.data.email
+            currUser.data.email
             : "Guest User"}
         </p>
         <p className="text-lg text-muted-foreground">

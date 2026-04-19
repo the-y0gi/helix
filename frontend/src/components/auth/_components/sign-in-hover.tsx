@@ -319,9 +319,7 @@ export function SignInForm({ setTag, className }: {
   setTag: React.Dispatch<React.SetStateAction<"Log-in" | "Sign-up" | "ResetPassword">>
   className?: string
 }) {
-  const [showPassword, setShowPassword] = useState(false);
-  const { refetch } = useCurrentUser();
-  const { loading, methods, onHandleSubmit } = useLogin({ refetch });
+
 
 
   return (
@@ -341,75 +339,8 @@ export function SignInForm({ setTag, className }: {
           Don&apos;t have an account? <a href="/signup">Sign up</a>
         </p> */}
       </div>
-      <Form {...methods}>
-        <form onSubmit={onHandleSubmit}>
-          <FieldGroup className="p-5 px-10">
-            <Field>
-              <FormField
-                control={methods.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone</FormLabel>
-                    <FormControl>
-                      <Input
-                        id="phone"
-                        type="number"
-                        placeholder="Enter your phone"
-                        disabled={loading}
-                        className="rounded-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </Field>
-            <Field>
-              <FormField
-                control={methods.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          id="password"
-                          // Toggle type between "password" and "text"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Enter your password"
-                          disabled={loading}
-                          className="rounded-full pr-12" // Add padding on the right for the icon
-                          {...field}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          disabled={loading}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none disabled:opacity-50"
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </Field>
-            <Field>
-              <Button type="submit" className={cn("rounded-full ", loading && "cursor-not-allowed")} disabled={loading} >{loading ? "Logging in..." : "Log in"}</Button>
-            </Field>
+      <LofinFormFields />
 
-          </FieldGroup>
-        </form>
-      </Form>
       {/* <div className="flex flex-col items-center gap-2 text-center  md:hidden font-bold text-primary">
         <FieldDescription>
           Dont't have an account? <a href="/signup" className="text-primary font-bold cursor-pointer">Sign up</a>
@@ -434,6 +365,83 @@ export function SignInForm({ setTag, className }: {
 
     </div>
   );
+}
+
+export const LofinFormFields = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const { refetch } = useCurrentUser();
+  const { loading, methods, onHandleSubmit } = useLogin({ refetch });
+  return (
+    <Form {...methods}>
+      <form onSubmit={onHandleSubmit}>
+        <FieldGroup className="p-5 px-10">
+          <Field>
+            <FormField
+              control={methods.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="phone"
+                      type="number"
+                      placeholder="Enter your phone"
+                      disabled={loading}
+                      className="rounded-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </Field>
+          <Field>
+            <FormField
+              control={methods.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        // Toggle type between "password" and "text"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        disabled={loading}
+                        className="rounded-full pr-12" // Add padding on the right for the icon
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        disabled={loading}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none disabled:opacity-50"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </Field>
+          <Field>
+            <Button type="submit" className={cn("rounded-full ", loading && "cursor-not-allowed")} disabled={loading} >{loading ? "Logging in..." : "Log in"}</Button>
+          </Field>
+
+        </FieldGroup>
+      </form>
+    </Form>
+  )
 }
 export function ResetPassword({ setTag, className }: {
   setTag: React.Dispatch<React.SetStateAction<"Log-in" | "Sign-up" | "ResetPassword">>
@@ -539,9 +547,9 @@ export function ResetPassword({ setTag, className }: {
 
             {currentStep === 2 && (
               <div className="w-full flex justify-center">
-              <ForgotPasswordOTPForm className="bg-transparent w-full" methods={methods} onOTP={onOTP} setOnOTP={setOnOTP} />
+                <ForgotPasswordOTPForm className="bg-transparent w-full" methods={methods} onOTP={onOTP} setOnOTP={setOnOTP} />
               </div>
-              
+
             )}
             {
               currentStep == 3 && (

@@ -1024,7 +1024,7 @@ export function HotelRoomCard({
           </div>
 
           <div className="w-full mt-4 md:mt-5">
-            {(!isAuthenticated && isBookingMode) ? (
+            {(!isAuthenticated && isBookingMode && !bothdate) ? (
               <Sign_in_hover
                 tag="Log-in"
                 variant="ghost"
@@ -1063,11 +1063,13 @@ export function HotelRoomCard({
                     : "bg-primary hover:bg-primary/90 shadow-sm",
                 )}
                 onClick={(e) => {
+
                   e.stopPropagation();
+                  if (!isBookingMode || !bothdate) return
                   handleReserve_with_Alrady_Login();
                 }}
               >
-                {isBookingMode && roomsLeft === 0
+                {isBookingMode && bothdate && roomsLeft === 0
                   ? "Not Available"
                   : loading
                     ? <Spinner />
