@@ -18,7 +18,7 @@ export default function UnderConstruction({ cat }: { cat: string }) {
   useEffect(() => {
     // Set target date to April 30th of the current year
     const currentYear = new Date().getFullYear();
-    const targetDate = new Date(`April 30, ${currentYear} 00:00:00`).getTime();
+    const targetDate = new Date(`May 10, ${currentYear} 00:00:00`).getTime();
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -48,23 +48,23 @@ export default function UnderConstruction({ cat }: { cat: string }) {
         <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary blur-[100px] rounded-full" />
       </div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="z-10 text-center max-w-lg w-full"
       >
         <div className="relative w-32 h-32 mx-auto mb-6">
-           <Image
-             src="https://illustrations.popsy.co/white/web-design.svg" 
-             alt="Under Construction"
-             fill
-             className="object-contain dark:invert"
-             priority
-           />
+          <Image
+            src="https://illustrations.popsy.co/white/web-design.svg"
+            alt="Under Construction"
+            fill
+            className="object-contain dark:invert"
+            priority
+          />
         </div>
 
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-2">
-         {`${cat} services Coming`} <span className="text-primary">Soon</span>
+          {`${cat} services Coming`} <span className="text-primary">Soon</span>
         </h2>
         <p className="text-muted-foreground text-sm mb-8">
           We&apos;re polishing the final details for our April 30 launch.

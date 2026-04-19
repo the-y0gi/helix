@@ -67,13 +67,9 @@ export const useResetPassword = () => {
         endpoint: "/auth/otp-verify",
       });
       if (result.success) {
-        console.log(result);
-
         onNext((prev) => prev + 1);
         toast.success(result.message || "OTP verified successfully");
       } else {
-        console.log(result, "failes");
-
         toast.error(result.message || "Failed to verify OTP");
       }
     } catch (error) {

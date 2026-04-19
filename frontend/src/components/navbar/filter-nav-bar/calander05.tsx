@@ -34,17 +34,39 @@ export function Calendar05({
         // PC (md): Reset to a standard size
         "md:w-full md:max-w-none md:h-auto",
       )}
+      // classNames={{
+      //   // Ensures the two months sit side-by-side on PC and stack on mobile
+      //   months: "flex flex-col md:flex-row  md:space-x-2 md:space-y-0",
+      //   month: "space-y-2",
+      //   table: "w-full border-collapse space-y-1",
+      //   nav_button_previous: "absolute left-2 top-9 z-30",
+      //   nav_button_next: "absolute right-2 top-9 z-30",
+      //   head_cell:
+      //     "text-muted-foreground rounded-md w-4 font-normal text-[0.8rem]",
+      //   cell: "h-9 w-9 text-center text-sm p-0  [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative ",
+      //   day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+      // }}
       classNames={{
-        // Ensures the two months sit side-by-side on PC and stack on mobile
-        months: "flex flex-col md:flex-row  md:space-x-2 md:space-y-0",
-        month: "space-y-2",
+        // 1. months should be w-full
+        months: "flex flex-col md:flex-row md:space-x-4 md:space-y-0 w-full",
+
+        // 2. Each month MUST have flex-1 and w-full to push the tables to the edge
+        month: "space-y-4 w-full flex-1",
+
+        // 3. The table itself must be w-full
         table: "w-full border-collapse space-y-1",
+
+        // 4. Ensure the header row and rows take up full width
+        head_row: "flex w-full",
+        row: "flex w-full mt-2",
+
+        // 5. Change head_cell, cell, and day from fixed width (w-9) to flexible (flex-1)
+        head_cell: "text-muted-foreground flex-1 font-normal text-[0.8rem] text-center",
+        cell: "flex-1 h-9 text-center text-sm p-0 relative focus-within:relative",
+        day: "w-full h-9 p-0 font-normal aria-selected:opacity-100",
+
         nav_button_previous: "absolute left-2 top-9 z-30",
         nav_button_next: "absolute right-2 top-9 z-30",
-        head_cell:
-          "text-muted-foreground rounded-md w-4 font-normal text-[0.8rem]",
-        cell: "h-9 w-9 text-center text-sm p-0  [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative ",
-        day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
       }}
     />
   );

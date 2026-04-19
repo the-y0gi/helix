@@ -4,7 +4,7 @@ import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ThumbsUp } from "lucide-react"
-import RattingBadge from "@/app/(home)/hotels/[hotel]/_components/badge"
+import RattingBadge from "@/app/(home)/(categories)/hotels/[hotel]/_components/badge"
 import { format, isBefore, parseISO } from 'date-fns'
 interface ReviewCardProps {
     review: Review

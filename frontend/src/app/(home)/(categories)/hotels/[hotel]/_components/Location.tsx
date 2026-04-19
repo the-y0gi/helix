@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import dynamic from "next/dynamic";
 import React, { Suspense } from "react";
 const MapLeaf = dynamic(
-  () => import("../../../../../components/map/leaf-map"),
+  () => import("../../../../../../components/map/leaf-map"),
   { ssr: false },
 );
 export type LocationProps = {
@@ -27,7 +27,7 @@ const MapLocation = ({ address, cordinates }: LocationProps) => {
         <div className="overflow-hidden rounded-md sm:rounded-2xl aspect-video w-full relative cursor-pointer ">
           <HotelFilterBar
             content={
-                <MapLeaf cordinates={cordinates } className="w-full "  height="100%" width="100%"  />
+              <MapLeaf cordinates={cordinates} className="w-full " height="100%" width="100%" />
             }
           >
             <div className="w-full h-[400px]">

@@ -106,4 +106,43 @@ export const pages: Pages[] = [
       <FilterBox FilterBoxValues={Search_box_values[4]} type="home" link="/adventures" />
     )
   },
+  {
+    type: "home",
+    link: "/flights",
+    icon: IconHome,
+    iconUrl: "/nav-icons/flight-logo.png",
+    title: "Flights",
+    filter_bar: (
+      <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/flights/find" type="home" />
+    ),
+    home_filter_box: (
+      <FilterBox FilterBoxValues={Search_box_values[4]} type="home" link="/flights" />
+    )
+  },
+  {
+    type: "home",
+    link: "/buses",
+    icon: IconHome,
+    iconUrl: "/nav-icons/bus-logo.png",
+    title: "Buses",
+    filter_bar: (
+      <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/buses/find" type="home" />
+    ),
+    home_filter_box: (
+      <FilterBox FilterBoxValues={Search_box_values[4]} type="home" link="/buses" />
+    )
+  },
+  {
+    type: "home",
+    link: "/trains",
+    icon: IconHome,
+    iconUrl: "/nav-icons/train-logo.png",
+    title: "Trains",
+    filter_bar: (
+      <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/trains/find" type="home" />
+    ),
+    home_filter_box: (
+      <FilterBox FilterBoxValues={Search_box_values[4]} type="home" link="/trains" />
+    )
+  },
 ];

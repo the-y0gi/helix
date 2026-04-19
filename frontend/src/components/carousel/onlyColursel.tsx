@@ -575,7 +575,7 @@ export const OnlyCarousel = ({ type, tagline, items, isLoading }: Props) => {
       <div
         ref={scrollRef}
         className={cn(
-          "flex gap-1 md:gap-3 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide scroll-smooth pt-2 pr-3", 
+          "flex gap-1 md:gap-3 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide scroll-smooth pt-2 pr-3",
           isLoading && "pl-1"
         )}
       >

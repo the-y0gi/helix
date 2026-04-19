@@ -5,7 +5,7 @@ import { PopularDestinationCarousel } from "../carousel/tabs-carousel";
 import { ImagesSliderDemo } from "../addimage/middle-ads-image";
 import { useGetNewHotels } from "@/services/hotel/querys";
 import type { Item } from "../carousel/onlyColursel";
-import { hoteldata, HotelFramePageProps } from "@/app/(home)/hotels/page";
+import { hoteldata, HotelFramePageProps } from "@/app/(home)/(categories)/hotels/page";
 
 // No tabs in this design → so we pass tabs={undefined}
 type SectionConfig = {

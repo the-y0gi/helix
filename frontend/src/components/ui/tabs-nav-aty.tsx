@@ -152,6 +152,7 @@ export const TabsNav = ({
   tabs: propTabs,
   containerClassName,
   activeTabClassName,
+  className,
   tabClassName,
 }: {
   mobile: boolean;
@@ -159,6 +160,7 @@ export const TabsNav = ({
   containerClassName?: string;
   activeTabClassName?: string;
   tabClassName?: string;
+  className?:string
 }) => {
   const navigate = useRouter();
   const location = usePathname();
@@ -166,14 +168,14 @@ export const TabsNav = ({
 
   const [isVisible, setIsVisible] = useState(true);
   const imgsize = ismobile ? 28 : 34; // Slightly tighter icon for better scaling
-  const active = propTabs.find((tab) => location.endsWith(tab.link)) || propTabs[0];
+  const active = propTabs.find((tab) => location.endsWith(tab.link)) ;
 
   return (
     <motion.div
       initial={false}
       animate={{ y: isVisible ? 0 : -100 }}
       // flex justify-center ensures the stretched bar stays centered over the 910px card
-      className={cn("sticky top-0 z-10 w-full flex justify-center py-2  px-4 ", ismobile ? " z-50 pb-0 " : "")}
+      className={cn(" z-10 w-full flex justify-center  ", ismobile ? " z-50 pb-0  " : "" , className)}
     >
       <div
         className={cn(
@@ -183,13 +185,14 @@ export const TabsNav = ({
           */
           "flex items-center w-full  mx-auto",
           "bg-white dark:bg-zinc-900 rounded-[14px] p-1.5",
-          "border border-black/5 dark:border-white/10 shadow-sm md:min-w-[410px] lg:min-w-[710px] xl:min-w-[910px]",
+          "border border-black/5 dark:border-white/10 shadow-sm md:min-w-[410px] lg:min-w-[710px] xl:min-w-[910px] overflow-x-auto",
           containerClassName,
-          ""
+          "",
+          ismobile ? "border-none shadow-none scrollbar-hide" : ""
         )}
       >
         {propTabs.map((tab, index) => (
-          <div key={tab.title} className="flex flex-1 items-center" >
+          <div key={tab.title} className="flex flex-1 items-center min-w-13 " >
             <Link
               href={tab.link}
               className={cn(
@@ -200,7 +203,7 @@ export const TabsNav = ({
                 tabClassName
               )}
             >
-              {active.title === tab.title && (
+              {active?.title === tab.title && (
                 <motion.div
                   layoutId="active-nav-tab"
                   transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
@@ -215,7 +218,7 @@ export const TabsNav = ({
                 {tab.iconUrl && (
                   <div className="shrink-0">
                     <Image
-                      className={cn("rounded-full object-cover transition-transform duration-300 scale-145", tab.iconUrl === active.iconUrl  && "scale-100")}
+                      className={cn("rounded-full object-cover transition-transform duration-300 scale-145", tab.iconUrl === active?.iconUrl  && "scale-100")}
                       src={tab.iconUrl}
                       alt={tab.title}
                       width={imgsize}

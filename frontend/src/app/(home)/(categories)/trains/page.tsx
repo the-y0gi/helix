@@ -2,7 +2,7 @@
 import { cn } from '@/lib/utils'
 import React, { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
-import MainFramePage from '../../../components/frame-pages/HotelFramePage'
+import MainFramePage from '../../../../components/frame-pages/HotelFramePage'
 import type { CityTrends } from '@/types'
 import { MessageModal } from '@/components/messagemodal'
 import { PageSkeleton } from '@/components/loader/skeleton'
@@ -57,10 +57,10 @@ export const HotelPopularCites: CityTrends[] = [
 ]
 const Cabs = ({ className }: { className?: string }) => {
   return (
-     <div className="px-2 md:px-0 w-full">
+    <div className="px-2 md:px-0 w-full">
 
-    <UnderConstruction cat='Cabs'/>
-     </div>
+      <UnderConstruction cat='Trains' />
+    </div>
     // <div className={cn(" w-full", className)}>
     //   <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
     //     <Suspense fallback={<PageSkeleton />}>

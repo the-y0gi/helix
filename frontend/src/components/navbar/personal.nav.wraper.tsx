@@ -36,7 +36,7 @@ const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
               <MenuBar />
             </Suspense>
           </div> */}
-          <TopRight isMobile={isMobile}/>
+          <TopRight isMobile={isMobile} />
         </div>
       </div>
 
@@ -44,7 +44,9 @@ const PersonalNavWroper = ({ children }: { children: React.ReactNode }) => {
       <div className="w-full border-1 mt-10" />
 
       <Footer />
-      {<MobileNavWrapper  isMobile={isMobile}/>}
+      {<MobileNavWrapper content={<div className="flex h-14 items-center justify-around">
+        <BottomNav />
+      </div>} isMobile={isMobile} />}
     </div>
   );
 };
