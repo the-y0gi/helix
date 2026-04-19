@@ -23,6 +23,8 @@ const supportRoutes = require("./modules/support/support.routes");
 
 const adventureRoutes = require("./modules/adventure/category/adventure.routes");
 const serviceRoutes = require("./modules/adventure/service/service.routes");
+const cabRoutes = require("./modules/cab/company/cab.routes");
+const cabServiceRoutes = require("./modules/cab/service/cabService.routes");
 
 const multiServiceBookingRoutes = require("./modules/multiServiceBookings/booking.routes");
 const multiServiceVendorRoutes = require("./modules/multiServiceVendor/vendor.routes");
@@ -104,6 +106,10 @@ app.use("/api/v1/supports", supportRoutes);
 //adventure
 app.use("/api/v1/adventures", adventureRoutes);
 app.use("/api/v1/services", serviceRoutes);
+
+//cab
+app.use("/api/v1/cabs", cabRoutes);
+app.use("/api/v1/cab-services", cabServiceRoutes);
 
 //generic booking
 app.use("/api/v1/service-bookings", multiServiceBookingRoutes);
