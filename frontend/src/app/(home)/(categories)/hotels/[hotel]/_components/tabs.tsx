@@ -183,6 +183,11 @@ function BookingCard({
     e.stopPropagation();
     setShowCalendar((prev) => !prev);
   };
+  useEffect(() => {
+    if (date?.from && date?.to) {
+      setFetch(true)
+    }
+  }, [date])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

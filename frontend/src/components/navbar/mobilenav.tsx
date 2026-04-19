@@ -122,7 +122,7 @@ export function BottomNav() {
         active={isActive("/hotels")}
         label="Home"
         icon={Home}
-        onClick={() => RouterPush(router, "/hotels")}
+        onClick={() => RouterPush(router, "/")}
         size={iconSize}
         fill
       />

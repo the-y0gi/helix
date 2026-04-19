@@ -192,7 +192,7 @@ export const TabsNav = ({
         )}
       >
         {propTabs.map((tab, index) => (
-          <div key={tab.title} className="flex flex-1 items-center min-w-13 " >
+          <div key={tab.title} className="flex flex-1 items-center min-w-16 " >
             <Link
               href={tab.link}
               className={cn(

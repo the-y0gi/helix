@@ -15,7 +15,8 @@ import { Sign_in_hover } from "../auth/_components/sign-in-hover";
 import Link from "next/link";
 import TopRight from "./topRight";
 import { BottomNav, MobileNavWrapper, PersistentHeader } from "./mobilenav";
-import { X } from "lucide-react";
+import { ChevronDown, Mail, X } from "lucide-react";
+import { PopLogin } from "./PopMessages";
 
 const pagesNames = pages.map((page) => page.link.split("/")[1]);
 const NavWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -161,12 +162,11 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
 
 
         </div>
-        {!isMobile && <PersistentHeader>
-          <div className="flex h-14 items-center justify-around ">
+        {/* {!isMobile && !shouldShowNavbar && <PersistentHeader>
+          <div className="flex h-14 items-center justify-around px-20 ">
             <TabsNav mobile={false} tabs={pages} containerClassName="shadow-none border-none bg-transparent" />
-            {/* <TopRight isMobile={isMobile} /> */}
           </div>
-        </PersistentHeader>}
+        </PersistentHeader>} */}
 
       </div>
 
@@ -190,56 +190,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
       <Footer />
       {/* CUSTOM LOGIN AD POPUP */}
       {showAdPopup && !hasDismissed && (
-        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:top-auto md:left-auto md:bottom-10 md:right-10 md:translate-x-0 md:translate-y-0 z-[100] w-[280px] md:w-[420px] bg-card border shadow-2xl rounded-2xl overflow-hidden flex flex-col animate-in fade-in md:slide-in-from-right-8 duration-500">
-          <button
-            onClick={() => {
-              setHasDismissed(true);
-              setShowAdPopup(false);
-            }}
-            className="absolute z-[101] top-2 right-2 p-1 bg-black/40 text-white rounded-full hover:bg-black/60 backdrop-blur-sm transition-colors"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-
-          <div className="h-54 md:h-44 bg-muted relative w-full">
-            <img
-              src="/story/key.png"
-              alt="Login to unlock features"
-              className="w-full h-full object-cover object-top"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-3">
-              <h3 className="font-semibold text-base text-white leading-tight">
-                Unlock the best experience
-              </h3>
-            </div>
-          </div>
-
-          <div className="p-3 flex flex-col gap-2">
-            <p className="text-xs text-foreground/80 leading-normal">
-              Log in to save favorites, access deals, and manage bookings effortlessly.
-            </p>
-            {isMobile ? (
-              <Link href={"/login"}>
-                <Button size="sm" className="w-full h-8 mt-1 text-xs">
-                  Log In Now
-                </Button>
-              </Link>
-            ) : (
-              <Sign_in_hover
-                tag="Log-in"
-                forLike={{
-                  content: (
-                    <Button size="sm" className="w-full h-8 mt-1 text-xs">
-                      Log In Now
-                    </Button>
-                  ),
-                  type: "nextRoute",
-                  do: "/profile",
-                }}
-              />
-            )}
-          </div>
-        </div>
+        <PopLogin setHasDismissed={setHasDismissed} setShowAdPopup={setShowAdPopup} />
       )}
       <MobileNavWrapper content={<div className="flex h-14 items-center justify-around">
         <BottomNav />
@@ -250,3 +201,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
 
 
 export default NavWrapper;
+
+
+
+
