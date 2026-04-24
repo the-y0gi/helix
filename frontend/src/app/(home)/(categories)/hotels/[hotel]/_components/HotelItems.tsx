@@ -40,13 +40,13 @@ const HotelItems = ({
                   className={
                     cn(i < Math.round(hotel.rating)
                       ? "text-yellow-400"
-                      : "text-muted/30" , "h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5")
+                      : "text-muted", "h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5")
                   }
-                  
+
                 />
               ))}
               <span className="ml-2 text-xs font-bold text-muted-foreground">
-                {hotel.rating}
+                {hotel.rating === 0 ? "No Rating" : hotel.rating}
               </span>
             </div>
           </div>
@@ -63,7 +63,7 @@ const HotelItems = ({
               >
               <IconShare size={20} className="text-muted-foreground" />
             </button> */}
-            <ShareModal  />
+            <ShareModal />
           </div>
         </div>
 

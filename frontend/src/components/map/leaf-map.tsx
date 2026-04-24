@@ -9,7 +9,7 @@ import L from 'leaflet';
 type Props = {
   className?: string;
   height?: string;
-  width?:string
+  width?: string
   cordinates?: [number, number];
 };
 
@@ -21,7 +21,7 @@ const customIcon = new L.Icon({
   popupAnchor: [0, -45],
 });
 
-const MapLeaf = ({ className,width, height = '400px', cordinates }: Props) => {
+const MapLeaf = ({ className, width, height = '400px', cordinates }: Props) => {
   return (
     <div
       // 1. Use 'relative' and a specific z-index lower than your Navbar (e.g., 0 or 10)
@@ -30,7 +30,7 @@ const MapLeaf = ({ className,width, height = '400px', cordinates }: Props) => {
       style={{ height, width }}
     >
       <MapContainer
-        center={cordinates || [19.0760, 72.8777]}
+        center={cordinates ? [cordinates[1], cordinates[0]] : [19.0760, 72.8777]}
         zoom={11}
         scrollWheelZoom={true}
         // REMOVE 'z-0' from here. Let Leaflet handle its internal layering.
@@ -40,7 +40,7 @@ const MapLeaf = ({ className,width, height = '400px', cordinates }: Props) => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={cordinates || [19.0760, 72.8777]} icon={customIcon} />
+        <Marker position={cordinates ? [cordinates[1], cordinates[0]] : [19.0760, 72.8777]} icon={customIcon} />
       </MapContainer>
     </div>
   );

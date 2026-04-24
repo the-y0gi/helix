@@ -119,7 +119,7 @@ export function BottomNav() {
     <nav className="flex items-center justify-around w-full max-w-lg mx-auto h-14 px-4">
       {/* 1. Home Button */}
       <IndividualNavButton
-        active={isActive("/hotels")}
+        active={isActive("/")}
         label="Home"
         icon={Home}
         onClick={() => RouterPush(router, "/")}
@@ -138,10 +138,10 @@ export function BottomNav() {
 
       {/* 3. Offers Button */}
       <IndividualNavButton
-        active={isActive("/")}
+        active={isActive("/offers")}
         label="Offers"
         icon={Percent}
-        onClick={() => RouterPush(router, "/")}
+        onClick={() => RouterPush(router, "/offers")}
         size={iconSize}
       />
 
