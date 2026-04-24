@@ -814,6 +814,7 @@ export interface RoomCardProps {
   totalPriceWithTax: number;
 }
 import NProgress from "nprogress";
+import { RouterPush } from "@/components/RouterPush";
 export function HotelRoomCard({
   hotelId,
   id,
@@ -844,9 +845,13 @@ export function HotelRoomCard({
   const bothdate = !!date?.to && !!date?.from;
 
   const handleReserve = () => {
-    const route = `/book/${hotelId}/${id}`;
     localStorage.removeItem("like");
-    localStorage.setItem("nextRoute", route);
+    if (bothdate) {
+      const route = `/book/${hotelId}/${id}`;
+      localStorage.setItem("nextRoute", route);
+    } else {
+      localStorage.removeItem("nextRoute");
+    }
     if (isBookingMode && roomsLeft === 0) return;
     setSelectedRoom({
       hotelId,
@@ -885,13 +890,12 @@ export function HotelRoomCard({
       nights,
     });
     const nextRoute = localStorage.getItem("nextRoute");
-    NProgress.start()
-    router.push(nextRoute || "/");
-    NProgress.done()
+    RouterPush(router, nextRoute || "/");
+
   };
 
   const rawToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-  const isAuthenticated = !!rawToken && rawToken !== "null" && rawToken !== "undefined" && rawToken.trim().length > 0;
+  const isAuthenticated = !!rawToken && rawToken !== "null" && rawToken !== "undefined" && rawToken.trim().length > 0 || false;
   return (
     <Card
       className={cn(
@@ -1024,7 +1028,7 @@ export function HotelRoomCard({
           </div>
 
           <div className="w-full mt-4 md:mt-5">
-            {(!isAuthenticated && isBookingMode && !bothdate) ? (
+            {(!isAuthenticated) ? (
               <Sign_in_hover
                 tag="Log-in"
                 variant="ghost"
@@ -1048,7 +1052,7 @@ export function HotelRoomCard({
                     </Button>
                   ),
                   type: "nextRoute",
-                  do: `/book/${hotelId}/${id}`,
+                  do: bothdate ? `/book/${hotelId}/${id}` : "",
                   id: `reserve-button-${id}`,
                 }}
               />
@@ -1063,9 +1067,7 @@ export function HotelRoomCard({
                     : "bg-primary hover:bg-primary/90 shadow-sm",
                 )}
                 onClick={(e) => {
-
                   e.stopPropagation();
-                  if (!isBookingMode || !bothdate) return
                   handleReserve_with_Alrady_Login();
                 }}
               >
@@ -1073,7 +1075,7 @@ export function HotelRoomCard({
                   ? "Not Available"
                   : loading
                     ? <Spinner />
-                    : "Reserve"}
+                    : bothdate ? "Reserve" : "Select Dates"}
               </Button>
             )}
           </div>
