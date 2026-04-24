@@ -92,9 +92,39 @@ export function TabsLine({
               className="capitalize whitespace-nowrap pb-2 border-b-2 border-transparent hover:border-orange-500 text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 dark:hover:text-primary"
               onClick={(e) => {
                 e.preventDefault();
-                document
-                  .getElementById(tab.title)
-                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                const target = document.getElementById(tab.title);
+                if (!target) return;
+
+                const headerOffset = 80;
+                const elementPosition = target.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                // Custom smooth scroll that cannot be aborted by native browser layout shift bugs
+                const startPosition = window.pageYOffset;
+                const distance = offsetPosition - startPosition;
+                const duration = 600; // ms
+                let start: number | null = null;
+
+                const easeInOutQuad = (t: number, b: number, c: number, d: number) => {
+                  t /= d / 2;
+                  if (t < 1) return (c / 2) * t * t + b;
+                  t--;
+                  return (-c / 2) * (t * (t - 2) - 1) + b;
+                };
+
+                const animation = (currentTime: number) => {
+                  if (start === null) start = currentTime;
+                  const timeElapsed = currentTime - start;
+                  const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
+                  window.scrollTo(0, run);
+                  if (timeElapsed < duration) {
+                    requestAnimationFrame(animation);
+                  } else {
+                    window.scrollTo(0, offsetPosition);
+                  }
+                };
+
+                requestAnimationFrame(animation);
               }}
             >
               {tab.title}
