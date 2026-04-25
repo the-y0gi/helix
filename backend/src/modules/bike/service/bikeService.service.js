@@ -1,7 +1,353 @@
 const mongoose = require("mongoose");
 const BikeService = require("./bikeService.model");
 const BikeCompany = require("../company/bike.model");
+const Tax = require("../../admin/tax/tax.model");
 
+//user side
+exports.getBikes = async (query) => {
+  try {
+    const { city = "", page = 1, limit = 10 } = query;
+
+    const skip = (page - 1) * limit;
+
+    //  MATCH (CITY BASED)
+    const matchStage = {
+      isActive: true,
+    };
+
+    const bikes = await BikeService.aggregate([
+      { $match: matchStage },
+
+      {
+        $lookup: {
+          from: "bikecompanies",
+          localField: "bike",
+          foreignField: "_id",
+          as: "company",
+        },
+      },
+      { $unwind: "$company" },
+
+      {
+        $match: {
+          "company.isActive": true,
+          "company.location.city": {
+            $regex: city,
+            $options: "i",
+          },
+        },
+      },
+
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          bikeName: 1,
+          bikeType: 1,
+          pricePerDay: 1,
+          discountPrice: 1,
+          images: 1,
+
+          "company._id": 1,
+          "company.name": 1,
+          "company.rating": 1,
+          "company.location": 1,
+        },
+      },
+
+      { $sort: { pricePerDay: 1 } },
+
+      { $skip: Number(skip) },
+      { $limit: Number(limit) },
+    ]);
+
+    const taxDoc = await Tax.findOne({ isActive: true }).lean();
+    const taxPercentage = taxDoc?.taxPercentage || 0;
+
+    const formattedBikes = bikes.map((bike) => {
+      const effectivePrice =
+        bike.discountPrice > 0 ? bike.discountPrice : bike.pricePerDay;
+
+      const totalTax = Number(
+        ((effectivePrice * taxPercentage) / 100).toFixed(2),
+      );
+
+      const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
+
+      return {
+        serviceId: bike._id,
+
+        bikeName: bike.bikeName,
+        bikeType: bike.bikeType,
+
+        pricePerDay: effectivePrice,
+        totalPriceWithTax,
+        taxPercentage,
+
+        thumbnail: bike.images?.[0] || null,
+
+        company: {
+          companyId: bike.company._id,
+          name: bike.company.name,
+          city: bike.company.location?.city,
+          rating: bike.company.rating?.average || 0,
+        },
+      };
+    });
+
+    return {
+      bikes: formattedBikes,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        count: formattedBikes.length,
+      },
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getBikeCompanyDetails = async (id) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error("Invalid company id");
+    }
+
+    const company = await BikeCompany.findOne({
+      _id: id,
+      isActive: true,
+    })
+      .select("name location description images rating features rentalPolicies")
+      .lean();
+
+    if (!company) {
+      throw new Error("Bike company not found");
+    }
+
+    //SERVICES FETCH (ALL BIKES OF THIS COMPANY)
+    const services = await BikeService.find({
+      bike: id,
+      isActive: true,
+    })
+      .select(
+        "title bikeName bikeType pricePerDay discountPrice images features meta",
+      )
+      .sort({ pricePerDay: 1 })
+      .lean();
+
+    const taxDoc = await Tax.findOne({ isActive: true }).lean();
+    const taxPercentage = taxDoc?.taxPercentage || 0;
+
+    const formattedServices = services.map((service) => {
+      const effectivePrice =
+        service.discountPrice > 0 ? service.discountPrice : service.pricePerDay;
+
+      const totalTax = Number(
+        ((effectivePrice * taxPercentage) / 100).toFixed(2),
+      );
+
+      const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
+
+      return {
+        serviceId: service._id,
+
+        bikeName: service.bikeName,
+        bikeType: service.bikeType,
+
+        mileage: service.meta?.mileage,
+        gearType: service.meta?.gearType,
+
+        pricePerDay: effectivePrice,
+        totalPriceWithTax,
+        taxPercentage,
+
+        thumbnail: service.images?.[0] || null,
+
+        features: service.features || [],
+      };
+    });
+
+    const formattedCompany = {
+      companyId: company._id,
+      name: company.name,
+      description: company.description,
+
+      city: company.location?.city,
+      state: company.location?.state,
+
+      rating: company.rating?.average || 0,
+      reviews: company.rating?.count || 0,
+
+      images: company.images || [],
+      features: company.features || [],
+
+      //IMPORTANT FOR BIKE RENTAL
+      rentalPolicies: {
+        helmetIncluded: company.rentalPolicies?.helmetIncluded,
+        fuelPolicy: company.rentalPolicies?.fuelPolicy,
+        securityDeposit: company.rentalPolicies?.securityDeposit,
+        licenseRequired: company.rentalPolicies?.licenseRequired,
+      },
+    };
+
+    return {
+      company: formattedCompany,
+      services: formattedServices,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getBikeServiceDetails = async (id) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error("Invalid service id");
+    }
+
+    const service = await BikeService.findOne({
+      _id: id,
+      isActive: true,
+    }).lean();
+
+    if (!service) {
+      throw new Error("Bike service not found");
+    }
+
+    const company = await BikeCompany.findOne({
+      _id: service.bike,
+      isActive: true,
+    })
+      .select("name location rating images description rentalPolicies")
+      .lean();
+
+    const taxDoc = await Tax.findOne({ isActive: true }).lean();
+    const taxPercentage = taxDoc?.taxPercentage || 0;
+
+    const effectivePrice =
+      service.discountPrice > 0 ? service.discountPrice : service.pricePerDay;
+
+    const totalTax = Number(
+      ((effectivePrice * taxPercentage) / 100).toFixed(2),
+    );
+
+    const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
+
+    const formattedService = {
+      serviceId: service._id,
+
+      title: service.title,
+      description: service.description,
+
+      bikeName: service.bikeName,
+      bikeType: service.bikeType,
+      engineCC: service.engineCC,
+      fuelType: service.fuelType,
+
+      mileage: service.meta?.mileage,
+      gearType: service.meta?.gearType,
+
+      pricePerDay: effectivePrice,
+      totalPriceWithTax,
+      taxPercentage,
+
+      maxDurationDays: service.maxDurationDays,
+
+      images: service.images || [],
+      features: service.features || [],
+    };
+
+    const formattedCompany = {
+      companyId: company?._id,
+      name: company?.name,
+      city: company?.location?.city,
+      rating: company?.rating?.average || 0,
+      images: company?.images || [],
+      description: company?.description,
+
+      rentalPolicies: company?.rentalPolicies || {},
+    };
+
+    return {
+      company: formattedCompany,
+      service: formattedService,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.calculateBikePrice = async (body) => {
+  try {
+    const { serviceId, startDate, endDate } = body;
+
+    if (!mongoose.Types.ObjectId.isValid(serviceId)) {
+      throw new Error("Invalid service id");
+    }
+
+    if (!startDate || !endDate) {
+      throw new Error("Start date and end date are required");
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start >= end) {
+      throw new Error("End date must be greater than start date");
+    }
+
+    //CALCULATE DAYS
+    const diffTime = end - start;
+    const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    const service = await BikeService.findOne({
+      _id: serviceId,
+      isActive: true,
+    }).lean();
+
+    if (!service) {
+      throw new Error("Bike service not found");
+    }
+
+    if (totalDays > service.maxDurationDays) {
+      throw new Error(
+        `Maximum rental duration is ${service.maxDurationDays} days`,
+      );
+    }
+
+    const pricePerDay =
+      service.discountPrice > 0 ? service.discountPrice : service.pricePerDay;
+
+    const totalBasePrice = pricePerDay * totalDays;
+
+    const taxDoc = await Tax.findOne({ isActive: true }).lean();
+    const taxPercentage = taxDoc?.taxPercentage || 0;
+
+    const totalTax = Number(
+      ((totalBasePrice * taxPercentage) / 100).toFixed(2),
+    );
+
+    const finalAmount = Number((totalBasePrice + totalTax).toFixed(2));
+
+    return {
+      serviceId,
+
+      pricePerDay,
+      totalDays,
+
+      totalBasePrice,
+      taxPercentage,
+      totalTax,
+
+      finalAmount,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+//vendor side
 exports.createBikeService = async (data, vendorId) => {
   try {
     const {

@@ -1,7 +1,293 @@
 const mongoose = require("mongoose");
 const CabService = require("./cabService.model");
 const CabCompany = require("../company/cab.model");
+const Tax = require("../../admin/tax/tax.model");
 
+//user side...
+
+exports.getCabs = async (query) => {
+  try {
+    const { pickup = "", drop = "", page = 1, limit = 10 } = query;
+
+    const skip = (page - 1) * limit;
+
+    // MATCH (ROUTE BASED)
+    const matchStage = {
+      isActive: true,
+      pickupLocation: { $regex: pickup, $options: "i" },
+      dropLocation: { $regex: drop, $options: "i" },
+    };
+
+    const cabs = await CabService.aggregate([
+      { $match: matchStage },
+
+      {
+        $lookup: {
+          from: "cabcompanies",
+          localField: "cab",
+          foreignField: "_id",
+          as: "company",
+        },
+      },
+      { $unwind: "$company" },
+
+      {
+        $match: {
+          "company.isActive": true,
+        },
+      },
+
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          carName: 1,
+          cabType: 1,
+          capacity: 1,
+          images: 1,
+          basePrice: 1,
+          discountPrice: 1,
+          meta: 1,
+
+          "company._id": 1,
+          "company.name": 1,
+          "company.rating": 1,
+          "company.location": 1,
+        },
+      },
+
+      { $sort: { basePrice: 1 } },
+
+      { $skip: Number(skip) },
+      { $limit: Number(limit) },
+    ]);
+
+    const taxDoc = await Tax.findOne({ isActive: true }).lean();
+    const taxPercentage = taxDoc?.taxPercentage || 0;
+
+    const formattedCabs = cabs.map((cab) => {
+      const effectivePrice =
+        cab.discountPrice > 0 ? cab.discountPrice : cab.basePrice;
+
+      const totalTax = Number(
+        ((effectivePrice * taxPercentage) / 100).toFixed(2),
+      );
+
+      const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
+
+      return {
+        serviceId: cab._id,
+
+        title: cab.title,
+        carName: cab.carName,
+        cabType: cab.cabType,
+        capacity: cab.capacity,
+
+        pickup: pickup,
+        drop: drop,
+
+        distance: cab.meta?.distance,
+        duration: cab.meta?.duration,
+
+        price: effectivePrice,
+        totalPriceWithTax,
+        taxPercentage,
+
+        thumbnail: cab.images?.[0] || null,
+
+        company: {
+          companyId: cab.company._id,
+          name: cab.company.name,
+          city: cab.company.location?.city,
+          rating: cab.company.rating?.average || 0,
+        },
+      };
+    });
+
+    return {
+      cabs: formattedCabs,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        count: formattedCabs.length,
+      },
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getCabCompanyDetails = async (id) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error("Invalid company id");
+    }
+
+    const company = await CabCompany.findOne({
+      _id: id,
+      isActive: true,
+    })
+      .select("name location description images rating features")
+      .lean();
+
+    if (!company) {
+      throw new Error("Cab company not found");
+    }
+
+    //SERVICES FETCH (ALL CARS OF THIS COMPANY)
+    const services = await CabService.find({
+      cab: id,
+      isActive: true,
+    })
+      .select(
+        "title carName cabType capacity basePrice discountPrice images meta features pickupLocation dropLocation",
+      )
+      .sort({ basePrice: 1 })
+      .lean();
+
+    const taxDoc = await Tax.findOne({ isActive: true }).lean();
+    const taxPercentage = taxDoc?.taxPercentage || 0;
+
+    // FORMAT SERVICES + TAX APPLY
+    const formattedServices = services.map((service) => {
+      const effectivePrice =
+        service.discountPrice > 0 ? service.discountPrice : service.basePrice;
+
+      const totalTax = Number(
+        ((effectivePrice * taxPercentage) / 100).toFixed(2),
+      );
+
+      const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
+
+      return {
+        serviceId: service._id,
+
+        title: service.title,
+        carName: service.carName,
+        cabType: service.cabType,
+        capacity: service.capacity,
+
+        route: {
+          pickup: service.pickupLocation,
+          drop: service.dropLocation,
+        },
+
+        distance: service.meta?.distance,
+        duration: service.meta?.duration,
+
+        price: effectivePrice,
+        totalPriceWithTax,
+        taxPercentage,
+
+        thumbnail: service.images?.[0] || null,
+
+        features: service.features || [],
+      };
+    });
+
+    const formattedCompany = {
+      companyId: company._id,
+      name: company.name,
+      description: company.description,
+      city: company.location?.city,
+      state: company.location?.state,
+      rating: company.rating?.average || 0,
+      reviews: company.rating?.count || 0,
+      images: company.images || [],
+      features: company.features || [],
+    };
+
+    return {
+      company: formattedCompany,
+      services: formattedServices,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getCabServiceDetails = async (id) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error("Invalid service id");
+    }
+
+    const service = await CabService.findOne({
+      _id: id,
+      isActive: true,
+    }).lean();
+
+    if (!service) {
+      throw new Error("Cab service not found");
+    }
+
+    const company = await CabCompany.findOne({
+      _id: service.cab,
+      isActive: true,
+    })
+      .select("name location rating images description")
+      .lean();
+
+    const taxDoc = await Tax.findOne({ isActive: true }).lean();
+    const taxPercentage = taxDoc?.taxPercentage || 0;
+
+    //PRICE CALCULATION
+    const effectivePrice =
+      service.discountPrice > 0 ? service.discountPrice : service.basePrice;
+
+    const totalTax = Number(
+      ((effectivePrice * taxPercentage) / 100).toFixed(2),
+    );
+
+    const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
+
+    const formattedService = {
+      serviceId: service._id,
+
+      title: service.title,
+      description: service.description,
+
+      carName: service.carName,
+      cabType: service.cabType,
+      capacity: service.capacity,
+
+      route: {
+        pickup: service.pickupLocation,
+        drop: service.dropLocation,
+      },
+
+      distance: service.meta?.distance,
+      duration: service.meta?.duration,
+
+      price: effectivePrice,
+      totalPriceWithTax,
+      taxPercentage,
+
+      images: service.images || [],
+      features: service.features || [],
+
+      carNumber: service.carNumber || null,
+    };
+
+    const formattedCompany = {
+      companyId: company?._id,
+      name: company?.name,
+      city: company?.location?.city,
+      rating: company?.rating?.average || 0,
+      images: company?.images || [],
+      description: company?.description,
+    };
+
+    return {
+      company: formattedCompany,
+      service: formattedService,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+//vendor side....
 exports.createCabService = async (data, vendorId) => {
   try {
     const {

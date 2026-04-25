@@ -5,24 +5,6 @@ const roomTypeService = require("../rooms/roomType.service");
 const vendorService = require("./vendor.service");
 const logger = require("../../shared/utils/logger");
 
-// Create vendor profile
-// exports.createVendorProfile = async (req, res, next) => {
-//   try {
-//     const userId = req.user._id;
-
-//     const vendor = await vendorService.createVendorProfile(userId, req.body);
-
-//     res.status(201).json({
-//       success: true,
-//       message: "Vendor profile created successfully",
-//       data: vendor,
-//     });
-//   } catch (error) {
-//     logger.error("Controller Error: createVendorProfile", error);
-//     next(error);
-//   }
-// };
-
 //get me help for prefilling data
 exports.getVendorMe = async (req, res, next) => {
   try {

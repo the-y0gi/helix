@@ -3,6 +3,12 @@ const router = express.Router();
 const bikeServiceController = require("./bikeService.controller");
 const { protect } = require("../../../shared/middlewares/verifyToken");
 const { authorize } = require("../../../shared/middlewares/roleMiddleware");
+//user side
+
+router.get("/", bikeServiceController.getBikes);
+router.get("/:id", bikeServiceController.getBikeServiceDetails);
+
+router.get("/company/:id", bikeServiceController.getBikeCompanyDetails);
 
 //vendor routes...
 router.post(

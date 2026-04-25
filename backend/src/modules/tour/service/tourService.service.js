@@ -1,7 +1,267 @@
 const mongoose = require("mongoose");
 const TourService = require("./tourService.model");
 const TourCompany = require("../company/tour.model");
+const Tax = require("../../admin/tax/tax.model");
 
+//user side
+exports.getTours = async (query) => {
+  try {
+    const { search = "", page = 1, limit = 10 } = query;
+
+    const skip = (page - 1) * limit;
+
+    const matchStage = {
+      isActive: true,
+      $or: [
+        { title: { $regex: search, $options: "i" } },
+        { destinations: { $regex: search, $options: "i" } },
+      ],
+    };
+
+    //AGGREGATION (JOIN COMPANY)
+    const tours = await TourService.aggregate([
+      { $match: matchStage },
+
+      {
+        $lookup: {
+          from: "tourcompanies",
+          localField: "tour",
+          foreignField: "_id",
+          as: "company",
+        },
+      },
+      { $unwind: "$company" },
+
+      {
+        $match: {
+          "company.isActive": true,
+        },
+      },
+
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          destinations: 1,
+          basePrice: 1,
+          discountPrice: 1,
+          images: 1,
+          duration: 1,
+          "company._id": 1,
+          "company.name": 1,
+          "company.rating": 1,
+          "company.location": 1,
+        },
+      },
+
+      { $sort: { basePrice: 1 } },
+
+      { $skip: Number(skip) },
+      { $limit: Number(limit) },
+    ]);
+
+    const taxDoc = await Tax.findOne({ isActive: true }).lean();
+    const taxPercentage = taxDoc?.taxPercentage || 0;
+
+    const formattedTours = tours.map((tour) => {
+      const effectivePrice =
+        tour.discountPrice > 0 ? tour.discountPrice : tour.basePrice;
+
+      const totalTax = Number(
+        ((effectivePrice * taxPercentage) / 100).toFixed(2),
+      );
+
+      const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
+
+      return {
+        serviceId: tour._id,
+
+        title: tour.title,
+        destinations: tour.destinations,
+        duration: `${tour.duration.days}D/${tour.duration.nights}N`,
+
+        price: effectivePrice,
+        totalPriceWithTax,
+        taxPercentage,
+
+        thumbnail: tour.images?.[0] || null,
+
+        company: {
+          companyId: tour.company._id,
+          name: tour.company.name,
+          city: tour.company.location?.city,
+          rating: tour.company.rating?.average || 0,
+        },
+      };
+    });
+
+    return {
+      tours: formattedTours,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        count: formattedTours.length,
+      },
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getCompanyDetails = async (id) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error("Invalid company id");
+    }
+
+    const company = await TourCompany.findOne({
+      _id: id,
+      isActive: true,
+    })
+      .select("name location description images rating features")
+      .lean();
+
+    if (!company) {
+      throw new Error("Tour company not found");
+    }
+
+    const services = await TourService.find({
+      tour: id,
+      isActive: true,
+    })
+      .select("title basePrice discountPrice duration images features")
+      .sort({ basePrice: 1 })
+      .lean();
+
+    const taxDoc = await Tax.findOne({ isActive: true }).lean();
+    const taxPercentage = taxDoc?.taxPercentage || 0;
+
+    const formattedServices = services.map((service) => {
+      const effectivePrice =
+        service.discountPrice > 0 ? service.discountPrice : service.basePrice;
+
+      const totalTax = Number(
+        ((effectivePrice * taxPercentage) / 100).toFixed(2),
+      );
+
+      const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
+
+      return {
+        serviceId: service._id,
+
+        title: service.title,
+        duration: `${service.duration.days}D/${service.duration.nights}N`,
+
+        price: effectivePrice,
+        totalPriceWithTax,
+        taxPercentage,
+
+        thumbnail: service.images?.[0] || null,
+
+        features: service.features || [],
+      };
+    });
+
+    const formattedCompany = {
+      companyId: company._id,
+      name: company.name,
+      description: company.description,
+      city: company.location?.city,
+      state: company.location?.state,
+      rating: company.rating?.average || 0,
+      reviews: company.rating?.count || 0,
+      images: company.images || [],
+      features: company.features || [],
+    };
+
+    return {
+      company: formattedCompany,
+      services: formattedServices,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getTourServiceDetails = async (id) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error("Invalid service id");
+    }
+
+    //  SERVICE FETCH
+    const service = await TourService.findOne({
+      _id: id,
+      isActive: true,
+    }).lean();
+
+    if (!service) {
+      throw new Error("Tour service not found");
+    }
+
+    //  COMPANY FETCH
+    const company = await TourCompany.findOne({
+      _id: service.tour,
+      isActive: true,
+    })
+      .select("name location rating images description")
+      .lean();
+
+    const taxDoc = await Tax.findOne({ isActive: true }).lean();
+    const taxPercentage = taxDoc?.taxPercentage || 0;
+
+    //PRICE CALCULATION
+    const effectivePrice =
+      service.discountPrice > 0 ? service.discountPrice : service.basePrice;
+
+    const totalTax = Number(
+      ((effectivePrice * taxPercentage) / 100).toFixed(2),
+    );
+
+    const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
+
+    const formattedService = {
+      serviceId: service._id,
+
+      title: service.title,
+      description: service.description,
+      destinations: service.destinations,
+
+      duration: `${service.duration.days}D/${service.duration.nights}N`,
+
+      price: effectivePrice,
+      totalPriceWithTax,
+      taxPercentage,
+
+      images: service.images || [],
+      features: service.features || [],
+
+      maxPeople: service.maxPeople,
+
+      meta: service.meta || {},
+
+      itinerary: service.itinerary || [],
+    };
+
+    const formattedCompany = {
+      companyId: company?._id,
+      name: company?.name,
+      city: company?.location?.city,
+      rating: company?.rating?.average || 0,
+      images: company?.images || [],
+      description: company?.description,
+    };
+
+    return {
+      company: formattedCompany,
+      service: formattedService,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+//vendor side
 exports.createTourService = async (data, vendorId) => {
   try {
     const {

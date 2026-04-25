@@ -6,21 +6,21 @@ const { authorize } = require("../../../shared/middlewares/roleMiddleware");
 
 router.use(protect);
 
-router.post(
+router.get(
   "/stats",
   protect,
   authorize("vendor"),
   dashboardController.getDashboardStats,
 );
 
-router.post(
+router.get(
   "/analytics",
   protect,
   authorize("vendor"),
   dashboardController.getDashboardAnalytics,
 );
 
-router.post(
+router.get(
   "/recent-bookings",
   protect,
   authorize("vendor"),
