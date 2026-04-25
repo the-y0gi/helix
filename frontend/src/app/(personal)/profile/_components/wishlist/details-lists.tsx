@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { LikeIcon } from "@/services/dailyfunctions"
-import { PageSkeleton } from "@/components/loader/skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useGetMyTrips } from "@/services/personal/queryes"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
@@ -41,7 +41,7 @@ export function SavedTripsSection({ setDetails, label }: {
 
                 {isLoading ? [...Array(6)].map((_, i) => {
                     return (
-                        <PageSkeleton key={i} />
+                        <SavedPropertyCardSkeleton key={i} />
                     )
                 }) :
                     alldata?.map((val: SavedPropertyCardProps) => {
@@ -153,14 +153,44 @@ export function SavedPropertyCard({
                     <p className="text-primary/80 md:text-primary/60 text-xs">
                         {city}
                     </p>
-                    {/* Hide distance and input on mobile overlay to prevent clutter, similar to Reels */}
-                    {/* <p className="hidden md:block text-muted-foreground text-xs">
-                        {distance}
-                    </p> */}
-                    {/* <Input
-                        placeholder="Add note"
-                        className="hidden md:flex h-8 bg-secondary/50 border-none text-xs"
-                    /> */}
+                </div>
+            </CardContent>
+        </Card>
+    )
+}
+
+export function SavedPropertyCardSkeleton() {
+    return (
+        <Card className="group relative rounded-none md:rounded-xl min-w-[150px] overflow-hidden shadow-sm transition bg-background border-none py-0">
+            {/* Image Container Skeleton */}
+            <div className="relative h-64 md:h-56 w-full">
+                <Skeleton className="w-full h-full rounded-none" />
+                
+                {/* Mobile Overlay Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent md:hidden" />
+
+                {/* Favorite Icon Skeleton */}
+                <Skeleton className="absolute right-3 top-3 h-8 w-8 rounded-full z-10 bg-white/40 md:bg-muted" />
+            </div>
+
+            {/* Content Container Skeleton */}
+            <CardContent className={cn(
+                "p-3 md:p-4 md:space-y-3 space-y-2",
+                "absolute bottom-0 left-0 w-full md:relative md:bg-transparent", // Mobile overlay logic
+            )}>
+                {/* Review/Rating Row Skeleton */}
+                <div className="flex items-center gap-2">
+                    <Skeleton className="h-4 w-6 md:h-5 md:w-8 rounded bg-white/40 md:bg-muted" />
+                    <Skeleton className="h-3 md:h-4 w-12 bg-white/40 md:bg-muted" />
+                    <Skeleton className="h-3 md:h-4 w-8 bg-white/40 md:bg-muted" />
+                </div>
+
+                {/* Title Skeleton */}
+                <Skeleton className="h-4 md:h-5 w-[80%] bg-white/60 md:bg-muted" />
+
+                {/* Location Skeleton */}
+                <div className="space-y-1">
+                    <Skeleton className="h-3 md:h-4 w-[60%] bg-white/40 md:bg-muted" />
                 </div>
             </CardContent>
         </Card>

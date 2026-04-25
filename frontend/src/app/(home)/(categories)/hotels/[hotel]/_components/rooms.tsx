@@ -509,7 +509,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabscn";
-import { HotelRoomCard } from "./room-card";
+import { HotelRoomCard, HotelRoomCardSkeleton } from "./room-card";
 import { RoomType } from "@/types";
 import { useHotelContext } from "../_providers_context/hotel-contextProvider";
 import { useHotelStore } from "@/store/hotel.store";
@@ -542,10 +542,7 @@ export const RoomsMain = ({
       {isLoading && isBookingMode ? (
         <div className="flex flex-col gap-4">
           {[1, 2].map((i) => (
-            <div
-              key={i}
-              className="w-full h-[250px] bg-muted animate-pulse rounded-3xl"
-            />
+             <HotelRoomCardSkeleton key={i} />
           ))}
         </div>
       ) : (
