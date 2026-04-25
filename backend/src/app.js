@@ -25,6 +25,10 @@ const adventureRoutes = require("./modules/adventure/category/adventure.routes")
 const serviceRoutes = require("./modules/adventure/service/service.routes");
 const cabRoutes = require("./modules/cab/company/cab.routes");
 const cabServiceRoutes = require("./modules/cab/service/cabService.routes");
+const bikeRoutes = require("./modules/bike/company/bike.routes");
+const bikeServiceRoutes = require("./modules/bike/service/bikeService.routes");
+const tourRoutes = require("./modules/tour/company/tour.routes");
+const tourServiceRoutes = require("./modules/tour/service/tourService.routes");
 
 const multiServiceBookingRoutes = require("./modules/multiServiceBookings/booking.routes");
 const multiServiceVendorRoutes = require("./modules/multiServiceVendor/vendor.routes");
@@ -110,6 +114,14 @@ app.use("/api/v1/services", serviceRoutes);
 //cab
 app.use("/api/v1/cabs", cabRoutes);
 app.use("/api/v1/cab-services", cabServiceRoutes);
+
+//bike
+app.use("/api/v1/bikes", bikeRoutes);
+app.use("/api/v1/bike-services", bikeServiceRoutes);
+
+//tour
+app.use("/api/v1/tours", tourRoutes);
+app.use("/api/v1/tour-services", tourServiceRoutes);
 
 //generic booking
 app.use("/api/v1/service-bookings", multiServiceBookingRoutes);
