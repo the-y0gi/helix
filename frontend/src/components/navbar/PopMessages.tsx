@@ -61,7 +61,7 @@ export const PopLogin = ({
                 <div className="w-full md:w-1/2 p-6 md:p-12 overflow-y-auto custom-scrollbar">
                     {/* Mobile Only Header Image (Optional, small version) */}
                     <div className="md:hidden w-full h-32 mb-6 rounded-xl overflow-hidden relative">
-                        <img src="/story/key.png" className="w-full h-full object-cover" alt="promo" />
+                        <img src="/story/key.png" className="w-full h-full object-cover object-top" alt="promo" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
                             <span className="text-white text-xs font-bold">Summer Escape Sale Live!</span>
                         </div>

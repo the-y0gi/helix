@@ -9,6 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useQueryState } from "nuqs";
+import { toast } from "sonner";
 export function MobileNavWrapper({ isMobile, content }: { isMobile: boolean, content: React.ReactNode }) {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
@@ -141,7 +142,10 @@ export function BottomNav() {
         active={isActive("/offers")}
         label="Offers"
         icon={Percent}
-        onClick={() => RouterPush(router, "/offers")}
+        onClick={() => {
+          toast("Offers not available yet");
+        }
+        }
         size={iconSize}
       />
 

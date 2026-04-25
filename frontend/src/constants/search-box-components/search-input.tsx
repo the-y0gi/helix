@@ -49,7 +49,7 @@ const AddressSearch = () => {
             if (!isOpen) setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          className="md:h-12 h-6 w-full rounded-xl border-none px-4 outline-none bg-transparent text-sm md:text-base"
+          className="md:h-12 h-6 w-full rounded-xl border-none px-2 outline-none bg-transparent text-sm md:text-base"
         />
         {loading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -100,7 +100,7 @@ const AddressSearch = () => {
 // Main Export
 const SearchInput = () => {
   return (
-    <div className="flex items-center gap-4 bg-primary/5 border border-primary/10 rounded-[10px] md:px-5 px-3 py-1 md:py-2">
+    <div className="flex items-center  bg-primary/5 border border-primary/10 rounded-[10px] md:px-5 px-3 py-1 md:py-2">
       <MapPin className="w-5 h-5 text-primary shrink-0" />
       <AddressSearch />
     </div>
