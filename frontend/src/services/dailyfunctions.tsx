@@ -16,6 +16,7 @@ export const handleRefresh = (queryClient: any, queryKey: string[]) => {
 };
 export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; className?: string, isFavourite: boolean, name: string }) => {
   const [liked, setLiked] = useState(isFavourite);
+  const [loading, setLoading] = useState(false);
   const hasToken =
     typeof window !== "undefined" && localStorage.getItem("accessToken");
 
@@ -113,17 +114,15 @@ export const toggleLike = async ({
 }) => {
   const token = localStorage.getItem("accessToken");
   if (!token) throw new Error("Unauthorized");
-  await dotoggleLike(id)
 
-  if (liked) {
-    // 👉 call dislike API
-    // await axios.delete(`/like/${id}`)
-    return { liked: false };
-  } else {
-    // 👉 call like API
-    // await axios.post(`/like/${id}`)
-    return { liked: true };
-  }
+  // Dispatch background job to Inngest via our Next.js API route
+  // We don't await the backend response, only the dispatch
+  const res = await dotoggleLike(id);
+
+
+
+  // Optimistic UI update
+  return { liked: !liked };
 };
 export const handleCopy = async () => {
   try {

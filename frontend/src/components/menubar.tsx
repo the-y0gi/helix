@@ -239,10 +239,11 @@ export function MenuBar() {
               />
             ) : (
               <DropdownMenuItem
-                onClick={() =>{ 
-                  
-                  localStorage.setItem( "nextRoute", "/profile")
-                  handleNavigate("/login")}}
+                onClick={() => {
+
+                  localStorage.setItem("nextRoute", "/profile")
+                  handleNavigate("/login")
+                }}
                 className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 cursor-pointer focus:bg-orange-50 focus:text-orange-600 dark:focus:bg-orange-950/20"
               >
                 <User className="h-4 w-4" />
@@ -259,7 +260,7 @@ export function MenuBar() {
             </DropdownMenuItem>
           )}
 
-          
+
         </DropdownMenuGroup>
 
         {/* <DropdownMenuSeparator className="my-1 sm:my-2" /> */}
@@ -307,98 +308,76 @@ export function MenuBar() {
 export function AppPrefrence() {
   const router = useRouter()
   const { data: user, isLoading, refetch } = useCurrentUser();
-  const pathname = usePathname();
-  const { goWithAuth } = useNextGoingRoute();
   const isMobile = useIsMobile()
   const isLoggedIn = !!user?.data;
-
-
-
- 
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          // Reduced size on mobile (h-9), standard on desktop (sm:h-10)
-          className="relative  h-8 w-8 sm:h-8 sm:w-8 md:h-10 md:w-10 bg-zinc-100 dark:bg-zinc-600   rounded-full border-2 border-transparent hover:border-primary/50 p-0 transition-all duration-300"
+          className="relative h-8 w-8 sm:h-8 sm:w-8 md:h-10 md:w-10 rounded-full border border-transparent hover:bg-accent/50 hover:border-border transition-all duration-300 p-0"
         >
-          <div className="relative h-full w-full overflow-hidden rounded-full">
-            <Image
-              src={ "/logs.png"}
-              alt="Profile"
-              fill
-              className="object-cover p-1 md:p-2"
-            />
-            
-          </div>
+          <Logs className="h-4 w-4 md:h-5 md:w-5 text-foreground/80" />
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        // Responsive width: 85% of viewport on mobile, fixed 56 on desktop
-        className="w-[45vw] sm:w-56  mr-2 p-1.5 sm:p-2 rounded-xl border border-border/50 shadow-xl backdrop-blur-md"
+        className="w-[45vw] sm:w-56 mr-2 p-1.5 sm:p-2 rounded-xl border border-border/50 shadow-xl backdrop-blur-md"
         align="end"
       >
-        
+        <DropdownMenuLabel className="px-2 py-1.5 sm:px-3 sm:py-2">
+          <div className="flex flex-col space-y-0.5">
+            <p className="text-sm font-semibold leading-tight">Settings</p>
+            <p className="text-[10px] sm:text-xs leading-tight text-muted-foreground truncate">
+              App preferences
+            </p>
+          </div>
+        </DropdownMenuLabel>
 
-       
+        <DropdownMenuSeparator className="my-1 sm:my-2" />
 
-
-        <div className="px-3 py-0.5 sm:py-1 cursor-pointer">
+        <div className="px-2 py-1">
           <AnimatedThemeTogglerDemo />
         </div>
 
-        <DropdownMenuSeparator className="my-1 sm:my-2 cursor-pointer" />
-               <DropdownMenuLabel onClick={()=>RouterPush(router , '/profile?tab=support')} className="px-2 py-1.5 sm:px-3 sm:py-2 flex gap-3 cursor-pointer">
-                <CircleQuestionMark  /><span>Help center</span>
-               </DropdownMenuLabel>
-                {!isLoggedIn ? (
+        <DropdownMenuSeparator className="my-1 sm:my-2" />
+
+        <DropdownMenuItem
+          onClick={() => RouterPush(router, '/profile?tab=support')}
+          className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 cursor-pointer focus:bg-orange-50 focus:text-orange-600 dark:focus:bg-orange-950/20"
+        >
+          <CircleQuestionMark className="h-4 w-4 opacity-70" />
+          <span className="text-sm font-medium">Help center</span>
+        </DropdownMenuItem>
+
+        {!isLoggedIn ? (
           <DropdownMenuGroup>
-            <DropdownMenuItem asChild className="cursor-pointer">
+            <DropdownMenuItem asChild className="cursor-pointer focus:bg-orange-50 focus:text-orange-600 dark:focus:bg-orange-950/20">
               {isMobile ? (
-                <Link href="/login">
-                  Log-in or Sign-up
+                <Link href="/login" className="flex items-center gap-2 w-full px-2.5 py-1.5 sm:px-3 sm:py-2">
+                  <User className="h-4 w-4 opacity-70" />
+                  <span className="text-sm font-medium">Log-in / Sign-up</span>
                 </Link>
               ) : (
                 <Sign_in_hover
                   tag="Log-in"
                   variant="ghost"
-                  className="w-full justify-start gap-2 h-8 sm:h-9 text-sm"
+                  className="w-full justify-start gap-2 h-auto py-1.5 sm:py-2 text-sm font-medium px-2.5 sm:px-3"
                 />
-              )
-
-              }
+              )}
             </DropdownMenuItem>
-
-            {/* <DropdownMenuItem asChild className="cursor-pointer text-orange-500 focus:text-orange-600">
-              {isMobile ? (
-                <Link href="/signup">
-                  Sign-up
-                </Link>
-              ) : (
-                <Sign_in_hover
-                  tag="Sign-up"
-                  variant="ghost"
-                  className="w-full justify-start gap-2 h-8 sm:h-9 text-sm"
-                />
-              )
-
-              }
-            </DropdownMenuItem> */}
           </DropdownMenuGroup>
         ) : (
           <DropdownMenuGroup>
             <DropdownMenuItem
               asChild
-              className="flex items-center gap-2 px-3 py-1.5 text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer text-sm"
+              className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
             >
               <Logout refetch={refetch} />
             </DropdownMenuItem>
           </DropdownMenuGroup>
         )}
-       
       </DropdownMenuContent>
     </DropdownMenu>
   );

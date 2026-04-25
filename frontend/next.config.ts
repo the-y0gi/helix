@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // Forced config reload to pick up inngest dependency
 
   images: {
     remotePatterns: [

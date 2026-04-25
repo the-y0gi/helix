@@ -583,7 +583,7 @@ export const OnlyCarousel = ({ type, tagline, items, isLoading }: Props) => {
           Array.from({ length: 7 }).map((_, i) => (
             <div
               key={i}
-              className="min-w-[170px] md:min-w-[216px] h-[165px] gap-1 flex flex-col md:h-[195px] rounded-xl"
+              className="w-[170px] md:w-[216px] flex-none h-[165px] gap-1 flex flex-col md:h-[195px] rounded-xl"
             >
               <Skeleton className="aspect-video w-full" />
               <div className="mt-2.5 md:mt-3 space-y-1 px-1 flex flex-col gap-2">
@@ -602,7 +602,7 @@ export const OnlyCarousel = ({ type, tagline, items, isLoading }: Props) => {
               />
             ))}
 
-            <div className="min-w-[190px] md:min-w-[235px] snap-start cursor-pointer">
+            <div className="w-[190px] md:w-[235px] flex-none snap-start cursor-pointer">
               <GalleryCard
                 onClick={handleSeeAll}
                 images={[
@@ -635,11 +635,11 @@ const CarouselButton = ({ onClick, disabled, icon }: { onClick: () => void; disa
 
 const Card = React.memo(({ item, onClick }: { item: Item; onClick: () => void }) => {
   return (
-    <div onClick={onClick} className="pl-1 min-w-[170px] md:min-w-[216px] snap-start cursor-pointer group/card">
-      <div className="aspect-[4/3] overflow-hidden rounded-xl bg-card border border-border shadow-sm">
+    <div onClick={onClick} className="pl-1 w-[170px] md:w-[216px] flex-none snap-start cursor-pointer group/card">
+      <div className="aspect-[4/3] overflow-hidden rounded-xl bg-card border border-border shadow-sm max-h-[155px]">
         <Image
           width={220}
-          height={165}
+          height={155}
           src={item.image}
           alt={item.title}
           className="h-full w-full object-cover transition-transform duration-300 group-hover/card:scale-105"
@@ -649,7 +649,7 @@ const Card = React.memo(({ item, onClick }: { item: Item; onClick: () => void })
         <h3 className="text-sm font-semibold line-clamp-1 text-card-foreground">{item.title}</h3>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <MapPin className="h-3 w-3 shrink-0" />
-          <span className="line-clamp-1">{item.location}</span>
+          <span className="line-clamp-1 ">{item.location}</span>
         </div>
       </div>
     </div>

@@ -130,7 +130,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
           " top-0 left-0 z-50 w-full bg-card    flex flex-col justify-center bg-gradient-to-br from-zinc-100 to-transparent dark:bg-gradient-to-bl dark:from-zinc-700  border-b border-gray-300 dark:border-gray-700 ",
           "h-auto",
           "bg-background",
-          isMobile ? "bg-transparent border-none static" : ""
+          isMobile ? "bg-transparent border-none shadow-md static" : ""
 
         )}
       >
