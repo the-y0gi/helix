@@ -22,16 +22,14 @@ const HotelFilterBar = ({ children, content, tagline }: Props) => {
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="w-screen flex flex-col h-screen p-0 m-0 " >
+      {/* max-w-none, h-[100dvh], rounded-none, border-none overrides the default dialog box styling */}
+      <DialogContent className="w-screen max-w-none h-[100dvh] flex flex-col p-0 m-0 z-[1000] border-none sm:rounded-none overflow-hidden" >
         <DialogHeader className="hidden">
           <DialogTitle>
-
-
           </DialogTitle>
         </DialogHeader>
-       
 
-          {content || <div className="text-center">No content available</div>}
+        {content || <div className="text-center">No content available</div>}
       </DialogContent>
     </Dialog>
   );
