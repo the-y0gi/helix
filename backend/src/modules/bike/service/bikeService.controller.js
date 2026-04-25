@@ -1,6 +1,68 @@
 const bikeService = require("./bikeService.service");
 const logger = require("../../../shared/utils/logger");
 
+//user side
+exports.getBikes = async (req, res, next) => {
+  try {
+    const data = await bikeService.getBikes(req.query);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getBikes", error);
+    next(error);
+  }
+};
+
+exports.getBikeCompanyDetails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const data = await bikeService.getBikeCompanyDetails(id);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getBikeCompanyDetails", error);
+    next(error);
+  }
+};
+
+exports.getBikeServiceDetails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const data = await bikeService.getBikeServiceDetails(id);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getBikeServiceDetails", error);
+    next(error);
+  }
+};
+
+exports.calculateBikePrice = async (req, res, next) => {
+  try {
+    const data = await bikeService.calculateBikePrice(req.body);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    logger.error("Controller Error: calculateBikePrice", error);
+    next(error);
+  }
+};
+
+//vendor side
 exports.createBikeService = async (req, res, next) => {
   try {
     const vendorId = req.user._id;

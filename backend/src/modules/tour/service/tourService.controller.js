@@ -1,6 +1,57 @@
 const tourService = require("./tourService.service");
 const logger = require("../../../shared/utils/logger");
 
+//user side
+
+exports.getTours = async (req, res, next) => {
+  try {
+    const data = await tourService.getTours(req.query);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getTours", error);
+    next(error);
+  }
+};
+
+exports.getCompanyDetails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const data = await tourService.getCompanyDetails(id);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getCompanyDetails", error);
+    next(error);
+  }
+};
+
+exports.getTourServiceDetails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const data = await tourService.getTourServiceDetails(id);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getTourServiceDetails", error);
+    next(error);
+  }
+};
+
+
+
+//vendor side
 exports.createTourService = async (req, res, next) => {
   try {
     const vendorId = req.user._id;

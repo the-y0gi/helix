@@ -1,6 +1,54 @@
 const cabService = require("./cabService.service");
 const logger = require("../../../shared/utils/logger");
 
+//user side...
+exports.getCabs = async (req, res, next) => {
+  try {
+    const data = await cabService.getCabs(req.query);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getCabs", error);
+    next(error);
+  }
+};
+
+exports.getCabCompanyDetails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const data = await cabService.getCabCompanyDetails(id);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getCabCompanyDetails", error);
+    next(error);
+  }
+};
+
+exports.getCabServiceDetails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const data = await cabService.getCabServiceDetails(id);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    logger.error("Controller Error: getCabServiceDetails", error);
+    next(error);
+  }
+};
+
+//vendor side....
 exports.createCabService = async (req, res, next) => {
   try {
     const vendorId = req.user._id;

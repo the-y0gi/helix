@@ -12,7 +12,7 @@ exports.getServiceDetails = async (req, res, next) => {
       data,
     });
   } catch (error) {
-    logger.error("Controller Error: getAdventureDetails", error);
+    logger.error("Controller Error: getServiceDetails", error);
     next(error);
   }
 };

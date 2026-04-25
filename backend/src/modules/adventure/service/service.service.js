@@ -6,7 +6,7 @@ const Tax = require("../../admin/tax/tax.model");
 exports.getServiceDetails = async (id) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error("Invalid adventure id");
+      throw new Error("Invalid service id");
     }
 
     const adventure = await Adventure.findOne({

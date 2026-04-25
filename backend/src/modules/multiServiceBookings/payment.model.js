@@ -74,12 +74,14 @@ const paymentSchema = new mongoose.Schema(
     },
 
     refundedAt: Date,
-
     metadata: {
-      type: Object,
-      default: {},
+      serviceType: String,
+      bookingReference: String,
+      extra: {
+        type: Object,
+        default: {},
+      },
     },
-
     expiresAt: {
       type: Date,
       index: { expires: "0s" },

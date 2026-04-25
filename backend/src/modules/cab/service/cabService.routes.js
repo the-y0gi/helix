@@ -4,6 +4,14 @@ const cabServiceController = require("./cabService.controller");
 const { protect } = require("../../../shared/middlewares/verifyToken");
 const { authorize } = require("../../../shared/middlewares/roleMiddleware");
 
+//user side...
+
+router.get("/", cabServiceController.getCabs);
+router.get("/:id", cabServiceController.getCabServiceDetails);
+
+router.get("/company/:id", cabServiceController.getCabCompanyDetails);
+
+
 //vendor routes...
 
 router.post(

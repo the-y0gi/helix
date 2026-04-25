@@ -6,8 +6,18 @@ const { authorize } = require("../../../shared/middlewares/roleMiddleware");
 
 router.use(protect);
 
-router.get("/", protect, authorize("vendor"), bookingController.getUserBookings);
+router.get(
+  "/",
+  protect,
+  authorize("vendor"),
+  bookingController.getVendorBookings,
+);
 
-router.get("/:id", protect, authorize("vendor"), bookingController.getUserBookingById);
+router.get(
+  "/:id",
+  protect,
+  authorize("vendor"),
+  bookingController.getVendorBookingById,
+);
 
 module.exports = router;

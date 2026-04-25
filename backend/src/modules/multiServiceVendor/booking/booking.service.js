@@ -1,81 +1,237 @@
 const mongoose = require("mongoose");
 const Booking = require("../../multiServiceBookings/booking.model");
 
-exports.getUserBookings = async (query = {}, vendorId) => {
+// exports.getUserBookings = async (query = {}, vendorId) => {
+//   try {
+//     const { serviceType, status, search, page = 1, limit = 10 } = query;
+
+//     const skip = (Number(page) - 1) * Number(limit);
+
+//     const filter = {
+//       vendorId,
+//     };
+
+//     if (serviceType) {
+//       filter.serviceType = serviceType;
+//     }
+
+//     if (status) {
+//       filter.status = status;
+//     }
+
+//     //SEARCH (customer name + bookingReference)
+//     if (search) {
+//       filter.$or = [
+//         {
+//           bookingReference: {
+//             $regex: search,
+//             $options: "i",
+//           },
+//         },
+//         {
+//           "primaryCustomer.firstName": {
+//             $regex: search,
+//             $options: "i",
+//           },
+//         },
+//         {
+//           "primaryCustomer.lastName": {
+//             $regex: search,
+//             $options: "i",
+//           },
+//         },
+//       ];
+//     }
+
+//     const bookings = await Booking.find(filter)
+//       .sort({ createdAt: -1 }) // latest first
+//       .skip(skip)
+//       .limit(Number(limit))
+//       .select(
+//         "bookingReference serviceType bookingDate extraInfo pricing.totalAmount status paymentStatus primaryCustomer serviceSnapshot",
+//       )
+//       .lean();
+
+//     const total = await Booking.countDocuments(filter);
+
+//     const formattedBookings = bookings.map((b) => ({
+//       id: b._id,
+
+//       bookingReference: b.bookingReference,
+
+//       customerName: `${b.primaryCustomer.firstName} ${
+//         b.primaryCustomer.lastName || ""
+//       }`,
+
+//       serviceTitle: b.serviceSnapshot?.title || "N/A",
+
+//       serviceType: b.serviceType,
+
+//       bookingDate: b.bookingDate,
+
+//       extraInfo: b.extraInfo || {},
+
+//       amount: b.pricing?.totalAmount || 0,
+
+//       status: b.status,
+//       paymentStatus: b.paymentStatus,
+//     }));
+
+//     return {
+//       count: formattedBookings.length,
+//       total,
+//       page: Number(page),
+//       pages: Math.ceil(total / limit),
+//       data: formattedBookings,
+//     };
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+// exports.getUserBookingById = async (bookingId, vendorId) => {
+//   try {
+//     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+//       throw new Error("Invalid booking id");
+//     }
+
+//     const booking = await Booking.findOne({
+//       _id: bookingId,
+//       vendorId,
+//     })
+//       .select(
+//         "bookingReference serviceType serviceSnapshot bookingDate timeSlot primaryCustomer participants meta extraInfo pricing status paymentStatus createdAt",
+//       )
+//       .lean();
+
+//     if (!booking) {
+//       throw new Error("Booking not found");
+//     }
+
+//     const formattedBooking = {
+//       id: booking._id,
+
+//       bookingReference: booking.bookingReference,
+
+//       service: {
+//         title: booking.serviceSnapshot?.title || "N/A",
+//         type: booking.serviceType,
+//         subType: booking.serviceSnapshot?.type || null,
+//       },
+
+//       customer: {
+//         name: `${booking.primaryCustomer.firstName} ${
+//           booking.primaryCustomer.lastName || ""
+//         }`,
+//         email: booking.primaryCustomer.email,
+//         phone: booking.primaryCustomer.phoneNumber,
+//       },
+
+//       bookingDate: booking.bookingDate,
+//       timeSlot: booking.timeSlot || null,
+
+//       extraInfo: booking.extraInfo || {},
+
+//       participants: booking.participants || [],
+
+//       meta: booking.meta || {},
+
+//       pricing: {
+//         baseAmount: booking.pricing?.baseAmount || 0,
+//         taxAmount: booking.pricing?.taxAmount || 0,
+//         taxPercentage: booking.pricing?.taxPercentage || 0,
+//         totalAmount: booking.pricing?.totalAmount || 0,
+//       },
+
+//       status: booking.status,
+//       paymentStatus: booking.paymentStatus,
+
+//       createdAt: booking.createdAt,
+//     };
+
+//     return formattedBooking;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+exports.getVendorBookings = async (query = {}, vendor) => {
   try {
-    const { serviceType, status, search, page = 1, limit = 10 } = query;
+    const { status, search, page = 1, limit = 10 } = query;
 
     const skip = (Number(page) - 1) * Number(limit);
 
     const filter = {
-      vendorId,
+      vendorId: vendor.userId,
+      serviceType: vendor.serviceType,
     };
-
-    if (serviceType) {
-      filter.serviceType = serviceType;
-    }
 
     if (status) {
       filter.status = status;
     }
 
-    //SEARCH (customer name + bookingReference)
     if (search) {
       filter.$or = [
-        {
-          bookingReference: {
-            $regex: search,
-            $options: "i",
-          },
-        },
-        {
-          "primaryCustomer.firstName": {
-            $regex: search,
-            $options: "i",
-          },
-        },
-        {
-          "primaryCustomer.lastName": {
-            $regex: search,
-            $options: "i",
-          },
-        },
+        { bookingReference: { $regex: search, $options: "i" } },
+        { "primaryCustomer.firstName": { $regex: search, $options: "i" } },
+        { "primaryCustomer.lastName": { $regex: search, $options: "i" } },
       ];
     }
 
     const bookings = await Booking.find(filter)
-      .sort({ createdAt: -1 }) // latest first
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit))
       .select(
-        "bookingReference serviceType bookingDate extraInfo pricing.totalAmount status paymentStatus primaryCustomer serviceSnapshot",
+        "bookingReference serviceType bookingDate extraInfo pricing.totalAmount status paymentStatus primaryCustomer serviceSnapshot duration quantity",
       )
       .lean();
 
     const total = await Booking.countDocuments(filter);
 
-    const formattedBookings = bookings.map((b) => ({
-      id: b._id,
+    // MULTI-SERVICE FORMAT
+    const formattedBookings = bookings.map((b) => {
+      let serviceDetails = "";
 
-      bookingReference: b.bookingReference,
+      if (b.serviceType === "adventure") {
+        serviceDetails = `${b.quantity} Person`;
+      }
 
-      customerName: `${b.primaryCustomer.firstName} ${
-        b.primaryCustomer.lastName || ""
-      }`,
+      if (b.serviceType === "cab") {
+        serviceDetails = b.extraInfo?.value || "Route N/A";
+      }
 
-      serviceTitle: b.serviceSnapshot?.title || "N/A",
+      if (b.serviceType === "bike") {
+        serviceDetails = `${b.duration?.totalDays || 0} Days`;
+      }
 
-      serviceType: b.serviceType,
+      if (b.serviceType === "tour") {
+        serviceDetails = `${b.quantity} Person • ${
+          b.duration?.totalDays || 0
+        } Days`;
+      }
 
-      bookingDate: b.bookingDate,
+      return {
+        id: b._id,
+        bookingReference: b.bookingReference,
 
-      extraInfo: b.extraInfo || {},
+        customerName: `${b.primaryCustomer.firstName} ${
+          b.primaryCustomer.lastName || ""
+        }`,
 
-      amount: b.pricing?.totalAmount || 0,
+        serviceTitle: b.serviceSnapshot?.title || "N/A",
+        serviceType: b.serviceType,
 
-      status: b.status,
-      paymentStatus: b.paymentStatus,
-    }));
+        serviceDetails,
+
+        bookingDate: b.bookingDate,
+
+        amount: b.pricing?.totalAmount || 0,
+
+        status: b.status,
+        paymentStatus: b.paymentStatus,
+      };
+    });
 
     return {
       count: formattedBookings.length,
@@ -89,7 +245,7 @@ exports.getUserBookings = async (query = {}, vendorId) => {
   }
 };
 
-exports.getUserBookingById = async (bookingId, vendorId) => {
+exports.getVendorBookingById = async (bookingId, vendor) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
       throw new Error("Invalid booking id");
@@ -97,15 +253,48 @@ exports.getUserBookingById = async (bookingId, vendorId) => {
 
     const booking = await Booking.findOne({
       _id: bookingId,
-      vendorId,
+      vendorId: vendor.userId,
+      serviceType: vendor.serviceType,
     })
       .select(
-        "bookingReference serviceType serviceSnapshot bookingDate timeSlot primaryCustomer participants meta extraInfo pricing status paymentStatus createdAt",
+        "bookingReference serviceType serviceSnapshot bookingDate timeSlot primaryCustomer participants meta extraInfo duration quantity pricing status paymentStatus createdAt",
       )
       .lean();
 
     if (!booking) {
       throw new Error("Booking not found");
+    }
+
+    // MULTI-SERVICE DETAILS
+    let serviceDetails = {};
+
+    if (booking.serviceType === "adventure") {
+      serviceDetails = {
+        persons: booking.quantity,
+        info: booking.extraInfo,
+      };
+    }
+
+    if (booking.serviceType === "cab") {
+      serviceDetails = {
+        route: booking.extraInfo?.value || "N/A",
+      };
+    }
+
+    if (booking.serviceType === "bike") {
+      serviceDetails = {
+        days: booking.duration?.totalDays || 1,
+        startDate: booking.duration?.startDate,
+        endDate: booking.duration?.endDate,
+      };
+    }
+
+    if (booking.serviceType === "tour") {
+      serviceDetails = {
+        persons: booking.quantity,
+        days: booking.duration?.totalDays || 0,
+        startDate: booking.duration?.startDate,
+      };
     }
 
     const formattedBooking = {
@@ -117,6 +306,7 @@ exports.getUserBookingById = async (bookingId, vendorId) => {
         title: booking.serviceSnapshot?.title || "N/A",
         type: booking.serviceType,
         subType: booking.serviceSnapshot?.type || null,
+        details: serviceDetails,
       },
 
       customer: {
@@ -130,11 +320,10 @@ exports.getUserBookingById = async (bookingId, vendorId) => {
       bookingDate: booking.bookingDate,
       timeSlot: booking.timeSlot || null,
 
-      extraInfo: booking.extraInfo || {},
-
       participants: booking.participants || [],
 
       meta: booking.meta || {},
+      extraInfo: booking.extraInfo || {},
 
       pricing: {
         baseAmount: booking.pricing?.baseAmount || 0,
@@ -142,6 +331,9 @@ exports.getUserBookingById = async (bookingId, vendorId) => {
         taxPercentage: booking.pricing?.taxPercentage || 0,
         totalAmount: booking.pricing?.totalAmount || 0,
       },
+
+      quantity: booking.quantity,
+      duration: booking.duration || null,
 
       status: booking.status,
       paymentStatus: booking.paymentStatus,

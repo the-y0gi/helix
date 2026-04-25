@@ -4,8 +4,14 @@ const tourServiceController = require("./tourService.controller");
 const { protect } = require("../../../shared/middlewares/verifyToken");
 const { authorize } = require("../../../shared/middlewares/roleMiddleware");
 
-//vendor routes...
+//user side
 
+router.get("/", tourServiceController.getTours);
+router.get("/:id", tourServiceController.getTourServiceDetails);
+
+router.get("/company/:id", tourServiceController.getCompanyDetails);
+
+//vendor routes...
 router.post(
   "/vendor/tour-services",
   protect,

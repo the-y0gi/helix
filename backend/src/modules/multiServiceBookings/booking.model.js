@@ -31,7 +31,7 @@ const bookingSchema = new mongoose.Schema(
 
     serviceType: {
       type: String,
-      enum: ["adventure", "cab", "tour"],
+      enum: ["adventure", "cab", "tour", "bike"],
       required: true,
       index: true,
     },
@@ -55,7 +55,14 @@ const bookingSchema = new mongoose.Schema(
     },
 
     timeSlot: {
-      type: String, // optional (paragliding etc.)
+      type: String, //adventure specific
+    },
+
+    // bike & tour specific
+    duration: {
+      startDate: Date,
+      endDate: Date,
+      totalDays: Number,
     },
 
     primaryCustomer: {
@@ -102,8 +109,18 @@ const bookingSchema = new mongoose.Schema(
       type: { type: String },
       price: { type: Number },
       vendorId: { type: mongoose.Schema.ObjectId },
+
+      extra: {
+        type: Object,
+        default: {},
+      },
     },
 
+    // quantity meaning:
+    // adventure → participants
+    // bike → days
+    // tour → people
+    // cab → 1
     quantity: {
       type: Number,
       default: 1,
@@ -155,6 +172,7 @@ const bookingSchema = new mongoose.Schema(
 );
 
 bookingSchema.index({ userId: 1, createdAt: -1 });
+bookingSchema.index({ vendorId: 1, createdAt: -1 });
 bookingSchema.index({ serviceId: 1, serviceType: 1 });
 bookingSchema.index({ bookingDate: 1, status: 1 });
 bookingSchema.index({ paymentStatus: 1, status: 1 });
