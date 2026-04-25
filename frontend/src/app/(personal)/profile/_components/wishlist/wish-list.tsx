@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import React from "react"
 import { labelType, SavedTripsSection } from "./details-lists"
 import { PageSkeleton } from "@/components/loader/skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { useGetFavouriteSummary } from "@/services/personal/queryes"
@@ -79,8 +80,7 @@ export function WishlistSection() {
             <div className="grid gap-6 sm:grid-cols-1  lg:grid-cols-3 ">
                 {
                     isLoading ?
-
-                        <PageSkeleton />
+                        <WishlistCardSkeleton large={false} />
                         : <WishlistCard
                             id={"1"}
                             title={mytrips?.data?.name}
@@ -93,7 +93,7 @@ export function WishlistSection() {
                 {
                     isLoading ? [...Array(2)].map((_, i) => {
                         return (
-                            <PageSkeleton key={i} />
+                            <WishlistCardSkeleton key={i} large={true} />
                         )
                     }) : (
                         wishlistData.map((val, i) => {
@@ -169,3 +169,40 @@ export function WishlistCard({
         </Card>
     )
 }
+
+export function WishlistCardSkeleton({ large = false }: { large?: boolean }) {
+    return (
+        <Card className="overflow-hidden min-w-[150px] rounded-xl shadow-sm bg-background">
+            <div className="p-3 space-y-4">
+                {/* Image Section */}
+                {large ? (
+                    <div className="relative w-full h-60 rounded-lg overflow-hidden">
+                        <Skeleton className="w-full h-full" />
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                        <div className="relative h-28 rounded-lg overflow-hidden">
+                            <Skeleton className="w-full h-full" />
+                        </div>
+                        <div className="relative h-28 rounded-lg overflow-hidden">
+                            <Skeleton className="w-full h-full" />
+                        </div>
+                        <div className="relative h-28 rounded-lg overflow-hidden">
+                            <Skeleton className="w-full h-full" />
+                        </div>
+                        <div className="relative h-28 rounded-lg overflow-hidden">
+                            <Skeleton className="w-full h-full" />
+                        </div>
+                    </div>
+                )}
+
+                {/* Text */}
+                <div>
+                    <Skeleton className="h-6 w-3/4 mb-1" />
+                    <Skeleton className="h-4 w-1/4" />
+                </div>
+            </div>
+        </Card>
+    )
+}
+

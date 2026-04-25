@@ -13,6 +13,7 @@ import { WishlistSection } from "./_components/wishlist/wish-list"
 import { ReviewList } from "./_components/reviews/my-reviews"
 import { MessageModal } from "@/components/messagemodal"
 import { PageSkeleton } from "@/components/loader/skeleton"
+import { ProfileLayoutSkeleton } from "./layout"
 // import { ActiveReservations, AllReservations, CancelledReservations, CompletedReservations } from "./_components/trips/all"
 
 type ProfileTabKey =
@@ -54,7 +55,7 @@ export default function Page({ className }: { className?: string }) {
   return (
     <div className={cn("w-full flex", className)}>
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
-        <Suspense fallback={<PageSkeleton />}>
+        <Suspense fallback={<ProfileLayoutSkeleton />}>
           {tabValues.map((value) => (
             <TabsContent
               key={value}

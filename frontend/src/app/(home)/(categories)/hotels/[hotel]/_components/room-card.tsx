@@ -788,6 +788,7 @@ import { useSliderIfNotChooseDate } from "../_providers_context/SliderIfNotChoos
 import { motion } from "framer-motion"; // fixed typo: motion/react → framer-motion
 import { useState } from "react";
 import { Spinner } from "@/components/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface RoomCardProps {
   hotelId: string;
@@ -1078,6 +1079,73 @@ export function HotelRoomCard({
                     : bothdate ? "Reserve" : "Select Dates"}
               </Button>
             )}
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+export function HotelRoomCardSkeleton() {
+  return (
+    <Card
+      className={cn(
+        "w-full overflow-hidden border border-border/60 bg-card",
+        "rounded-2xl mb-4 last:mb-0",
+      )}
+    >
+      <div
+        className={cn(
+          "grid grid-cols-1 md:grid-cols-[minmax(0,280px)_1fr_minmax(0,220px)]",
+          "lg:grid-cols-[minmax(0,320px)_1fr_minmax(0,240px)]",
+          "min-h-[220px] md:min-h-[260px]",
+        )}
+      >
+        {/* IMAGE SECTION */}
+        <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-full overflow-hidden flex-shrink-0 px-2 pt-2 md:pt-0 md:px-3">
+          <Skeleton className="w-full h-full rounded-xl md:rounded-2xl" />
+        </div>
+
+        {/* CONTENT SECTION */}
+        <div className="p-4 md:p-5 lg:p-6 flex flex-col justify-between border-b md:border-b-0 md:border-r border-border">
+          <div className="space-y-3 md:space-y-4">
+            <div className="flex items-start justify-between gap-2 md:gap-3">
+              <div className="flex-1 min-w-0">
+                 <Skeleton className="h-6 md:h-7 lg:h-8 w-[80%] max-w-[300px]" />
+                 <Skeleton className="h-4 md:h-5 w-[100px] mt-2" />
+              </div>
+              <div className="flex flex-col items-end flex-shrink-0">
+                 <Skeleton className="h-4 w-12 rounded mb-1" />
+                 <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 md:gap-6 py-2 md:py-3 border-y border-border">
+              <div className="flex flex-col gap-2 w-full">
+                 <Skeleton className="h-4 w-20" />
+                 <Skeleton className="h-4 w-24" />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5 md:gap-2 text-muted-foreground mt-2">
+                <Skeleton className="h-6 md:h-7 w-20 rounded-full" />
+                <Skeleton className="h-6 md:h-7 w-24 rounded-full" />
+                <Skeleton className="h-6 md:h-7 w-16 rounded-full" />
+                <Skeleton className="h-6 md:h-7 w-28 rounded-full" />
+                <Skeleton className="h-6 md:h-7 w-20 rounded-full" />
+            </div>
+          </div>
+        </div>
+
+        {/* PRICING & CTA SECTION */}
+        <div className="bg-muted/20 p-4 md:p-5 lg:p-6 flex flex-col justify-between items-end">
+          <div className="text-right space-y-1.5 md:space-y-2 w-full flex flex-col items-end">
+             <Skeleton className="h-4 md:h-5 w-16" />
+             <Skeleton className="h-8 md:h-10 lg:h-12 w-32 mt-1" />
+          </div>
+
+          <div className="w-full mt-4 md:mt-5">
+             <Skeleton className="w-full h-9 md:h-11 lg:h-12 rounded-xl" />
           </div>
         </div>
       </div>

@@ -78,13 +78,20 @@ const ProfilePic = () => {
   const isMobile = useIsMobile()
   const isLoggedIn = !!user?.data;
   const router = useRouter()
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleNavigate = (path: string) => {
     if (pathname === path) return;
     goWithAuth(path, isLoggedIn);
     toast.success("Redirecting...");
   };
 
-  if (isLoading) {
+  // Render a skeleton during SSR and before client mount to prevent hydration mismatch
+  if (!mounted || isLoading) {
     return <Skeleton className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full" />;
   }
   if (!user) return null
