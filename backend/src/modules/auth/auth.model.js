@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       // required: [true, "Email is required"],
       // unique: true,
-      sparse: true, 
+      sparse: true,
       lowercase: true,
       trim: true,
     },
@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema(
     },
     firstName: { type: String, trim: true },
     lastName: { type: String, trim: true },
-    phoneNumber: { type: String, unique: true,trim: true },
+    phoneNumber: { type: String, unique: true, trim: true },
     gender: {
       type: String,
       enum: ["male", "female", "other"],
@@ -48,6 +48,18 @@ const userSchema = new mongoose.Schema(
     },
     otp: { type: String, select: false },
     otpExpires: { type: Date, select: false },
+
+    otpAttempts: {
+      type: Number,
+      default: 0,
+      select: false,
+    },
+
+    signupExpires: {
+      type: Date,
+      select: false,
+    },
+
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true },

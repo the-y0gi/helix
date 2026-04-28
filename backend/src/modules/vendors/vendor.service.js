@@ -1,7 +1,13 @@
 const Vendor = require("./vendor.model");
 const VendorBank = require("../vendorBank/bank.model");
 const Hotel = require("../hotels/hotel.model");
-const User = require("../../modules/auth/auth.model")
+const User = require("../../modules/auth/auth.model");
+
+const {
+  sendAdminVendorNotificationEmail,
+  sendVendorSubmissionConfirmationEmail,
+} = require("../../shared/utils/sendEmail");
+
 const logger = require("../../shared/utils/logger");
 
 // Create vendor profile
@@ -46,7 +52,7 @@ exports.getVendorMe = async (userId) => {
     const bank = await VendorBank.findOne({ vendorId: vendor._id });
     const hotel = await Hotel.findOne({ vendorId: vendor._id });
 
-    // base response 
+    // base response
     const response = {
       vendor: {
         status: vendor.status,
@@ -94,7 +100,7 @@ exports.getVendorMe = async (userId) => {
         : null,
     };
 
-    //APPROVED DATA 
+    //APPROVED DATA
     if (vendor.status === "approved") {
       response.approvedData = {
         vendorName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
@@ -200,6 +206,18 @@ exports.submitVendor = async (vendor) => {
     vendor.submittedAt = new Date();
 
     await vendor.save();
+
+    let hotel = null;
+    if (vendor.serviceType === "hotel") {
+      hotel = await Hotel.findOne({ vendorId: vendor._id });
+    }
+    //send email to admin and vendor
+    Promise.all([
+      sendAdminVendorNotificationEmail(vendor, hotel),
+      sendVendorSubmissionConfirmationEmail(vendor),
+    ]).catch((err) => {
+      console.error("Email sending failed:", err.message);
+    });
 
     return vendor;
   } catch (error) {
