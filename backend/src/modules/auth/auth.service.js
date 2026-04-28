@@ -149,6 +149,53 @@ exports.whatsappLogin = async (phone, password) => {
   }
 };
 
+// exports.signup = async (email, password, role) => {
+//   try {
+//     const allowedRoles = ["user", "vendor", "admin"];
+
+//     if (role && !allowedRoles.includes(role)) {
+//       throw new Error("Invalid role");
+//     }
+
+//     let user = await User.findOne({ email });
+
+//     if (user && user.providers.local.isVerified) {
+//       throw new Error("Email already registered. Please login.");
+//     }
+
+//     const { otp, otpExpires } = await generateOTP();
+
+//     if (!user) {
+//       user = new User({
+//         email,
+//         password,
+//         role: role || "user",
+//         otp,
+//         otpExpires,
+//         isVendor: role === "vendor",
+//         providers: {
+//           local: { isVerified: false },
+//         },
+//       });
+//     } else {
+//       // don't blindly overwrite password unless needed
+//       if (password) user.password = password;
+
+//       user.otp = otp;
+//       user.otpExpires = otpExpires;
+//       user.providers.local.isVerified = false;
+//     }
+
+//     await user.save();
+//     await sendOTPEmail(email, otp);
+
+//     return { message: "OTP sent to your email for verification" };
+//   } catch (error) {
+//     logger.error("Service Error: signup", error);
+//     throw error;
+//   }
+// };
+
 exports.signup = async (email, password, role) => {
   try {
     const allowedRoles = ["user", "vendor", "admin"];
@@ -156,6 +203,12 @@ exports.signup = async (email, password, role) => {
     if (role && !allowedRoles.includes(role)) {
       throw new Error("Invalid role");
     }
+
+    //delete old unverified user
+    await User.deleteOne({
+      email,
+      "providers.local.isVerified": false,
+    });
 
     let user = await User.findOne({ email });
 
@@ -165,6 +218,9 @@ exports.signup = async (email, password, role) => {
 
     const { otp, otpExpires } = await generateOTP();
 
+    //Signup expiry (5 min)
+    const signupExpires = Date.now() + 5 * 60 * 1000;
+
     if (!user) {
       user = new User({
         email,
@@ -172,17 +228,20 @@ exports.signup = async (email, password, role) => {
         role: role || "user",
         otp,
         otpExpires,
+        signupExpires,
+        otpAttempts: 0,
         isVendor: role === "vendor",
         providers: {
           local: { isVerified: false },
         },
       });
     } else {
-      // don't blindly overwrite password unless needed
       if (password) user.password = password;
 
       user.otp = otp;
       user.otpExpires = otpExpires;
+      user.signupExpires = signupExpires;
+      user.otpAttempts = 0; 
       user.providers.local.isVerified = false;
     }
 
@@ -268,35 +327,114 @@ exports.resendOTP = async (email) => {
   }
 };
 
+// exports.verifyOTP = async (email, inputOTP) => {
+//   try {
+//     const user = await User.findOne({ email }).select("+otp +otpExpires");
+//     if (!user) throw new Error("User not found");
+
+//     if (!user.otpExpires || Date.now() > user.otpExpires) {
+//       throw new Error("OTP expired");
+//     }
+
+//     if (String(inputOTP) !== String(user.otp)) {
+//       throw new Error("Invalid OTP");
+//     }
+
+//     // verify user
+//     user.providers.local.isVerified = true;
+//     user.otp = undefined;
+//     user.otpExpires = undefined;
+//     await user.save();
+
+//     let vendor = null;
+
+//     //CREATE VENDOR IF ROLE = VENDOR
+//     if (user.role === "vendor") {
+//       vendor = await Vendor.findOne({ userId: user._id });
+
+//       if (!vendor) {
+//         vendor = await Vendor.create({
+//           userId: user._id,
+//           serviceType: null, // step 2 set
+//           status: "draft",
+//           currentStep: 1,
+//           registrationStep: 1,
+//         });
+//       }
+//     }
+
+//     return {
+//       user,
+//       vendor,
+//       message: "Verification successful",
+//     };
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
 exports.verifyOTP = async (email, inputOTP) => {
   try {
-    const user = await User.findOne({ email }).select("+otp +otpExpires");
+    const user = await User.findOne({ email }).select(
+      "+otp +otpExpires +otpAttempts +signupExpires"
+    );
+
     if (!user) throw new Error("User not found");
 
+    //Signup expiry check (5 min)
+    if (!user.signupExpires || Date.now() > user.signupExpires) {
+      await User.deleteOne({ _id: user._id });
+      throw new Error("Signup expired. Please signup again.");
+    }
+
+    //OTP expiry check
     if (!user.otpExpires || Date.now() > user.otpExpires) {
-      throw new Error("OTP expired");
+      await User.deleteOne({ _id: user._id });
+      throw new Error("OTP expired. Please signup again.");
     }
 
+    //Attempt limit check (before comparing)
+    if (user.otpAttempts >= 3) {
+      await User.deleteOne({ _id: user._id });
+      throw new Error("Too many attempts. Please signup again.");
+    }
+
+    //OTP match check
     if (String(inputOTP) !== String(user.otp)) {
-      throw new Error("Invalid OTP");
+      user.otpAttempts += 1;
+
+      // if reached 3 attempts → delete user
+      if (user.otpAttempts >= 3) {
+        await User.deleteOne({ _id: user._id });
+        throw new Error(
+          "Too many incorrect attempts. Please signup again."
+        );
+      }
+
+      await user.save();
+
+      throw new Error(
+        `Invalid OTP. Attempts left: ${3 - user.otpAttempts}`
+      );
     }
 
-    // verify user
     user.providers.local.isVerified = true;
     user.otp = undefined;
     user.otpExpires = undefined;
+    user.otpAttempts = 0;
+    user.signupExpires = undefined;
+
     await user.save();
 
     let vendor = null;
 
-    //CREATE VENDOR IF ROLE = VENDOR
     if (user.role === "vendor") {
       vendor = await Vendor.findOne({ userId: user._id });
 
       if (!vendor) {
         vendor = await Vendor.create({
           userId: user._id,
-          serviceType: null, // step 2 set
+          serviceType: null,
           status: "draft",
           currentStep: 1,
           registrationStep: 1,

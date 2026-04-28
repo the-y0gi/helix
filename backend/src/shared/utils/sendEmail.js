@@ -102,8 +102,166 @@ const sendBookingConfirmationEmail = async (email, details) => {
   }
 };
 
+const sendAdminVendorNotificationEmail = async (vendor, hotel = null) => {
+  try {
+    const subject = "🚨 New Vendor Submission Received";
+
+    const mailOptions = {
+      from: `"Helix Support" <${process.env.EMAIL_USER}>`,
+      to: process.env.ADMIN_EMAIL,
+      subject,
+      html: `
+        <h2>New Vendor Request 🚀</h2>
+
+        <p><b>Business Name:</b> ${vendor.businessName || "N/A"}</p>
+        <p><b>Email:</b> ${vendor.businessEmail || "N/A"}</p>
+        <p><b>Phone:</b> ${vendor.businessPhone || "N/A"}</p>
+        <p><b>City:</b> ${vendor.city || "N/A"}</p>
+        <p><b>Service Type:</b> ${vendor.serviceType}</p>
+
+        ${
+          hotel
+            ? `
+          <hr/>
+          <h3>Hotel Info</h3>
+          <p><b>Name:</b> ${hotel.name}</p>
+          <p><b>City:</b> ${hotel.city}</p>
+          <p><b>Address:</b> ${hotel.address}</p>
+        `
+            : ""
+        }
+
+        <br/>
+        <p>Please review and take action from admin panel.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    logger.error("Admin vendor email failed:", err.message);
+    throw err;
+  }
+};
+
+const sendVendorSubmissionConfirmationEmail = async (vendor) => {
+  try {
+    const subject = "Your Request is Under Review ⏳";
+
+    const mailOptions = {
+      from: `"Helix Support" <${process.env.EMAIL_USER}>`,
+      to: vendor.businessEmail,
+      subject,
+      html: `
+        <h2>Hello ${vendor.businessName || "Vendor"},</h2>
+
+        <p>Thank you for submitting your business on <b>Helix</b> 🚀</p>
+
+        <p>Your request is currently under review by our team.</p>
+
+        <p>⏳ You will be notified once it's approved.</p>
+
+        <br/>
+
+        <p>— Team Helix</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    logger.error("Vendor confirmation email failed:", err.message);
+    throw err;
+  }
+};
+
+const sendVendorApprovalEmail = async (vendor) => {
+  try {
+    const subject = "🎉 Your Vendor Application is Approved!";
+
+    const mailOptions = {
+      from: `"Helix Support" <${process.env.EMAIL_USER}>`,
+      to: vendor.businessEmail,
+      subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>Congratulations ${vendor.businessName || "Vendor"} 🎉</h2>
+
+          <p>Your application has been <b style="color: green;">approved</b> by our team.</p>
+
+          <p>You can now:</p>
+          <ul>
+            <li>Login to your dashboard</li>
+            <li>Add your listings (Hotel, Cab, etc.)</li>
+            <li>Start receiving bookings 🚀</li>
+          </ul>
+
+          <br/>
+
+          <p>We’re excited to have you onboard!</p>
+
+          <p>— Team Helix</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    logger.error("Vendor approval email failed:", err.message);
+    throw err;
+  }
+};
+
+const sendVendorRejectionEmail = async (vendor) => {
+  try {
+    const subject = "❌ Your Vendor Application Needs Changes";
+
+    // reasons ko readable list me convert
+    let reasonsHtml = "<p>No specific reasons provided.</p>";
+    if (
+      vendor.rejectionReasons &&
+      Object.keys(vendor.rejectionReasons).length
+    ) {
+      reasonsHtml = "<ul>";
+      for (const [step, reason] of Object.entries(vendor.rejectionReasons)) {
+        reasonsHtml += `<li><b>Step ${step}:</b> ${reason}</li>`;
+      }
+      reasonsHtml += "</ul>";
+    }
+
+    const mailOptions = {
+      from: `"Helix Support" <${process.env.EMAIL_USER}>`,
+      to: vendor.businessEmail,
+      subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>Hello ${vendor.businessName || "Vendor"},</h2>
+
+          <p>Your application has been <b style="color: red;">rejected</b> for now.</p>
+
+          <p><b>Issues to fix:</b></p>
+          ${reasonsHtml}
+
+          <p>Please log in, fix the above issues, and resubmit your application.</p>
+
+
+          <br/>
+          <p>— Team Helix</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    logger.error("Vendor rejection email failed:", err.message);
+    throw err;
+  }
+};
+
 module.exports = {
   sendWhatsAppOTP,
   sendOTPEmail,
   sendBookingConfirmationEmail,
+  sendAdminVendorNotificationEmail,
+  sendVendorSubmissionConfirmationEmail,
+  sendVendorApprovalEmail,
+  sendVendorRejectionEmail,
 };
