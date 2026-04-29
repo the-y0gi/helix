@@ -89,7 +89,7 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-app.get("/health", (req, res) => res.status(200).send("API is running..."));
+app.get("/", (req, res) => res.status(200).send("Backend is running..."));
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
