@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { HotelCard } from "./CardCompo";
+import { HotelCard, HotelCardSkeleton } from "./CardCompo";
 import { cn } from "@/lib/utils";
 import { ComboboxMultiple } from "./combobox-multiple";
 import { Pagination_console } from "./pagination-console";
@@ -67,15 +67,19 @@ export const Content = ({ className }: { className: string }) => {
     return (
       <>
         <ScrollToTopByParams />
-        <div className={cn("flex px-2 flex-wrap", className)}>
+        <div
+          className={cn(
+            "grid px-2 gap-y-8",
+            (wrap || isMobile)
+              ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 justify-items-center"
+              : "grid-cols-1",
+            className
+          )}
+        >
           {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className={cn(
-                "rounded-2xl bg-muted animate-pulse",
-                wrap || isMobile ? "w-[290px] h-[420px]" : "w-full h-[220px]"
-              )}
-            />
+            <div key={i} className="w-full">
+              <HotelCardSkeleton wrap={wrap} />
+            </div>
           ))}
         </div>
       </>

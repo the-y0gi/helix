@@ -312,6 +312,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { IconStarFilled } from "@tabler/icons-react";
 import React from "react";
@@ -638,3 +639,114 @@ export const  HotelCard =({
     </Card>
   );
 }
+
+export const HotelCardSkeleton = ({ wrap }: { wrap?: boolean }) => {
+  const isMobile = useIsMobile();
+  const isHorizontal = !isMobile && !wrap;
+
+  if (isMobile) {
+    return (
+      <Card className="group overflow-hidden rounded-xl border bg-card w-full shadow-md pt-0">
+        <Skeleton className="w-full h-[180px] rounded-t-xl rounded-b-none" />
+        <CardContent className="p-3.5 flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
+            <div className="flex justify-between items-start gap-1">
+              <Skeleton className="h-5 w-2/3" />
+              <div className="flex shrink-0 gap-0.5 pt-1">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-3 w-3 rounded-full" />
+                ))}
+              </div>
+            </div>
+            <Skeleton className="h-3 w-1/3 mt-0.5" />
+          </div>
+          <div className="flex items-center justify-between gap-3 pt-1">
+            <div className="flex flex-col items-start gap-1 w-20">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-3 w-12" />
+            </div>
+            <Skeleton className="h-8 w-8 rounded-lg rounded-bl-none" />
+          </div>
+          <Skeleton className="h-8 w-full mt-1" />
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            <Skeleton className="h-4 w-16 rounded-full" />
+            <Skeleton className="h-4 w-20 rounded-full" />
+            <Skeleton className="h-4 w-14 rounded-full" />
+          </div>
+          <div className="pt-3 border-t flex flex-col gap-1.5 mt-1">
+            <div className="flex flex-row items-end justify-between">
+              <div className="flex flex-col items-start gap-1 w-24">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+              <div className="text-right flex flex-col items-end gap-1">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-3 w-8" />
+                <Skeleton className="h-6 w-16" />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card
+      className={cn(
+        "group overflow-hidden rounded-2xl border bg-card transition-all duration-300",
+        isHorizontal ? "flex flex-row w-full min-h-[260px]" : "flex flex-col w-full min-h-[400px]"
+      )}
+    >
+      <Skeleton
+        className={cn(
+          "shrink-0",
+          isHorizontal ? "w-[250px] h-full rounded-l-2xl rounded-r-none" : "w-full h-[200px] rounded-t-2xl rounded-b-none"
+        )}
+      />
+      <CardContent className={cn("p-5 flex flex-col flex-1 gap-3", isHorizontal ? "justify-between" : "")}>
+        <div className="flex flex-col md:flex-row justify-between gap-4">
+          <div className="space-y-2 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <Skeleton className="h-6 w-[60%]" />
+              <div className="flex shrink-0 gap-1 hidden md:flex">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-3 w-3 rounded-full" />
+                ))}
+              </div>
+            </div>
+            <Skeleton className="h-4 w-1/3" />
+            <div className="space-y-1.5 mt-4">
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-[80%]" />
+            </div>
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Skeleton className="h-5 w-20 rounded-full" />
+              <Skeleton className="h-5 w-24 rounded-full" />
+              <Skeleton className="h-5 w-16 rounded-full" />
+              <Skeleton className="h-5 w-20 rounded-full" />
+            </div>
+          </div>
+          <div className={cn("flex items-center md:items-end gap-3 shrink-0", isHorizontal ? "flex-col justify-start" : "flex-row")}>
+            <div className={cn("flex flex-col gap-1.5 hidden md:flex", isHorizontal ? "items-end" : "items-start")}>
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-3 w-12" />
+            </div>
+            <Skeleton className="h-10 w-10 rounded-lg rounded-bl-none" />
+          </div>
+        </div>
+        <div className="pt-4 border-t flex flex-row items-end justify-between mt-2">
+          <div className="space-y-2 w-32">
+            <Skeleton className="h-4 w-full" />
+          </div>
+          <div className="flex flex-col items-end gap-1.5">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-8 w-24" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
