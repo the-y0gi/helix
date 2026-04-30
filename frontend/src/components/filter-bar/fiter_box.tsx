@@ -490,20 +490,50 @@ import { Spinner } from "../spinner";
 import { RouterPush } from "../RouterPush";
 import { useHotelStore } from "@/store/hotel.store";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
+
+/** Returns dynamic display text for a filter block based on its label */
+function getFilterBlockDisplayText(
+  label: string,
+  fallback: string,
+  date: DateRange | undefined,
+  guests: { adults: number; children: number }
+): string {
+  const normalized = label.trim().toLowerCase();
+
+  if (normalized === "check in") {
+    return date?.from ? format(new Date(date.from), "dd MMM yyyy") : fallback;
+  }
+  if (normalized === "check out") {
+    return date?.to ? format(new Date(date.to), "dd MMM yyyy") : fallback;
+  }
+  if (normalized === "guests") {
+    const total = (guests?.adults ?? 0) + (guests?.children ?? 0);
+    if (total === 0) return fallback;
+    const parts: string[] = [];
+    if (guests.adults > 0) parts.push(`${guests.adults} Adult${guests.adults > 1 ? "s" : ""}`);
+    if (guests.children > 0) parts.push(`${guests.children} Child${guests.children > 1 ? "ren" : ""}`);
+    return parts.join(", ");
+  }
+
+  // For labels like "Company", "When", etc — just use fallback
+  return fallback;
+}
 
 const FilterBox = ({
   FilterBoxValues,
   link,
   type
 }: {
-  FilterBoxValues: SearchBoxValuesProps; // Using any for brevity based on your snippet
+  FilterBoxValues: SearchBoxValuesProps;
   link?: string;
   type?: string;
 
 }) => {
   const router = useRouter();
   const ismobile = useIsMobile();
-  const { city } = useHotelStore();
+  const { city, date, guests } = useHotelStore();
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const [iscity, setiscity] = useState(true);
@@ -590,7 +620,7 @@ const FilterBox = ({
                         <IconValues className="w-3 h-3 sm:w-5 sm:h-5 text-primary shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground">{item.label}</p>
-                          {!ismobile && <p className="text-sm font-semibold truncate text-foreground">{item.text}</p>}
+                          <p className="text-[8px] md:text-sm font-semibold truncate text-foreground/70">{getFilterBlockDisplayText(item.label, item.text, date, guests)}</p>
                         </div>
                       </div>
                     </div>
