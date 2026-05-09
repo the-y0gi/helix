@@ -9,63 +9,111 @@ exports.getServiceDetails = async (id) => {
       throw new Error("Invalid service id");
     }
 
-    const adventure = await Adventure.findOne({
+    const service = await Service.findOne({
       _id: id,
       isActive: true,
     })
-      .select("name category location description images rating")
+      .populate({
+        path: "adventure",
+        select: `
+          name
+          category
+          location
+          images
+        `,
+      })
       .lean();
 
-    if (!adventure) {
-      throw new Error("Adventure not found");
+    if (!service) {
+      throw new Error("Service not found");
     }
 
-    const services = await Service.find({
-      adventure: id,
+    const taxDoc = await Tax.findOne({
       isActive: true,
-    })
-      .select("title type basePrice discountPrice meta features itinerary")
-      .sort({ basePrice: 1 })
-      .lean();
+    }).lean();
 
-    const taxDoc = await Tax.findOne({ isActive: true }).lean();
     const taxPercentage = taxDoc?.taxPercentage || 0;
 
-    const formattedServices = services.map((service) => {
-      const effectivePrice =
-        service.discountPrice > 0 ? service.discountPrice : service.basePrice;
-      const totalTax = Number(
-        ((effectivePrice * taxPercentage) / 100).toFixed(2),
-      );
-      const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
+    const effectivePrice =
+      service.discountPrice > 0 ? service.discountPrice : service.basePrice;
 
-      return {
-        ...service,
-        taxPercentage,
-        totalTax,
-        totalPriceWithTax,
-      };
-    });
+    const discountAmount = service.basePrice - effectivePrice;
 
-    const formattedAdventure = {
-      _id: adventure._id,
-      name: adventure.name,
-      category: adventure.category,
-      city: adventure.location?.city,
-      description: adventure.description,
-      rating: adventure.rating?.average || 0,
-      reviews: adventure.rating?.count || 0,
-      images: adventure.images || [],
-    };
+    const discountPercentage =
+      service.discountPrice > 0
+        ? Math.round((discountAmount / service.basePrice) * 100)
+        : 0;
+
+    const taxAmount = Number(
+      ((effectivePrice * taxPercentage) / 100).toFixed(2),
+    );
+
+    const finalPrice = Number((effectivePrice + taxAmount).toFixed(2));
 
     return {
-      adventure: formattedAdventure,
-      services: formattedServices,
+      adventure: {
+        _id: service.adventure?._id,
+
+        name: service.adventure?.name,
+
+        category: service.adventure?.category,
+
+        city: service.adventure?.location?.city,
+
+        image: service.adventure?.images?.[0] || null,
+      },
+
+      service: {
+        _id: service._id,
+
+        title: service.title,
+
+        type: service.type,
+
+        pricing: {
+          basePrice: service.basePrice,
+
+          discountPrice: service.discountPrice,
+
+          effectivePrice,
+
+          discountAmount,
+
+          discountPercentage,
+
+          taxPercentage,
+
+          taxAmount,
+
+          finalPrice,
+        },
+
+        meta: {
+          distance: service.meta?.distance || null,
+
+          duration: service.meta?.duration || null,
+
+          days: service.meta?.days || null,
+
+          nights: service.meta?.nights || null,
+        },
+
+        features: service.features || [],
+
+        totalFeatures: service.features?.length || 0,
+
+        itinerary: service.itinerary || [],
+
+        hasItinerary: service.itinerary?.length > 0,
+
+        createdAt: service.createdAt,
+      },
     };
   } catch (error) {
     throw error;
   }
 };
+
 
 exports.createService = async (data, vendorId) => {
   try {
