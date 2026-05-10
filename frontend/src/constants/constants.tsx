@@ -3,8 +3,9 @@ import GuestSelector from "@/components/filter-bar/newui-selectedCounter";
 import { LocationSuggestionDropdown } from "@/components/filter-bar/selectContent";
 import HotelCalendern from "@/components/navbar/filter-nav-bar/calander05";
 import { Icon } from "@tabler/icons-react";
-import { Calendar, LucideProps, User, type LucideIcon } from "lucide-react";
+import { Calendar, LucideProps, MapPin, PersonStanding, User, type LucideIcon } from "lucide-react";
 import SearchInput from "./search-box-components/search-input";
+import { useState } from "react";
 export type type = "home" | "filter" | "profile" | "settings" | "payments";
 
 export interface Pages {
@@ -14,7 +15,7 @@ export interface Pages {
   iconUrl?: string;
   title: string;
   filter_bar?: React.ReactNode;
-  home_filter_box?: React.ReactNode;
+  // home_filter_box?: React.ReactNode;
 }
 
 export type SelectItemOption = {
@@ -123,8 +124,8 @@ export type BoxFilterBarVaues = {
   element?: React.ReactNode;
   text: string;
 }
+
 export type SearchBoxValuesProps = {
-  search: React.ReactNode,
   filterBlocks: BoxFilterBarVaues[],
   videos: {
     title: string
@@ -145,7 +146,7 @@ export const HotelFilterBarValues: FilterBarValues[] = [
   {
     value: "When",
     description: "Add dates",
-    element: <HotelCalendern />,
+    element: <HotelCalendern hookname="hotels" />,
     tagline: "Choose your REST plans",
   },
   {
@@ -155,53 +156,20 @@ export const HotelFilterBarValues: FilterBarValues[] = [
     tagline: "Who is coming?",
   },
 ];
-export const Hotel_Box_FilterBarValues: BoxFilterBarVaues[] = [
+export const BikesFilterBarValues: FilterBarValues[] = [
   {
-    label: "Check In",
-    icon: Calendar,
-    element: <HotelCalendern />,
-    text: "Add dates",
+    value: "Where",
+    description: "Search Destination",
+    element: (
+      <LocationSuggestionDropdown items={items} onSelect={(item) => { }} />
+    ),
+    tagline: "Where do you want to go?",
   },
   {
-    label: "Check Out",
-    icon: Calendar,
-    element: <HotelCalendern />,
-    text: "Add dates",
-  },
-  {
-    label: "Guests",
-    icon: User,
-    element: <GuestSelector />,
-    text: "Add Guests",
-  },
-];
-export const Cabs_Box_FilterBarValues: BoxFilterBarVaues[] = [
-  {
-    label: "Company",
-    icon: Calendar,
-    element: <HotelCalendern />,
-    text: "Add dates",
-  },
-  {
-    label: "When",
-    icon: Calendar,
-    element: <HotelCalendern />,
-    text: "Add dates",
-  },
-  // {
-  //   label: "Guests",
-  //   icon:User,
-  //   element: <GuestSelector />,
-  //   text: "Add Guests",
-  // },
-];
-
-export const Adventures_Box_FilterBarValues: BoxFilterBarVaues[] = [
-  {
-    label: "Check In",
-    icon: Calendar,
-    element: <HotelCalendern />,
-    text: "Add dates",
+    value: "When",
+    description: "Add dates",
+    element: <HotelCalendern hookname="bikes" />,
+    tagline: "Choose your REST plans",
   },
 
 ];
@@ -217,13 +185,13 @@ export const CabsFilterBarValues: FilterBarValues[] = [
   {
     value: "Drop Location",
     description: "Enter Destination",
-    element: <HotelCalendern />,
+    element: <LocationSuggestionDropdown items={items} onSelect={(item) => { }} />,
     tagline: "Choose your REST plans",
   },
   {
     value: "When",
     description: "Add Date and Time",
-    element: <HotelCalendern />,
+    element: <HotelCalendern hookname="cabs" />,
     tagline: "Who is coming?",
   },
   {
@@ -235,9 +203,156 @@ export const CabsFilterBarValues: FilterBarValues[] = [
     tagline: "Who is coming?",
   },
 ];
+
+export const ToursFilterBarValues: FilterBarValues[] = [
+  {
+    value: "Where",
+    description: "Search Destination",
+    element: (
+      <LocationSuggestionDropdown items={items} onSelect={(item) => { }} />
+    ),
+    tagline: "Where do you want to go?",
+  },
+  {
+    value: "When",
+    description: "Add dates",
+    element: <HotelCalendern hookname="tours" />,
+    tagline: "Choose your REST plans",
+  },
+  {
+    value: "Who",
+    description: "Add Guests",
+    element: <GuestSelector />,
+    tagline: "Who is coming?",
+  },
+];
+export const AdventuresFilterBarValues: FilterBarValues[] = [
+  {
+    value: "Where",
+    description: "Search Destination",
+    element: (
+      <LocationSuggestionDropdown items={items} onSelect={(item) => { }} />
+    ),
+    tagline: "Where do you want to go?",
+  },
+  {
+    value: "When",
+    description: "Add dates",
+    element: <HotelCalendern hookname="adventures" />,
+    tagline: "Choose your REST plans",
+  },
+  {
+    value: "Who",
+    description: "Add Guests",
+    element: <GuestSelector />,
+    tagline: "Who is coming?",
+  },
+];
+
+
+const HotelConstantsteste = () => {
+
+  const [val_Hotel_Box_FilterBarValues, setHotel_Box_FilterBarValues] = useState<any>({
+
+  });
+  const Hotel_Box_FilterBarValues: BoxFilterBarVaues[] = [
+    {
+      label: "Check In",
+      icon: Calendar,
+      element: <HotelCalendern hookname="hotels" />,
+      text: "Add dates",
+    },
+    {
+      label: "Check Out",
+      icon: Calendar,
+      element: <HotelCalendern hookname="hotels" />,
+      text: "Add dates",
+    },
+    {
+      label: "Guests",
+      icon: User,
+      element: <GuestSelector />,
+      text: "Add Guests",
+    },
+  ];
+  return {
+    Hotel_Box_FilterBarValues,
+    values: items
+  }
+}
+
+
+export const Hotel_Box_FilterBarValues: BoxFilterBarVaues[] = [
+  {
+    label: "Check In",
+    icon: Calendar,
+    element: <HotelCalendern hookname="hotels" />,
+    text: "Add dates",
+  },
+  {
+    label: "Check Out",
+    icon: Calendar,
+    element: <HotelCalendern hookname="hotels" />,
+    text: "Add dates",
+  },
+  {
+    label: "Guests",
+    icon: User,
+    element: <GuestSelector />,
+    text: "Add Guests",
+  },
+];
+export const Cabs_Box_FilterBarValues: BoxFilterBarVaues[] = [
+
+  {
+    label: "When",
+    icon: Calendar,
+    element: <HotelCalendern hookname="cabs" />,
+    text: "Add dates",
+  },
+  {
+    label: "Who",
+    icon: User,
+    element: <GuestSelector />,
+    text: "Add Guests",
+  },
+
+];
+export const Bikes_Box_FilterBarValues: BoxFilterBarVaues[] = [
+
+  {
+    label: "When",
+    icon: Calendar,
+    element: <HotelCalendern hookname="bikes" />,
+    text: "Add dates",
+  },
+
+
+];
+export const Tours_Box_FilterBarValues: BoxFilterBarVaues[] = [
+
+  {
+    label: "When",
+    icon: Calendar,
+    element: <HotelCalendern hookname="tours" />,
+    text: "Add dates",
+  },
+
+
+];
+export const Adventures_Box_FilterBarValues: BoxFilterBarVaues[] = [
+  {
+    label: "Check In",
+    icon: Calendar,
+    element: <HotelCalendern hookname="adventures" />,
+    text: "Add dates",
+  },
+
+];
+
 export const Search_box_values: SearchBoxValuesProps[] = [
   {
-    search: <SearchInput />,
+
     filterBlocks: Hotel_Box_FilterBarValues,
     videos: [
       {
@@ -258,7 +373,7 @@ export const Search_box_values: SearchBoxValuesProps[] = [
     ]
   },
   {
-    search: <SearchInput />,
+
     filterBlocks: Cabs_Box_FilterBarValues,
     videos: [
       {
@@ -279,8 +394,8 @@ export const Search_box_values: SearchBoxValuesProps[] = [
     ]
   },
   {
-    search: <SearchInput />,
-    filterBlocks: Hotel_Box_FilterBarValues,
+
+    filterBlocks: Bikes_Box_FilterBarValues,
     videos: [
       {
         title: "Happy",
@@ -294,8 +409,8 @@ export const Search_box_values: SearchBoxValuesProps[] = [
       }]
   },
   {
-    search: <SearchInput />,
-    filterBlocks: Hotel_Box_FilterBarValues,
+
+    filterBlocks: Tours_Box_FilterBarValues,
     videos: [
       {
         title: "Happy",
@@ -315,7 +430,7 @@ export const Search_box_values: SearchBoxValuesProps[] = [
     ]
   },
   {
-    search: <SearchInput />,
+
     filterBlocks: Adventures_Box_FilterBarValues,
     videos: [
       {

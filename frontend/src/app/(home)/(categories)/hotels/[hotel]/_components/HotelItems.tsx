@@ -6,7 +6,7 @@ import { TabsLine } from "./tabs";
 import { Hotel } from "@/types";
 import { handleCopy, LikeIcon } from "@/services/dailyfunctions";
 import { useHotelContext } from "../_providers_context/hotel-contextProvider";
-import { ShareModal } from "./shareComponent";
+import { ShareModal } from "../../../_componentsRoot_categories/shareComponent";
 import { cn } from "@/lib/utils";
 
 type HotelItemsProps = {

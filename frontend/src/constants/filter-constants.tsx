@@ -191,7 +191,12 @@ export const filterOptions = {
   ]
 };
 type bedstype = "Bedrooms" | "Beds" | "Bathrooms"
-export const items = [
+export type AcordionItemType = {
+  value: "type" | "Price" | "roomsbeds" | "Room size" | "distance_center" | "score" | "clasification" | "amenities" | "essentials" | "onsite" | "features" | "location",
+  trigger: string,
+  content: React.ReactNode
+}
+export const items: AcordionItemType[] = [
   {
     value: "type",
     trigger: "Type of place",

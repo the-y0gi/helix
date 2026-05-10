@@ -133,6 +133,25 @@ export const handleCopy = async () => {
     toast.error("Failed to copy!");
   }
 };
+import { useParams } from "next/navigation";
+export const validimage = (s: string | undefined) => {
+  if (s && s.length > 50) {
+    return s;
+  }
+  return "/hotels/img1.png"; // Fallback path
+};
+export function useParam(
+  key: string,
+  fallback = ""
+): string {
+  const params = useParams();
+
+  const value = params[key];
+
+  return Array.isArray(value)
+    ? value[0] ?? fallback
+    : value ?? fallback;
+}
 
 export const handleShare = async () => {
   try {

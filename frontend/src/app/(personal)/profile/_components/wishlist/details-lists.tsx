@@ -165,7 +165,7 @@ export function SavedPropertyCardSkeleton() {
             {/* Image Container Skeleton */}
             <div className="relative h-64 md:h-56 w-full">
                 <Skeleton className="w-full h-full rounded-none" />
-                
+
                 {/* Mobile Overlay Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent md:hidden" />
 

@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { useHotelContext } from "@/context/hotel/HotelContextProvider";
 import { PaymentProps } from "@/schema/payment.schema";
+import { useNuqsContext } from "@/context/NuqsContentProvider";
 import { UseFormReturn } from "react-hook-form";
 
 export type CounterProps = {
-  label: "Bedrooms"|"Beds"|"Bathrooms";
+  label: "Bedrooms" | "Beds" | "Bathrooms";
   any?: boolean;
   methods?: UseFormReturn<PaymentProps>;
   fieldName?: string;
@@ -22,7 +22,7 @@ export type CounterWithoutQueryProps = {
 };
 
 export default function Counter({ label, any }: CounterProps) {
-  const { filters, setFilters } = useHotelContext()
+  const { filters, setFilters } = useNuqsContext();
 
   const currentCount = filters[label]?.[0] ?? 0
 
