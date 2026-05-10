@@ -1,9 +1,10 @@
+'use client'
 import { Checkbox } from "@/components/ui/checkbox"
-import { HotelFilters, useHotelContext } from "@/context/hotel/HotelContextProvider"
 import {
   IconStar,
   IconStarFilled,
 } from "@tabler/icons-react"
+import { Filters, useNuqsContext } from "@/context/NuqsContentProvider"
 
 export default function CheckboxGroup({
   options,
@@ -14,11 +15,10 @@ export default function CheckboxGroup({
     value: number
     label: string
   }[]
-  queryKey: keyof HotelFilters
+  queryKey: keyof Filters
   stars?: boolean
 }) {
-  const { filters, setFilters } = useHotelContext()
-
+  const { filters, setFilters } = useNuqsContext();
   // Get current selected values safely
   const current = (filters[queryKey] as string[]) ?? []
 

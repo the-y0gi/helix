@@ -8,6 +8,7 @@ import { PageSkeleton } from "@/components/loader/skeleton";
 import { MessageModal } from "@/components/messagemodal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Categories } from "@/types";
+import { CommonPagesStyles } from "@/styles/commonpages-styles";
 
 export type HotelFramePageProps = {
     className?: string;
@@ -59,15 +60,18 @@ const Hotel: React.FC<HotelFramePageProps> = ({ className }) => {
         <div className={cn(" w-full ", ismobile ? "" : "", className)}>
             <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
                 <Suspense fallback={<PageSkeleton />}>
-
-                    <HotelFramePage
-                        // popularTrends={HotelPopularCites}
-                        type="hotels"
+                    <div className={cn(CommonPagesStyles, " md:flex-col  flex gap-4 w-full bg-background py-4 ")}>
 
 
+                        <HotelFramePage
+                            // popularTrends={HotelPopularCites}
+                            type="hotels"
 
 
-                    />
+
+
+                        />
+                    </div>
                 </Suspense>
             </ErrorBoundary>
         </div>

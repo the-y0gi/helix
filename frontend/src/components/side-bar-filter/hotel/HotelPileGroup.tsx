@@ -1,3 +1,4 @@
+'use client'
 import { parseAsInteger, useQueryState } from 'nuqs'
 import CheckboxGroup from '../checkBoxGroup'
 import Counter from '../counter'

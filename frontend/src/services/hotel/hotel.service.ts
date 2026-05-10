@@ -1,4 +1,3 @@
-import { HotelFilters } from "@/context/hotel/HotelContextProvider";
 import { axiosApi } from "@/lib/axios";
 import { Hotel } from "@/types";
 import { toast } from "sonner";
@@ -63,6 +62,7 @@ export const getNewHotels = async () => {
 };
 
 import qs from "qs";
+import { Filters } from "@/context/NuqsContentProvider";
 
 export type HotelsResponse = {
   data: Hotel[];
@@ -71,7 +71,7 @@ export type HotelsResponse = {
 };
 
 export const getHotels = async (
-  filters: HotelFilters,
+  filters: Filters,
   page: number = 1,
   limit: number = 9,
 ): Promise<HotelsResponse> => {
@@ -143,7 +143,7 @@ export const getHotels = async (
   };
 };
 
-export const getHotelsForSearch = async (val: HotelFilters) => {
+export const getHotelsForSearch = async (val: Filters) => {
   const res = await axiosApi.get("/hotels", {
     params: val,
   });

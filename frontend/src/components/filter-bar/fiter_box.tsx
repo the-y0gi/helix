@@ -524,28 +524,20 @@ function getFilterBlockDisplayText(
 const FilterBox = ({
   FilterBoxValues,
   link,
-  type
+  type,
+  directions,
 }: {
   FilterBoxValues: SearchBoxValuesProps;
   link?: string;
   type?: string;
-
+  directions: React.ReactNode;
 }) => {
   const router = useRouter();
   const ismobile = useIsMobile();
   const { city, date, guests } = useHotelStore();
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  const [iscity, setiscity] = useState(true);
-
-  const hotelStorage = typeof window !== 'undefined' ? localStorage.getItem("hotel-storage") : null;
-
-  useEffect(() => {
-    if (hotelStorage) {
-      const hotel = JSON.parse(hotelStorage);
-      setiscity(!!hotel?.state?.city);
-    }
-  }, [hotelStorage]);
+  const iscity = !!city;
 
   // FIX 1: LOCK BACKGROUND SCROLL
   useEffect(() => {
@@ -589,10 +581,10 @@ const FilterBox = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  if (link?.substring(1, link.length) !== "hotels") return null;
+  // if (link?.substring(1, link.length) === "adventures" || link?.substring(1, link.length) === "tours") return null;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start md:px-6 lg:px-10 mx-auto md:py-3 ">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start  mx-auto md:py-4 md:px-[43px] ">
 
       <div className="lg:col-span-3 relative w-full group bg-transparent">
         <Card className={cn(
@@ -600,7 +592,9 @@ const FilterBox = ({
           ismobile && "py-2 pb-7"
         )}>
           <div className="md:space-y-6 space-y-2">
-            <div className="w-full">{FilterBoxValues.search}</div>
+
+            {directions}
+
 
             <div className="relative">
               <div className="flex gap-2 md:gap-3">
@@ -661,7 +655,7 @@ const FilterBox = ({
 
             onClick={() => {
 
-              RouterPush(router, "/hotels/find");
+              RouterPush(router, `${link}/find`);
 
               setLoading(true);
 

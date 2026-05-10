@@ -61,21 +61,22 @@ const Cabs = ({ className }: { className?: string }) => {
 
       <UnderConstruction cat='Buses' />
     </div>
-    // <div className={cn(" w-full", className)}>
-    //   <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
-    //     <Suspense fallback={<PageSkeleton />}>
-    //       <MainFramePage
-    //         type="cabs"
-    //         popularTrends={HotelPopularCites}
+    // <div className={cn(" w-full")}>
+    //       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
+    //         <Suspense fallback={<PageSkeleton />}>
 
-    //       // searchHotels={<SearchHotels/>}
+    //           <FilterBox FilterBoxValues={Search_box_values[6]} type="home" link="/bikes" />
 
+    //           <div className={cn(CommonPagesStyles, " md:flex-col  flex gap-4 w-full bg-background py-4 ")}>
 
-
-    //       />
-    //     </Suspense>
-    //   </ErrorBoundary>
-    // </div>
+    //             <MainFramePage
+    //               type="bikes"
+    //               popularTrends={HotelPopularCites}
+    //             />
+    //           </div>
+    //         </Suspense>
+    //       </ErrorBoundary>
+    //     </div>
   )
 }
 

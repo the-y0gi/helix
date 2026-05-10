@@ -2,24 +2,29 @@
 import React, { useState } from "react";
 import { HotelCard, HotelCardSkeleton } from "./CardCompo";
 import { cn } from "@/lib/utils";
-import { ComboboxMultiple } from "./combobox-multiple";
-import { Pagination_console } from "./pagination-console";
+
 import { Button } from "@/components/ui/button";
 import { IconGrid4x4, IconMenu4 } from "@tabler/icons-react";
 import { useHotelStore } from "@/store/hotel.store";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHotelContext } from "@/context/hotel/HotelContextProvider";
 import { Hotel } from "@/types";
-import { ScrollToTop } from "../../../../../../../scrolltoto";
-import { ScrollToTopByParams } from "./ScrollToTopByParams";
-import { SheetNavigation } from "./sheetNavigation";
+// import { SheetNavigation } from "./sheetNavigation";
+
 import { ChevronRight } from "lucide-react";
+import { ScrollToTopByParams } from "@/components/ui/ScrollToTopByParams";
+import { Pagination_console } from "@/components/ui/pagination-console";
+import SwitchGrids from "@/components/side-bar-filter/SwitchGrid";
+import { useNuqsContext } from "@/context/NuqsContentProvider";
+import { SideBarFilter } from "@/components/filter-bar/sidebar-filter";
+import { SheetNavigation } from "@/components/ui/sheetNavigation";
+import { items } from "@/constants/filter-constants";
 
 type Props = {};
 
 export const ContentFrame = (props: Props) => {
   const ismobile = useIsMobile()
-  const { total } = useHotelContext()
+  const { total, isLoading, page, setPage } = useHotelContext()
   const { city, setCity } = useHotelStore();
   const [open, setOpen] = useState(false)
   return (
@@ -28,8 +33,11 @@ export const ContentFrame = (props: Props) => {
         <div className="flex gap-3 w-full">
           {<div className="block xl:hidden h-10    ">
             <SheetNavigation
-              setOpen={setOpen}
               content={
+                <SideBarFilter items={items} mapSrc="/map-icons/map.png" alt="map image" overlayTitle="See Location on Map" />
+              }
+              setOpen={setOpen}
+              trigger={
                 <Button variant={"ghost"} className="border-r">
                   {<ChevronRight className="h-4 w-4" />}
                 </Button>
@@ -52,16 +60,17 @@ export const ContentFrame = (props: Props) => {
       </div>
       <Content className={cn("gap-x-4 gap-y-6")} />
       <div className="flex py-8">
-        <Pagination_console />
+        <Pagination_console {...{ page, isLoading, setPage, total }} />
       </div>
     </div>
   );
 };
 
 export const Content = ({ className }: { className: string }) => {
-  const { wrap, city } = useHotelStore();
+  const { city } = useHotelStore();
   const isMobile = useIsMobile()
   const { hotels, isLoading } = useHotelContext()
+  const { wrap } = useNuqsContext()
 
   if (isLoading) {
     return (
@@ -141,38 +150,3 @@ export const Content = ({ className }: { className: string }) => {
   );
 };
 
-const SwitchGrids = () => {
-  const { setWrap: setIsGroupedItems, wrap: isGroupedItems } = useHotelStore();
-
-  return (
-    <div
-      onClick={() => setIsGroupedItems(!isGroupedItems)}
-      className="relative flex h-10 w-20 rounded-2xl border border-zinc-300/30 bg-background"
-    >
-      <div
-        className={cn(
-          "absolute top-0 h-10 w-10 rounded-2xl bg-muted transition-all duration-200",
-          isGroupedItems ? "left-0" : "left-10",
-        )}
-      />
-
-      <Button
-        variant="ghost"
-        size="icon"
-        className="z-10 h-10 w-10 rounded-2xl"
-      >
-        <IconGrid4x4 />
-      </Button>
-
-      <Button
-        variant="ghost"
-        size="icon"
-        className="z-10 h-10 w-10 rounded-2xl"
-      >
-        <IconMenu4 />
-      </Button>
-    </div>
-  );
-};
-
-export default SwitchGrids;

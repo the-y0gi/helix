@@ -13,7 +13,7 @@ import {
   HotelsSearch,
 } from "./hotel.service";
 import { getBookingById, getMyBookings } from "../booking/booking.service";
-import { HotelFilters } from "@/context/hotel/HotelContextProvider";
+import { Filters } from "@/context/NuqsContentProvider";
 
 export const useSearchCity = (query: string) => {
   return useQuery({
@@ -31,7 +31,7 @@ export const useGetNewHotels = () => {
   return useQuery({
     queryKey: ["gethotels_home"],
     queryFn: () => getNewHotels(),
-    staleTime: 20000,
+    staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,
@@ -132,10 +132,7 @@ export const useHotelSearch = ({
     enabled: !!destination && !!checkIn && !!checkOut,
   });
 };
-export const useGetHotelsByFiltersDemo = (
-  val: HotelFilters,
-  page: number = 1,
-) => {
+export const useGetHotelsByFiltersDemo = (val: Filters, page: number = 1) => {
   return useQuery({
     queryKey: ["hotels_by_params", val, page],
 

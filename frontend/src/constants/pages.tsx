@@ -3,9 +3,12 @@ import { IconHome } from "@tabler/icons-react";
 
 // import { Calendar05, PagesFilterBarButtons, SelectScrollable } from "@/pages/hotels/_components/filterbar/filter-bars";
 import {
+  AdventuresFilterBarValues,
+  BikesFilterBarValues,
   CabsFilterBarValues,
   HotelFilterBarValues,
-  Search_box_values,
+  ToursFilterBarValues,
+  // Search_box_values,
   type Pages,
 } from "./constants";
 import { PagesFilterBarButtons } from "@/components/filter-bar/filterBar";
@@ -32,10 +35,49 @@ export const FilterOfPages: Pages[] = [
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={HotelFilterBarValues} type="home" />
     ),
-    home_filter_box: (
-      <FilterBox FilterBoxValues={Search_box_values[0]} type="home" link="/hotels" />
-    )
+
   },
+  {
+    type: "filter",
+    link: "/bikes/find",
+    title: "Filter Bikes",
+    icon: IconHome,
+    filter_bar: (
+      <PagesFilterBarButtons PagesFilterBarValues={BikesFilterBarValues} type="home" />
+    ),
+
+  },
+  {
+    type: "filter",
+    link: "/cabs/find",
+    title: "Filter Cabs",
+    icon: IconHome,
+    filter_bar: (
+      <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} type="home" />
+    ),
+
+  },
+  {
+    type: "filter",
+    link: "/tours/find",
+    title: "Filter Tours",
+    icon: IconHome,
+    filter_bar: (
+      <PagesFilterBarButtons PagesFilterBarValues={ToursFilterBarValues} type="home" />
+    ),
+
+  },
+  {
+    type: "filter",
+    link: "/adventures/find",
+    title: "Filter Adventures",
+    icon: IconHome,
+    filter_bar: (
+      <PagesFilterBarButtons PagesFilterBarValues={AdventuresFilterBarValues} type="home" />
+    ),
+
+  },
+
 ];
 export const pages: Pages[] = [
 
@@ -48,9 +90,7 @@ export const pages: Pages[] = [
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={HotelFilterBarValues} link="/hotels/find" type="home" />
     ),
-    home_filter_box: (
-      <FilterBox FilterBoxValues={Search_box_values[0]} type="home" link="/hotels" />
-    )
+
   },
   {
     type: "home",
@@ -61,9 +101,7 @@ export const pages: Pages[] = [
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/cabs/find" type="home" />
     ),
-    home_filter_box: (
-      <FilterBox FilterBoxValues={Search_box_values[1]} type="home" link="/cabs" />
-    )
+
   },
 
   {
@@ -75,9 +113,7 @@ export const pages: Pages[] = [
       <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/bikes/find" type="home" />
     ),
     type: "home",
-    home_filter_box: (
-      <FilterBox FilterBoxValues={Search_box_values[2]} type="home" link="/bikes" />
-    )
+
   },
 
   {
@@ -89,9 +125,7 @@ export const pages: Pages[] = [
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/tours/find" type="home" />
     ),
-    home_filter_box: (
-      <FilterBox FilterBoxValues={Search_box_values[3]} type="home" link="/tours" />
-    )
+
   },
   {
     type: "home",
@@ -102,9 +136,7 @@ export const pages: Pages[] = [
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/adventures/find" type="home" />
     ),
-    home_filter_box: (
-      <FilterBox FilterBoxValues={Search_box_values[4]} type="home" link="/adventures" />
-    )
+
   },
   {
     type: "home",
@@ -115,9 +147,7 @@ export const pages: Pages[] = [
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/flights/find" type="home" />
     ),
-    home_filter_box: (
-      <FilterBox FilterBoxValues={Search_box_values[4]} type="home" link="/flights" />
-    )
+
   },
   {
     type: "home",
@@ -128,9 +158,7 @@ export const pages: Pages[] = [
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/buses/find" type="home" />
     ),
-    home_filter_box: (
-      <FilterBox FilterBoxValues={Search_box_values[4]} type="home" link="/buses" />
-    )
+
   },
   {
     type: "home",
@@ -141,8 +169,6 @@ export const pages: Pages[] = [
     filter_bar: (
       <PagesFilterBarButtons PagesFilterBarValues={CabsFilterBarValues} link="/trains/find" type="home" />
     ),
-    home_filter_box: (
-      <FilterBox FilterBoxValues={Search_box_values[4]} type="home" link="/trains" />
-    )
+
   },
 ];

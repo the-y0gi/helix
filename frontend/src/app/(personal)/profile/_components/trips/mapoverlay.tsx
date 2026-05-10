@@ -10,7 +10,6 @@ import {
   ModalFooter,
   ModalTrigger,
 } from "@/components/ui/animated-modal";
-import MapLocation from "@/app/(home)/(categories)/hotels/[hotel]/_components/Location";
 import MapLeaf from "@/components/map/leaf-map";
 
 export const AnimatedModalDemo = ({

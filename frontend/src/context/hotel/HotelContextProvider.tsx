@@ -10,40 +10,23 @@ import {
 import { useGetHotelsByFiltersDemo, useHotelSearch } from "@/services/hotel/querys"
 import { Hotel } from "@/types"
 import { useHotelStore } from "@/store/hotel.store"
+import { useNuqsContext } from "../NuqsContentProvider"
 
-type PriceTuple = [number, number]
 
-export type HotelFilters = {
-  price: PriceTuple//
-  Bedrooms: number[]//
-  Beds: number[]//
-  Bathrooms: number[]//
-  typeOfPlace: string[]//
-  essentials: string[]
-  roomSize: string[]//
-  onsite: string[]
-  features: string[]
-  amenities: string[]
-  roomsbeds: string[]
-  location: string[]//
-  classification: string[]
-  score: string[]
-  distance: number[]
-}
+
+
 
 type HotelContextProps = {
-  filters: HotelFilters
-  setFilters: (
-    value: Partial<HotelFilters> | ((prev: HotelFilters) => Partial<HotelFilters>)
-  ) => void
+
   hotels: Hotel[]
   isLoading: boolean
   total: number
   page: number
   setPage: (page: number) => void
+
 }
 
-export const DEFAULT_PRICE: PriceTuple = [0, 100000]
+
 
 const HotelContext = React.createContext<HotelContextProps | null>(null)
 
@@ -52,51 +35,7 @@ export const HotelContextProvider = ({
 }: {
   children: React.ReactNode
 }) => {
-  const [queryFilters, setQueryFilters] = useQueryStates({
-    price: parseAsArrayOf(parseAsInteger).withDefault(DEFAULT_PRICE),
-    typeOfPlace: parseAsArrayOf(parseAsString).withDefault([]),
-    Bedrooms: parseAsArrayOf(parseAsInteger).withDefault([]),
-    Beds: parseAsArrayOf(parseAsInteger).withDefault([]),
-    Bathrooms: parseAsArrayOf(parseAsInteger).withDefault([]),
-    roomSize: parseAsArrayOf(parseAsString).withDefault([]),
-    distance: parseAsArrayOf(parseAsInteger).withDefault([0]),
-    amenities: parseAsArrayOf(parseAsString).withDefault([]),
-    essentials: parseAsArrayOf(parseAsString).withDefault([]),
-    features: parseAsArrayOf(parseAsString).withDefault([]),
-    onsite: parseAsArrayOf(parseAsString).withDefault([]),
-    roomsbeds: parseAsArrayOf(parseAsString).withDefault([]),
-    location: parseAsArrayOf(parseAsString).withDefault([]),
-    classification: parseAsArrayOf(parseAsString).withDefault([]),
-    score: parseAsArrayOf(parseAsString).withDefault([]),
-    page: parseAsInteger.withDefault(1),
-  })
-
-  const filters: HotelFilters = {
-    ...queryFilters,
-    price:
-      queryFilters.price.length === 2
-        ? [queryFilters.price[0], queryFilters.price[1]]
-        : DEFAULT_PRICE,
-  }
-
-  const page = queryFilters.page
-
-  const setPage = (newPage: number) => {
-    setQueryFilters((prev) => ({ ...prev, page: newPage }))
-  }
-
-  const setFilters: HotelContextProps["setFilters"] = (value) => {
-    const next =
-      typeof value === "function" ? value(filters) : value
-
-    // Reset to page 1 whenever filters change
-    setQueryFilters((prev) => ({
-      ...prev,
-      ...next,
-      page: 1,
-    }))
-  }
-
+  const { filters, setFilters, page, setPage } = useNuqsContext()
   const { guests, city, date } = useHotelStore();
   function formatDate(dateValue: any) {
     if (!dateValue) return undefined;
@@ -114,7 +53,6 @@ export const HotelContextProvider = ({
       checkOut: formatDate(date?.to)
     }
   }), [filters, guests, city, date]);
-
   const debouncedFilters = useDebounce(combinedFilters, 1500)
   const debouncedPage = useDebounce(page, 1000)
   // console.log(guests, city, date);
@@ -135,7 +73,7 @@ export const HotelContextProvider = ({
 
 
   return (
-    <HotelContext.Provider value={{ filters, setFilters, hotels, isLoading, total, page, setPage }}>
+    <HotelContext.Provider value={{ hotels, isLoading, total, page, setPage }}>
       {children}
     </HotelContext.Provider>
   )

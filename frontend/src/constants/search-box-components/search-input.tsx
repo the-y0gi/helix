@@ -2,28 +2,37 @@
 
 import { useSearchCity } from "@/hooks/useSearch";
 import { Input } from "@base-ui/react";
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion"; // Changed to framer-motion for compatibility
 import React, { useEffect, useRef, useState } from "react";
-import { useHotelStore } from "@/store/hotel.store";
+import { cn } from "@/lib/utils";
 
-const AddressSearch = () => {
-  const [query, setQuery] = useState("");
+const AddressSearch = (
+  {
+    label,
+    placeholder,
+    className,
+    setCity,
+    value,
+  }: {
+    label: string;
+    placeholder: string;
+    className?: string;
+    setCity: (city: string) => void;
+    value?: string;
+  }
+) => {
+  const [query, setQuery] = useState(value || "");
   const [isOpen, setIsOpen] = useState(false);
   const { results, loading } = useSearchCity(query);
   const searchRef = useRef<HTMLDivElement>(null);
-  const { city, setCity } = useHotelStore();
+
+  // Keep local query in sync with the parent-supplied value (handles hydration & navigation)
   useEffect(() => {
-    const t = localStorage.getItem("hotel-storage")
-    if (!t) return;
-    const hotel = JSON.parse(t);
-    if (hotel.state?.city) {
-      setQuery(hotel.state.city);
-      setCity(hotel.state.city)
+    if (value && value !== query) {
+      setQuery(value);
     }
-
-
-  }, [])
+  }, [value]);
 
   return (
     <div className="w-full max-w-full relative" ref={searchRef}>
@@ -42,7 +51,7 @@ const AddressSearch = () => {
 
       <div className="relative z-10">
         <Input
-          placeholder={city || "Search places (e.g. 'Goa')"}
+          placeholder={placeholder}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -98,13 +107,28 @@ const AddressSearch = () => {
 };
 
 // Main Export
-const SearchInput = () => {
+const SearchInput = ({
+  label,
+  placeholder,
+  Icon,
+  className,
+  setCity,
+  value,
+}: {
+  label: string;
+  placeholder: string;
+  Icon?: LucideIcon
+  setCity: (city: string) => void;
+  className?: string;
+  value?: string;
+}) => {
   return (
-    <div className="flex items-center  bg-primary/5 border border-primary/10 rounded-[10px] md:px-5 px-3 py-1 md:py-2">
-      <MapPin className="w-5 h-5 text-primary shrink-0" />
-      <AddressSearch />
+    <div className={cn("flex items-center  bg-primary/5 border border-primary/10 rounded-[10px] md:px-5 px-3 py-1 md:py-2", className)}>
+      {Icon ? <Icon className="w-5 h-5 text-primary shrink-0" /> : <MapPin className="w-5 h-5 text-primary shrink-0" />}
+      <AddressSearch label={label} placeholder={placeholder} className="" setCity={setCity} value={value} />
+
     </div>
   );
 };
 
-export default SearchInput;
+export default SearchInput;

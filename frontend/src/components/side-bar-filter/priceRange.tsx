@@ -1,6 +1,7 @@
+'use client'
 import { Slider } from "@/components/ui/slider";
-import { DEFAULT_PRICE, useHotelContext } from "@/context/hotel/HotelContextProvider";
 import React from "react";
+import { useNuqsContext } from "@/context/NuqsContentProvider";
 
 // type Props = {
 //   value: number[];
@@ -8,7 +9,8 @@ import React from "react";
 // };
 
 export default function PriceRange() {
-  const { filters, setFilters } = useHotelContext();
+  const { filters, setFilters } = useNuqsContext();
+  const DEFAULT_PRICE = [1500, 100000]
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">

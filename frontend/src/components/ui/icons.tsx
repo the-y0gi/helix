@@ -1,3 +1,4 @@
+'use client'
 import {
   Wifi, Utensils, Wind, Ban, Waves, Dumbbell, Sparkles, Car, Shirt, Bell,
   ConciergeBell, Briefcase, Bus, Baby, Umbrella, Tv, Coffee, Lock,

@@ -1,14 +1,18 @@
-
+'use client'
 import React from "react"
 import { Button } from "../ui/button"
-import { HotelFilters, useHotelContext } from "@/context/hotel/HotelContextProvider"
+import { Filters } from "@/context/NuqsContentProvider"
 import { LucideIcon } from "lucide-react"
+
+import { useNuqsContext } from "@/context/NuqsContentProvider"
+
 
 export type PillOption = Record<string, LucideIcon>
 
+
 type StringArrayFilterKeys = {
-  [K in keyof HotelFilters]: HotelFilters[K] extends string[] ? K : never
-}[keyof HotelFilters]
+  [K in keyof Filters]: Filters[K] extends string[] ? K : never
+}[keyof Filters]
 
 type PillGroupProps = {
   // label:"amenities" |""
@@ -27,7 +31,7 @@ export default function PillGroup({
   options,
   queryKey,
 }: PillGroupProps) {
-  const { filters, setFilters } = useHotelContext()
+  const { filters, setFilters } = useNuqsContext();
 
   const selectedValues = queryKey ? filters[queryKey] : []
 

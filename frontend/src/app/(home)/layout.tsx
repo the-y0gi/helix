@@ -1,4 +1,5 @@
 'use client'
+import { NuqsContextProvider } from "@/context/NuqsContentProvider";
 import { cn } from "@/lib/utils";
 import { CommonPagesStyles } from "@/styles/commonpages-styles";
 import dynamic from "next/dynamic";
@@ -13,10 +14,12 @@ const layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
 
     <NavWrapper>
+      <NuqsContextProvider>
 
-      <div className={cn(CommonPagesStyles, " md:flex-col  flex gap-4 w-full bg-background py-4 ")}>
+
         {children}
-      </div>
+      </NuqsContextProvider>
+
     </NavWrapper>
 
   );

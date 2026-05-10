@@ -4,7 +4,14 @@ import { type DateRange } from "react-day-picker";
 import { Calendar } from "@/components/ui/calendar";
 import { useHotelStore } from "@/store/hotel.store";
 import { cn } from "@/lib/utils";
-
+import { format } from "date-fns";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { PaymentProps } from "@/schema/payment.schema";
+import { UseFormReturn } from "react-hook-form";
+import { useToursStore } from "@/store/tours.store";
+import { useAdventureStore } from "@/store/adventure.store";
+import { useBikesStore } from "@/store/bikes.store";
+import { useCabsStore } from "@/store/cabs.store";
 export function Calendar05({
   dateRange,
   setDateRange,
@@ -71,14 +78,24 @@ export function Calendar05({
     />
   );
 }
-import { format } from "date-fns";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { PaymentProps } from "@/schema/payment.schema";
-import { UseFormReturn } from "react-hook-form";
-export default function HotelCalender(
+
+export const hooksSupplier = {
+
+  "tours": useToursStore,
+  "adventures": useAdventureStore,
+  "cabs": useCabsStore,
+
+  "hotels": useHotelStore,
+  "bikes": useBikesStore,
+
+}
+
+
+export default function HotelCalender({ hookname }: { hookname: keyof typeof hooksSupplier }
+
 
 ) {
-  const { date, setDate } = useHotelStore();
+  const { date, setDate } = hooksSupplier[hookname]();
   const isMobile = useIsMobile({ breakpoint: 540 })
   // const isgreterthenSm = 
 
@@ -87,6 +104,7 @@ export default function HotelCalender(
     {!isMobile && <Calendar05 setDateRange={setDate} dateRange={date} />}
   </>;
 };
+
 
 
 

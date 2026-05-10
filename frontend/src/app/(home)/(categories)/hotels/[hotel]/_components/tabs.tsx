@@ -4,11 +4,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { Hotel, RoomType } from "@/types";
 import { useHotelStore } from "@/store/hotel.store";
-import { LayoutGridDemo } from "./imsges";
-import { Decription } from "./description";
-import AmenitiesValues from "./amanities";
-import MapLocation from "./Location";
-import ReviewsMain from "./reviews";
+
+import AmenitiesValues from "../../../_componentsRoot_categories/amanities";
+import MapLocation from "@/components/Location";
+import ReviewsMain from "../../../_componentsRoot_categories/reviews";
 import { HotelPolicies } from "./policies";
 import { RoomsMain } from "./rooms";
 import { HotelCalender } from "./calander-booking";
@@ -28,6 +27,8 @@ import SliderIfNotChooseDate from "../_providers_context/SliderIfNotChooseDate";
 import GuestSelector from "@/components/filter-bar/newui-selectedCounter";
 import { CometCard } from "@/components/ui/comet-card";
 import { cn } from "@/lib/utils";
+import { Decription } from "../../../_componentsRoot_categories/description";
+import { LayoutGridDemo } from "../../../_componentsRoot_categories/imsges";
 
 type TabKey =
   | "overview"
@@ -55,7 +56,7 @@ export function TabsLine({
 
   const content: Record<TabKey, React.ReactNode> = {
     overview: <LayoutGridDemo images={hotel.images} />,
-    description: <Decription hotel={hotel} />,
+    description: <Decription data={{ name: hotel.name, description: hotel.description }} />,
     location: (
       <MapLocation
         address={hotel.address}
@@ -64,7 +65,7 @@ export function TabsLine({
       />
     ),
     amenities: <AmenitiesValues amenities={hotel.amenities} />,
-    reviews: <ReviewsMain hotel={hotel} />,
+    reviews: <ReviewsMain />,
     rooms: (
       <RoomsMain
         hotelId={hotelId}
@@ -200,6 +201,11 @@ function BookingCard({
   const [showCalendar, setShowCalendar] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { FetchRoomTypes, rooms, setFetch } = useHotelContext();
+  useEffect(() => {
+    if (date?.from && date?.to) {
+      setFetch(true)
+    }
+  }, [date?.from, date?.to])
 
   const validPrices = rooms
     .map((r: RoomType) => r.finalPrice || r.displayPrice || r.totalPrice)
@@ -270,7 +276,7 @@ function BookingCard({
               )}
               onClick={(e) => e.stopPropagation()}
             >
-              <HotelCalender />
+              <HotelCalender hookname="hotels" />
             </div>
           )}
         </div>

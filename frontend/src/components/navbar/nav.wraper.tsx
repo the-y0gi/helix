@@ -4,18 +4,13 @@ import { FilterOfPages, pages } from "@/constants/pages";
 import { Footer } from "../footer/FFooter";
 import { FindTabsNav } from "./filter-nav-bar/find-filter-bars";
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import LOGO from "./logo";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "../ui/button";
 
-import FilterBarLayout from "../filter-bar/filter-bar-layout";
-import { Sign_in_hover } from "../auth/_components/sign-in-hover";
-import Link from "next/link";
 import TopRight from "./topRight";
-import { BottomNav, MobileNavWrapper, PersistentHeader } from "./mobilenav";
-import { ChevronDown, Mail, X } from "lucide-react";
+import { BottomNav, MobileNavWrapper } from "./mobilenav";
 import { PopLogin } from "./PopMessages";
 
 const pagesNames = pages.map((page) => page.link.split("/")[1]);
@@ -122,6 +117,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
   //   return () => clearTimeout(timer);
   // }, []);
   // const navigate = useRouter();
+  const ismobile = useIsMobile();
 
   return (
     <div className=" flex flex-col pb-20 md:pb-0   ">
@@ -130,7 +126,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
           " top-0 left-0 z-50 w-full bg-card    flex flex-col justify-center bg-gradient-to-br from-zinc-100 to-transparent dark:bg-gradient-to-bl dark:from-zinc-700  border-b border-gray-300 dark:border-gray-700 ",
           "h-auto",
           "bg-background",
-          isMobile ? "bg-transparent border-none shadow-md static" : ""
+          isMobile ? "bg-transparent border-none shadow-sm static" : ""
 
         )}
       >
@@ -174,15 +170,15 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
         className={cn(
           "flex-1 bg-card",
           // shouldShowNavbar ? "pt-21" : "pt-29",
-          isMobile ? "pt-0" : "",
+          isMobile ? "pt-3" : "",
         )}
       >
-        {!shouldShowNavbar && (
+        {!shouldShowNavbar && ismobile && <TabsNav mobile={false} tabs={pages} />}
+        {/* {!shouldShowNavbar && (
           <div className="mb-3 ">
             <FilterBarLayout pages={pages} />
-            {/* <SearchBox tabs={FilterOfPages}/> */}
           </div>
-        )}
+        )} */}
         {children}
       </main>
       <div className="w-full border-1 mt-10" />

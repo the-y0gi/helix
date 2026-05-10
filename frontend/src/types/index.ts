@@ -89,3 +89,63 @@ export interface CityTrends {
 
   tabs?: Tabs[];
 }
+/**
+ * Represents the rental company providing the service
+ */
+interface Company {
+  companyId: string;
+  name: string;
+  city: string;
+  rating: number;
+}
+
+/**
+ * Represents the bike service details
+ */
+export interface Bike {
+  serviceId: string;
+  bikeName: string;
+  bikeType: "scooter" | "motorcycle" | string; // Using a union type if types are known
+  pricePerDay: number;
+  totalPriceWithTax: number;
+  taxPercentage: number;
+  thumbnail: string; // URL
+  company: Company;
+}
+export interface CabCompany {
+  companyId: string;
+  name: string;
+  city: string;
+  rating: number;
+}
+
+export interface CabService {
+  serviceId: string;
+  title: string;
+  carName: string;
+  cabType: "sedan" | "suv" | "luxury" | string; // Literal types for better safety
+  capacity: number;
+  pickup: string;
+  drop: string;
+  distance: string;
+  duration: string;
+  price: number;
+  totalPriceWithTax: number;
+  taxPercentage: number;
+  thumbnail: string;
+  company: CabCompany;
+}
+
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  count: number;
+}
+
+export interface CabApiResponse {
+  success: boolean;
+  data: {
+    cabs: CabService[];
+    pagination: PaginationInfo;
+  };
+}

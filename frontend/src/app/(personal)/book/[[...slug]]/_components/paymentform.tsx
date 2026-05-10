@@ -1653,7 +1653,7 @@ export function DialougeEditDates({ methods, trigger }: { methods: UseFormReturn
         </div>
         <div className="flex flex-col md:flex-row gap-0">
           <div className="flex-1 p-6 border-b md:border-b-0 md:border-r">
-            <HotelCalender methods={methods} />
+            <HotelCalender hookname="hotels" methods={methods} />
           </div>
           <div className="flex-1 p-6 bg-muted/20">
             <VisitorsMembers showCalendar={false} methods={methods} />

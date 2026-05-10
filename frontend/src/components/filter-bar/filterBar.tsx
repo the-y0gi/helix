@@ -35,7 +35,7 @@ export const PagesFilterBarButtons = ({
   }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-5xl mx-auto">
+    <div ref={containerRef} className="relative  ">
       <AnimatePresence>
         {selectedId !== null && (
           <motion.div
@@ -48,13 +48,13 @@ export const PagesFilterBarButtons = ({
         )}
       </AnimatePresence>
 
-      <div className="relative z-30 flex items-center bg-transparent rounded-full">
+      <div className="relative z-30 flex justify-between items-center bg-transparent rounded-full">
         {PagesFilterBarValues.map((hv, i) => {
           const isActive = selectedId === i;
           return (
             <div
               key={i}
-              className="relative w-full md:w-auto"
+              className="relative "
               onMouseEnter={() => selectedId !== null && setSelectedId(i)}
               onClick={(e) => {
                 e.stopPropagation();
@@ -78,7 +78,7 @@ export const PagesFilterBarButtons = ({
                   <ItemTitle className="text-sm font-bold uppercase tracking-wide justify-start">
                     {hv.value}
                   </ItemTitle>
-                  <div className="flex justify-center md:w-[120px]  lg:w-[150px] w-full ">
+                  <div className="flex justify-center  w-full ">
 
                   </div>
                 </ItemContent>

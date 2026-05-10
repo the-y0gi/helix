@@ -1,4 +1,5 @@
 
+
 import { cn } from '@/lib/utils'
 import React, { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -61,22 +62,24 @@ const Cabs = ({ className }: { className?: string }) => {
 
       <UnderConstruction cat='Trains' />
     </div>
-    // <div className={cn(" w-full", className)}>
-    //   <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
-    //     <Suspense fallback={<PageSkeleton />}>
-    //       <MainFramePage
-    //         type="cabs"
-    //         popularTrends={HotelPopularCites}
+    // <div className={cn(" w-full")}>
+    //       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
+    //         <Suspense fallback={<PageSkeleton />}>
 
-    //       // searchHotels={<SearchHotels/>}
+    //           <FilterBox FilterBoxValues={Search_box_values[7]} type="home" link="/bikes" />
 
+    //           <div className={cn(CommonPagesStyles, " md:flex-col  flex gap-4 w-full bg-background py-4 ")}>
 
-
-    //       />
-    //     </Suspense>
-    //   </ErrorBoundary>
-    // </div>
+    //             <MainFramePage
+    //               type="bikes"
+    //               popularTrends={HotelPopularCites}
+    //             />
+    //           </div>
+    //         </Suspense>
+    //       </ErrorBoundary>
+    //     </div>
   )
 }
 
 export default Cabs
+

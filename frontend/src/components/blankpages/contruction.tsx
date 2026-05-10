@@ -18,7 +18,7 @@ export default function UnderConstruction({ cat }: { cat: string }) {
   useEffect(() => {
     // Set target date to April 30th of the current year
     const currentYear = new Date().getFullYear();
-    const targetDate = new Date(`May 10, ${currentYear} 00:00:00`).getTime();
+    const targetDate = new Date(`May 30, ${currentYear} 00:00:00`).getTime();
 
     const timer = setInterval(() => {
       const now = new Date().getTime();

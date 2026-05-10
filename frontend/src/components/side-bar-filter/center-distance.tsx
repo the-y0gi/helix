@@ -1,9 +1,11 @@
+'use client'
 import React from "react";
 import { Slider } from "../ui/slider";
-import { useHotelContext } from "@/context/hotel/HotelContextProvider";
+
+import { useNuqsContext } from "@/context/NuqsContentProvider";
 
 export default function DistanceRange() {
-  const { filters, setFilters } = useHotelContext()
+  const { filters, setFilters } = useNuqsContext();
   const distance = filters.distance
 
   return (
