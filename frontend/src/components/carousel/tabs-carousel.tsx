@@ -56,8 +56,8 @@ export function PopularDestinationCarousel({
   }
 
   return (
-    <div className="w-full">
-      <h2 className="mb-3 text-lg font-semibold">Trending {active}</h2>
+    <div className="w-full max-w-screen">
+      <h2 className="mb-3 text-lg font-semibold px-3">Trending {active}</h2>
 
       {/* MASKING WRAPPER (key fix) */}
       <div className="relative w-full overflow-hidden">
@@ -66,7 +66,7 @@ export function PopularDestinationCarousel({
           className={cn(
             "relative flex items-center gap-2",
             "overflow-x-auto no-scrollbar",
-            "rounded-full px-1 py-1",
+            "sm:rounded-full px-1 py-1",
             "bg-white dark:bg-zinc-900",
             "border border-black/5 dark:border-white/10",
             "w-max max-w-full" // ⬅ important
@@ -75,7 +75,7 @@ export function PopularDestinationCarousel({
           {/* Animated pill */}
           <motion.div
             transition={{ type: "spring", bounce: 0.1, duration: 0.6 }}
-            className="absolute top-1 bottom-1 rounded-full md:bg-pink-100 md:dark:bg-zinc-800"
+            className="absolute top-1 bottom-1 md:rounded-full md:bg-pink-100 md:dark:bg-zinc-800"
             style={{
               left: pill.left,
               width: pill.width,

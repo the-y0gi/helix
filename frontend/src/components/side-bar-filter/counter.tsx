@@ -1,3 +1,4 @@
+'use client'
 import { Button } from "@/components/ui/button";
 import { PaymentProps } from "@/schema/payment.schema";
 import { useNuqsContext } from "@/context/NuqsContentProvider";

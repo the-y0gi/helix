@@ -552,7 +552,7 @@ export const OnlyCarousel = ({ type, tagline, items, isLoading }: Props) => {
   if (!isLoading && items.length === 0) return null;
 
   return (
-    <div className="relative group bg-transparent">
+    <div className="relative group bg-transparent max-w-screen">
       <div className="mb-4 flex items-center justify-between px-2 md:px-0 ">
         <h2 className="text-md md:text-xl capitalize flex gap-2 items-center text-nowrap truncate font-medium">
           {tagline}
@@ -575,7 +575,7 @@ export const OnlyCarousel = ({ type, tagline, items, isLoading }: Props) => {
       <div
         ref={scrollRef}
         className={cn(
-          "flex gap-1 md:gap-3 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide scroll-smooth pt-2 pr-3",
+          "flex gap-1 md:gap-3 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide scroll-smooth pt-2 pr-3 ",
           isLoading && "pl-1"
         )}
       >
