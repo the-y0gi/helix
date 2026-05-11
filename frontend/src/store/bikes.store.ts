@@ -60,7 +60,7 @@ export const useBikesStore = create<BikesStoreProps>()(
   persist(
     (set) => ({
       payments: {} as Payment,
-      city: "Goa",
+      city: "Rishikesh",
       wrap: false,
 
       guests: {

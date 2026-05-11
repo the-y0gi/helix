@@ -172,21 +172,22 @@ export function TabsLine({
   );
 }
 
-import { MapPin, Calendar, User, Fuel, ChevronRight } from 'lucide-react';
+import { Fuel, MapPin, Calendar, User, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const CarBookingCard = () => {
   return (
-    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[32px] overflow-hidden bg-white/90 backdrop-blur-sm p-1">
+    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[32px] overflow-hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm p-1 transition-colors duration-300">
       <CardContent className="pt-5 px-5 space-y-5">
-        {/* Header: More compact for mobile */}
+
+        {/* Header */}
         <div className="flex justify-between items-center">
           <div className="space-y-0.5">
-            <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900">
+            <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50">
               Maruti Swift 2025
             </h2>
-            <div className="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-slate-500">
+            <div className="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-slate-500 dark:text-slate-400">
               <Fuel className="w-4 h-4 text-rose-500" />
               <span>69 Km/L • Petrol</span>
             </div>
@@ -195,7 +196,7 @@ const CarBookingCard = () => {
             <img
               src="/nav-icons/bikes-logo.png"
               alt="Car"
-              className="object-contain w-full h-full drop-shadow-md"
+              className="object-contain w-full h-full drop-shadow-md brightness-100 dark:brightness-90"
             />
           </div>
         </div>
@@ -204,68 +205,68 @@ const CarBookingCard = () => {
           {/* Timeline Style Locations */}
           <div className="relative space-y-4">
             {/* Visual connector line */}
-            <div className="absolute left-[19px] top-6 bottom-6 w-[2px] bg-slate-100" />
+            <div className="absolute left-[19px] top-6 bottom-6 w-[2px] bg-slate-100 dark:bg-slate-800" />
 
             {/* Pickup */}
             <div className="flex gap-4 relative">
-              <div className="z-10 p-2 bg-rose-50 rounded-full h-fit ring-4 ring-white">
-                <MapPin className="w-4 h-4 text-rose-600 fill-rose-600" />
+              <div className="z-10 p-2 bg-rose-50 dark:bg-rose-950/30 rounded-full h-fit ring-4 ring-white dark:ring-slate-900">
+                <MapPin className="w-4 h-4 text-rose-600 fill-rose-600 dark:text-rose-500 dark:fill-rose-500" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Pickup</span>
-                <span className="text-sm font-bold text-slate-800">MG Road, Bangalore</span>
+                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500">Pickup</span>
+                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">MG Road, Bangalore</span>
               </div>
             </div>
 
             {/* Drop */}
             <div className="flex gap-4 relative">
-              <div className="z-10 p-2 bg-rose-50 rounded-full h-fit ring-4 ring-white">
-                <MapPin className="w-4 h-4 text-rose-600 fill-rose-600" />
+              <div className="z-10 p-2 bg-rose-50 dark:bg-rose-950/30 rounded-full h-fit ring-4 ring-white dark:ring-slate-900">
+                <MapPin className="w-4 h-4 text-rose-600 fill-rose-600 dark:text-rose-500 dark:fill-rose-500" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Drop</span>
-                <span className="text-sm font-bold text-slate-800">Bangalore Airport</span>
+                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500">Drop</span>
+                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Bangalore Airport</span>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2">
             {/* Pickup Time */}
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
-              <Calendar className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+              <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-slate-400 uppercase">Time</span>
-                <span className="text-[11px] font-bold text-slate-900">Jan 23, 10:30AM</span>
+                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">Time</span>
+                <span className="text-[11px] font-bold text-slate-900 dark:text-slate-200">Jan 23, 10:30AM</span>
               </div>
             </div>
 
             {/* Passengers */}
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
-              <User className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+              <User className="w-4 h-4 text-slate-400 dark:text-slate-500" />
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-slate-400 uppercase">Seats</span>
-                <span className="text-[11px] font-bold text-slate-900">2 Passengers</span>
+                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">Seats</span>
+                <span className="text-[11px] font-bold text-slate-900 dark:text-slate-200">2 Passengers</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Pricing Box - Sleeker gradient */}
-        <div className="bg-gradient-to-r from-rose-50 to-orange-50 p-4 rounded-2xl border border-rose-100/50">
+        {/* Pricing Box */}
+        <div className="bg-gradient-to-r from-rose-50 to-orange-50 dark:from-slate-800 dark:to-slate-800/50 p-4 rounded-2xl border border-rose-100/50 dark:border-slate-700">
           <div className="flex justify-between items-end">
             <div>
-              <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest">Base Fare</p>
-              <p className="text-xl font-black text-slate-900">
-                ₹9 <span className="text-sm font-bold text-slate-500">/Km</span>
+              <p className="text-[10px] font-bold text-rose-400 dark:text-rose-500 uppercase tracking-widest">Base Fare</p>
+              <p className="text-xl font-black text-slate-900 dark:text-slate-50">
+                ₹9 <span className="text-sm font-bold text-slate-500 dark:text-slate-400">/Km</span>
               </p>
             </div>
-            <p className="text-[10px] font-medium text-slate-400 pb-1">+ Taxes & Fees</p>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 pb-1">+ Taxes & Fees</p>
           </div>
         </div>
       </CardContent>
 
       <CardFooter className="p-5 pt-0">
-        <Button className="w-full bg-[#FF3B30] hover:bg-[#E0352B] text-white text-md font-bold h-14 rounded-2xl shadow-lg shadow-rose-200 group active:scale-[0.98] transition-all">
+        <Button className="w-full bg-[#FF3B30] hover:bg-[#E0352B] dark:bg-rose-600 dark:hover:bg-rose-700 text-white text-md font-bold h-14 rounded-2xl shadow-lg shadow-rose-200 dark:shadow-none group active:scale-[0.98] transition-all">
           Book Now
           <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </Button>
@@ -273,3 +274,5 @@ const CarBookingCard = () => {
     </Card>
   );
 };
+
+export default CarBookingCard;

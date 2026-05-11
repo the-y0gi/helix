@@ -120,7 +120,7 @@ const Hotel: React.FC<HotelFramePageProps> = ({ className }) => {
 
             } />
 
-          <div className={cn(CommonPagesStyles, " md:flex-col  flex gap-4 w-full bg-background py-4 ")}>
+          <div className={cn(CommonPagesStyles, " md:flex-col  flex gap-4  bg-background py-4  ")}>
 
             <HotelFramePage
               // popularTrends={HotelPopularCites}
