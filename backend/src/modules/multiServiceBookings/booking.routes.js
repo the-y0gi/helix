@@ -6,8 +6,8 @@ const { authorize } = require("../../shared/middlewares/roleMiddleware");
 
 router.use(protect);
 
-router.post("/booking", protect, authorize("vendor"), bookingController.createBooking);
+router.post("/booking", authorize("user"), bookingController.createBooking);
 
-router.post("/verify-payment", protect, authorize("vendor"), bookingController.verifyPayment);
+router.post("/verify-payment", authorize("user"), bookingController.verifyPayment);
 
 module.exports = router;
