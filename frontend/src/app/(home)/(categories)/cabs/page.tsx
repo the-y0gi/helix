@@ -119,7 +119,7 @@ const Cabs = ({ className }: { className?: string }) => {
           }} type="home" link="/cabs" directions={
             <div className="w-full flex gap-2">
               <div className="flex-1">
-                <SearchInput Icon={PersonStanding} placeholder="Pickup Location" label="cab" value={PickupCity} setCity={(e) => { setPickupCity(e); setFilterQuery((prev) => ({ ...prev, PickupCity: e })); }} />
+                <SearchInput Icon={MapPin} placeholder="Pickup Location" label="cab" value={PickupCity} setCity={(e) => { setPickupCity(e); setFilterQuery((prev) => ({ ...prev, PickupCity: e })); }} />
               </div>
               <div className="flex-1">
                 <SearchInput Icon={MapPin} placeholder="Drop Location" label="cab" value={DropoffCity} setCity={(e) => { setDropoffCity(e); setFilterQuery((prev) => ({ ...prev, DropoffCity: e })); }} />

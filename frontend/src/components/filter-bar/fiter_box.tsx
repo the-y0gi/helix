@@ -176,7 +176,7 @@ const FilterBox = ({
 
             variant={"default"}
 
-            disabled={loading || !city}
+            disabled={loading || !city || !date?.from || !date?.to}
 
             className={cn(
 
