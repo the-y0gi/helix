@@ -23,6 +23,28 @@ export const getAllAdventures = async () => {
     toast.error("something went wrong");
   }
 };
+export const getAvailableAdventures = async (data: {
+  city?: string;
+  category?: string;
+  date?: {
+    checkIn: string;
+    checkOut: string;
+  };
+  page?: number;
+  limit?: number;
+}) => {
+  try {
+    const res = await axiosApi.get(`/adventures/search`, {
+      params: {
+        ...data,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error(error);
+    toast.error("something went wrong");
+  }
+};
 export const getAdventureServiceDetails = async (id: string) => {
   try {
     const res = await axiosApi.get(`/services/${id}`);

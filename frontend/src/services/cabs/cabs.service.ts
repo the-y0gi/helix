@@ -49,7 +49,7 @@ export const getCabs = async (
 
   if ((filters as any).pickup && (filters as any).dropoff) {
     params.pickup = (filters as any).pickup;
-    params.dropoff = (filters as any).dropoff;
+    params.drop = (filters as any).dropoff;
   }
 
   if (filters.score?.length > 0) {

@@ -45,7 +45,7 @@ export const AdventuresCard = ({ adventure, wrap, favourite }: AdventuresCardPro
   const idToUse = _id;
 
   const imagee =
-    image && image.length > 50 ? image : "/hotels/hotel-temp.png";
+    image && image.length > 50 ? image : "/adventures/adventure.png";
 
   // ── Mobile ──────────────────────────────────────────────────────────────────
   if (isMobile) {

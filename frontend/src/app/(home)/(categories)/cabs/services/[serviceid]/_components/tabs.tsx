@@ -53,7 +53,7 @@ export function TabsLine({
     sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   return (
-    <div className="mx-auto w-full max-w-screen-2xl px-4 md:px-6 lg:px-10 flex flex-col lg:flex-row gap-8">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 md:px-3 lg:px-10 flex flex-col lg:flex-row gap-3">
 
       {/* LEFT COLUMN: Main Content Area */}
       <div className="flex-1 min-w-0">
@@ -96,9 +96,12 @@ export function TabsLine({
       </div>
 
       {/* RIGHT COLUMN: The Sidebar Card */}
-      <aside className="hidden lg:block lg:w-[380px] flex-shrink-0 ">
-        <div className=" top-24 pt-5">
+      <aside className="hidden lg:block lg:w-[380px] flex-shrink-0  ">
+        <div className="  pt-5 sticky top-24">
+          {/* <CometCard translateDepth={1} rotateDepth={3}> */}
+
           <CarBookingCard data={data} />
+          {/* </CometCard> */}
         </div>
       </aside>
 
@@ -168,25 +171,30 @@ export function TabsLine({
 
 
 
-import { MapPin, Calendar, User, Fuel, ChevronRight } from 'lucide-react';
+import { MapPin, Calendar, User, Fuel, ChevronRight, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ReviewsMain from "@/app/(home)/(categories)/_componentsRoot_categories/reviews";
 import { useCabsStore } from "@/store/cabs.store";
 import { format } from "date-fns";
-
+import { useRouter } from "next/navigation";
+import { RouterPush } from "@/components/RouterPush";
+import { CometCard } from "@/components/ui/comet-card";
 const CarBookingCard = ({ data }: { data: CabDetailData }) => {
   const { DropoffCity, PickupCity, guests, date } = useCabsStore()
+  const [loading, setLoading] = useState(false)
+
+  const router = useRouter()
   return (
-    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[32px] overflow-hidden bg-white/90 backdrop-blur-sm p-1">
+    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[16px] overflow-hidden bg-card/90 dark:bg-card/80 backdrop-blur-sm p-1">
       <CardContent className="pt-5 px-5 space-y-5">
-        {/* Header: More compact for mobile */}
+        {/* Header */}
         <div className="flex justify-between items-center">
           <div className="space-y-0.5">
-            <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900">
+            <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-foreground">
               {data.service.carName}
             </h2>
-            <div className="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-slate-500">
+            <div className="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-muted-foreground">
               <Fuel className="w-4 h-4 text-rose-500" />
               <span>{data.service.capacity}</span>
             </div>
@@ -195,7 +203,7 @@ const CarBookingCard = ({ data }: { data: CabDetailData }) => {
             <img
               src="/nav-icons/cabs-logo.png"
               alt="Car"
-              className="object-contain w-full h-full drop-shadow-md"
+              className="object-contain w-full h-full drop-shadow-md dark:brightness-90"
             />
           </div>
         </div>
@@ -204,69 +212,73 @@ const CarBookingCard = ({ data }: { data: CabDetailData }) => {
           {/* Timeline Style Locations */}
           <div className="relative space-y-4">
             {/* Visual connector line */}
-            <div className="absolute left-[19px] top-6 bottom-6 w-[2px] bg-slate-100" />
+            <div className="absolute left-[19px] top-6 bottom-6 w-[2px] bg-border" />
 
             {/* Pickup */}
             <div className="flex gap-4 relative">
-              <div className="z-10 p-2 bg-rose-50 rounded-full h-fit ring-4 ring-white">
-                <MapPin className="w-4 h-4 text-rose-600 fill-rose-600" />
+              <div className="z-10 p-2 bg-rose-50 dark:bg-rose-950/30 rounded-full h-fit ring-4 ring-card">
+                <MapPin className="w-4 h-4 text-rose-600 fill-rose-600 dark:text-rose-500 dark:fill-rose-500" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Pickup</span>
-                <span className="text-sm font-bold text-slate-800">{PickupCity}</span>
+                <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70">Pickup</span>
+                <span className="text-sm font-bold text-foreground">{PickupCity}</span>
               </div>
             </div>
 
             {/* Drop */}
             <div className="flex gap-4 relative">
-              <div className="z-10 p-2 bg-rose-50 rounded-full h-fit ring-4 ring-white">
-                <MapPin className="w-4 h-4 text-rose-600 fill-rose-600" />
+              <div className="z-10 p-2 bg-rose-50 dark:bg-rose-950/30 rounded-full h-fit ring-4 ring-card">
+                <MapPin className="w-4 h-4 text-rose-600 fill-rose-600 dark:text-rose-500 dark:fill-rose-500" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Drop</span>
-                <span className="text-sm font-bold text-slate-800">{DropoffCity}</span>
+                <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70">Drop</span>
+                <span className="text-sm font-bold text-foreground">{DropoffCity}</span>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2">
             {/* Pickup Time */}
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
-              <Calendar className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/50 border border-border/50">
+              <Calendar className="w-4 h-4 text-muted-foreground" />
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-slate-400 uppercase">Time</span>
-                <span className="text-[11px] font-bold text-slate-900">{date?.from ? format(date.from, "dd/MM/yyyy") : "Add date"}</span>
+                <span className="text-[9px] font-bold text-muted-foreground uppercase">Time</span>
+                <span className="text-[11px] font-bold text-foreground">
+                  {date?.from ? format(date.from, "dd/MM/yyyy") : "Add date"}
+                </span>
               </div>
             </div>
 
             {/* Passengers */}
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
-              <User className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/50 border border-border/50">
+              <User className="w-4 h-4 text-muted-foreground" />
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-slate-400 uppercase">Seats</span>
-                <span className="text-[11px] font-bold text-slate-900">{guests.adults + guests.children} Passengers</span>
+                <span className="text-[9px] font-bold text-muted-foreground uppercase">Seats</span>
+                <span className="text-[11px] font-bold text-foreground">
+                  {guests.adults + guests.children} Passengers
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Pricing Box - Sleeker gradient */}
-        <div className="bg-gradient-to-r from-rose-50 to-orange-50 p-4 rounded-2xl border border-rose-100/50">
+        {/* Pricing Box - Adaptive Gradients */}
+        {/* <div className="bg-gradient-to-r from-rose-50 to-orange-50 dark:from-rose-950/20 dark:to-orange-950/20 p-4 rounded-2xl border border-rose-100/50 dark:border-rose-900/30">
           <div className="flex justify-between items-end">
             <div>
-              <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest">Base Fare</p>
-              <p className="text-xl font-black text-slate-900">
-                ₹9 <span className="text-sm font-bold text-slate-500">/Km</span>
+              <p className="text-[10px] font-bold text-rose-500 dark:text-rose-400 uppercase tracking-widest">Base Fare</p>
+              <p className="text-xl font-black text-foreground">
+                ₹9 <span className="text-sm font-bold text-muted-foreground">/Km</span>
               </p>
             </div>
-            <p className="text-[10px] font-medium text-slate-400 pb-1">+ Taxes & Fees</p>
+            <p className="text-[10px] font-medium text-muted-foreground pb-1">+ Taxes & Fees</p>
           </div>
-        </div>
+        </div> */}
       </CardContent>
 
       <CardFooter className="p-5 pt-0">
-        <Button className="w-full bg-[#FF3B30] hover:bg-[#E0352B] text-white text-md font-bold h-14 rounded-2xl shadow-lg shadow-rose-200 group active:scale-[0.98] transition-all">
-          Book Now
+        <Button disabled={loading} onClick={() => { setLoading(true); RouterPush(router, `/booknow/${data.service.serviceId}/${data.company.companyId}`, { "date": `${date?.from ? format(date.from, "dd/MM/yyyy") : "Add date"}-${date?.to ? format(date.to, "dd/MM/yyyy") : "Add date"}`, "guests": `${guests.adults + guests.children} Passengers`, "categories": "cabs" }) }} className="w-full bg-primary hover:bg-primary-700 dark:bg-rose-600 dark:hover:bg-primary-500 text-white text-md font-bold h-14 rounded-2xl shadow-lg shadow-primary-200 dark:shadow-none group active:scale-[0.98] transition-all">
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Book Now"}
           <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </Button>
       </CardFooter>

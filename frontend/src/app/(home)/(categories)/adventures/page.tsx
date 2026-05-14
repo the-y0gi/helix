@@ -34,7 +34,7 @@ export type hoteldata = {
 }
 
 const Hotel: React.FC<AdventuresFramePageProps> = ({ className }) => {
-  const { city, setCity, setDate, date } = useAdventureStore()
+  const { city, setCity, setDate, date, guests } = useAdventureStore()
   localStorage.removeItem("nextRoute")
   localStorage.removeItem("like")
   const ismobile = useIsMobile()
@@ -47,11 +47,11 @@ const Hotel: React.FC<AdventuresFramePageProps> = ({ className }) => {
     <div className={cn(" w-full ", ismobile ? "" : "", className)}>
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<PageSkeleton />}>
-          <FilterBox FilterBoxValues={{
+          <FilterBox city={city} date={date} guests={guests} FilterBoxValues={{
 
             filterBlocks: [
               {
-                label: "Check In",
+                label: "Booking Date",
                 icon: Calendar,
                 element: <HotelCalendern hookname="adventures" />,
                 text: "Add dates",
@@ -89,7 +89,7 @@ const Hotel: React.FC<AdventuresFramePageProps> = ({ className }) => {
 
           } />
 
-          <div className={cn(CommonPagesStyles, " md:flex-col  flex gap-4 w-full bg-background py-4 ")}>
+          <div className={cn(CommonPagesStyles, "  gap-4 w-full bg-background py-4 ")}>
 
 
             <AdventureSection />

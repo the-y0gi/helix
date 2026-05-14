@@ -63,7 +63,7 @@ export const useCabsStore = create<CabsStoreProps>()(
     (set) => ({
       payments: {} as Payment,
       PickupCity: "indore",
-      DropoffCity: "indore",
+      DropoffCity: "rishikesh",
       wrap: false,
 
       guests: {

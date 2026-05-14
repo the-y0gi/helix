@@ -27,6 +27,7 @@ export interface Adventure {
 }
 
 export interface AdventureService {
+  companyId?: string
   _id: string;
   title: string;
   type: "fixed" | "variable" | string;

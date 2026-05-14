@@ -1,9 +1,8 @@
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import NProgress from "nprogress";
 
-export const RouterPush = (router: AppRouterInstance, path: string) => {
+export const RouterPush = (router: AppRouterInstance, path: string, query?: Record<string, string>) => {
     NProgress.start();
-    router.push(path);
+    const params = new URLSearchParams(query);
+    router.push(`${path}?${params.toString()}`);
 };
-
-

@@ -16,7 +16,7 @@ import { useToursStore } from '@/store/tours.store'
 import HotelCalendern from '@/components/navbar/filter-nav-bar/calander05'
 
 const page = () => {
-  const { city, setCity, date, setDate } = useToursStore()
+  const { city, setCity, date, setDate, guests } = useToursStore()
 
   return (
     // <div className="px-2 md:px-0  w-full">
@@ -27,12 +27,12 @@ const page = () => {
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<PageSkeleton />}>
 
-          <FilterBox FilterBoxValues={{
+          <FilterBox city={city} date={date} guests={guests} FilterBoxValues={{
 
             filterBlocks: [
 
               {
-                label: "When",
+                label: "Booking Date",
                 icon: Calendar,
                 element: <HotelCalendern hookname='tours' />,
                 text: "Add dates",
@@ -80,4 +80,4 @@ const page = () => {
 }
 
 export default page
-
+
