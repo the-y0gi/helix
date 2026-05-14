@@ -14,7 +14,7 @@ import UnderConstruction from "@/components/blankpages/contruction";
 import { CommonPagesStyles } from "@/styles/commonpages-styles";
 import FilterBox from "@/components/filter-bar/fiter_box";
 import { Adventures_Box_FilterBarValues, Search_box_values } from "@/constants/constants";
-import { Calendar, PersonStanding } from "lucide-react";
+import { Calendar, MapPin, PersonStanding } from "lucide-react";
 import SearchInput from "@/constants/search-box-components/search-input";
 import { useAdventureStore } from "@/store/adventure.store";
 import HotelCalendern from '@/components/navbar/filter-nav-bar/calander05'
@@ -82,7 +82,7 @@ const Hotel: React.FC<AdventuresFramePageProps> = ({ className }) => {
           }} type="home" link="/adventures" directions={
             <div className="w-full flex gap-2">
               <div className="flex-1">
-                <SearchInput Icon={PersonStanding} placeholder="Search for adventures" label="adventure" value={city} setCity={(e) => { setCity(e); }} />
+                <SearchInput Icon={MapPin} placeholder="Search for adventures" label="adventure" value={city} setCity={(e) => { setCity(e); }} />
               </div>
 
             </div>

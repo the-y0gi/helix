@@ -59,7 +59,7 @@ const page = () => {
           }} type="home" link="/bikes" directions={
             <div className="w-full flex gap-2">
               <div className="flex-1">
-                <SearchInput Icon={PersonStanding} placeholder="Pickup Location" label="bike" value={city} setCity={(e) => { setCity(e); }} />
+                <SearchInput Icon={MapPin} placeholder="Pickup Location" label="bike" value={city} setCity={(e) => { setCity(e); }} />
               </div>
 
             </div>

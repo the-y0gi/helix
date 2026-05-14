@@ -11,7 +11,7 @@ import React, { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HotelPopularCites } from '../buses/page'
 import SearchInput from '@/constants/search-box-components/search-input'
-import { Calendar, PersonStanding } from 'lucide-react'
+import { Calendar, MapPin, PersonStanding } from 'lucide-react'
 import { useToursStore } from '@/store/tours.store'
 import HotelCalendern from '@/components/navbar/filter-nav-bar/calander05'
 
@@ -60,7 +60,7 @@ const page = () => {
           }} type="home" link="/tours" directions={
             <div className="w-full flex gap-2">
               <div className="flex-1">
-                <SearchInput Icon={PersonStanding} placeholder="Search for tours" label="tour" value={city} setCity={(e) => { setCity(e) }} />
+                <SearchInput Icon={MapPin} placeholder="Search for tours" label="tour" value={city} setCity={(e) => { setCity(e) }} />
               </div>
 
             </div>
