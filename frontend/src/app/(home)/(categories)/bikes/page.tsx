@@ -15,7 +15,7 @@ import { Calendar, MapPin, PersonStanding } from "lucide-react";
 import { useBikesStore } from "@/store/bikes.store";
 import HotelCalendern from '@/components/navbar/filter-nav-bar/calander05'
 const page = () => {
-  const { city, setCity, setDate, date } = useBikesStore()
+  const { city, setCity, setDate, date, guests } = useBikesStore()
   // const [filterQuery, setFilterQuery] = useState(city)
 
   localStorage.removeItem("nextRoute")
@@ -31,12 +31,13 @@ const page = () => {
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<PageSkeleton />}>
 
-          <FilterBox FilterBoxValues={{
+          <FilterBox city={city} date={date} guests={guests} FilterBoxValues={{
+
 
             filterBlocks: [
 
               {
-                label: "When",
+                label: "Booking Date",
                 icon: Calendar,
                 element: <HotelCalendern hookname="bikes" />,
                 text: "Add dates",

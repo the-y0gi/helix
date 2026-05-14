@@ -29,6 +29,12 @@ function getFilterBlockDisplayText(
   if (normalized === "check in") {
     return date?.from ? format(new Date(date.from), "dd MMM yyyy") : fallback;
   }
+  if (normalized === "when") {
+    return date?.from ? format(new Date(date.from), "dd MMM yyyy") : fallback;
+  }
+  if (normalized === "booking date") {
+    return date?.from ? format(new Date(date.from), "dd MMM yyyy") : fallback;
+  }
   if (normalized === "check out") {
     return date?.to ? format(new Date(date.to), "dd MMM yyyy") : fallback;
   }
@@ -49,8 +55,11 @@ const FilterBox = ({
   FilterBoxValues,
   link,
   type,
-  directions,
+  directions, city, date, guests
 }: {
+  city: string;
+  date: DateRange | undefined;
+  guests: { adults: number; children: number };
   FilterBoxValues: SearchBoxValuesProps;
   link?: string;
   type?: string;
@@ -58,7 +67,7 @@ const FilterBox = ({
 }) => {
   const router = useRouter();
   const ismobile = useIsMobile();
-  const { city, date, guests } = useHotelStore();
+  // const { city, date, guests } = useHotelStore();
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const iscity = !!city;
@@ -189,13 +198,13 @@ const FilterBox = ({
 
             {loading ? <Spinner /> :
 
-              iscity ?
+              iscity && date && date.from && date.to ?
 
                 `Search ${link?.substring(1, link.length)}`
 
 
 
-                : `Select city`}
+                : `Select city and date`}
 
           </Button>
         </div>

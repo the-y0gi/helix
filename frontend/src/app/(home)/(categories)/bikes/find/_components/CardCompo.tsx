@@ -59,14 +59,14 @@ export const BikeCard = ({ bike, wrap, favourite }: BikeCardProps) => {
   } = bike;
 
   const image =
-    thumbnail && thumbnail.length > 50 ? thumbnail : "/hotels/hotel-temp.png";
+    thumbnail && thumbnail.length > 50 ? thumbnail : "/bikes/bike2.png";
 
   // ── Mobile ──────────────────────────────────────────────────────────────────
   if (isMobile) {
     return (
       <Card className="group overflow-hidden rounded-xl border bg-card w-full shadow-md pt-0">
         <ImagePreview src={image} alt={bikeName}>
-          <div className="relative w-full h-[180px]">
+          <div className="relative w-full h-[180px] ">
             <img
               src={image}
               alt={bikeName}

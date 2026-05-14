@@ -134,11 +134,11 @@ export const handleCopy = async () => {
   }
 };
 import { useParams } from "next/navigation";
-export const validimage = (s: string | undefined) => {
+export const validimage = (s: string | undefined, dummy: string) => {
   if (s && s.length > 50) {
     return s;
   }
-  return "/hotels/img1.png"; // Fallback path
+  return dummy; // Fallback path
 };
 export function useParam(
   key: string,

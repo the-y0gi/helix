@@ -34,6 +34,7 @@ export const useGetNewHotels = () => {
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+
     refetchOnReconnect: true,
     retry: false,
   });

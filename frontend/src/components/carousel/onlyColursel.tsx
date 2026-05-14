@@ -488,7 +488,7 @@ import { Skeleton } from "../ui/skeleton";
 
 export type Item = {
   title: string;
-  location: string;
+  location?: string;
   image: string | StaticImageData;
   href: string;
 };
@@ -648,7 +648,7 @@ const Card = React.memo(({ item, onClick }: { item: Item; onClick: () => void })
       <div className="mt-2.5 md:mt-3 space-y-1 px-1">
         <h3 className="text-sm font-semibold line-clamp-1 text-card-foreground">{item.title}</h3>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <MapPin className="h-3 w-3 shrink-0" />
+          {item.location && <MapPin className="h-3 w-3 shrink-0" />}
           <span className="line-clamp-1 ">{item.location}</span>
         </div>
       </div>

@@ -5,6 +5,7 @@ import {
   getAdventureServiceDetails,
   getAllAdventures,
   getAllAdventuresSearch,
+  getAvailableAdventures,
 } from "./adventures.service";
 import { Filters } from "@/context/NuqsContentProvider";
 export const useGetAdventuresSearch = (val: Filters, page: number = 1) => {
@@ -19,17 +20,26 @@ export const useGetAdventuresSearch = (val: Filters, page: number = 1) => {
     refetchOnReconnect: false,
   });
 };
-// export const useGetAllAdventuresQuery = () => {
-//   return useQuery({
-//     queryKey: ["getAllAdventures"],
-//     queryFn: () => getAllAdventures(),
-//     staleTime: Infinity,
-//     refetchOnWindowFocus: false,
-//     refetchOnMount: false,
-//     refetchOnReconnect: true,
-//     retry: false, // optional
-//   });
-// };
+export const usegetAvailableAdventures = (data: {
+  city?: string;
+  category?: string;
+  date?: {
+    checkIn: string;
+    checkOut: string;
+  };
+  page?: number;
+  limit?: number;
+}) => {
+  return useQuery({
+    queryKey: ["getAvailableAdventures", data],
+    queryFn: () => getAvailableAdventures(data),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: true,
+    retry: false, // optional
+  });
+};
 export const usegetAdventureServiceDetails = (id: string) => {
   return useQuery({
     queryKey: ["getAdventureServiceDetails", id],

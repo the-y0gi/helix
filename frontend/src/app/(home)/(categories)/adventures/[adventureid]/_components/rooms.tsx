@@ -125,7 +125,8 @@ export const BikeDetailsCardItem = ({
       totalPriceWithTax={service.totalPriceWithTax}
       totalTax={service.totalTax}
       type={service.type}
-      images={'/img4.png'}
+      images={'/adventures/adventure.png'}
+      companyId={service.companyId}
     />
   );
 };

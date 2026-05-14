@@ -25,7 +25,7 @@ const FindHotels: React.FC<FindHotelProps> = (props) => {
               filterSidebar={
                 <SideBarFilter items={items} mapSrc="/map-icons/map.png" alt="map image" overlayTitle="See Location on Map" />
               }
-              content={<ContentFrame />}
+              content={<ContentFrame key={2} />}
             />
           </AdventureContextProvider>
         </Suspense>

@@ -59,7 +59,7 @@ export type hoteldata = {
 //  },
 // ]
 const Hotel: React.FC<HotelFramePageProps> = ({ className }) => {
-  const { city, setCity, setDate, date } = useHotelStore();
+  const { city, setCity, setDate, date, guests } = useHotelStore();
   // const [city1, setCity1] = useState("")
 
   localStorage.removeItem("nextRoute")
@@ -71,7 +71,7 @@ const Hotel: React.FC<HotelFramePageProps> = ({ className }) => {
     <div className={cn(" w-full ", ismobile ? "" : "", className)}>
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<PageSkeleton />}>
-          <FilterBox FilterBoxValues={{
+          <FilterBox city={city} date={date} guests={guests} FilterBoxValues={{
 
             filterBlocks: [
               {

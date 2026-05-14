@@ -63,7 +63,7 @@ export const HotelPopularCites: CityTrends[] = [
   },
 ]
 const Cabs = ({ className }: { className?: string }) => {
-  const { PickupCity, DropoffCity, setPickupCity, setDropoffCity, setDate, date } = useCabsStore()
+  const { PickupCity, DropoffCity, setPickupCity, setDropoffCity, setDate, date, guests } = useCabsStore()
   const [filterQuery, setFilterQuery] = useState({
     PickupCity,
     DropoffCity,
@@ -81,12 +81,12 @@ const Cabs = ({ className }: { className?: string }) => {
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<PageSkeleton />}>
 
-          <FilterBox FilterBoxValues={{
+          <FilterBox city={PickupCity} date={date} guests={guests} FilterBoxValues={{
 
             filterBlocks: [
 
               {
-                label: "When",
+                label: "Booking Date",
                 icon: Calendar,
                 element: <HotelCalendern hookname='cabs' />,
                 text: "Add dates",

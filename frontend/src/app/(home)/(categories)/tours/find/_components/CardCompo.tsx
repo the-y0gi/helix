@@ -48,7 +48,7 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
   } = tour;
 
   const image =
-    thumbnail && thumbnail.length > 50 ? thumbnail : "/hotels/hotel-temp.png";
+    thumbnail && thumbnail.length > 50 ? thumbnail : "/tours/tour.png";
 
   const mainDestination = destinations?.[0] || company?.city || "Unknown Location";
 
@@ -331,7 +331,7 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
                   /person
                 </span>
               </div>
-              <p className="text-[10px] text-muted-foreground leading-none mt-1">
+              <p className="text-[11px] text-green-600 font-bold leading-none mt-1">
                 Total: {formatCurrency(totalPriceWithTax)} incl. tax
               </p>
             </div>

@@ -66,7 +66,7 @@ export const CabsCard = ({ cab, wrap, favourite }: CabsCardProps) => {
   } = cab;
 
   const image =
-    thumbnail && thumbnail.length > 50 ? thumbnail : "/hotels/hotel-temp.png";
+    thumbnail && thumbnail.length > 50 ? thumbnail : "/cabs/cab.png";
 
   // ── Mobile ──────────────────────────────────────────────────────────────────
   if (isMobile) {
@@ -389,7 +389,7 @@ export const CabsCard = ({ cab, wrap, favourite }: CabsCardProps) => {
                   {formatCurrency(price)}
                 </span>
               </div>
-              <p className="text-[10px] text-muted-foreground leading-none mt-1">
+              <p className="text-[10px] text-primary font-semibold leading-none mt-1">
                 Total: {formatCurrency(totalPriceWithTax)} incl. tax
               </p>
             </div>

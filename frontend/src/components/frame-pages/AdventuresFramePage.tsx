@@ -57,14 +57,21 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
             }));
         });
     }, [groupedByCity]);
-
+    const activities: Item[] = [
+        { title: "Paragliding", image: "/adventures/pg.png", href: "/adventures/find?category=paragliding" },
+        { title: "Bungee jumping", image: "/adventures/bj.png", href: "/adventures/find?category=bungee" },
+        { title: "Scuba diving", image: "/adventures/sud.png", href: "/adventures/find?category=diving" },
+        { title: "Skydiving", image: "/adventures/sd.png", href: "/adventures/find?category=sky" },
+        { title: "Rafting", image: "/adventures/rft.png", href: "/adventures/find?category=rafting" },
+        { title: "Trekking", image: "/adventures/trk.png", href: "#" },
+    ]
     return (
         <div className={cn(className, "flex flex-col gap-y-2 md:gap-y-4 ")}>
             <PopularDestinationCarousel
                 tagline={"Most Popular activitys"}
                 tabs={undefined}
                 type={"adventures"}
-                items={sectionItems[1]}
+                items={activities}
                 isLoading={isLoading}
             />
             {POPULAR_SECTIONS.map((section, i) => {

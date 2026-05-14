@@ -2,7 +2,7 @@
 
 import Gallery from "@/app/(home)/(categories)/_componentsRoot_categories/gallery";
 import { HotelImage } from "@/types";
-import React from "react";
+import React, { Suspense } from "react";
 const images = [
   {
     "url": "https://res.cloudinary.com/dwfolqpht/image/upload/v1771828468/general/p7pppjdfgwu6ewqtu9fh.jpg",
@@ -76,7 +76,9 @@ export function LayoutGridDemo({ images: imagelist, v = "default" }: { images: H
 
   return (
     <div className="py-2 w-full ">
+
       <Gallery sections={gallerySections} variant={v === "default" ? "default" : "base4"} />
+
     </div>
   );
 }

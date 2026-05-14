@@ -44,7 +44,7 @@ export const ContentFrame = (props: Props) => {
           </div>}
           <div className="w-full">
             <h2 className="text-2xl font-semibold mb-4 ">
-              {total > 0 ? `Explore ${total}+ bikes in ${city}` : `Explore bikes in ${city}`}
+              {total > 0 ? `Explore ${total}+ Tours in ${city}` : `Explore tours in ${city}`}
             </h2>
             {/* <div className="w-10 min-w-37 md:w-1/2 mb-6">
 
