@@ -34,6 +34,7 @@ exports.getCabs = async (query) => {
       {
         $match: {
           "company.isActive": true,
+          "company.verificationStatus": "verified",
         },
       },
 
@@ -126,6 +127,7 @@ exports.getCabCompanyDetails = async (id) => {
     const company = await CabCompany.findOne({
       _id: id,
       isActive: true,
+      verificationStatus: "verified",
     })
       .select("name location description images rating features")
       .lean();
@@ -215,6 +217,7 @@ exports.getCabServiceDetails = async (id) => {
     const service = await CabService.findOne({
       _id: id,
       isActive: true,
+      verificationStatus: "verified",
     }).lean();
 
     if (!service) {
@@ -336,7 +339,7 @@ exports.createCabService = async (data, vendorId) => {
     //VERIFY OWNERSHIP
     const cab = await CabCompany.findOne({
       _id: cabId,
-      vendor: vendorId,
+      vendorId: vendorId,
       isActive: true,
     });
 
@@ -382,7 +385,7 @@ exports.getVendorCabServices = async (query = {}, vendorId) => {
 
     const skip = (Number(page) - 1) * Number(limit);
 
-    const vendorCabs = await CabCompany.find({ vendor: vendorId })
+    const vendorCabs = await CabCompany.find({ vendorId: vendorId })
       .select("_id")
       .lean();
 
@@ -463,14 +466,14 @@ exports.getVendorCabServiceById = async (serviceId, vendorId) => {
     }
 
     const service = await CabService.findById(serviceId)
-      .populate("cab", "name vendor")
+      .populate("cab", "name vendorId")
       .lean();
 
     if (!service) {
       throw new Error("Cab service not found");
     }
 
-    if (service.cab.vendor.toString() !== vendorId.toString()) {
+    if (service.cab.vendorId.toString() !== vendorId.toString()) {
       throw new Error("Unauthorized access");
     }
 
@@ -530,14 +533,14 @@ exports.updateVendorCabService = async (serviceId, vendorId, data) => {
     //Find service + ownership check
     const service = await CabService.findById(serviceId).populate(
       "cab",
-      "vendor",
+      "vendorId",
     );
 
     if (!service) {
       throw new Error("Cab service not found");
     }
 
-    if (service.cab.vendor.toString() !== vendorId.toString()) {
+    if (service.cab.vendorId.toString() !== vendorId.toString()) {
       throw new Error("Unauthorized access");
     }
 
@@ -545,11 +548,11 @@ exports.updateVendorCabService = async (serviceId, vendorId, data) => {
       throw new Error("Base price must be valid");
     }
 
-    if (
-      data.discountPrice !== undefined &&
-      data.basePrice !== undefined &&
-      data.discountPrice > data.basePrice
-    ) {
+    const finalBasePrice = data.basePrice ?? service.basePrice;
+
+    const finalDiscountPrice = data.discountPrice ?? service.discountPrice;
+
+    if (finalDiscountPrice > finalBasePrice) {
       throw new Error("Discount cannot exceed base price");
     }
 
@@ -594,14 +597,14 @@ exports.deleteVendorCabService = async (serviceId, vendorId) => {
     //Find service + ownership check
     const service = await CabService.findById(serviceId).populate(
       "cab",
-      "vendor",
+      "vendorId",
     );
 
     if (!service) {
       throw new Error("Cab service not found");
     }
 
-    if (service.cab.vendor.toString() !== vendorId.toString()) {
+    if (service.cab.vendorId.toString() !== vendorId.toString()) {
       throw new Error("Unauthorized access");
     }
 

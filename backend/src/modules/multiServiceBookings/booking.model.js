@@ -24,7 +24,7 @@ const bookingSchema = new mongoose.Schema(
 
     vendorId: {
       type: mongoose.Schema.ObjectId,
-      ref: "User",
+      ref: "Vendor",
       required: true,
       index: true,
     },

@@ -38,28 +38,28 @@ exports.createBooking = async (data, userId) => {
 
     if (serviceType === "adventure") {
       service = await AdventureService.findById(serviceId)
-        .populate("adventure", "vendor")
+        .populate("adventure", "vendorId")
         .lean();
 
-      vendorId = service?.adventure?.vendor;
+      vendorId = service?.adventure?.vendorId;
     } else if (serviceType === "cab") {
       service = await CabService.findById(serviceId)
-        .populate("cab", "vendor")
+        .populate("cab", "vendorId")
         .lean();
 
-      vendorId = service?.cab?.vendor;
+      vendorId = service?.cab?.vendorId;
     } else if (serviceType === "bike") {
       service = await BikeService.findById(serviceId)
-        .populate("bike", "vendor")
+        .populate("bike", "vendorId")
         .lean();
 
-      vendorId = service?.bike?.vendor;
+      vendorId = service?.bike?.vendorId;
     } else if (serviceType === "tour") {
       service = await TourService.findById(serviceId)
-        .populate("tour", "vendor")
+        .populate("tour", "vendorId")
         .lean();
 
-      vendorId = service?.tour?.vendor;
+      vendorId = service?.tour?.vendorId;
     } else {
       throw new Error("Invalid service type");
     }

@@ -18,7 +18,7 @@ router.patch(
   "/:id/rank",
   protect,
   authorize("admin"),
-  propertyController.updateHotelRank,
+  propertyController.updateBusinessRank,
 );
 
 router.get(

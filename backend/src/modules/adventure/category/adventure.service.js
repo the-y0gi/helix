@@ -3,6 +3,7 @@ const Adventure = require("./adventure.model");
 const Service = require("../service/service.model");
 const slugify = require("slugify");
 const Tax = require("../../admin/tax/tax.model");
+const logger = require("../../../shared/utils/logger");
 
 exports.searchAdventures = async (query = {}) => {
   try {
@@ -201,10 +202,23 @@ exports.getAdventureDetails = async (id) => {
   }
 };
 
-////vendor...
-
-exports.createAdventure = async (data, vendorId) => {
+exports.createAdventure = async (data, vendor) => {
   try {
+    // BLOCK IF ALREADY SUBMITTED
+    if (vendor.isSubmitted && vendor.status !== "rejected") {
+      throw new Error("Already submitted. Cannot edit.");
+    }
+
+    // STEP VALIDATION
+    if (vendor.currentStep !== 3 && vendor.status !== "rejected") {
+      throw new Error("Invalid step flow");
+    }
+
+    // REJECTION FLOW
+    if (vendor.status === "rejected" && vendor.rejectedStep !== 4) {
+      throw new Error("Fix required step first");
+    }
+
     const {
       name,
       category,
@@ -213,41 +227,138 @@ exports.createAdventure = async (data, vendorId) => {
       country,
       address,
       description,
-      images,
-      features,
+      images = [],
+      documents = [],
+      features = [],
+      coordinates,
     } = data;
 
-    if (!name || !category || !city) {
-      throw new Error("Name, category and city are required");
+    // VALIDATIONS
+    if (!name || !name.trim()) {
+      throw new Error("Adventure name is required");
     }
 
-    // slug generate (unique handle)
-    const baseSlug = slugify(name, { lower: true });
-    const slug = `${baseSlug}-${Date.now()}`;
+    if (!category) {
+      throw new Error("Adventure category is required");
+    }
 
-    const adventure = await Adventure.create({
-      name,
-      slug,
-      category,
+    if (!city) {
+      throw new Error("City is required");
+    }
 
-      location: {
-        city,
-        state,
-        country,
-      },
-
-      address,
-      description,
-      images,
-      features,
-
-      vendor: vendorId,
+    // SLUG GENERATE
+    const baseSlug = slugify(name, {
+      lower: true,
+      strict: true,
     });
+
+
+    // CHECK EXISTING ADVENTURE
+    let adventure = await Adventure.findOne({
+      vendorId: vendor._id,
+    });
+
+    if (adventure) {
+      // UPDATE EXISTING
+      Object.assign(adventure, {
+        name: name.trim(),
+
+        slug,
+
+        category,
+
+        location: {
+          city: city.trim(),
+
+          state: state || "",
+
+          country: country || "India",
+        },
+
+        address: address?.trim() || "",
+
+        coordinates: {
+          lat: coordinates?.lat || null,
+
+          lng: coordinates?.lng || null,
+        },
+
+        description: description?.trim() || "",
+
+        images,
+
+        documents,
+
+        features,
+
+        verificationStatus: "pending",
+      });
+
+      await adventure.save();
+    } else {
+      // CREATE NEW
+      adventure = await Adventure.create({
+        name: name.trim(),
+
+        slug,
+
+        category,
+
+        location: {
+          city: city.trim(),
+
+          state: state || "",
+
+          country: country || "India",
+        },
+
+        address: address?.trim() || "",
+
+        coordinates: {
+          lat: coordinates?.lat || null,
+
+          lng: coordinates?.lng || null,
+        },
+
+        description: description?.trim() || "",
+
+        images,
+
+        documents,
+
+        features,
+
+        vendorId: vendor._id,
+
+        verificationStatus: "pending",
+
+        isActive: false,
+      });
+    }
+
+    // STEP UPDATE
+    vendor.currentStep = 4;
+
+    vendor.registrationStep = Math.max(vendor.registrationStep, 4);
+
+    // RESET REJECTION
+    if (vendor.status === "rejected") {
+      vendor.status = "draft";
+
+      vendor.rejectedStep = null;
+
+      vendor.adminRemark = null;
+    }
+
+    await vendor.save();
 
     return {
       _id: adventure._id,
+
       name: adventure.name,
+
       category: adventure.category,
+
       city: adventure.location?.city,
     };
   } catch (error) {

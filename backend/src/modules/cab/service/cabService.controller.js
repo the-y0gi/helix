@@ -1,5 +1,6 @@
 const cabService = require("./cabService.service");
 const logger = require("../../../shared/utils/logger");
+const Vendor = require("../../vendors/vendor.model");
 
 //user side...
 exports.getCabs = async (req, res, next) => {
@@ -51,26 +52,45 @@ exports.getCabServiceDetails = async (req, res, next) => {
 //vendor side....
 exports.createCabService = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
 
-    const service = await cabService.createCabService(req.body, vendorId);
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    const service = await cabService.createCabService(req.body, vendor._id);
 
     res.status(201).json({
       success: true,
+
       message: "Cab service created successfully",
+
       data: service,
     });
   } catch (error) {
     logger.error("Controller Error: createCabService", error);
+
     next(error);
   }
 };
 
 exports.getVendorCabServices = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
 
-    const result = await cabService.getVendorCabServices(req.query, vendorId);
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    const result = await cabService.getVendorCabServices(req.query, vendor._id);
 
     res.status(200).json({
       success: true,
@@ -84,12 +104,20 @@ exports.getVendorCabServices = async (req, res, next) => {
 
 exports.getVendorCabServiceById = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const serviceId = req.params.id;
+
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
 
     const service = await cabService.getVendorCabServiceById(
       serviceId,
-      vendorId,
+      vendor._id,
     );
 
     res.status(200).json({
@@ -104,12 +132,20 @@ exports.getVendorCabServiceById = async (req, res, next) => {
 
 exports.updateVendorCabService = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const serviceId = req.params.id;
+
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
 
     const updated = await cabService.updateVendorCabService(
       serviceId,
-      vendorId,
+      vendor._id,
       req.body,
     );
 
@@ -126,10 +162,18 @@ exports.updateVendorCabService = async (req, res, next) => {
 
 exports.deleteVendorCabService = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const serviceId = req.params.id;
 
-    await cabService.deleteVendorCabService(serviceId, vendorId);
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    await cabService.deleteVendorCabService(serviceId, vendor._id);
 
     res.status(200).json({
       success: true,

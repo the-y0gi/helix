@@ -2,6 +2,11 @@ const authService = require("./auth.service");
 const Hotel = require("../hotels/hotel.model");
 const Vendor = require("../vendors/vendor.model");
 
+const CabCompany = require("../cab/company/cab.model");
+const BikeCompany = require("../bike/company/bike.model");
+const TourCompany = require("../tour/company/tour.model");
+const Adventure = require("../adventure/category/adventure.model");
+
 const logger = require("../../shared/utils/logger");
 const { generateTokens } = require("../../shared/utils/jwt");
 
@@ -124,51 +129,165 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const { user, message } = await authService.login(email, password);
+    const { user, message } =
+      await authService.login(
+        email,
+        password,
+      );
 
-    const { accessToken, refreshToken } = generateTokens(user._id);
+    const { accessToken, refreshToken } =
+      generateTokens(user._id);
 
     setTokenCookie(res, refreshToken);
 
     let extraData = {};
 
     if (user.role === "vendor") {
-      const vendor = await Vendor.findOne({ userId: user._id });
+      const vendor = await Vendor.findOne({
+        userId: user._id,
+      });
 
       if (vendor) {
         extraData.vendor = {
           status: vendor.status,
-          currentStep: vendor.currentStep,
-          rejectedSteps: vendor.rejectedSteps || [],
-          rejectionReasons: vendor.rejectionReasons || {},
+
+          currentStep:
+            vendor.currentStep,
+
+          rejectedSteps:
+            vendor.rejectedSteps || [],
+
+          rejectionReasons:
+            vendor.rejectionReasons ||
+            {},
+
+          serviceType:
+            vendor.serviceType,
         };
 
-        if (vendor.status === "approved") {
-          const hotel = await Hotel.findOne({ vendorId: vendor._id }).select(
-            "_id name",
-          );
+        // DYNAMIC BUSINESS FETCH
+        let business = null;
 
-          extraData.hotel = hotel;
+        switch (vendor.serviceType) {
+          case "hotel":
+            business =
+              await Hotel.findOne({
+                vendorId: vendor._id,
+              }).select("_id name");
+            break;
+
+          case "cab":
+            business =
+              await CabCompany.findOne({
+                vendorId: vendor._id,
+              }).select("_id name");
+            break;
+
+          case "bike":
+            business =
+              await BikeCompany.findOne({
+                vendorId: vendor._id,
+              }).select("_id name");
+            break;
+
+          case "tour":
+            business =
+              await TourCompany.findOne({
+                vendorId: vendor._id,
+              }).select("_id name");
+            break;
+
+          case "adventure":
+            business =
+              await Adventure.findOne({
+                vendorId: vendor._id,
+              }).select("_id name");
+            break;
+
+          default:
+            business = null;
+        }
+
+        if (
+          vendor.status === "approved"
+        ) {
+          extraData.business =
+            business;
         }
       }
     }
 
     res.status(200).json({
       success: true,
+
       message,
+
       accessToken,
+
       data: {
         user: filterUserData(user),
+
         ...extraData,
       },
     });
   } catch (error) {
     res.status(401).json({
       success: false,
+
       message: error.message,
     });
   }
 };
+
+// exports.login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const { user, message } = await authService.login(email, password);
+
+//     const { accessToken, refreshToken } = generateTokens(user._id);
+
+//     setTokenCookie(res, refreshToken);
+
+//     let extraData = {};
+
+//     if (user.role === "vendor") {
+//       const vendor = await Vendor.findOne({ userId: user._id });
+
+//       if (vendor) {
+//         extraData.vendor = {
+//           status: vendor.status,
+//           currentStep: vendor.currentStep,
+//           rejectedSteps: vendor.rejectedSteps || [],
+//           rejectionReasons: vendor.rejectionReasons || {},
+//         };
+
+//         if (vendor.status === "approved") {
+//           const hotel = await Hotel.findOne({ vendorId: vendor._id }).select(
+//             "_id name",
+//           );
+
+//           extraData.hotel = hotel;
+//         }
+//       }
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message,
+//       accessToken,
+//       data: {
+//         user: filterUserData(user),
+//         ...extraData,
+//       },
+//     });
+//   } catch (error) {
+//     res.status(401).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 
 exports.resendOTP = async (req, res) => {
   try {

@@ -35,6 +35,7 @@ exports.getBikes = async (query) => {
             $regex: city,
             $options: "i",
           },
+          "company.verificationStatus": "verified",
         },
       },
 
@@ -117,6 +118,7 @@ exports.getBikeCompanyDetails = async (id) => {
     const company = await BikeCompany.findOne({
       _id: id,
       isActive: true,
+      verificationStatus: "verified",
     })
       .select("name location description images rating features rentalPolicies")
       .lean();
@@ -209,6 +211,7 @@ exports.getBikeServiceDetails = async (id) => {
     const service = await BikeService.findOne({
       _id: id,
       isActive: true,
+      verificationStatus: "verified",
     }).lean();
 
     if (!service) {
@@ -384,7 +387,7 @@ exports.createBikeService = async (data, vendorId) => {
 
     const bikeCompany = await BikeCompany.findOne({
       _id: bikeId,
-      vendor: vendorId,
+      vendorId: vendorId,
       isActive: true,
     });
 
@@ -426,7 +429,7 @@ exports.getVendorBikeServices = async (query = {}, vendorId) => {
 
     const skip = (Number(page) - 1) * Number(limit);
 
-    const companies = await BikeCompany.find({ vendor: vendorId })
+    const companies = await BikeCompany.find({ vendorId: vendorId })
       .select("_id")
       .lean();
 
@@ -500,14 +503,14 @@ exports.getVendorBikeServiceById = async (serviceId, vendorId) => {
     }
 
     const service = await BikeService.findById(serviceId)
-      .populate("bike", "name vendor")
+      .populate("bike", "name vendorId")
       .lean();
 
     if (!service) {
       throw new Error("Bike service not found");
     }
 
-    if (service.bike.vendor.toString() !== vendorId.toString()) {
+    if (service.bike.vendorId.toString() !== vendorId.toString()) {
       throw new Error("Unauthorized access");
     }
 
@@ -563,14 +566,14 @@ exports.updateVendorBikeService = async (serviceId, vendorId, data) => {
 
     const service = await BikeService.findById(serviceId).populate(
       "bike",
-      "vendor",
+      "vendorId",
     );
 
     if (!service) {
       throw new Error("Bike service not found");
     }
 
-    if (service.bike.vendor.toString() !== vendorId.toString()) {
+    if (service.bike.vendorId.toString() !== vendorId.toString()) {
       throw new Error("Unauthorized access");
     }
 
@@ -625,14 +628,14 @@ exports.deleteVendorBikeService = async (serviceId, vendorId) => {
 
     const service = await BikeService.findById(serviceId).populate(
       "bike",
-      "vendor",
+      "vendorId",
     );
 
     if (!service) {
       throw new Error("Bike service not found");
     }
 
-    if (service.bike.vendor.toString() !== vendorId.toString()) {
+    if (service.bike.vendorId.toString() !== vendorId.toString()) {
       throw new Error("Unauthorized access");
     }
 
