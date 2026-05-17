@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const adventureSchema = new mongoose.Schema(
   {
+    vendorId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Vendor",
+      required: true,
+      index: true,
+    },
     name: {
       type: String,
       required: [true, "Adventure name is required"],
@@ -9,12 +15,7 @@ const adventureSchema = new mongoose.Schema(
       index: true,
     },
 
-    slug: {
-      type: String,
-      unique: true,
-      lowercase: true,
-      index: true,
-    },
+
 
     category: {
       type: String,
@@ -26,7 +27,6 @@ const adventureSchema = new mongoose.Schema(
     location: {
       city: {
         type: String,
-        required: true,
         index: true,
       },
       state: { type: String },
@@ -49,6 +49,15 @@ const adventureSchema = new mongoose.Schema(
       },
     ],
 
+    documents: [
+      {
+        docName: String,
+        docUrl: String,
+        public_id: String,
+        resource_type: String,
+        isVerified: { type: Boolean, default: false },
+      },
+    ],
     description: {
       type: String,
       trim: true,
@@ -79,11 +88,27 @@ const adventureSchema = new mongoose.Schema(
       max: Number,
     },
 
-    vendor: {
+    verificationStatus: {
+      type: String,
+      enum: ["pending", "verified", "rejected"],
+      default: "pending",
+      index: true,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+
+    rank: {
+      type: String,
+      enum: ["A", "B", "C"],
+      default: "C",
+      index: true,
+    },
+
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true,
     },
 
     isActive: {
@@ -96,6 +121,8 @@ const adventureSchema = new mongoose.Schema(
 );
 
 adventureSchema.index({ category: 1, "location.city": 1 });
+
+adventureSchema.index({ vendorId: 1, createdAt: -1 });
 
 const Adventure = mongoose.model("Adventure", adventureSchema);
 

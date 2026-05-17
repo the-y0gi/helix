@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const bikeCompanySchema = new mongoose.Schema(
   {
+    vendorId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Vendor",
+      required: true,
+      index: true,
+    },
     name: {
       type: String,
       required: [true, "Bike company name is required"],
@@ -32,6 +38,16 @@ const bikeCompanySchema = new mongoose.Schema(
 
     images: [String],
 
+    documents: [
+      {
+        docName: String,
+        docUrl: String,
+        public_id: String,
+        resource_type: String,
+        isVerified: { type: Boolean, default: false },
+      },
+    ],
+
     description: {
       type: String,
       trim: true,
@@ -58,23 +74,40 @@ const bikeCompanySchema = new mongoose.Schema(
         default: 0,
       },
     },
+    verificationStatus: {
+      type: String,
+      enum: ["pending", "verified", "rejected"],
+      default: "pending",
+      index: true,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
 
-    vendor: {
+    rank: {
+      type: String,
+      enum: ["A", "B", "C"],
+      default: "C",
+      index: true,
+    },
+
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
 
     isActive: {
       type: Boolean,
       default: true,
+      index: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 bikeCompanySchema.index({ "location.city": 1, isActive: 1 });
-bikeCompanySchema.index({ vendor: 1, createdAt: -1 });
+bikeCompanySchema.index({ vendorId: 1, createdAt: -1 });
 
 const BikeCompany = mongoose.model("BikeCompany", bikeCompanySchema);
 

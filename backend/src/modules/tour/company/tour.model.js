@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const tourCompanySchema = new mongoose.Schema(
   {
+    vendorId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Vendor",
+      required: true,
+      index: true,
+    },
     name: {
       type: String,
       required: [true, "Tour company name is required"],
@@ -38,6 +44,16 @@ const tourCompanySchema = new mongoose.Schema(
       },
     ],
 
+    documents: [
+      {
+        docName: String,
+        docUrl: String,
+        public_id: String,
+        resource_type: String,
+        isVerified: { type: Boolean, default: false },
+      },
+    ],
+
     description: {
       type: String,
       trim: true,
@@ -69,12 +85,27 @@ const tourCompanySchema = new mongoose.Schema(
         default: 0,
       },
     },
+    verificationStatus: {
+      type: String,
+      enum: ["pending", "verified", "rejected"],
+      default: "pending",
+      index: true,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
 
-    vendor: {
+    rank: {
+      type: String,
+      enum: ["A", "B", "C"],
+      default: "C",
+      index: true,
+    },
+
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true,
     },
 
     isActive: {
@@ -88,7 +119,7 @@ const tourCompanySchema = new mongoose.Schema(
 
 tourCompanySchema.index({ "location.city": 1, isActive: 1 });
 
-tourCompanySchema.index({ vendor: 1, createdAt: -1 });
+tourCompanySchema.index({ vendorId: 1, createdAt: -1 });
 tourCompanySchema.index({ name: "text", description: "text" });
 
 const TourCompany = mongoose.model("TourCompany", tourCompanySchema);

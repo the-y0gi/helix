@@ -1,5 +1,6 @@
 const logger = require("../../../shared/utils/logger");
 const serviceService = require("./service.service");
+const Vendor = require("../../vendors/vendor.model");
 
 exports.getServiceDetails = async (req, res, next) => {
   try {
@@ -19,9 +20,17 @@ exports.getServiceDetails = async (req, res, next) => {
 
 exports.createService = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
 
-    const service = await serviceService.createService(req.body, vendorId);
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    const service = await serviceService.createService(req.body, vendor._id);
 
     res.status(201).json({
       success: true,
@@ -35,10 +44,22 @@ exports.createService = async (req, res, next) => {
 
 exports.updateService = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
-    const { id } = req.params;
+    const userId = req.user._id;
+    const serviceId = req.params.id;
 
-    const service = await serviceService.updateService(id, req.body, vendorId);
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    const service = await serviceService.updateService(
+      serviceId,
+      req.body,
+      vendor._id,
+    );
 
     res.status(200).json({
       success: true,
@@ -52,10 +73,18 @@ exports.updateService = async (req, res, next) => {
 
 exports.deleteService = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
-    const { id } = req.params;
+    const userId = req.user._id;
+    const serviceId = req.params.id;
 
-    await serviceService.deleteService(id, vendorId);
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    await serviceService.deleteService(serviceId, vendor._id);
 
     res.status(200).json({
       success: true,

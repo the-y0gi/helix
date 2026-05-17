@@ -12,6 +12,7 @@ exports.getServiceDetails = async (id) => {
     const service = await Service.findOne({
       _id: id,
       isActive: true,
+      verificationStatus: "verified",
     })
       .populate({
         path: "adventure",
@@ -114,7 +115,6 @@ exports.getServiceDetails = async (id) => {
   }
 };
 
-
 exports.createService = async (data, vendorId) => {
   try {
     const {
@@ -134,7 +134,7 @@ exports.createService = async (data, vendorId) => {
 
     const adventure = await Adventure.findOne({
       _id: adventureId,
-      vendor: vendorId,
+      vendorId: vendorId,
       isActive: true,
     });
 
@@ -195,7 +195,7 @@ exports.updateService = async (id, data, vendorId) => {
 
     const adventure = await Adventure.findOne({
       _id: service.adventure,
-      vendor: vendorId,
+      vendorId: vendorId,
       isActive: true,
     });
 
@@ -258,7 +258,7 @@ exports.deleteService = async (id, vendorId) => {
 
     const adventure = await Adventure.findOne({
       _id: service.adventure,
-      vendor: vendorId,
+      vendorId: vendorId,
       isActive: true,
     });
 

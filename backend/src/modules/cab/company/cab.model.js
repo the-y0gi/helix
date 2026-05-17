@@ -2,6 +2,13 @@ const mongoose = require("mongoose");
 
 const cabCompanySchema = new mongoose.Schema(
   {
+    vendorId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Vendor",
+      required: true,
+      index: true,
+    },
+
     name: {
       type: String,
       required: true,
@@ -29,6 +36,16 @@ const cabCompanySchema = new mongoose.Schema(
 
     images: [String],
 
+    documents: [
+      {
+        docName: String,
+        docUrl: String,
+        public_id: String,
+        resource_type: String,
+        isVerified: { type: Boolean, default: false },
+      },
+    ],
+
     description: String,
 
     features: [String],
@@ -38,10 +55,27 @@ const cabCompanySchema = new mongoose.Schema(
       count: { type: Number, default: 0 },
     },
 
-    vendor: {
+    verificationStatus: {
+      type: String,
+      enum: ["pending", "verified", "rejected"],
+      default: "pending",
+      index: true,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+
+    rank: {
+      type: String,
+      enum: ["A", "B", "C"],
+      default: "C",
+      index: true,
+    },
+
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
 
     isActive: {
@@ -54,6 +88,6 @@ const cabCompanySchema = new mongoose.Schema(
 
 cabCompanySchema.index({ name: "text", description: "text" });
 cabCompanySchema.index({ "location.city": 1, isActive: 1 });
-cabCompanySchema.index({ vendor: 1, createdAt: -1 });
+cabCompanySchema.index({ vendorId: 1, createdAt: -1 });
 
 module.exports = mongoose.model("CabCompany", cabCompanySchema);

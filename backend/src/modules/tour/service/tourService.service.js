@@ -35,6 +35,7 @@ exports.getTours = async (query) => {
       {
         $match: {
           "company.isActive": true,
+          "company.verificationStatus": "verified",
         },
       },
 
@@ -117,6 +118,7 @@ exports.getCompanyDetails = async (id) => {
     const company = await TourCompany.findOne({
       _id: id,
       isActive: true,
+      verificationStatus: "verified",
     })
       .select("name location description images rating features")
       .lean();
@@ -193,6 +195,7 @@ exports.getTourServiceDetails = async (id) => {
     const service = await TourService.findOne({
       _id: id,
       isActive: true,
+      verificationStatus: "verified",
     }).lean();
 
     if (!service) {
@@ -299,7 +302,7 @@ exports.createTourService = async (data, vendorId) => {
 
     const tourCompany = await TourCompany.findOne({
       _id: tourId,
-      vendor: vendorId,
+      vendorId: vendorId,
       isActive: true,
     });
 
@@ -355,7 +358,7 @@ exports.getVendorTourServices = async (query = {}, vendorId) => {
 
     const skip = (Number(page) - 1) * Number(limit);
 
-    const companies = await TourCompany.find({ vendor: vendorId })
+    const companies = await TourCompany.find({ vendorId: vendorId })
       .select("_id")
       .lean();
 
@@ -363,6 +366,7 @@ exports.getVendorTourServices = async (query = {}, vendorId) => {
 
     const filter = {
       tour: { $in: tourIds },
+      verificationStatus: "verified",
     };
 
     if (tourId) {
@@ -423,14 +427,14 @@ exports.getVendorTourServiceById = async (serviceId, vendorId) => {
     }
 
     const service = await TourService.findById(serviceId)
-      .populate("tour", "name vendor")
+      .populate("tour", "name vendorId")
       .lean();
 
     if (!service) {
       throw new Error("Tour service not found");
     }
 
-    if (service.tour.vendor.toString() !== vendorId.toString()) {
+    if (service.tour.vendorId.toString() !== vendorId.toString()) {
       throw new Error("Unauthorized access");
     }
 
@@ -485,14 +489,14 @@ exports.updateVendorTourService = async (serviceId, vendorId, data) => {
 
     const service = await TourService.findById(serviceId).populate(
       "tour",
-      "vendor",
+      "vendorId",
     );
 
     if (!service) {
       throw new Error("Tour service not found");
     }
 
-    if (service.tour.vendor.toString() !== vendorId.toString()) {
+    if (service.tour.vendorId.toString() !== vendorId.toString()) {
       throw new Error("Unauthorized access");
     }
 
@@ -555,7 +559,7 @@ exports.updateVendorTourService = async (serviceId, vendorId, data) => {
   }
 };
 
-exports.deleteTourService = async (serviceId, vendorId) => {
+exports.deleteVendorTourService = async (serviceId, vendorId) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(serviceId)) {
       throw new Error("Invalid service id");
@@ -563,14 +567,14 @@ exports.deleteTourService = async (serviceId, vendorId) => {
 
     const service = await TourService.findById(serviceId).populate(
       "tour",
-      "vendor",
+      "vendorId",
     );
 
     if (!service) {
       throw new Error("Tour service not found");
     }
 
-    if (service.tour.vendor.toString() !== vendorId.toString()) {
+    if (service.tour.vendorId.toString() !== vendorId.toString()) {
       throw new Error("Unauthorized access");
     }
 

@@ -5,12 +5,27 @@ const User = require("../../auth/auth.model");
 const VendorBank = require("../../vendorBank/bank.model");
 const Hotel = require("../../hotels/hotel.model");
 
-const { sendVendorApprovalEmail, sendVendorRejectionEmail } = require("../../../shared/utils/sendEmail");
+const {
+  sendVendorApprovalEmail,
+  sendVendorRejectionEmail,
+} = require("../../../shared/utils/sendEmail");
 
+const CabCompany = require("../../cab/company/cab.model");
+const BikeCompany = require("../../bike/company/bike.model");
+const TourCompany = require("../../tour/company/tour.model");
+const AdventureCompany = require("../../adventure/category/adventure.model");
+
+const serviceModelMap = {
+  hotel: Hotel,
+  cab: CabCompany,
+  bike: BikeCompany,
+  tour: TourCompany,
+  adventure: AdventureCompany,
+};
 
 exports.getAllProperties = async (query) => {
   try {
-    const { page = 1, limit = 10, status, search } = query;
+    const { page = 1, limit = 10, status, search, serviceType } = query;
 
     const skip = (page - 1) * limit;
 
@@ -20,12 +35,27 @@ exports.getAllProperties = async (query) => {
       matchStage.status = status;
     }
 
+    if (serviceType) {
+      matchStage.serviceType = serviceType;
+    }
+
+    // DYNAMIC COLLECTION MAP
+    const serviceCollectionMap = {
+      hotel: "hotels",
+      cab: "cabcompanies",
+      bike: "bikecompanies",
+      tour: "tourcompanies",
+      adventure: "adventures",
+    };
+
+    const lookupCollection = serviceCollectionMap[serviceType] || "hotels";
+
     const pipeline = [
       {
         $match: matchStage,
       },
 
-      // Join User
+      // USER JOIN
       {
         $lookup: {
           from: "users",
@@ -34,34 +64,71 @@ exports.getAllProperties = async (query) => {
           as: "user",
         },
       },
-      { $unwind: "$user" },
 
-      // Join Hotel
-      {
-        $lookup: {
-          from: "hotels",
-          localField: "_id",
-          foreignField: "vendorId",
-          as: "hotel",
-        },
-      },
       {
         $unwind: {
-          path: "$hotel",
+          path: "$user",
           preserveNullAndEmptyArrays: true,
         },
       },
 
-      //  Search
+      // BUSINESS JOIN
+      {
+        $lookup: {
+          from: lookupCollection,
+          localField: "_id",
+          foreignField: "vendorId",
+          as: "business",
+        },
+      },
+
+      {
+        $unwind: {
+          path: "$business",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // SEARCH
       ...(search
         ? [
             {
               $match: {
                 $or: [
-                  { "hotel.name": { $regex: search, $options: "i" } },
-                  { "hotel.city": { $regex: search, $options: "i" } },
-                  { "user.firstName": { $regex: search, $options: "i" } },
-                  { "user.lastName": { $regex: search, $options: "i" } },
+                  {
+                    "business.name": {
+                      $regex: search,
+                      $options: "i",
+                    },
+                  },
+
+                  {
+                    "business.city": {
+                      $regex: search,
+                      $options: "i",
+                    },
+                  },
+
+                  {
+                    "business.location.city": {
+                      $regex: search,
+                      $options: "i",
+                    },
+                  },
+
+                  {
+                    "user.firstName": {
+                      $regex: search,
+                      $options: "i",
+                    },
+                  },
+
+                  {
+                    "user.lastName": {
+                      $regex: search,
+                      $options: "i",
+                    },
+                  },
                 ],
               },
             },
@@ -72,38 +139,47 @@ exports.getAllProperties = async (query) => {
         $project: {
           _id: 1,
 
-          propertyName: {
-            $ifNull: ["$hotel.name", "N/A"],
+          serviceType: 1,
+
+          businessName: {
+            $ifNull: ["$business.name", "N/A"],
           },
 
           city: {
-            $ifNull: ["$hotel.city", "N/A"],
+            $ifNull: ["$business.city", "$business.location.city"],
           },
 
           vendorName: {
             $trim: {
               input: {
                 $concat: [
-                  { $ifNull: ["$user.firstName", ""] },
+                  {
+                    $ifNull: ["$user.firstName", ""],
+                  },
                   " ",
-                  { $ifNull: ["$user.lastName", ""] },
+                  {
+                    $ifNull: ["$user.lastName", ""],
+                  },
                 ],
               },
             },
           },
 
           status: 1,
+
           submittedAt: 1,
 
-          //ADD THIS
           rank: {
-            $ifNull: ["$hotel.rank", "C"],
+            $ifNull: ["$business.rank", "C"],
           },
 
-          //IMPORTANT FLAG check in frontend with canAssignRank
+          verificationStatus: "$business.verificationStatus",
+
           canAssignRank: {
             $cond: [
-              { $eq: ["$hotel.verificationStatus", "verified"] },
+              {
+                $eq: ["$business.verificationStatus", "verified"],
+              },
               true,
               false,
             ],
@@ -112,13 +188,20 @@ exports.getAllProperties = async (query) => {
       },
 
       {
-        $sort: { submittedAt: -1 },
+        $sort: {
+          submittedAt: -1,
+        },
       },
 
       {
         $facet: {
           data: [{ $skip: skip }, { $limit: Number(limit) }],
-          totalCount: [{ $count: "count" }],
+
+          totalCount: [
+            {
+              $count: "count",
+            },
+          ],
         },
       },
     ];
@@ -126,10 +209,12 @@ exports.getAllProperties = async (query) => {
     const result = await Vendor.aggregate(pipeline);
 
     const properties = result[0].data;
+
     const total = result[0].totalCount[0]?.count || 0;
 
     return {
       properties,
+
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -141,35 +226,6 @@ exports.getAllProperties = async (query) => {
   }
 };
 
-exports.updateHotelRank = async (hotelId, rank) => {
-  const validRanks = ["A", "B", "C"];
-
-  if (!validRanks.includes(rank)) {
-    throw new Error("Invalid rank value");
-  }
-
-  const hotel = await Hotel.findById(hotelId);
-
-  if (!hotel) {
-    throw new Error("Hotel not found");
-  }
-
-  // Only verified hotels can be ranked
-  if (hotel.verificationStatus !== "verified") {
-    throw new Error("Only verified hotels can be ranked");
-  }
-
-  //avoid unnecessary DB write
-  if (hotel.rank === rank) {
-    return hotel; // already same rank
-  }
-
-  hotel.rank = rank;
-  await hotel.save();
-
-  return hotel;
-};
-
 exports.getPropertyDetail = async (vendorId) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(vendorId)) {
@@ -177,37 +233,91 @@ exports.getPropertyDetail = async (vendorId) => {
     }
 
     const vendor = await Vendor.findById(vendorId);
-    if (!vendor) throw new Error("Vendor not found");
+
+    if (!vendor) {
+      throw new Error("Vendor not found");
+    }
 
     const user = await User.findById(vendor.userId);
 
-    const bank = await VendorBank.findOne({ vendorId });
+    const bank = await VendorBank.findOne({
+      vendorId,
+    });
 
-    const hotel = await Hotel.findOne({ vendorId });
+    // DYNAMIC BUSINESS FETCH
+    let business = null;
+
+    switch (vendor.serviceType) {
+      case "hotel":
+        business = await Hotel.findOne({
+          vendorId,
+        });
+        break;
+
+      case "cab":
+        business = await CabCompany.findOne({
+          vendorId,
+        });
+        break;
+
+      case "bike":
+        business = await BikeCompany.findOne({
+          vendorId,
+        });
+        break;
+
+      case "tour":
+        business = await TourCompany.findOne({
+          vendorId,
+        });
+        break;
+
+      case "adventure":
+        business = await AdventureCompany.findOne({
+          vendorId,
+        });
+        break;
+
+      default:
+        business = null;
+    }
 
     return {
       vendor: {
         _id: vendor._id,
+
         status: vendor.status,
+
         submittedAt: vendor.submittedAt,
+
         serviceType: vendor.serviceType,
       },
 
       user: {
-        name: `${user.firstName} ${user.lastName}`,
-        email: user.email,
-        phone: user.phoneNumber,
+        name: user ? `${user.firstName} ${user.lastName}` : "",
+
+        email: user?.email || "",
+
+        phone: user?.phoneNumber || "",
       },
 
       businessDetails: {
         businessName: vendor.businessName,
+
         businessEmail: vendor.businessEmail,
+
         businessPhone: vendor.businessPhone,
+
         address: vendor.businessAddress,
+
         city: vendor.city,
+
         state: vendor.state,
+
         country: vendor.country,
+
         panNumber: vendor.panNumber,
+
         aadhaarNumber: vendor.aadhaarNumber,
       },
 
@@ -216,30 +326,235 @@ exports.getPropertyDetail = async (vendorId) => {
       bankDetails: bank
         ? {
             accountHolderName: bank.accountHolderName,
+
             bankName: bank.bankName,
+
             accountNumber: bank.accountNumber,
+
             ifscCode: bank.ifscCode,
+
             branchName: bank.branchName,
+
             upiId: bank.upiId,
+
             proof: bank.bankProof,
+
             verificationStatus: bank.verificationStatus,
           }
         : null,
 
-      hotelDetails: hotel
+      propertyDetails: business
         ? {
-            name: hotel.name,
-            description: hotel.description,
-            address: hotel.address,
-            city: hotel.city,
-            images: hotel.images,
-            documents: hotel.documents,
-            amenities: hotel.amenities,
-            accessibility: hotel.accessibility,
-            verificationStatus: hotel.verificationStatus,
+            name: business.name,
+
+            description: business.description,
+
+            address: business.address,
+
+            city: business.city || business?.location?.city,
+
+            images: business.images,
+
+            documents: business.documents || [],
+
+            features: business.features || [],
+
+            amenities: business.amenities || [],
+
+            accessibility: business.accessibility || {},
+
+            verificationStatus: business.verificationStatus,
+
+            rank: business.rank,
+
+            isFeatured: business.isFeatured,
           }
         : null,
     };
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.approveVendor = async (vendorId, adminId) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(vendorId)) {
+      throw new Error("Invalid vendor ID");
+    }
+
+    const vendor = await Vendor.findById(vendorId);
+
+    if (!vendor) {
+      throw new Error("Vendor not found");
+    }
+
+    if (!vendor.isSubmitted) {
+      throw new Error("Vendor has not submitted onboarding");
+    }
+
+    // AUTO VERIFY VENDOR DOCS
+    if (vendor.verificationDocs && vendor.verificationDocs.length > 0) {
+      vendor.verificationDocs = vendor.verificationDocs.map((doc) => ({
+        ...doc.toObject(),
+        isVerified: true,
+      }));
+    }
+
+    // BANK VERIFY
+    await VendorBank.findOneAndUpdate(
+      { vendorId },
+      {
+        verificationStatus: "verified",
+      },
+    );
+
+    // DYNAMIC BUSINESS FETCH
+    let business = null;
+
+    switch (vendor.serviceType) {
+      case "hotel":
+        business = await Hotel.findOne({
+          vendorId,
+        });
+        break;
+
+      case "cab":
+        business = await CabCompany.findOne({
+          vendorId,
+        });
+        break;
+
+      case "bike":
+        business = await BikeCompany.findOne({
+          vendorId,
+        });
+        break;
+
+      case "tour":
+        business = await TourCompany.findOne({
+          vendorId,
+        });
+        break;
+
+      case "adventure":
+        business = await AdventureCompany.findOne({
+          vendorId,
+        });
+        break;
+
+      default:
+        business = null;
+    }
+
+    // VERIFY BUSINESS
+    if (business) {
+      business.verificationStatus = "verified";
+
+      business.isActive = true;
+
+      // VERIFY BUSINESS DOCS
+      if (business.documents && business.documents.length > 0) {
+        business.documents = business.documents.map((doc) => ({
+          ...doc.toObject(),
+          isVerified: true,
+        }));
+      }
+
+      await business.save();
+    }
+
+    // CLEAR REJECTIONS
+    vendor.rejectedSteps = [];
+
+    vendor.rejectionReasons = {};
+
+    vendor.status = "approved";
+
+    vendor.approvedAt = new Date();
+
+    vendor.approvedBy = adminId;
+
+    // SEND EMAIL
+    sendVendorApprovalEmail(vendor).catch((err) => {
+      console.error("Approval email failed:", err.message);
+    });
+
+    await vendor.save();
+
+    return vendor;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// exports.updateHotelRank = async (hotelId, rank) => {
+//   const validRanks = ["A", "B", "C"];
+
+//   if (!validRanks.includes(rank)) {
+//     throw new Error("Invalid rank value");
+//   }
+
+//   const hotel = await Hotel.findById(hotelId);
+
+//   if (!hotel) {
+//     throw new Error("Hotel not found");
+//   }
+
+//   // Only verified hotels can be ranked
+//   if (hotel.verificationStatus !== "verified") {
+//     throw new Error("Only verified hotels can be ranked");
+//   }
+
+//   //avoid unnecessary DB write
+//   if (hotel.rank === rank) {
+//     return hotel; // already same rank
+//   }
+
+//   hotel.rank = rank;
+//   await hotel.save();
+
+//   return hotel;
+// };
+
+exports.updateBusinessRank = async (serviceType, businessId, rank) => {
+  try {
+    const validRanks = ["A", "B", "C"];
+
+    if (!validRanks.includes(rank)) {
+      throw new Error("Invalid rank value");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(businessId)) {
+      throw new Error("Invalid business ID");
+    }
+
+    const BusinessModel = serviceModelMap[serviceType];
+
+    if (!BusinessModel) {
+      throw new Error("Invalid service type");
+    }
+
+    const business = await BusinessModel.findById(businessId);
+
+    if (!business) {
+      throw new Error("Business not found");
+    }
+
+    // ONLY VERIFIED BUSINESSES
+    if (business.verificationStatus !== "verified") {
+      throw new Error("Only verified businesses can be ranked");
+    }
+
+    // AVOID UNNECESSARY WRITE
+    if (business.rank === rank) {
+      return business;
+    }
+
+    business.rank = rank;
+
+    await business.save();
+
+    return business;
   } catch (error) {
     throw error;
   }
@@ -261,22 +576,31 @@ exports.markIssue = async (vendorId, step, reason, adminId) => {
 
     const vendor = await Vendor.findById(vendorId);
 
-    if (!vendor) throw new Error("Vendor not found");
+    if (!vendor) {
+      throw new Error("Vendor not found");
+    }
 
-    //INIT ARRAYS IF NOT EXISTS
-    if (!vendor.rejectedSteps) vendor.rejectedSteps = [];
-    if (!vendor.rejectionReasons) vendor.rejectionReasons = {};
+    // INIT ARRAYS
+    if (!vendor.rejectedSteps) {
+      vendor.rejectedSteps = [];
+    }
 
-    // ADD STEP (avoid duplicate)
+    if (!vendor.rejectionReasons) {
+      vendor.rejectionReasons = {};
+    }
+
+    // ADD STEP
     if (!vendor.rejectedSteps.includes(step)) {
       vendor.rejectedSteps.push(step);
     }
 
-    // ADD / UPDATE REASON
+    // ADD REASON
     vendor.rejectionReasons = {
       ...(vendor.rejectionReasons || {}),
+
       [step]: reason,
     };
+
     vendor.status = "under_review";
 
     await vendor.save();
@@ -298,8 +622,12 @@ exports.verifySection = async (vendorId, step) => {
     }
 
     const vendor = await Vendor.findById(vendorId);
-    if (!vendor) throw new Error("Vendor not found");
 
+    if (!vendor) {
+      throw new Error("Vendor not found");
+    }
+
+    // REMOVE REJECTION STEP
     if (vendor.rejectedSteps?.includes(step)) {
       vendor.rejectedSteps = vendor.rejectedSteps.filter((s) => s !== step);
 
@@ -308,32 +636,57 @@ exports.verifySection = async (vendorId, step) => {
       }
     }
 
-    //Step 2 → vendor docs verify
+    // STEP 2 → VERIFY VENDOR DOCS
     if (step === 2) {
       vendor.verificationDocs = vendor.verificationDocs.map((doc) => ({
         ...doc.toObject(),
+
         isVerified: true,
       }));
     }
 
-    //Step 3 → bank verify
+    // STEP 3 → VERIFY BANK
     if (step === 3) {
       await VendorBank.findOneAndUpdate(
         { vendorId },
-        { verificationStatus: "verified" },
+
+        {
+          verificationStatus: "verified",
+        },
       );
     }
 
-    //Step 4 → hotel verify
+    // STEP 4 → VERIFY BUSINESS
     if (step === 4) {
-      await Hotel.findOneAndUpdate(
-        { vendorId },
-        { verificationStatus: "verified" },
-      );
+      const BusinessModel = serviceModelMap[vendor.serviceType];
+
+      if (BusinessModel) {
+        const business = await BusinessModel.findOne({
+          vendorId,
+        });
+
+        if (business) {
+          business.verificationStatus = "verified";
+
+          business.isActive = true;
+
+          // VERIFY DOCS
+          if (business.documents && business.documents.length > 0) {
+            business.documents = business.documents.map((doc) => ({
+              ...doc.toObject(),
+
+              isVerified: true,
+            }));
+          }
+
+          await business.save();
+        }
+      }
     }
 
+    // RESET STATUS
     if (!vendor.rejectedSteps || vendor.rejectedSteps.length === 0) {
-      vendor.status = "pending"; // ready for approval
+      vendor.status = "pending";
     }
 
     await vendor.save();
@@ -351,10 +704,14 @@ exports.rejectVendor = async (vendorId, body) => {
     }
 
     const vendor = await Vendor.findById(vendorId);
-    if (!vendor) throw new Error("Vendor not found");
+
+    if (!vendor) {
+      throw new Error("Vendor not found");
+    }
 
     if (body.rejectedSteps && body.reasons) {
       vendor.rejectedSteps = body.rejectedSteps;
+
       vendor.rejectionReasons = body.reasons;
     }
 
@@ -363,13 +720,16 @@ exports.rejectVendor = async (vendorId, body) => {
     }
 
     vendor.status = "rejected";
+
     vendor.rejectedAt = new Date();
-    // SEND REJECTION EMAIL
+
+    // SEND EMAIL
     if (vendor.businessEmail) {
       sendVendorRejectionEmail(vendor).catch((err) => {
         console.error("Rejection email failed:", err.message);
       });
     }
+
     await vendor.save();
 
     return vendor;
@@ -378,66 +738,135 @@ exports.rejectVendor = async (vendorId, body) => {
   }
 };
 
-exports.approveVendor = async (vendorId, adminId) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(vendorId)) {
-      throw new Error("Invalid vendor ID");
-    }
+// exports.markIssue = async (vendorId, step, reason, adminId) => {
+//   try {
+//     if (!mongoose.Types.ObjectId.isValid(vendorId)) {
+//       throw new Error("Invalid vendor ID");
+//     }
 
-    const vendor = await Vendor.findById(vendorId);
-    if (!vendor) throw new Error("Vendor not found");
+//     if (![2, 3, 4].includes(step)) {
+//       throw new Error("Invalid step");
+//     }
 
-    if (!vendor.isSubmitted) {
-      throw new Error("Vendor has not submitted onboarding");
-    }
+//     if (!reason) {
+//       throw new Error("Reason is required");
+//     }
 
-    //AUTO VERIFY ALL
+//     const vendor = await Vendor.findById(vendorId);
 
-    // Step 2 → Docs verify
-    if (vendor.verificationDocs && vendor.verificationDocs.length > 0) {
-      vendor.verificationDocs = vendor.verificationDocs.map((doc) => ({
-        ...doc.toObject(),
-        isVerified: true,
-      }));
-    }
+//     if (!vendor) throw new Error("Vendor not found");
 
-    // Step 3 → Bank verify
-    await VendorBank.findOneAndUpdate(
-      { vendorId },
-      { verificationStatus: "verified" },
-    );
+//     //INIT ARRAYS IF NOT EXISTS
+//     if (!vendor.rejectedSteps) vendor.rejectedSteps = [];
+//     if (!vendor.rejectionReasons) vendor.rejectionReasons = {};
 
-    // Step 4 → Hotel verify + hotel docs
-    const hotel = await Hotel.findOne({ vendorId });
+//     // ADD STEP (avoid duplicate)
+//     if (!vendor.rejectedSteps.includes(step)) {
+//       vendor.rejectedSteps.push(step);
+//     }
 
-    if (hotel) {
-      hotel.verificationStatus = "verified";
+//     // ADD / UPDATE REASON
+//     vendor.rejectionReasons = {
+//       ...(vendor.rejectionReasons || {}),
+//       [step]: reason,
+//     };
+//     vendor.status = "under_review";
 
-      if (hotel.documents && hotel.documents.length > 0) {
-        hotel.documents = hotel.documents.map((doc) => ({
-          ...doc.toObject(),
-          isVerified: true,
-        }));
-      }
+//     await vendor.save();
 
-      await hotel.save();
-    }
+//     return vendor;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-    //CLEAR REJECTIONS (override everything)
-    vendor.rejectedSteps = [];
-    vendor.rejectionReasons = {};
+// exports.verifySection = async (vendorId, step) => {
+//   try {
+//     if (!mongoose.Types.ObjectId.isValid(vendorId)) {
+//       throw new Error("Invalid vendor ID");
+//     }
 
-    vendor.status = "approved";
-    vendor.approvedAt = new Date();
-    vendor.approvedBy = adminId;
-    // SEND APPROVAL EMAIL
-    sendVendorApprovalEmail(vendor).catch((err) => {
-      console.error("Approval email failed:", err.message);
-    });
-    await vendor.save();
+//     if (![2, 3, 4].includes(step)) {
+//       throw new Error("Invalid step");
+//     }
 
-    return vendor;
-  } catch (error) {
-    throw error;
-  }
-};
+//     const vendor = await Vendor.findById(vendorId);
+//     if (!vendor) throw new Error("Vendor not found");
+
+//     if (vendor.rejectedSteps?.includes(step)) {
+//       vendor.rejectedSteps = vendor.rejectedSteps.filter((s) => s !== step);
+
+//       if (vendor.rejectionReasons) {
+//         delete vendor.rejectionReasons[step];
+//       }
+//     }
+
+//     //Step 2 → vendor docs verify
+//     if (step === 2) {
+//       vendor.verificationDocs = vendor.verificationDocs.map((doc) => ({
+//         ...doc.toObject(),
+//         isVerified: true,
+//       }));
+//     }
+
+//     //Step 3 → bank verify
+//     if (step === 3) {
+//       await VendorBank.findOneAndUpdate(
+//         { vendorId },
+//         { verificationStatus: "verified" },
+//       );
+//     }
+
+//     //Step 4 → hotel verify
+//     if (step === 4) {
+//       await Hotel.findOneAndUpdate(
+//         { vendorId },
+//         { verificationStatus: "verified" },
+//       );
+//     }
+
+//     if (!vendor.rejectedSteps || vendor.rejectedSteps.length === 0) {
+//       vendor.status = "pending"; // ready for approval
+//     }
+
+//     await vendor.save();
+
+//     return vendor;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+// exports.rejectVendor = async (vendorId, body) => {
+//   try {
+//     if (!mongoose.Types.ObjectId.isValid(vendorId)) {
+//       throw new Error("Invalid vendor ID");
+//     }
+
+//     const vendor = await Vendor.findById(vendorId);
+//     if (!vendor) throw new Error("Vendor not found");
+
+//     if (body.rejectedSteps && body.reasons) {
+//       vendor.rejectedSteps = body.rejectedSteps;
+//       vendor.rejectionReasons = body.reasons;
+//     }
+
+//     if (!vendor.rejectedSteps || vendor.rejectedSteps.length === 0) {
+//       throw new Error("No issues found to reject");
+//     }
+
+//     vendor.status = "rejected";
+//     vendor.rejectedAt = new Date();
+//     // SEND REJECTION EMAIL
+//     if (vendor.businessEmail) {
+//       sendVendorRejectionEmail(vendor).catch((err) => {
+//         console.error("Rejection email failed:", err.message);
+//       });
+//     }
+//     await vendor.save();
+
+//     return vendor;
+//   } catch (error) {
+//     throw error;
+//   }
+// };

@@ -1,6 +1,6 @@
 const tourService = require("./tourService.service");
 const logger = require("../../../shared/utils/logger");
-
+const Vendor = require("../../vendors/vendor.model");
 //user side
 
 exports.getTours = async (req, res, next) => {
@@ -54,9 +54,17 @@ exports.getTourServiceDetails = async (req, res, next) => {
 //vendor side
 exports.createTourService = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
 
-    const service = await tourService.createTourService(req.body, vendorId);
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    const service = await tourService.createTourService(req.body, vendor._id);
 
     res.status(201).json({
       success: true,
@@ -71,9 +79,17 @@ exports.createTourService = async (req, res, next) => {
 
 exports.getVendorTourServices = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
 
-    const result = await tourService.getVendorTourServices(req.query, vendorId);
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    const result = await tourService.getVendorTourServices(req.query, vendor._id);
 
     res.status(200).json({
       success: true,
@@ -87,12 +103,20 @@ exports.getVendorTourServices = async (req, res, next) => {
 
 exports.getVendorTourServiceById = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const serviceId = req.params.id;
+
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
 
     const service = await tourService.getVendorTourServiceById(
       serviceId,
-      vendorId,
+      vendor._id,
     );
 
     res.status(200).json({
@@ -107,12 +131,20 @@ exports.getVendorTourServiceById = async (req, res, next) => {
 
 exports.updateVendorTourService = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const serviceId = req.params.id;
+
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
 
     const updated = await tourService.updateVendorTourService(
       serviceId,
-      vendorId,
+      vendor._id,
       req.body,
     );
 
@@ -129,10 +161,18 @@ exports.updateVendorTourService = async (req, res, next) => {
 
 exports.deleteVendorTourService = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const serviceId = req.params.id;
 
-    await tourService.deleteVendorTourService(serviceId, vendorId);
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    await tourService.deleteVendorTourService(serviceId, vendor._id);
 
     res.status(200).json({
       success: true,

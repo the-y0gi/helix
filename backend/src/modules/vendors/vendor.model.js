@@ -6,13 +6,13 @@ const vendorSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: [true, "Vendor must be linked to a User account"],
-      unique: true,
       index: true,
     },
 
     serviceType: {
       type: String,
-      enum: ["hotel", "adventure", "cab", "bike"],
+      enum: ["hotel", "adventure", "cab", "bike", "tour"],
+      required: true,
       index: true,
     },
 

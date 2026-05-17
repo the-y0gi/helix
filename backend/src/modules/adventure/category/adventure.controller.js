@@ -1,4 +1,5 @@
 const logger = require("../../../shared/utils/logger");
+const Vendor = require("../../vendors/vendor.model");
 const adventureService = require("./adventure.service");
 
 exports.searchAdventures = async (req, res, next) => {
@@ -51,16 +52,26 @@ exports.getAdventureDetails = async (req, res, next) => {
 
 exports.createAdventure = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
 
-    const adventure = await adventureService.createAdventure(
-      req.body,
-      vendorId,
-    );
+    // FIND VENDOR
+    const vendor = await Vendor.findOne({ userId });
 
-    res.status(201).json({
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    const adventure = await adventureService.createAdventure(req.body, vendor);
+
+    res.status(200).json({
       success: true,
-      data: adventure,
+      message: "Step 4 completed successfully",
+      data: {
+        currentStep: vendor.currentStep,
+        registrationStep: vendor.registrationStep,
+        status: vendor.status,
+        // adventure,
+      },
     });
   } catch (error) {
     logger.error("Controller Error: createAdventure", error);

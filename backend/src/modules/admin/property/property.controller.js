@@ -16,7 +16,7 @@ exports.getAllProperties = async (req, res, next) => {
   }
 };
 
-exports.updateHotelRank = async (req, res, next) => {
+exports.updateBusinessRank = async (req, res, next) => {
   try {
     const { rank } = req.body;
     const { id } = req.params;
@@ -28,15 +28,15 @@ exports.updateHotelRank = async (req, res, next) => {
       });
     }
 
-    const updatedHotel = await propertyService.updateHotelRank(id, rank);
+    const updatedHotel = await propertyService.updateBusinessRank(id, rank);
 
     res.status(200).json({
       success: true,
-      message: "Hotel rank updated successfully",
+      message: "Business rank updated successfully",
       data: updatedHotel,
     });
   } catch (error) {
-    logger.error("Controller Error: updatehotelrank", error);
+    logger.error("Controller Error: updateBusinessRank", error);
 
     next(error);
   }

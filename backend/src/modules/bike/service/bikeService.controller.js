@@ -1,6 +1,6 @@
 const bikeService = require("./bikeService.service");
 const logger = require("../../../shared/utils/logger");
-
+const Vendor = require("../../vendors/vendor.model");
 //user side
 exports.getBikes = async (req, res, next) => {
   try {
@@ -65,9 +65,17 @@ exports.calculateBikePrice = async (req, res, next) => {
 //vendor side
 exports.createBikeService = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
 
-    const service = await bikeService.createBikeService(req.body, vendorId);
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    const service = await bikeService.createBikeService(req.body, vendor._id);
 
     res.status(201).json({
       success: true,
@@ -82,9 +90,17 @@ exports.createBikeService = async (req, res, next) => {
 
 exports.getVendorBikeServices = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
 
-    const result = await bikeService.getVendorBikeServices(req.query, vendorId);
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    const result = await bikeService.getVendorBikeServices(req.query, vendor._id);
 
     res.status(200).json({
       success: true,
@@ -98,12 +114,20 @@ exports.getVendorBikeServices = async (req, res, next) => {
 
 exports.getVendorBikeServiceById = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const serviceId = req.params.id;
+
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
 
     const service = await bikeService.getVendorBikeServiceById(
       serviceId,
-      vendorId,
+      vendor._id,
     );
 
     res.status(200).json({
@@ -118,12 +142,20 @@ exports.getVendorBikeServiceById = async (req, res, next) => {
 
 exports.updateVendorBikeService = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const serviceId = req.params.id;
+
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
 
     const updated = await bikeService.updateVendorBikeService(
       serviceId,
-      vendorId,
+      vendor._id,
       req.body,
     );
 
@@ -140,10 +172,18 @@ exports.updateVendorBikeService = async (req, res, next) => {
 
 exports.deleteVendorBikeService = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const serviceId = req.params.id;
 
-    await bikeService.deleteVendorBikeService(serviceId, vendorId);
+    const vendor = await Vendor.findOne({
+      userId,
+    });
+
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    await bikeService.deleteVendorBikeService(serviceId, vendor._id);
 
     res.status(200).json({
       success: true,
