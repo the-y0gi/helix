@@ -10,30 +10,6 @@ const {
 
 const logger = require("../../shared/utils/logger");
 
-// Create vendor profile
-// exports.createVendorProfile = async (userId, vendorData) => {
-//   try {
-//     const existingVendor = await Vendor.findOne({ userId });
-
-//     if (existingVendor) {
-//       throw new Error("Vendor profile already exists");
-//     }
-
-//     const vendor = await Vendor.create({
-//       userId,
-//       ...vendorData,
-//       status: "draft",
-//       registrationStep: 2,
-//     });
-
-//     return vendor;
-//   } catch (error) {
-//     logger.error("Service Error: createVendorProfile", error);
-//     throw error;
-//   }
-// };
-
-//vendor get me for help to prefiling
 exports.getVendorMe = async (userId) => {
   try {
     const user = await User.findById(userId).select("firstName lastName email");
