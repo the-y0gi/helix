@@ -1,7 +1,6 @@
 const paymentService = require("./payment.service");
 const logger = require("../../../shared/utils/logger");
 
-
 // Get payment stats
 exports.getPaymentStats = async (req, res, next) => {
   try {
@@ -35,9 +34,7 @@ exports.getAllPayments = async (req, res, next) => {
 // Get payment detail
 exports.getPaymentDetail = async (req, res, next) => {
   try {
-    const result = await paymentService.getPaymentDetail(
-      req.params.paymentId
-    );
+    const result = await paymentService.getPaymentDetail(req.params.paymentId);
 
     res.status(200).json({
       success: true,
@@ -84,7 +81,7 @@ exports.handleRefund = async (req, res, next) => {
   try {
     const result = await paymentService.handleRefund(
       req.params.paymentId,
-      req.body.action // approve | reject
+      req.body.action, // approve | reject
     );
 
     res.status(200).json({

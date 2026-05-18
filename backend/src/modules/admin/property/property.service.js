@@ -487,35 +487,6 @@ exports.approveVendor = async (vendorId, adminId) => {
   }
 };
 
-// exports.updateHotelRank = async (hotelId, rank) => {
-//   const validRanks = ["A", "B", "C"];
-
-//   if (!validRanks.includes(rank)) {
-//     throw new Error("Invalid rank value");
-//   }
-
-//   const hotel = await Hotel.findById(hotelId);
-
-//   if (!hotel) {
-//     throw new Error("Hotel not found");
-//   }
-
-//   // Only verified hotels can be ranked
-//   if (hotel.verificationStatus !== "verified") {
-//     throw new Error("Only verified hotels can be ranked");
-//   }
-
-//   //avoid unnecessary DB write
-//   if (hotel.rank === rank) {
-//     return hotel; // already same rank
-//   }
-
-//   hotel.rank = rank;
-//   await hotel.save();
-
-//   return hotel;
-// };
-
 exports.updateBusinessRank = async (serviceType, businessId, rank) => {
   try {
     const validRanks = ["A", "B", "C"];
@@ -570,7 +541,7 @@ exports.markIssue = async (vendorId, step, reason, adminId) => {
       throw new Error("Invalid step");
     }
 
-    if (!reason) {
+    if (!reason || !reason.trim()) {
       throw new Error("Reason is required");
     }
 
@@ -580,7 +551,6 @@ exports.markIssue = async (vendorId, step, reason, adminId) => {
       throw new Error("Vendor not found");
     }
 
-    // INIT ARRAYS
     if (!vendor.rejectedSteps) {
       vendor.rejectedSteps = [];
     }
@@ -589,19 +559,21 @@ exports.markIssue = async (vendorId, step, reason, adminId) => {
       vendor.rejectionReasons = {};
     }
 
-    // ADD STEP
     if (!vendor.rejectedSteps.includes(step)) {
       vendor.rejectedSteps.push(step);
     }
 
-    // ADD REASON
     vendor.rejectionReasons = {
       ...(vendor.rejectionReasons || {}),
 
-      [step]: reason,
+      [step]: reason.trim(),
     };
 
     vendor.status = "under_review";
+
+    vendor.reviewedBy = adminId;
+
+    vendor.reviewedAt = new Date();
 
     await vendor.save();
 
@@ -627,28 +599,30 @@ exports.verifySection = async (vendorId, step) => {
       throw new Error("Vendor not found");
     }
 
-    // REMOVE REJECTION STEP
     if (vendor.rejectedSteps?.includes(step)) {
       vendor.rejectedSteps = vendor.rejectedSteps.filter((s) => s !== step);
 
+      // REMOVE REASON
       if (vendor.rejectionReasons) {
         delete vendor.rejectionReasons[step];
       }
     }
 
-    // STEP 2 → VERIFY VENDOR DOCS
     if (step === 2) {
-      vendor.verificationDocs = vendor.verificationDocs.map((doc) => ({
-        ...doc.toObject(),
+      if (vendor.verificationDocs && vendor.verificationDocs.length > 0) {
+        vendor.verificationDocs = vendor.verificationDocs.map((doc) => ({
+          ...doc.toObject(),
 
-        isVerified: true,
-      }));
+          isVerified: true,
+        }));
+      }
     }
 
-    // STEP 3 → VERIFY BANK
     if (step === 3) {
       await VendorBank.findOneAndUpdate(
-        { vendorId },
+        {
+          vendorId,
+        },
 
         {
           verificationStatus: "verified",
@@ -656,7 +630,6 @@ exports.verifySection = async (vendorId, step) => {
       );
     }
 
-    // STEP 4 → VERIFY BUSINESS
     if (step === 4) {
       const BusinessModel = serviceModelMap[vendor.serviceType];
 
@@ -684,10 +657,11 @@ exports.verifySection = async (vendorId, step) => {
       }
     }
 
-    // RESET STATUS
     if (!vendor.rejectedSteps || vendor.rejectedSteps.length === 0) {
       vendor.status = "pending";
     }
+
+    vendor.reviewedAt = new Date();
 
     await vendor.save();
 
@@ -723,7 +697,24 @@ exports.rejectVendor = async (vendorId, body) => {
 
     vendor.rejectedAt = new Date();
 
-    // SEND EMAIL
+    vendor.reviewedAt = new Date();
+
+    const BusinessModel = serviceModelMap[vendor.serviceType];
+
+    if (BusinessModel) {
+      const business = await BusinessModel.findOne({
+        vendorId,
+      });
+
+      if (business) {
+        business.isActive = false;
+
+        business.verificationStatus = "rejected";
+
+        await business.save();
+      }
+    }
+
     if (vendor.businessEmail) {
       sendVendorRejectionEmail(vendor).catch((err) => {
         console.error("Rejection email failed:", err.message);
@@ -737,136 +728,3 @@ exports.rejectVendor = async (vendorId, body) => {
     throw error;
   }
 };
-
-// exports.markIssue = async (vendorId, step, reason, adminId) => {
-//   try {
-//     if (!mongoose.Types.ObjectId.isValid(vendorId)) {
-//       throw new Error("Invalid vendor ID");
-//     }
-
-//     if (![2, 3, 4].includes(step)) {
-//       throw new Error("Invalid step");
-//     }
-
-//     if (!reason) {
-//       throw new Error("Reason is required");
-//     }
-
-//     const vendor = await Vendor.findById(vendorId);
-
-//     if (!vendor) throw new Error("Vendor not found");
-
-//     //INIT ARRAYS IF NOT EXISTS
-//     if (!vendor.rejectedSteps) vendor.rejectedSteps = [];
-//     if (!vendor.rejectionReasons) vendor.rejectionReasons = {};
-
-//     // ADD STEP (avoid duplicate)
-//     if (!vendor.rejectedSteps.includes(step)) {
-//       vendor.rejectedSteps.push(step);
-//     }
-
-//     // ADD / UPDATE REASON
-//     vendor.rejectionReasons = {
-//       ...(vendor.rejectionReasons || {}),
-//       [step]: reason,
-//     };
-//     vendor.status = "under_review";
-
-//     await vendor.save();
-
-//     return vendor;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
-// exports.verifySection = async (vendorId, step) => {
-//   try {
-//     if (!mongoose.Types.ObjectId.isValid(vendorId)) {
-//       throw new Error("Invalid vendor ID");
-//     }
-
-//     if (![2, 3, 4].includes(step)) {
-//       throw new Error("Invalid step");
-//     }
-
-//     const vendor = await Vendor.findById(vendorId);
-//     if (!vendor) throw new Error("Vendor not found");
-
-//     if (vendor.rejectedSteps?.includes(step)) {
-//       vendor.rejectedSteps = vendor.rejectedSteps.filter((s) => s !== step);
-
-//       if (vendor.rejectionReasons) {
-//         delete vendor.rejectionReasons[step];
-//       }
-//     }
-
-//     //Step 2 → vendor docs verify
-//     if (step === 2) {
-//       vendor.verificationDocs = vendor.verificationDocs.map((doc) => ({
-//         ...doc.toObject(),
-//         isVerified: true,
-//       }));
-//     }
-
-//     //Step 3 → bank verify
-//     if (step === 3) {
-//       await VendorBank.findOneAndUpdate(
-//         { vendorId },
-//         { verificationStatus: "verified" },
-//       );
-//     }
-
-//     //Step 4 → hotel verify
-//     if (step === 4) {
-//       await Hotel.findOneAndUpdate(
-//         { vendorId },
-//         { verificationStatus: "verified" },
-//       );
-//     }
-
-//     if (!vendor.rejectedSteps || vendor.rejectedSteps.length === 0) {
-//       vendor.status = "pending"; // ready for approval
-//     }
-
-//     await vendor.save();
-
-//     return vendor;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
-// exports.rejectVendor = async (vendorId, body) => {
-//   try {
-//     if (!mongoose.Types.ObjectId.isValid(vendorId)) {
-//       throw new Error("Invalid vendor ID");
-//     }
-
-//     const vendor = await Vendor.findById(vendorId);
-//     if (!vendor) throw new Error("Vendor not found");
-
-//     if (body.rejectedSteps && body.reasons) {
-//       vendor.rejectedSteps = body.rejectedSteps;
-//       vendor.rejectionReasons = body.reasons;
-//     }
-
-//     if (!vendor.rejectedSteps || vendor.rejectedSteps.length === 0) {
-//       throw new Error("No issues found to reject");
-//     }
-
-//     vendor.status = "rejected";
-//     vendor.rejectedAt = new Date();
-//     // SEND REJECTION EMAIL
-//     if (vendor.businessEmail) {
-//       sendVendorRejectionEmail(vendor).catch((err) => {
-//         console.error("Rejection email failed:", err.message);
-//       });
-//     }
-//     await vendor.save();
-
-//     return vendor;
-//   } catch (error) {
-//     throw error;
-//   }
-// };

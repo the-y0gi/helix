@@ -1,136 +1,402 @@
 const User = require("../../auth/auth.model");
+
 const Hotel = require("../../hotels/hotel.model");
+
+const CabCompany = require("../../cab/company/cab.model");
+
+const BikeCompany = require("../../bike/company/bike.model");
+
+const TourCompany = require("../../tour/company/tour.model");
+
+const Adventure = require("../../adventure/category/adventure.model");
+
+// HOTEL BOOKINGS
 const Booking = require("../../bookings/booking.model");
 
-exports.getDashboard = async ({ bookingRange = 7, revenueRange = 6 }) => {
+// GENERIC BOOKINGS
+const GenericBooking = require("../../multiServiceBookings/booking.model");
+
+exports.getDashboard = async ({
+  bookingRange = 7,
+
+  revenueRange = 6,
+}) => {
   try {
-    const [totalUsers, totalProperties, totalBookings] = await Promise.all([
-      User.countDocuments({ role: "user" }),
-      Hotel.countDocuments(),
-      Booking.countDocuments(),
-    ]);
-
-    //Today bookings
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-
-    const todayBookings = await Booking.countDocuments({
-      createdAt: { $gte: todayStart },
+    // TOTAL USERS
+    const totalUsersPromise = User.countDocuments({
+      role: "user",
     });
 
-    //Total Revenue
-    const revenueAgg = await Booking.aggregate([
-      {
-        $match: { paymentStatus: "paid" },
-      },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$totalAmount" },
-        },
-      },
+    // TOTAL PROPERTIES
+    const totalPropertiesPromise = Promise.all([
+      Hotel.countDocuments(),
+
+      CabCompany.countDocuments(),
+
+      BikeCompany.countDocuments(),
+
+      TourCompany.countDocuments(),
+
+      Adventure.countDocuments(),
     ]);
 
-    const totalRevenue = revenueAgg[0]?.totalRevenue || 0;
+    // TOTAL BOOKINGS
+    const totalHotelBookingsPromise = Booking.countDocuments();
 
-    //daily booking charts
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - (bookingRange - 1));
-    startDate.setHours(0, 0, 0, 0);
+    const totalGenericBookingsPromise = GenericBooking.countDocuments();
 
-    const dailyBookingsRaw = await Booking.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: startDate },
+    const [
+      totalUsers,
+
+      totalPropertiesRaw,
+
+      totalHotelBookings,
+
+      totalGenericBookings,
+    ] = await Promise.all([
+      totalUsersPromise,
+
+      totalPropertiesPromise,
+
+      totalHotelBookingsPromise,
+
+      totalGenericBookingsPromise,
+    ]);
+
+    const totalProperties = totalPropertiesRaw.reduce(
+      (acc, curr) => acc + curr,
+      0,
+    );
+
+    const totalBookings = totalHotelBookings + totalGenericBookings;
+
+    // TODAY BOOKINGS
+    const todayStart = new Date();
+
+    todayStart.setHours(0, 0, 0, 0);
+
+    const [todayHotelBookings, todayGenericBookings] = await Promise.all([
+      Booking.countDocuments({
+        createdAt: {
+          $gte: todayStart,
         },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: "%Y-%m-%d",
-              date: "$createdAt",
+      }),
+
+      GenericBooking.countDocuments({
+        createdAt: {
+          $gte: todayStart,
+        },
+      }),
+    ]);
+
+    const todayBookings = todayHotelBookings + todayGenericBookings;
+
+    // TOTAL REVENUE
+    const [hotelRevenueAgg, genericRevenueAgg] = await Promise.all([
+      Booking.aggregate([
+        {
+          $match: {
+            paymentStatus: "paid",
+          },
+        },
+
+        {
+          $group: {
+            _id: null,
+
+            totalRevenue: {
+              $sum: "$totalAmount",
             },
           },
-          count: { $sum: 1 },
         },
-      },
-      { $sort: { _id: 1 } },
+      ]),
+
+      GenericBooking.aggregate([
+        {
+          $match: {
+            paymentStatus: "paid",
+          },
+        },
+
+        {
+          $group: {
+            _id: null,
+
+            totalRevenue: {
+              $sum: "$pricing.totalAmount",
+            },
+          },
+        },
+      ]),
+    ]);
+
+    const hotelRevenue = hotelRevenueAgg[0]?.totalRevenue || 0;
+
+    const genericRevenue = genericRevenueAgg[0]?.totalRevenue || 0;
+
+    const totalRevenue = hotelRevenue + genericRevenue;
+
+    // DAILY BOOKINGS CHART
+    const startDate = new Date();
+
+    startDate.setDate(startDate.getDate() - (bookingRange - 1));
+
+    startDate.setHours(0, 0, 0, 0);
+
+    const [hotelDailyRaw, genericDailyRaw] = await Promise.all([
+      Booking.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: startDate,
+            },
+          },
+        },
+
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+
+                date: "$createdAt",
+              },
+            },
+
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+
+        {
+          $sort: {
+            _id: 1,
+          },
+        },
+      ]),
+
+      GenericBooking.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: startDate,
+            },
+          },
+        },
+
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+
+                date: "$createdAt",
+              },
+            },
+
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+
+        {
+          $sort: {
+            _id: 1,
+          },
+        },
+      ]),
     ]);
 
     const dailyBookings = [];
 
     for (let i = 0; i < bookingRange; i++) {
       const date = new Date(startDate);
+
       date.setDate(date.getDate() + i);
 
       const formatted = date.toISOString().split("T")[0];
 
-      const found = dailyBookingsRaw.find((d) => d._id === formatted);
+      const hotelFound = hotelDailyRaw.find((d) => d._id === formatted);
+
+      const genericFound = genericDailyRaw.find((d) => d._id === formatted);
 
       dailyBookings.push({
         date: formatted,
-        count: found ? found.count : 0,
+
+        count: (hotelFound?.count || 0) + (genericFound?.count || 0),
       });
     }
 
-    //months charts
-
+    // MONTHLY REVENUE CHART
     const startMonth = new Date();
+
     startMonth.setMonth(startMonth.getMonth() - (revenueRange - 1));
+
     startMonth.setDate(1);
+
     startMonth.setHours(0, 0, 0, 0);
 
-    const monthlyRevenueRaw = await Booking.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: startMonth },
-          paymentStatus: "paid",
-        },
-      },
-      {
-        $group: {
-          _id: {
-            year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" },
+    const [hotelMonthlyRaw, genericMonthlyRaw] = await Promise.all([
+      Booking.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: startMonth,
+            },
+
+            paymentStatus: "paid",
           },
-          revenue: { $sum: "$totalAmount" },
         },
-      },
-      { $sort: { "_id.year": 1, "_id.month": 1 } },
+
+        {
+          $group: {
+            _id: {
+              year: {
+                $year: "$createdAt",
+              },
+
+              month: {
+                $month: "$createdAt",
+              },
+            },
+
+            revenue: {
+              $sum: "$totalAmount",
+            },
+          },
+        },
+
+        {
+          $sort: {
+            "_id.year": 1,
+
+            "_id.month": 1,
+          },
+        },
+      ]),
+
+      GenericBooking.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: startMonth,
+            },
+
+            paymentStatus: "paid",
+          },
+        },
+
+        {
+          $group: {
+            _id: {
+              year: {
+                $year: "$createdAt",
+              },
+
+              month: {
+                $month: "$createdAt",
+              },
+            },
+
+            revenue: {
+              $sum: "$pricing.totalAmount",
+            },
+          },
+        },
+
+        {
+          $sort: {
+            "_id.year": 1,
+
+            "_id.month": 1,
+          },
+        },
+      ]),
     ]);
 
     const monthlyRevenue = [];
 
     for (let i = 0; i < revenueRange; i++) {
       const date = new Date(startMonth);
+
       date.setMonth(date.getMonth() + i);
 
       const month = date.getMonth() + 1;
+
       const year = date.getFullYear();
 
-      const found = monthlyRevenueRaw.find(
+      const hotelFound = hotelMonthlyRaw.find(
+        (m) => m._id.month === month && m._id.year === year,
+      );
+
+      const genericFound = genericMonthlyRaw.find(
         (m) => m._id.month === month && m._id.year === year,
       );
 
       monthlyRevenue.push({
         month: `${year}-${month.toString().padStart(2, "0")}`,
-        revenue: found ? found.revenue : 0,
+
+        revenue: (hotelFound?.revenue || 0) + (genericFound?.revenue || 0),
       });
     }
+
+    // SERVICE STATS
+    const genericServiceStats = await GenericBooking.aggregate([
+      {
+        $group: {
+          _id: "$serviceType",
+
+          totalBookings: {
+            $sum: 1,
+          },
+
+          revenue: {
+            $sum: "$pricing.totalAmount",
+          },
+        },
+      },
+    ]);
+
+    const hotelStats = await Booking.aggregate([
+      {
+        $group: {
+          _id: "hotel",
+
+          totalBookings: {
+            $sum: 1,
+          },
+
+          revenue: {
+            $sum: "$totalAmount",
+          },
+        },
+      },
+    ]);
+
+    const serviceStats = [...hotelStats, ...genericServiceStats];
 
     return {
       stats: {
         totalUsers,
+
         totalProperties,
+
         totalBookings,
+
         todayBookings,
+
         totalRevenue,
       },
+
       charts: {
         dailyBookings,
+
         monthlyRevenue,
       },
+
+      serviceStats,
     };
   } catch (error) {
     throw error;
@@ -139,50 +405,40 @@ exports.getDashboard = async ({ bookingRange = 7, revenueRange = 6 }) => {
 
 exports.getRecentBookings = async () => {
   try {
-    const bookings = await Booking.aggregate([
-      {
-        $sort: { createdAt: -1 },
-      },
-      {
-        $limit: 10,
-      },
-
+    // HOTEL BOOKINGS
+    const hotelBookings = await Booking.aggregate([
       {
         $lookup: {
           from: "users",
+
           localField: "userId",
+
           foreignField: "_id",
+
           as: "user",
         },
       },
-      { $unwind: "$user" },
+
+      {
+        $unwind: "$user",
+      },
 
       {
         $lookup: {
           from: "hotels",
+
           localField: "hotelId",
+
           foreignField: "_id",
+
           as: "hotel",
-        },
-      },
-      {
-        $unwind: {
-          path: "$hotel",
-          preserveNullAndEmptyArrays: true,
         },
       },
 
       {
-        $lookup: {
-          from: "vendors",
-          localField: "hotel.vendorId",
-          foreignField: "_id",
-          as: "vendor",
-        },
-      },
-      {
         $unwind: {
-          path: "$vendor",
+          path: "$hotel",
+
           preserveNullAndEmptyArrays: true,
         },
       },
@@ -190,15 +446,22 @@ exports.getRecentBookings = async () => {
       {
         $project: {
           _id: 1,
+
           bookingReference: 1,
 
           userName: {
             $trim: {
               input: {
                 $concat: [
-                  { $ifNull: ["$user.firstName", ""] },
+                  {
+                    $ifNull: ["$user.firstName", ""],
+                  },
+
                   " ",
-                  { $ifNull: ["$user.lastName", ""] },
+
+                  {
+                    $ifNull: ["$user.lastName", ""],
+                  },
                 ],
               },
             },
@@ -207,19 +470,83 @@ exports.getRecentBookings = async () => {
           propertyName: "$hotel.name",
 
           serviceType: {
-            $ifNull: ["$vendor.serviceType", "hotel"],
+            $literal: "hotel",
           },
 
-          checkIn: 1,
-          checkOut: 1,
-          totalAmount: 1,
+          bookingDate: "$createdAt",
+
+          amount: "$totalAmount",
+
           status: 1,
+
           createdAt: 1,
         },
       },
     ]);
 
-    return bookings;
+    // GENERIC BOOKINGS
+    const genericBookings = await GenericBooking.aggregate([
+      {
+        $lookup: {
+          from: "users",
+
+          localField: "userId",
+
+          foreignField: "_id",
+
+          as: "user",
+        },
+      },
+
+      {
+        $unwind: "$user",
+      },
+
+      {
+        $project: {
+          _id: 1,
+
+          bookingReference: 1,
+
+          userName: {
+            $trim: {
+              input: {
+                $concat: [
+                  {
+                    $ifNull: ["$user.firstName", ""],
+                  },
+
+                  " ",
+
+                  {
+                    $ifNull: ["$user.lastName", ""],
+                  },
+                ],
+              },
+            },
+          },
+
+          propertyName: "$serviceSnapshot.title",
+
+          serviceType: 1,
+
+          bookingDate: "$bookingDate",
+
+          amount: "$pricing.totalAmount",
+
+          status: 1,
+
+          createdAt: 1,
+        },
+      },
+    ]);
+
+    // COMBINE + SORT
+    const combinedBookings = [...hotelBookings, ...genericBookings]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 10);
+
+    return combinedBookings;
   } catch (error) {
     throw error;
   }
