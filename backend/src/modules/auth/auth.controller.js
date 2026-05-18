@@ -61,24 +61,7 @@ exports.signup = async (req, res) => {
   }
 };
 
-// exports.login = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     const { user, message } = await authService.login(email, password);
-//     const { accessToken, refreshToken } = generateTokens(user._id);
-
-//     setTokenCookie(res, refreshToken);
-//     res.status(200).json({
-//       success: true,
-//       message,
-//       accessToken,
-//       data: { user: filterUserData(user) },
-//     });
-//   } catch (error) {
-//     res.status(401).json({ success: false, message: error.message });
-//   }
-// };
-
+//working code before the vendor account linked
 // exports.login = async (req, res) => {
 //   try {
 //     const { email, password } = req.body;
@@ -91,35 +74,85 @@ exports.signup = async (req, res) => {
 
 //     let extraData = {};
 
-//     //If vendor login and approved
 //     if (user.role === "vendor") {
-//       const vendor = await Vendor.findOne({ userId: user._id });
+//       const vendor = await Vendor.findOne({
+//         userId: user._id,
+//       });
 
 //       if (vendor) {
-//         const hotel = await Hotel.findOne({ vendorId: vendor._id }).select(
-//           "_id name",
-//         );
-
 //         extraData.vendor = {
 //           status: vendor.status,
+
+//           currentStep: vendor.currentStep,
+
+//           rejectedSteps: vendor.rejectedSteps || [],
+
+//           rejectionReasons: vendor.rejectionReasons || {},
+
+//           serviceType: vendor.serviceType,
 //         };
 
-//         extraData.hotel = hotel;
+//         // DYNAMIC BUSINESS FETCH
+//         let business = null;
+
+//         switch (vendor.serviceType) {
+//           case "hotel":
+//             business = await Hotel.findOne({
+//               vendorId: vendor._id,
+//             }).select("_id name");
+//             break;
+
+//           case "cab":
+//             business = await CabCompany.findOne({
+//               vendorId: vendor._id,
+//             }).select("_id name");
+//             break;
+
+//           case "bike":
+//             business = await BikeCompany.findOne({
+//               vendorId: vendor._id,
+//             }).select("_id name");
+//             break;
+
+//           case "tour":
+//             business = await TourCompany.findOne({
+//               vendorId: vendor._id,
+//             }).select("_id name");
+//             break;
+
+//           case "adventure":
+//             business = await Adventure.findOne({
+//               vendorId: vendor._id,
+//             }).select("_id name");
+//             break;
+
+//           default:
+//             business = null;
+//         }
+
+//         if (vendor.status === "approved") {
+//           extraData.business = business;
+//         }
 //       }
 //     }
 
 //     res.status(200).json({
 //       success: true,
+
 //       message,
+
 //       accessToken,
+
 //       data: {
 //         user: filterUserData(user),
+
 //         ...extraData,
 //       },
 //     });
 //   } catch (error) {
 //     res.status(401).json({
 //       success: false,
+
 //       message: error.message,
 //     });
 //   }
@@ -129,40 +162,33 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const { user, message } =
-      await authService.login(
-        email,
-        password,
-      );
+    const { user, message } = await authService.login(email, password);
 
-    const { accessToken, refreshToken } =
-      generateTokens(user._id);
-
-    setTokenCookie(res, refreshToken);
+    // DEFAULT
+    let vendorId = null;
 
     let extraData = {};
 
+    // VENDOR CHECK
     if (user.role === "vendor") {
       const vendor = await Vendor.findOne({
         userId: user._id,
       });
 
       if (vendor) {
+        // SET VENDOR ID
+        vendorId = vendor._id;
+
         extraData.vendor = {
           status: vendor.status,
 
-          currentStep:
-            vendor.currentStep,
+          currentStep: vendor.currentStep,
 
-          rejectedSteps:
-            vendor.rejectedSteps || [],
+          rejectedSteps: vendor.rejectedSteps || [],
 
-          rejectionReasons:
-            vendor.rejectionReasons ||
-            {},
+          rejectionReasons: vendor.rejectionReasons || {},
 
-          serviceType:
-            vendor.serviceType,
+          serviceType: vendor.serviceType,
         };
 
         // DYNAMIC BUSINESS FETCH
@@ -170,52 +196,50 @@ exports.login = async (req, res) => {
 
         switch (vendor.serviceType) {
           case "hotel":
-            business =
-              await Hotel.findOne({
-                vendorId: vendor._id,
-              }).select("_id name");
+            business = await Hotel.findOne({
+              vendorId: vendor._id,
+            }).select("_id name");
             break;
 
           case "cab":
-            business =
-              await CabCompany.findOne({
-                vendorId: vendor._id,
-              }).select("_id name");
+            business = await CabCompany.findOne({
+              vendorId: vendor._id,
+            }).select("_id name");
             break;
 
           case "bike":
-            business =
-              await BikeCompany.findOne({
-                vendorId: vendor._id,
-              }).select("_id name");
+            business = await BikeCompany.findOne({
+              vendorId: vendor._id,
+            }).select("_id name");
             break;
 
           case "tour":
-            business =
-              await TourCompany.findOne({
-                vendorId: vendor._id,
-              }).select("_id name");
+            business = await TourCompany.findOne({
+              vendorId: vendor._id,
+            }).select("_id name");
             break;
 
           case "adventure":
-            business =
-              await Adventure.findOne({
-                vendorId: vendor._id,
-              }).select("_id name");
+            business = await Adventure.findOne({
+              vendorId: vendor._id,
+            }).select("_id name");
             break;
 
           default:
             business = null;
         }
 
-        if (
-          vendor.status === "approved"
-        ) {
-          extraData.business =
-            business;
+        if (vendor.status === "approved") {
+          extraData.business = business;
         }
       }
     }
+
+    // GENERATE TOKENS
+    const { accessToken, refreshToken } = generateTokens(user._id, vendorId);
+
+    // SET COOKIE
+    setTokenCookie(res, refreshToken);
 
     res.status(200).json({
       success: true,
@@ -239,56 +263,6 @@ exports.login = async (req, res) => {
   }
 };
 
-// exports.login = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     const { user, message } = await authService.login(email, password);
-
-//     const { accessToken, refreshToken } = generateTokens(user._id);
-
-//     setTokenCookie(res, refreshToken);
-
-//     let extraData = {};
-
-//     if (user.role === "vendor") {
-//       const vendor = await Vendor.findOne({ userId: user._id });
-
-//       if (vendor) {
-//         extraData.vendor = {
-//           status: vendor.status,
-//           currentStep: vendor.currentStep,
-//           rejectedSteps: vendor.rejectedSteps || [],
-//           rejectionReasons: vendor.rejectionReasons || {},
-//         };
-
-//         if (vendor.status === "approved") {
-//           const hotel = await Hotel.findOne({ vendorId: vendor._id }).select(
-//             "_id name",
-//           );
-
-//           extraData.hotel = hotel;
-//         }
-//       }
-//     }
-
-//     res.status(200).json({
-//       success: true,
-//       message,
-//       accessToken,
-//       data: {
-//         user: filterUserData(user),
-//         ...extraData,
-//       },
-//     });
-//   } catch (error) {
-//     res.status(401).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
-
 exports.resendOTP = async (req, res) => {
   try {
     const result = await authService.resendOTP(req.body.email);
@@ -297,24 +271,6 @@ exports.resendOTP = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
-
-// exports.verifyOTP = async (req, res) => {
-//   try {
-//     const { email, otp } = req.body;
-//     const { user, message } = await authService.verifyOTP(email, otp);
-//     const { accessToken, refreshToken } = generateTokens(user._id);
-
-//     setTokenCookie(res, refreshToken);
-//     res.status(200).json({
-//       success: true,
-//       message,
-//       accessToken,
-//       data: { user: filterUserData(user) },
-//     });
-//   } catch (error) {
-//     handleError(res, error);
-//   }
-// };
 
 exports.verifyOTP = async (req, res) => {
   try {
@@ -382,11 +338,7 @@ exports.resetPassword = async (req, res) => {
   try {
     const { phone, otp, newPassword } = req.body;
 
-    const result = await authService.resetPassword(
-      phone,
-      otp,
-      newPassword
-    );
+    const result = await authService.resetPassword(phone, otp, newPassword);
 
     res.status(200).json({
       success: true,
@@ -396,43 +348,6 @@ exports.resetPassword = async (req, res) => {
     handleError(res, error);
   }
 };
-
-// exports.forgotPassword = async (req, res) => {
-//   try {
-//     const result = await authService.forgotPassword(req.body.email);
-//     res.status(200).json({ success: true, message: result.message });
-//   } catch (error) {
-//     res.status(400).json({ success: false, message: error.message });
-//   }
-// };
-
-// exports.otpVerify = async (req, res) => {
-//   try {
-//     const { email, otp } = req.body;
-
-//     const result = await authService.otpVerify(email, otp);
-
-//     res.status(200).json({
-//       success: true,
-//       message: result.message,
-//     });
-//   } catch (error) {
-//     res.status(400).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
-
-// exports.resetPassword = async (req, res) => {
-//   try {
-//     const { email, otp, newPassword } = req.body;
-//     const result = await authService.resetPassword(email, otp, newPassword);
-//     res.status(200).json({ success: true, message: result.message });
-//   } catch (error) {
-//     res.status(400).json({ success: false, message: error.message });
-//   }
-// };
 
 exports.changePassword = async (req, res) => {
   try {
@@ -447,8 +362,6 @@ exports.changePassword = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
-
-
 
 //whats app auth
 

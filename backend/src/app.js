@@ -33,6 +33,8 @@ const tourServiceRoutes = require("./modules/tour/service/tourService.routes");
 const multiServiceBookingRoutes = require("./modules/multiServiceBookings/booking.routes");
 const multiServiceVendorRoutes = require("./modules/multiServiceVendor/vendor.routes");
 
+const vendorAccountRoutes = require("./modules/vendorAccountGroup/accountGroup.routes");
+
 const adminRoutes = require("./modules/admin/property/property.routes");
 const adminUserRoutes = require("./modules/admin/user/user.routes");
 const adminBookingRoutes = require("./modules/admin/booking/booking.routes");
@@ -129,6 +131,8 @@ app.use("/api/v1/service-bookings", multiServiceBookingRoutes);
 //multi-service vendor dashboard
 app.use("/api/v1/multi-service-vendor", multiServiceVendorRoutes);
 
+//multi-service vendor accounts linked
+app.use("/api/v1/vendor-accounts", vendorAccountRoutes);
 //admin
 app.use("/api/v1/admin/dashboard", adminDashboardRoutes);
 app.use("/api/v1/admin/property", adminRoutes);

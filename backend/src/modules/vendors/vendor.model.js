@@ -9,6 +9,13 @@ const vendorSchema = new mongoose.Schema(
       index: true,
     },
 
+    linkedGroupId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "VendorAccountGroup",
+      default: null,
+      index: true,
+    },
+
     serviceType: {
       type: String,
       enum: ["hotel", "adventure", "cab", "bike", "tour"],
@@ -28,6 +35,7 @@ const vendorSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
       index: true,
+      unique: true,
     },
 
     businessPhone: {
