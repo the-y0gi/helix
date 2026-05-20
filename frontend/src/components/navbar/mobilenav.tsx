@@ -16,7 +16,7 @@ export function MobileNavWrapper({ isMobile, content }: { isMobile: boolean, con
   const pathname = usePathname();
   useEffect(() => {
 
-    if (pathname.split('/')[1] === 'book') {
+    if (pathname.split('/')[1] === 'book' || pathname.split('/')[1] === 'booknow') {
       setHidden(true);
     } else {
       setHidden(false);

@@ -31,6 +31,7 @@ exports.getVendorMe = async (userId) => {
     // base response
     const response = {
       vendor: {
+        vendorId: vendor._id,
         status: vendor.status,
         currentStep: vendor.currentStep,
         registrationStep: vendor.registrationStep,
@@ -40,6 +41,7 @@ exports.getVendorMe = async (userId) => {
       },
 
       businessDetails: {
+
         businessName: vendor.businessName,
         businessEmail: vendor.businessEmail,
         businessPhone: vendor.businessPhone,
