@@ -15,9 +15,8 @@ const favoriteSchema = new mongoose.Schema(
     },
     itemType: {
       type: String,
-      enum: ["hotel"], //in future add adventure
+      enum: ["hotel", "cab", "bike", "tour", "adventure"],
       required: true,
-      default: "hotel",
     },
   },
   { timestamps: true },

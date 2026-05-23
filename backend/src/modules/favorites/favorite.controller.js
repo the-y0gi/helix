@@ -2,15 +2,37 @@ const favoriteService = require("./favorite.service");
 const logger = require("../../shared/utils/logger");
 
 //Toggle Favorite
+// exports.toggleFavorite = async (req, res, next) => {
+//   try {
+//     const { itemId } = req.params;
+//     const userId = req.user.id;
+
+//     const result = await favoriteService.toggleFavorite(
+//       userId,
+//       itemId,
+//       "hotel",
+//     );
+
+//     res.status(200).json({
+//       success: true,
+//       ...result,
+//     });
+//   } catch (error) {
+//     logger.error("Controller Error: toggleFavorite", error);
+//     next(error);
+//   }
+// };
+
 exports.toggleFavorite = async (req, res, next) => {
   try {
-    const { itemId } = req.params;
+    const { itemId, serviceType } = req.params;
+
     const userId = req.user.id;
 
     const result = await favoriteService.toggleFavorite(
       userId,
       itemId,
-      "hotel",
+      serviceType,
     );
 
     res.status(200).json({
@@ -19,6 +41,7 @@ exports.toggleFavorite = async (req, res, next) => {
     });
   } catch (error) {
     logger.error("Controller Error: toggleFavorite", error);
+
     next(error);
   }
 };
