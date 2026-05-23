@@ -5,10 +5,11 @@ const { protect } = require("../../shared/middlewares/verifyToken");
 
 router.use(protect);
 
-router.post("/toggle/:itemId", favoriteController.toggleFavorite);
+// router.post("/toggle/:itemId", favoriteController.toggleFavorite);
+
+router.post("/toggle/:serviceType/:itemId", favoriteController.toggleFavorite);
 
 router.get("/me", favoriteController.getMyFavorites);
-
 
 router.get("/summary", favoriteController.getFavoritesSummary);
 router.get("/my-trip", favoriteController.getMyTripFavorites);
