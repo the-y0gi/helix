@@ -246,12 +246,7 @@ exports.createAdventure = async (data, vendor) => {
       throw new Error("City is required");
     }
 
-    // SLUG GENERATE
-    const baseSlug = slugify(name, {
-      lower: true,
-      strict: true,
-    });
-
+   
 
     // CHECK EXISTING ADVENTURE
     let adventure = await Adventure.findOne({
@@ -263,7 +258,6 @@ exports.createAdventure = async (data, vendor) => {
       Object.assign(adventure, {
         name: name.trim(),
 
-        slug,
 
         category,
 
@@ -300,7 +294,6 @@ exports.createAdventure = async (data, vendor) => {
       adventure = await Adventure.create({
         name: name.trim(),
 
-        slug,
 
         category,
 

@@ -13,6 +13,16 @@ exports.connectVendorAccounts = async (currentVendorId, email, password) => {
     throw new Error("Current vendor not found");
   }
 
+  // APPROVED CHECK
+  if (currentVendor.status !== "approved") {
+    throw new Error("Your vendor account is not approved yet");
+  }
+
+  // ACTIVE CHECK
+  if (!currentVendor.isActive) {
+    throw new Error("Inactive vendor accounts cannot be linked");
+  }
+
   // TARGET USER
   const targetUser = await User.findOne({
     email,
@@ -36,6 +46,16 @@ exports.connectVendorAccounts = async (currentVendorId, email, password) => {
 
   if (!targetVendor) {
     throw new Error("Vendor account not found");
+  }
+
+  // TARGET APPROVED CHECK
+  if (targetVendor.status !== "approved") {
+    throw new Error("Target vendor account is not approved");
+  }
+
+  // TARGET ACTIVE CHECK
+  if (!targetVendor.isActive) {
+    throw new Error("Inactive vendor accounts cannot be linked");
   }
 
   // SAME ACCOUNT CHECK
@@ -88,6 +108,15 @@ exports.connectVendorAccounts = async (currentVendorId, email, password) => {
   else if (currentVendor.linkedGroupId && !targetVendor.linkedGroupId) {
     group = await VendorAccountGroup.findById(currentVendor.linkedGroupId);
 
+    // DUPLICATE CHECK
+    const alreadyExists = group.accounts.some(
+      (acc) => acc.vendorId.toString() === targetVendor._id.toString(),
+    );
+
+    if (alreadyExists) {
+      throw new Error("Accounts already linked");
+    }
+
     group.accounts.push({
       vendorId: targetVendor._id,
 
@@ -104,6 +133,15 @@ exports.connectVendorAccounts = async (currentVendorId, email, password) => {
   // CASE 3
   else if (!currentVendor.linkedGroupId && targetVendor.linkedGroupId) {
     group = await VendorAccountGroup.findById(targetVendor.linkedGroupId);
+
+    // DUPLICATE CHECK
+    const alreadyExists = group.accounts.some(
+      (acc) => acc.vendorId.toString() === currentVendor._id.toString(),
+    );
+
+    if (alreadyExists) {
+      throw new Error("Accounts already linked");
+    }
 
     group.accounts.push({
       vendorId: currentVendor._id,
@@ -143,7 +181,7 @@ exports.getConnectedAccounts = async (currentVendorId) => {
   ).populate({
     path: "accounts.vendorId",
 
-    select: "businessName serviceType status userId",
+    select: "businessName serviceType status isActive userId",
   });
 
   if (!group) {
@@ -151,7 +189,13 @@ exports.getConnectedAccounts = async (currentVendorId) => {
   }
 
   const formattedAccounts = group.accounts
-    .filter((acc) => acc.vendorId._id.toString() !== currentVendorId.toString())
+    .filter(
+      (acc) =>
+        acc.vendorId &&
+        acc.vendorId._id.toString() !== currentVendorId.toString() &&
+        acc.vendorId.status === "approved" &&
+        acc.vendorId.isActive,
+    )
     .map((acc) => ({
       vendorId: acc.vendorId._id,
 
@@ -180,6 +224,16 @@ exports.switchVendorAccount = async (currentVendorId, targetVendorId) => {
     throw new Error("Target vendor not found");
   }
 
+  // APPROVED CHECK
+  if (targetVendor.status !== "approved") {
+    throw new Error("Only approved accounts can be accessed");
+  }
+
+  // ACTIVE CHECK
+  if (!targetVendor.isActive) {
+    throw new Error("Vendor account is inactive");
+  }
+
   // SAME GROUP CHECK
   if (!currentVendor.linkedGroupId || !targetVendor.linkedGroupId) {
     throw new Error("Accounts are not linked");
@@ -194,6 +248,10 @@ exports.switchVendorAccount = async (currentVendorId, targetVendorId) => {
 
   // USER
   const targetUser = await User.findById(targetVendor.userId);
+
+  if (!targetUser) {
+    throw new Error("User not found");
+  }
 
   // NEW TOKEN
   const accessToken = jwt.sign(

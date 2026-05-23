@@ -1,7 +1,20 @@
 const Vendor = require("./vendor.model");
 const VendorBank = require("../vendorBank/bank.model");
-const Hotel = require("../hotels/hotel.model");
 const User = require("../../modules/auth/auth.model");
+
+const Hotel = require("../hotels/hotel.model");
+const CabCompany = require("../cab/company/cab.model");
+const BikeCompany = require("../bike/company/bike.model");
+const TourCompany = require("../tour/company/tour.model");
+const Adventure = require("../adventure/category/adventure.model");
+
+const SERVICE_MODELS = {
+  hotel: Hotel,
+  cab: CabCompany,
+  bike: BikeCompany,
+  tour: TourCompany,
+  adventure: Adventure,
+};
 
 const {
   sendAdminVendorNotificationEmail,
@@ -10,25 +23,288 @@ const {
 
 const logger = require("../../shared/utils/logger");
 
+// exports.getVendorMe = async (userId) => {
+//   try {
+//     const user = await User.findById(userId).select("firstName lastName email");
+
+//     if (!user) {
+//       throw new Error("User not found");
+//     }
+
+//     const vendor = await Vendor.findOne({ userId });
+
+//     if (!vendor) {
+//       throw new Error("Vendor not found");
+//     }
+
+//     // optional data
+//     const bank = await VendorBank.findOne({ vendorId: vendor._id });
+//     const hotel = await Hotel.findOne({ vendorId: vendor._id });
+
+//     // base response
+//     const response = {
+//       vendor: {
+//         status: vendor.status,
+//         currentStep: vendor.currentStep,
+//         registrationStep: vendor.registrationStep,
+//         rejectedSteps: vendor.rejectedSteps || [],
+//         rejectionReasons: vendor.rejectionReasons || {},
+//         isSubmitted: vendor.isSubmitted,
+//       },
+
+//       businessDetails: {
+//         businessName: vendor.businessName,
+//         businessEmail: vendor.businessEmail,
+//         businessPhone: vendor.businessPhone,
+//         address: vendor.businessAddress,
+//         city: vendor.city,
+//         state: vendor.state,
+//         country: vendor.country,
+//       },
+
+//       documents: vendor.verificationDocs || [],
+
+//       bankDetails: bank
+//         ? {
+//             accountHolderName: bank.accountHolderName,
+//             bankName: bank.bankName,
+//             accountNumber: bank.accountNumber,
+//             ifscCode: bank.ifscCode,
+//             branchName: bank.branchName,
+//             upiId: bank.upiId,
+//             verificationStatus: bank.verificationStatus,
+//           }
+//         : null,
+
+//       hotelDetails: hotel
+//         ? {
+//             name: hotel.name,
+//             description: hotel.description,
+//             address: hotel.address,
+//             city: hotel.city,
+//             images: hotel.images,
+//             amenities: hotel.amenities,
+//             verificationStatus: hotel.verificationStatus,
+//           }
+//         : null,
+//     };
+
+//     //APPROVED DATA
+//     if (vendor.status === "approved") {
+//       response.approvedData = {
+//         vendorName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+//         vendorEmail: user.email,
+
+//         businessName: vendor.businessName,
+//         businessEmail: vendor.businessEmail,
+
+//         hotelId: hotel?._id || null,
+//         hotelName: hotel?.name || null,
+//       };
+//     }
+
+//     return response;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+//step-2 vendor business create profile
+
 exports.getVendorMe = async (userId) => {
   try {
+    // USER
     const user = await User.findById(userId).select("firstName lastName email");
 
     if (!user) {
       throw new Error("User not found");
     }
 
+    // VENDOR
     const vendor = await Vendor.findOne({ userId });
 
     if (!vendor) {
       throw new Error("Vendor not found");
     }
 
-    // optional data
-    const bank = await VendorBank.findOne({ vendorId: vendor._id });
-    const hotel = await Hotel.findOne({ vendorId: vendor._id });
+    // BANK
+    const bank = await VendorBank.findOne({
+      vendorId: vendor._id,
+      isActive: true,
+    }).select("+accountNumber +ifscCode +upiId");
 
-    // base response
+    // SERVICE MODEL
+    const ServiceModel = SERVICE_MODELS[vendor.serviceType];
+
+    let serviceData = null;
+
+    // FETCH SERVICE DATA
+    if (ServiceModel) {
+      serviceData = await ServiceModel.findOne({
+        vendorId: vendor._id,
+        isActive: true,
+      });
+    }
+
+    // DYNAMIC SERVICE DETAILS
+    let serviceDetails = null;
+
+    if (serviceData) {
+      switch (vendor.serviceType) {
+        // HOTEL
+        case "hotel":
+          serviceDetails = {
+            serviceType: "hotel",
+
+            id: serviceData._id,
+            name: serviceData.name,
+            description: serviceData.description,
+
+            address: serviceData.address,
+            city: serviceData.city,
+
+            images: serviceData.images || [],
+            documents: serviceData.documents || [],
+
+            amenities: serviceData.amenities || [],
+
+            accessibility: serviceData.accessibility || {},
+
+            rating: serviceData.rating || 0,
+            numReviews: serviceData.numReviews || 0,
+
+            verificationStatus: serviceData.verificationStatus,
+            rank: serviceData.rank,
+            isFeatured: serviceData.isFeatured,
+          };
+
+          break;
+
+        // CAB
+        case "cab":
+          serviceDetails = {
+            serviceType: "cab",
+
+            id: serviceData._id,
+            name: serviceData.name,
+            description: serviceData.description,
+
+            location: serviceData.location || {},
+            address: serviceData.address,
+
+            coordinates: serviceData.coordinates || {},
+
+            images: serviceData.images || [],
+            documents: serviceData.documents || [],
+
+            features: serviceData.features || [],
+
+            rating: serviceData.rating || {},
+
+            verificationStatus: serviceData.verificationStatus,
+            rank: serviceData.rank,
+            isFeatured: serviceData.isFeatured,
+          };
+
+          break;
+
+        // BIKE
+        case "bike":
+          serviceDetails = {
+            serviceType: "bike",
+
+            id: serviceData._id,
+            name: serviceData.name,
+            description: serviceData.description,
+
+            location: serviceData.location || {},
+            address: serviceData.address,
+
+            coordinates: serviceData.coordinates || {},
+
+            images: serviceData.images || [],
+            documents: serviceData.documents || [],
+
+            features: serviceData.features || [],
+
+            rentalPolicies: serviceData.rentalPolicies || {},
+
+            rating: serviceData.rating || {},
+
+            verificationStatus: serviceData.verificationStatus,
+            rank: serviceData.rank,
+            isFeatured: serviceData.isFeatured,
+          };
+
+          break;
+
+        // TOUR
+        case "tour":
+          serviceDetails = {
+            serviceType: "tour",
+
+            id: serviceData._id,
+            name: serviceData.name,
+            description: serviceData.description,
+
+            location: serviceData.location || {},
+            address: serviceData.address,
+
+            coordinates: serviceData.coordinates || {},
+
+            images: serviceData.images || [],
+            documents: serviceData.documents || [],
+
+            features: serviceData.features || [],
+            tags: serviceData.tags || [],
+
+            rating: serviceData.rating || {},
+
+            verificationStatus: serviceData.verificationStatus,
+            rank: serviceData.rank,
+            isFeatured: serviceData.isFeatured,
+          };
+
+          break;
+
+        // ADVENTURE
+        case "adventure":
+          serviceDetails = {
+            serviceType: "adventure",
+
+            id: serviceData._id,
+            name: serviceData.name,
+            description: serviceData.description,
+
+            category: serviceData.category,
+
+            location: serviceData.location || {},
+            address: serviceData.address,
+
+            coordinates: serviceData.coordinates || {},
+
+            images: serviceData.images || [],
+            documents: serviceData.documents || [],
+
+            features: serviceData.features || [],
+
+            priceRange: serviceData.priceRange || {},
+
+            rating: serviceData.rating || {},
+
+            verificationStatus: serviceData.verificationStatus,
+            rank: serviceData.rank,
+            isFeatured: serviceData.isFeatured,
+          };
+
+          break;
+
+        default:
+          serviceDetails = null;
+      }
+    }
+
+    // BASE RESPONSE
     const response = {
       vendor: {
         status: vendor.status,
@@ -37,12 +313,15 @@ exports.getVendorMe = async (userId) => {
         rejectedSteps: vendor.rejectedSteps || [],
         rejectionReasons: vendor.rejectionReasons || {},
         isSubmitted: vendor.isSubmitted,
+
+        serviceType: vendor.serviceType,
       },
 
       businessDetails: {
         businessName: vendor.businessName,
         businessEmail: vendor.businessEmail,
         businessPhone: vendor.businessPhone,
+
         address: vendor.businessAddress,
         city: vendor.city,
         state: vendor.state,
@@ -59,34 +338,28 @@ exports.getVendorMe = async (userId) => {
             ifscCode: bank.ifscCode,
             branchName: bank.branchName,
             upiId: bank.upiId,
+
             verificationStatus: bank.verificationStatus,
           }
         : null,
 
-      hotelDetails: hotel
-        ? {
-            name: hotel.name,
-            description: hotel.description,
-            address: hotel.address,
-            city: hotel.city,
-            images: hotel.images,
-            amenities: hotel.amenities,
-            verificationStatus: hotel.verificationStatus,
-          }
-        : null,
+      serviceDetails,
     };
 
-    //APPROVED DATA
+    // APPROVED DATA
     if (vendor.status === "approved") {
       response.approvedData = {
         vendorName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+
         vendorEmail: user.email,
 
         businessName: vendor.businessName,
         businessEmail: vendor.businessEmail,
 
-        hotelId: hotel?._id || null,
-        hotelName: hotel?.name || null,
+        serviceType: vendor.serviceType,
+
+        serviceId: serviceData?._id || null,
+        serviceName: serviceData?.name || null,
       };
     }
 
@@ -96,7 +369,6 @@ exports.getVendorMe = async (userId) => {
   }
 };
 
-//step-2 vendor business create profile
 exports.createVendorProfile = async (userId, vendorData) => {
   try {
     const vendor = await Vendor.findOne({ userId });
