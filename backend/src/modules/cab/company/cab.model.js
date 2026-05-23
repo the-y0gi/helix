@@ -34,8 +34,14 @@ const cabCompanySchema = new mongoose.Schema(
       lng: Number,
     },
 
-    images: [String],
-
+    images: [
+      {
+        url: String,
+        public_id: String,
+        resource_type: String,
+      },
+    ],
+    
     documents: [
       {
         docName: String,

@@ -9,7 +9,6 @@ router.post("/toggle/:itemId", favoriteController.toggleFavorite);
 
 router.get("/me", favoriteController.getMyFavorites);
 
-router.use(protect);
 
 router.get("/summary", favoriteController.getFavoritesSummary);
 router.get("/my-trip", favoriteController.getMyTripFavorites);
