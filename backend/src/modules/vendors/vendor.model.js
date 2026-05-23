@@ -19,7 +19,6 @@ const vendorSchema = new mongoose.Schema(
     serviceType: {
       type: String,
       enum: ["hotel", "adventure", "cab", "bike", "tour"],
-      required: true,
       index: true,
     },
 
