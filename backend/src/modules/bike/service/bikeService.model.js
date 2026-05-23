@@ -57,8 +57,13 @@ const bikeServiceSchema = new mongoose.Schema(
     },
 
     features: [String],
-    images: [String],
-
+    images: [
+      {
+        url: String,
+        public_id: String,
+        resource_type: String,
+      },
+    ],
     meta: {
       mileage: String,
       gearType: String,

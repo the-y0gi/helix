@@ -15,8 +15,6 @@ const adventureSchema = new mongoose.Schema(
       index: true,
     },
 
-
-
     category: {
       type: String,
       required: true,
@@ -42,10 +40,11 @@ const adventureSchema = new mongoose.Schema(
       lat: Number,
       lng: Number,
     },
-
     images: [
       {
-        type: String,
+        url: String,
+        public_id: String,
+        resource_type: String,
       },
     ],
 

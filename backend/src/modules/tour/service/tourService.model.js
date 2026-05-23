@@ -82,7 +82,9 @@ const tourServiceSchema = new mongoose.Schema(
 
     images: [
       {
-        type: String,
+        url: String,
+        public_id: String,
+        resource_type: String,
       },
     ],
     description: {

@@ -46,8 +46,13 @@ const cabServiceSchema = new mongoose.Schema(
 
     carNumber: String,
 
-    images: [String],
-
+    images: [
+      {
+        url: String,
+        public_id: String,
+        resource_type: String,
+      },
+    ],
     description: String,
 
     features: [String],

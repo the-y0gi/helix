@@ -72,6 +72,14 @@ const serviceSchema = new mongoose.Schema(
       },
     ],
 
+    images: [
+      {
+        url: String,
+        public_id: String,
+        resource_type: String,
+      },
+    ],
+
     itinerary: [itinerarySchema], //only for trekking
 
     isActive: {
