@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const adventureController = require("./adventure.controller");
-const { protect } = require("../../../shared/middlewares/verifyToken");
+const { protect, optionalProtect } = require("../../../shared/middlewares/verifyToken");
 const { authorize } = require("../../../shared/middlewares/roleMiddleware");
 
-router.get("/search", adventureController.searchAdventures);
+router.get("/search", optionalProtect, adventureController.searchAdventures);
 
-router.get("/", adventureController.getAdventures);
+router.get("/", optionalProtect, adventureController.getAdventures);
 
-router.get("/:id", adventureController.getAdventureDetails);
+router.get("/:id", optionalProtect, adventureController.getAdventureDetails);
 
 //vendor routes...
 

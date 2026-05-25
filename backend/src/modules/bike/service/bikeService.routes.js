@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const bikeServiceController = require("./bikeService.controller");
-const { protect } = require("../../../shared/middlewares/verifyToken");
+const { protect, optionalProtect } = require("../../../shared/middlewares/verifyToken");
 const { authorize } = require("../../../shared/middlewares/roleMiddleware");
 //user side
 
-router.get("/", bikeServiceController.getBikes);
-router.get("/:id", bikeServiceController.getBikeServiceDetails);
+router.get("/", optionalProtect, bikeServiceController.getBikes);
+router.get("/:id", optionalProtect, bikeServiceController.getBikeServiceDetails);
 
-router.get("/company/:id", bikeServiceController.getBikeCompanyDetails);
+router.get("/company/:id", optionalProtect, bikeServiceController.getBikeCompanyDetails);
 
 //vendor routes...
 router.post(

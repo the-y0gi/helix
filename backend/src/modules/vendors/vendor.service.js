@@ -23,94 +23,6 @@ const {
 
 const logger = require("../../shared/utils/logger");
 
-// exports.getVendorMe = async (userId) => {
-//   try {
-//     const user = await User.findById(userId).select("firstName lastName email");
-
-//     if (!user) {
-//       throw new Error("User not found");
-//     }
-
-//     const vendor = await Vendor.findOne({ userId });
-
-//     if (!vendor) {
-//       throw new Error("Vendor not found");
-//     }
-
-//     // optional data
-//     const bank = await VendorBank.findOne({ vendorId: vendor._id });
-//     const hotel = await Hotel.findOne({ vendorId: vendor._id });
-
-//     // base response
-//     const response = {
-//       vendor: {
-//         status: vendor.status,
-//         currentStep: vendor.currentStep,
-//         registrationStep: vendor.registrationStep,
-//         rejectedSteps: vendor.rejectedSteps || [],
-//         rejectionReasons: vendor.rejectionReasons || {},
-//         isSubmitted: vendor.isSubmitted,
-//       },
-
-//       businessDetails: {
-//         businessName: vendor.businessName,
-//         businessEmail: vendor.businessEmail,
-//         businessPhone: vendor.businessPhone,
-//         address: vendor.businessAddress,
-//         city: vendor.city,
-//         state: vendor.state,
-//         country: vendor.country,
-//       },
-
-//       documents: vendor.verificationDocs || [],
-
-//       bankDetails: bank
-//         ? {
-//             accountHolderName: bank.accountHolderName,
-//             bankName: bank.bankName,
-//             accountNumber: bank.accountNumber,
-//             ifscCode: bank.ifscCode,
-//             branchName: bank.branchName,
-//             upiId: bank.upiId,
-//             verificationStatus: bank.verificationStatus,
-//           }
-//         : null,
-
-//       hotelDetails: hotel
-//         ? {
-//             name: hotel.name,
-//             description: hotel.description,
-//             address: hotel.address,
-//             city: hotel.city,
-//             images: hotel.images,
-//             amenities: hotel.amenities,
-//             verificationStatus: hotel.verificationStatus,
-//           }
-//         : null,
-//     };
-
-//     //APPROVED DATA
-//     if (vendor.status === "approved") {
-//       response.approvedData = {
-//         vendorName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-//         vendorEmail: user.email,
-
-//         businessName: vendor.businessName,
-//         businessEmail: vendor.businessEmail,
-
-//         hotelId: hotel?._id || null,
-//         hotelName: hotel?.name || null,
-//       };
-//     }
-
-//     return response;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
-//step-2 vendor business create profile
-
 exports.getVendorMe = async (userId) => {
   try {
     // USER
@@ -345,7 +257,7 @@ exports.getVendorMe = async (userId) => {
           }
         : null,
 
-      serviceDetails,
+      // serviceDetails,
     };
 
     // APPROVED DATA
@@ -360,7 +272,7 @@ exports.getVendorMe = async (userId) => {
 
         serviceType: vendor.serviceType,
 
-        serviceId: serviceData?._id || null,
+        companyId: serviceData?._id || null,
         serviceName: serviceData?.name || null,
       };
     }

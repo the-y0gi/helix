@@ -5,7 +5,8 @@ const Vendor = require("../../vendors/vendor.model");
 
 exports.getTours = async (req, res, next) => {
   try {
-    const data = await tourService.getTours(req.query);
+    const userId = req.user?._id || null;
+    const data = await tourService.getTours(req.query, userId);
 
     res.status(200).json({
       success: true,
@@ -20,8 +21,9 @@ exports.getTours = async (req, res, next) => {
 exports.getCompanyDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const userId = req.user?._id || null;
 
-    const data = await tourService.getCompanyDetails(id);
+    const data = await tourService.getCompanyDetails(id, userId);
 
     res.status(200).json({
       success: true,
@@ -36,8 +38,9 @@ exports.getCompanyDetails = async (req, res, next) => {
 exports.getTourServiceDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const userId = req.user?._id || null;
 
-    const data = await tourService.getTourServiceDetails(id);
+    const data = await tourService.getTourServiceDetails(id, userId);
 
     res.status(200).json({
       success: true,
