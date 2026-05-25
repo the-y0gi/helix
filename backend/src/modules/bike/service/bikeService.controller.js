@@ -4,7 +4,8 @@ const Vendor = require("../../vendors/vendor.model");
 //user side
 exports.getBikes = async (req, res, next) => {
   try {
-    const data = await bikeService.getBikes(req.query);
+    const userId = req.user?._id || null;
+    const data = await bikeService.getBikes(req.query, userId);
 
     res.status(200).json({
       success: true,
@@ -19,8 +20,9 @@ exports.getBikes = async (req, res, next) => {
 exports.getBikeCompanyDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const userId = req.user?._id || null;
 
-    const data = await bikeService.getBikeCompanyDetails(id);
+    const data = await bikeService.getBikeCompanyDetails(id, userId);
 
     res.status(200).json({
       success: true,
@@ -35,8 +37,9 @@ exports.getBikeCompanyDetails = async (req, res, next) => {
 exports.getBikeServiceDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const userId = req.user?._id || null;
 
-    const data = await bikeService.getBikeServiceDetails(id);
+    const data = await bikeService.getBikeServiceDetails(id, userId);
 
     res.status(200).json({
       success: true,

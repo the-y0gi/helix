@@ -2,10 +2,46 @@ const mongoose = require("mongoose");
 const CabService = require("./cabService.model");
 const CabCompany = require("../company/cab.model");
 const Tax = require("../../admin/tax/tax.model");
+const Favorite = require("../../favorites/favorite.model");
+
+//helper function to attach isFavorite flag to companies/services
+const attachFavoriteFlag = async (items, userId, itemType) => {
+  if (!userId || items.length === 0) {
+    items.forEach((item) => (item.isFavorite = false));
+    return items;
+  }
+
+  const itemIds = items.map((i) => i.company?.companyId || i.companyId || i.serviceId || i._id);
+
+  const favorites = await Favorite.find({
+    user: userId,
+    itemType,
+    itemId: { $in: itemIds },
+  }).select("itemId");
+
+  const favoriteSet = new Set(favorites.map((f) => f.itemId.toString()));
+
+  items.forEach((item) => {
+    const id = item.company?.companyId || item.companyId || item.serviceId || item._id;
+    item.isFavorite = favoriteSet.has(id.toString());
+  });
+
+  return items;
+};
+
+const checkIsFavorite = async (itemId, userId, itemType) => {
+  if (!userId || !itemId) return false;
+  const fav = await Favorite.findOne({
+    user: userId,
+    itemType,
+    itemId,
+  }).select("_id");
+  return !!fav;
+};
 
 //user side...
 
-exports.getCabs = async (query) => {
+exports.getCabs = async (query, userId = null) => {
   try {
     const { pickup = "", drop = "", page = 1, limit = 10 } = query;
 
@@ -78,6 +114,7 @@ exports.getCabs = async (query) => {
 
       return {
         serviceId: cab._id,
+        serviceType: "cab",
 
         title: cab.title,
         carName: cab.carName,
@@ -98,6 +135,7 @@ exports.getCabs = async (query) => {
 
         company: {
           companyId: cab.company._id,
+          serviceType: "cab",
           name: cab.company.name,
           city: cab.company.location?.city,
           rating: cab.company.rating?.average || 0,
@@ -105,12 +143,14 @@ exports.getCabs = async (query) => {
       };
     });
 
+    const updatedCabs = await attachFavoriteFlag(formattedCabs, userId, "cab");
+
     return {
-      cabs: formattedCabs,
+      cabs: updatedCabs,
       pagination: {
         page: Number(page),
         limit: Number(limit),
-        count: formattedCabs.length,
+        count: updatedCabs.length,
       },
     };
   } catch (error) {
@@ -118,7 +158,7 @@ exports.getCabs = async (query) => {
   }
 };
 
-exports.getCabCompanyDetails = async (id) => {
+exports.getCabCompanyDetails = async (id, userId = null) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error("Invalid company id");
@@ -163,6 +203,7 @@ exports.getCabCompanyDetails = async (id) => {
 
       return {
         serviceId: service._id,
+        serviceType: "cab",
 
         title: service.title,
         carName: service.carName,
@@ -187,8 +228,12 @@ exports.getCabCompanyDetails = async (id) => {
       };
     });
 
+    const isFavorite = await checkIsFavorite(company._id, userId, "cab");
+
     const formattedCompany = {
       companyId: company._id,
+      serviceType: "cab",
+      isFavorite,
       name: company.name,
       description: company.description,
       city: company.location?.city,
@@ -202,13 +247,14 @@ exports.getCabCompanyDetails = async (id) => {
     return {
       company: formattedCompany,
       services: formattedServices,
+      isFavorite,
     };
   } catch (error) {
     throw error;
   }
 };
 
-exports.getCabServiceDetails = async (id) => {
+exports.getCabServiceDetails = async (id, userId = null) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error("Invalid service id");
@@ -244,8 +290,12 @@ exports.getCabServiceDetails = async (id) => {
 
     const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
 
+    const isFavorite = await checkIsFavorite(company?._id, userId, "cab");
+
     const formattedService = {
       serviceId: service._id,
+      serviceType: "cab",
+      isFavorite,
 
       title: service.title,
       description: service.description,
@@ -274,6 +324,8 @@ exports.getCabServiceDetails = async (id) => {
 
     const formattedCompany = {
       companyId: company?._id,
+      serviceType: "cab",
+      isFavorite,
       name: company?.name,
       city: company?.location?.city,
       rating: company?.rating?.average || 0,
@@ -284,6 +336,7 @@ exports.getCabServiceDetails = async (id) => {
     return {
       company: formattedCompany,
       service: formattedService,
+      isFavorite,
     };
   } catch (error) {
     throw error;

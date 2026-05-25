@@ -4,8 +4,43 @@ const Service = require("../service/service.model");
 const slugify = require("slugify");
 const Tax = require("../../admin/tax/tax.model");
 const logger = require("../../../shared/utils/logger");
+const Favorite = require("../../favorites/favorite.model");
 
-exports.searchAdventures = async (query = {}) => {
+//helper function to attach isFavorite flag to companies/services
+const attachFavoriteFlag = async (items, userId, itemType) => {
+  if (!userId || items.length === 0) {
+    items.forEach((item) => (item.isFavorite = false));
+    return items;
+  }
+
+  const itemIds = items.map((i) => i._id);
+
+  const favorites = await Favorite.find({
+    user: userId,
+    itemType,
+    itemId: { $in: itemIds },
+  }).select("itemId");
+
+  const favoriteSet = new Set(favorites.map((f) => f.itemId.toString()));
+
+  items.forEach((item) => {
+    item.isFavorite = favoriteSet.has(item._id.toString());
+  });
+
+  return items;
+};
+
+const checkIsFavorite = async (itemId, userId, itemType) => {
+  if (!userId || !itemId) return false;
+  const fav = await Favorite.findOne({
+    user: userId,
+    itemType,
+    itemId,
+  }).select("_id");
+  return !!fav;
+};
+
+exports.searchAdventures = async (query = {}, userId = null) => {
   try {
     const { city } = query;
 
@@ -57,6 +92,7 @@ exports.searchAdventures = async (query = {}) => {
           category,
           title: categoryConfig[category] || category,
           startingPrice,
+          serviceType: "adventure",
         };
       }),
     );
@@ -67,7 +103,7 @@ exports.searchAdventures = async (query = {}) => {
   }
 };
 
-exports.getAdventures = async (query = {}) => {
+exports.getAdventures = async (query = {}, userId = null) => {
   try {
     const { category, city } = query;
 
@@ -132,13 +168,18 @@ exports.getAdventures = async (query = {}) => {
       },
     ]);
 
-    return adventures;
+    const formattedAdventures = adventures.map((adv) => ({
+      ...adv,
+      serviceType: "adventure",
+    }));
+
+    return await attachFavoriteFlag(formattedAdventures, userId, "adventure");
   } catch (error) {
     throw error;
   }
 };
 
-exports.getAdventureDetails = async (id) => {
+exports.getAdventureDetails = async (id, userId = null) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error("Invalid adventure id");
@@ -176,14 +217,19 @@ exports.getAdventureDetails = async (id) => {
 
       return {
         ...service,
+        serviceType: "adventure",
         taxPercentage,
         totalTax,
         totalPriceWithTax,
       };
     });
 
+    const isFavorite = await checkIsFavorite(adventure._id, userId, "adventure");
+
     const formattedAdventure = {
       _id: adventure._id,
+      serviceType: "adventure",
+      isFavorite,
       name: adventure.name,
       category: adventure.category,
       city: adventure.location?.city,
@@ -196,6 +242,7 @@ exports.getAdventureDetails = async (id) => {
     return {
       adventure: formattedAdventure,
       services: formattedServices,
+      isFavorite,
     };
   } catch (error) {
     throw error;

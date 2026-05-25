@@ -4,7 +4,8 @@ const adventureService = require("./adventure.service");
 
 exports.searchAdventures = async (req, res, next) => {
   try {
-    const categories = await adventureService.searchAdventures(req.query);
+    const userId = req.user?._id || null;
+    const categories = await adventureService.searchAdventures(req.query, userId);
 
     res.status(200).json({
       success: true,
@@ -19,7 +20,8 @@ exports.searchAdventures = async (req, res, next) => {
 
 exports.getAdventures = async (req, res, next) => {
   try {
-    const adventures = await adventureService.getAdventures(req.query);
+    const userId = req.user?._id || null;
+    const adventures = await adventureService.getAdventures(req.query, userId);
 
     res.status(200).json({
       success: true,
@@ -35,8 +37,9 @@ exports.getAdventures = async (req, res, next) => {
 exports.getAdventureDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const userId = req.user?._id || null;
 
-    const data = await adventureService.getAdventureDetails(id);
+    const data = await adventureService.getAdventureDetails(id, userId);
 
     res.status(200).json({
       success: true,

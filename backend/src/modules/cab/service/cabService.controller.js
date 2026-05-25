@@ -5,7 +5,8 @@ const Vendor = require("../../vendors/vendor.model");
 //user side...
 exports.getCabs = async (req, res, next) => {
   try {
-    const data = await cabService.getCabs(req.query);
+    const userId = req.user?._id || null;
+    const data = await cabService.getCabs(req.query, userId);
 
     res.status(200).json({
       success: true,
@@ -20,8 +21,9 @@ exports.getCabs = async (req, res, next) => {
 exports.getCabCompanyDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const userId = req.user?._id || null;
 
-    const data = await cabService.getCabCompanyDetails(id);
+    const data = await cabService.getCabCompanyDetails(id, userId);
 
     res.status(200).json({
       success: true,
@@ -36,8 +38,9 @@ exports.getCabCompanyDetails = async (req, res, next) => {
 exports.getCabServiceDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const userId = req.user?._id || null;
 
-    const data = await cabService.getCabServiceDetails(id);
+    const data = await cabService.getCabServiceDetails(id, userId);
 
     res.status(200).json({
       success: true,

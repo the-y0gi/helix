@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const cabServiceController = require("./cabService.controller");
-const { protect } = require("../../../shared/middlewares/verifyToken");
+const { protect, optionalProtect } = require("../../../shared/middlewares/verifyToken");
 const { authorize } = require("../../../shared/middlewares/roleMiddleware");
 
 //user side...
 
-router.get("/", cabServiceController.getCabs);
-router.get("/:id", cabServiceController.getCabServiceDetails);
+router.get("/", optionalProtect, cabServiceController.getCabs);
+router.get("/:id", optionalProtect, cabServiceController.getCabServiceDetails);
 
-router.get("/company/:id", cabServiceController.getCabCompanyDetails);
+router.get("/company/:id", optionalProtect, cabServiceController.getCabCompanyDetails);
 
 
 //vendor routes...

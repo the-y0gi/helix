@@ -5,8 +5,9 @@ const Vendor = require("../../vendors/vendor.model");
 exports.getServiceDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const userId = req.user?._id || null;
 
-    const data = await serviceService.getServiceDetails(id);
+    const data = await serviceService.getServiceDetails(id, userId);
 
     res.status(200).json({
       success: true,
