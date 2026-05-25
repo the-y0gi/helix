@@ -2,9 +2,45 @@ const mongoose = require("mongoose");
 const BikeService = require("./bikeService.model");
 const BikeCompany = require("../company/bike.model");
 const Tax = require("../../admin/tax/tax.model");
+const Favorite = require("../../favorites/favorite.model");
+
+//helper function to attach isFavorite flag to companies/services
+const attachFavoriteFlag = async (items, userId, itemType) => {
+  if (!userId || items.length === 0) {
+    items.forEach((item) => (item.isFavorite = false));
+    return items;
+  }
+
+  const itemIds = items.map((i) => i.company?.companyId || i.companyId || i.serviceId || i._id);
+
+  const favorites = await Favorite.find({
+    user: userId,
+    itemType,
+    itemId: { $in: itemIds },
+  }).select("itemId");
+
+  const favoriteSet = new Set(favorites.map((f) => f.itemId.toString()));
+
+  items.forEach((item) => {
+    const id = item.company?.companyId || item.companyId || item.serviceId || item._id;
+    item.isFavorite = favoriteSet.has(id.toString());
+  });
+
+  return items;
+};
+
+const checkIsFavorite = async (itemId, userId, itemType) => {
+  if (!userId || !itemId) return false;
+  const fav = await Favorite.findOne({
+    user: userId,
+    itemType,
+    itemId,
+  }).select("_id");
+  return !!fav;
+};
 
 //user side
-exports.getBikes = async (query) => {
+exports.getBikes = async (query, userId = null) => {
   try {
     const { city = "", page = 1, limit = 10 } = query;
 
@@ -77,6 +113,7 @@ exports.getBikes = async (query) => {
 
       return {
         serviceId: bike._id,
+        serviceType: "bike",
 
         bikeName: bike.bikeName,
         bikeType: bike.bikeType,
@@ -89,6 +126,7 @@ exports.getBikes = async (query) => {
 
         company: {
           companyId: bike.company._id,
+          serviceType: "bike",
           name: bike.company.name,
           city: bike.company.location?.city,
           rating: bike.company.rating?.average || 0,
@@ -96,12 +134,14 @@ exports.getBikes = async (query) => {
       };
     });
 
+    const updatedBikes = await attachFavoriteFlag(formattedBikes, userId, "bike");
+
     return {
-      bikes: formattedBikes,
+      bikes: updatedBikes,
       pagination: {
         page: Number(page),
         limit: Number(limit),
-        count: formattedBikes.length,
+        count: updatedBikes.length,
       },
     };
   } catch (error) {
@@ -109,7 +149,7 @@ exports.getBikes = async (query) => {
   }
 };
 
-exports.getBikeCompanyDetails = async (id) => {
+exports.getBikeCompanyDetails = async (id, userId = null) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error("Invalid company id");
@@ -153,6 +193,7 @@ exports.getBikeCompanyDetails = async (id) => {
 
       return {
         serviceId: service._id,
+        serviceType: "bike",
 
         bikeName: service.bikeName,
         bikeType: service.bikeType,
@@ -170,8 +211,12 @@ exports.getBikeCompanyDetails = async (id) => {
       };
     });
 
+    const isFavorite = await checkIsFavorite(company._id, userId, "bike");
+
     const formattedCompany = {
       companyId: company._id,
+      serviceType: "bike",
+      isFavorite,
       name: company.name,
       description: company.description,
 
@@ -196,13 +241,14 @@ exports.getBikeCompanyDetails = async (id) => {
     return {
       company: formattedCompany,
       services: formattedServices,
+      isFavorite,
     };
   } catch (error) {
     throw error;
   }
 };
 
-exports.getBikeServiceDetails = async (id) => {
+exports.getBikeServiceDetails = async (id, userId = null) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error("Invalid service id");
@@ -237,8 +283,12 @@ exports.getBikeServiceDetails = async (id) => {
 
     const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
 
+    const isFavorite = await checkIsFavorite(company?._id, userId, "bike");
+
     const formattedService = {
       serviceId: service._id,
+      serviceType: "bike",
+      isFavorite,
 
       title: service.title,
       description: service.description,
@@ -263,6 +313,8 @@ exports.getBikeServiceDetails = async (id) => {
 
     const formattedCompany = {
       companyId: company?._id,
+      serviceType: "bike",
+      isFavorite,
       name: company?.name,
       city: company?.location?.city,
       rating: company?.rating?.average || 0,
@@ -275,6 +327,7 @@ exports.getBikeServiceDetails = async (id) => {
     return {
       company: formattedCompany,
       service: formattedService,
+      isFavorite,
     };
   } catch (error) {
     throw error;

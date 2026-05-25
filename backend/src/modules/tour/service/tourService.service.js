@@ -2,9 +2,45 @@ const mongoose = require("mongoose");
 const TourService = require("./tourService.model");
 const TourCompany = require("../company/tour.model");
 const Tax = require("../../admin/tax/tax.model");
+const Favorite = require("../../favorites/favorite.model");
+
+//helper function to attach isFavorite flag to companies/services
+const attachFavoriteFlag = async (items, userId, itemType) => {
+  if (!userId || items.length === 0) {
+    items.forEach((item) => (item.isFavorite = false));
+    return items;
+  }
+
+  const itemIds = items.map((i) => i.company?.companyId || i.companyId || i.serviceId || i._id);
+
+  const favorites = await Favorite.find({
+    user: userId,
+    itemType,
+    itemId: { $in: itemIds },
+  }).select("itemId");
+
+  const favoriteSet = new Set(favorites.map((f) => f.itemId.toString()));
+
+  items.forEach((item) => {
+    const id = item.company?.companyId || item.companyId || item.serviceId || item._id;
+    item.isFavorite = favoriteSet.has(id.toString());
+  });
+
+  return items;
+};
+
+const checkIsFavorite = async (itemId, userId, itemType) => {
+  if (!userId || !itemId) return false;
+  const fav = await Favorite.findOne({
+    user: userId,
+    itemType,
+    itemId,
+  }).select("_id");
+  return !!fav;
+};
 
 //user side
-exports.getTours = async (query) => {
+exports.getTours = async (query, userId = null) => {
   try {
     const { search = "", page = 1, limit = 10 } = query;
 
@@ -76,6 +112,7 @@ exports.getTours = async (query) => {
 
       return {
         serviceId: tour._id,
+        serviceType: "tour",
 
         title: tour.title,
         destinations: tour.destinations,
@@ -89,6 +126,7 @@ exports.getTours = async (query) => {
 
         company: {
           companyId: tour.company._id,
+          serviceType: "tour",
           name: tour.company.name,
           city: tour.company.location?.city,
           rating: tour.company.rating?.average || 0,
@@ -96,12 +134,14 @@ exports.getTours = async (query) => {
       };
     });
 
+    const updatedTours = await attachFavoriteFlag(formattedTours, userId, "tour");
+
     return {
-      tours: formattedTours,
+      tours: updatedTours,
       pagination: {
         page: Number(page),
         limit: Number(limit),
-        count: formattedTours.length,
+        count: updatedTours.length,
       },
     };
   } catch (error) {
@@ -109,7 +149,7 @@ exports.getTours = async (query) => {
   }
 };
 
-exports.getCompanyDetails = async (id) => {
+exports.getCompanyDetails = async (id, userId = null) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error("Invalid company id");
@@ -150,6 +190,7 @@ exports.getCompanyDetails = async (id) => {
 
       return {
         serviceId: service._id,
+        serviceType: "tour",
 
         title: service.title,
         duration: `${service.duration.days}D/${service.duration.nights}N`,
@@ -164,8 +205,12 @@ exports.getCompanyDetails = async (id) => {
       };
     });
 
+    const isFavorite = await checkIsFavorite(company._id, userId, "tour");
+
     const formattedCompany = {
       companyId: company._id,
+      serviceType: "tour",
+      isFavorite,
       name: company.name,
       description: company.description,
       city: company.location?.city,
@@ -179,13 +224,14 @@ exports.getCompanyDetails = async (id) => {
     return {
       company: formattedCompany,
       services: formattedServices,
+      isFavorite,
     };
   } catch (error) {
     throw error;
   }
 };
 
-exports.getTourServiceDetails = async (id) => {
+exports.getTourServiceDetails = async (id, userId = null) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error("Invalid service id");
@@ -223,8 +269,12 @@ exports.getTourServiceDetails = async (id) => {
 
     const totalPriceWithTax = Number((effectivePrice + totalTax).toFixed(2));
 
+    const isFavorite = await checkIsFavorite(company?._id, userId, "tour");
+
     const formattedService = {
       serviceId: service._id,
+      serviceType: "tour",
+      isFavorite,
 
       title: service.title,
       description: service.description,
@@ -248,6 +298,8 @@ exports.getTourServiceDetails = async (id) => {
 
     const formattedCompany = {
       companyId: company?._id,
+      serviceType: "tour",
+      isFavorite,
       name: company?.name,
       city: company?.location?.city,
       rating: company?.rating?.average || 0,
@@ -258,6 +310,7 @@ exports.getTourServiceDetails = async (id) => {
     return {
       company: formattedCompany,
       service: formattedService,
+      isFavorite,
     };
   } catch (error) {
     throw error;
@@ -358,7 +411,9 @@ exports.getVendorTourServices = async (query = {}, vendorId) => {
 
     const skip = (Number(page) - 1) * Number(limit);
 
-    const companies = await TourCompany.find({ vendorId: vendorId })
+    const companies = await TourCompany.find({
+      vendorId,
+    })
       .select("_id")
       .lean();
 
@@ -366,7 +421,6 @@ exports.getVendorTourServices = async (query = {}, vendorId) => {
 
     const filter = {
       tour: { $in: tourIds },
-      verificationStatus: "verified",
     };
 
     if (tourId) {
@@ -375,8 +429,12 @@ exports.getVendorTourServices = async (query = {}, vendorId) => {
 
     if (search) {
       filter.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
+        {
+          title: { $regex: search, $options: "i" },
+        },
+        {
+          description: { $regex: search, $options: "i" },
+        },
       ];
     }
 
@@ -412,7 +470,7 @@ exports.getVendorTourServices = async (query = {}, vendorId) => {
       count: formatted.length,
       total,
       page: Number(page),
-      pages: Math.ceil(total / limit),
+      pages: Math.ceil(total / Number(limit)),
       data: formatted,
     };
   } catch (error) {

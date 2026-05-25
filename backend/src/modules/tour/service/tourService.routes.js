@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const tourServiceController = require("./tourService.controller");
-const { protect } = require("../../../shared/middlewares/verifyToken");
+const { protect, optionalProtect } = require("../../../shared/middlewares/verifyToken");
 const { authorize } = require("../../../shared/middlewares/roleMiddleware");
 
 //user side
 
-router.get("/", tourServiceController.getTours);
-router.get("/:id", tourServiceController.getTourServiceDetails);
+router.get("/", optionalProtect, tourServiceController.getTours);
+router.get("/:id", optionalProtect, tourServiceController.getTourServiceDetails);
 
-router.get("/company/:id", tourServiceController.getCompanyDetails);
+router.get("/company/:id", optionalProtect, tourServiceController.getCompanyDetails);
 
 //vendor routes...
 router.post(

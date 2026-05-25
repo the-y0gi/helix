@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const serviceController = require("./service.controller");
-const { protect } = require("../../../shared/middlewares/verifyToken");
+const { protect, optionalProtect } = require("../../../shared/middlewares/verifyToken");
 const { authorize } = require("../../../shared/middlewares/roleMiddleware");
 
-router.get("/:id", serviceController.getServiceDetails);
+router.get("/:id", optionalProtect, serviceController.getServiceDetails);
 
 //vendor
 router.post(

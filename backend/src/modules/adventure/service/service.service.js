@@ -2,8 +2,19 @@ const Adventure = require("../category/adventure.model");
 const Service = require("../service/service.model");
 const mongoose = require("mongoose");
 const Tax = require("../../admin/tax/tax.model");
+const Favorite = require("../../favorites/favorite.model");
 
-exports.getServiceDetails = async (id) => {
+const checkIsFavorite = async (itemId, userId, itemType) => {
+  if (!userId || !itemId) return false;
+  const fav = await Favorite.findOne({
+    user: userId,
+    itemType,
+    itemId,
+  }).select("_id");
+  return !!fav;
+};
+
+exports.getServiceDetails = async (id, userId = null) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error("Invalid service id");
@@ -51,9 +62,14 @@ exports.getServiceDetails = async (id) => {
 
     const finalPrice = Number((effectivePrice + taxAmount).toFixed(2));
 
+    const isFavorite = await checkIsFavorite(service.adventure?._id, userId, "adventure");
+
     return {
+      isFavorite,
       adventure: {
         _id: service.adventure?._id,
+        serviceType: "adventure",
+        isFavorite,
 
         name: service.adventure?.name,
 
@@ -66,6 +82,8 @@ exports.getServiceDetails = async (id) => {
 
       service: {
         _id: service._id,
+        serviceType: "adventure",
+        isFavorite,
 
         title: service.title,
 
