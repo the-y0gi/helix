@@ -81,9 +81,14 @@ exports.createAdventure = async (req, res, next) => {
 
 exports.getVendorAdventures = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
 
-    const adventures = await adventureService.getVendorAdventures(vendorId);
+    const vendor = await Vendor.findOne({ userId });
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    const adventures = await adventureService.getVendorAdventures(vendor._id);
 
     res.status(200).json({
       success: true,
@@ -98,10 +103,15 @@ exports.getVendorAdventures = async (req, res, next) => {
 
 exports.getVendorAdventureDetails = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const { id } = req.params;
 
-    const data = await adventureService.getVendorAdventureDetails(id, vendorId);
+    const vendor = await Vendor.findOne({ userId });
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    const data = await adventureService.getVendorAdventureDetails(id, vendor._id);
 
     res.status(200).json({
       success: true,
@@ -115,13 +125,18 @@ exports.getVendorAdventureDetails = async (req, res, next) => {
 
 exports.updateAdventure = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const { id } = req.params;
+
+    const vendor = await Vendor.findOne({ userId });
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
 
     const adventure = await adventureService.updateAdventure(
       id,
       req.body,
-      vendorId,
+      vendor._id,
     );
 
     res.status(200).json({
@@ -136,10 +151,15 @@ exports.updateAdventure = async (req, res, next) => {
 
 exports.deleteAdventure = async (req, res, next) => {
   try {
-    const vendorId = req.user._id;
+    const userId = req.user._id;
     const { id } = req.params;
 
-    await adventureService.deleteAdventure(id, vendorId);
+    const vendor = await Vendor.findOne({ userId });
+    if (!vendor) {
+      throw new Error("Vendor profile not found");
+    }
+
+    await adventureService.deleteAdventure(id, vendor._id);
 
     res.status(200).json({
       success: true,

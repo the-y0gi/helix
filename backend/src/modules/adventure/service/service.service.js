@@ -125,6 +125,7 @@ exports.createService = async (data, vendorId) => {
       discountPrice,
       meta,
       features,
+      images,
       itinerary,
     } = data;
 
@@ -173,6 +174,7 @@ exports.createService = async (data, vendorId) => {
       discountPrice,
       meta,
       features,
+      images,
       itinerary,
     });
 
@@ -203,7 +205,7 @@ exports.updateService = async (id, data, vendorId) => {
       throw new Error("Unauthorized access");
     }
 
-    const { title, type, basePrice, discountPrice, meta, features, itinerary } =
+    const { title, type, basePrice, discountPrice, meta, features, images, itinerary } =
       data;
 
     if (type === "distance") {
@@ -235,6 +237,7 @@ exports.updateService = async (id, data, vendorId) => {
     if (discountPrice !== undefined) service.discountPrice = discountPrice;
     if (meta !== undefined) service.meta = meta;
     if (features !== undefined) service.features = features;
+    if (images !== undefined) service.images = images;
     if (itinerary !== undefined) service.itinerary = itinerary;
 
     await service.save();

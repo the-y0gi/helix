@@ -241,9 +241,9 @@ export const SearchCity = async (query: string) => {
   const data = await res.json();
   return data;
 };
-export const dotoggleLike = async (id: string) => {
+export const dotoggleLike = async (id: string, serviceType: string) => {
   try {
-    const res = await axiosApi.post(`/favorites/toggle/${id}`);
+    const res = await axiosApi.post(`/favorites/toggle/${serviceType}/${id}`);
     if (res.status === 200) {
       return res.data;
     }

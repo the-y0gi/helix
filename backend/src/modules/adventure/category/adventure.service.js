@@ -364,7 +364,7 @@ exports.getVendorAdventures = async (vendorId) => {
     const adventures = await Adventure.aggregate([
       {
         $match: {
-          vendor: vendorId,
+          vendorId: vendorId,
           isActive: true,
         },
       },
@@ -377,6 +377,7 @@ exports.getVendorAdventures = async (vendorId) => {
           as: "services",
         },
       },
+      
 
       {
         $addFields: {
@@ -391,7 +392,9 @@ exports.getVendorAdventures = async (vendorId) => {
           name: 1,
           category: 1,
           city: "$location.city",
-          image: { $arrayElemAt: ["$images", 0] },
+          image: {
+            $arrayElemAt: ["$images.url", 0],
+          },
           priceStart: 1,
           createdAt: 1,
         },
@@ -416,7 +419,7 @@ exports.getVendorAdventureDetails = async (id, vendorId) => {
 
     const adventure = await Adventure.findOne({
       _id: id,
-      vendor: vendorId,
+      vendorId: vendorId,
       isActive: true,
     })
       .select("name category location address description images features")
@@ -483,7 +486,7 @@ exports.updateAdventure = async (id, data, vendorId) => {
 
     const adventure = await Adventure.findOne({
       _id: id,
-      vendor: vendorId,
+      vendorId: vendorId,
       isActive: true,
     });
 
@@ -541,7 +544,7 @@ exports.deleteAdventure = async (id, vendorId) => {
 
     const adventure = await Adventure.findOne({
       _id: id,
-      vendor: vendorId,
+      vendorId: vendorId,
       isActive: true,
     });
 
