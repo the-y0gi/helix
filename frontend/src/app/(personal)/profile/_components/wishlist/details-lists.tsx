@@ -114,12 +114,12 @@ export function SavedPropertyCard({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent md:hidden" />
 
                 {/* Favorite Icon */}
-                <LikeIcon
+                {/* <LikeIcon
                     _id={_id}
                     isFavourite={isFavorite || false}
                     name="card"
                     className="absolute right-3 top-3 h-8 w-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center z-10"
-                />
+                /> */}
             </div>
 
             {/* Content Container */}

@@ -422,7 +422,7 @@ exports.getVendorTourServices = async (query = {}, vendorId) => {
     const filter = {
       tour: { $in: tourIds },
     };
-
+ 
     if (tourId) {
       filter.tour = tourId;
     }
@@ -455,6 +455,7 @@ exports.getVendorTourServices = async (query = {}, vendorId) => {
       company: s.tour?.name || null,
 
       destinations: s.destinations,
+      images: s.images,
 
       duration: `${s.duration.days}D / ${s.duration.nights}N`,
 

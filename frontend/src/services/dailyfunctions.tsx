@@ -14,7 +14,7 @@ export const handleRefresh = (queryClient: any, queryKey: string[]) => {
     exact: false, // Matches any query that starts with these keys
   });
 };
-export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; className?: string, isFavourite: boolean, name: string }) => {
+export const LikeIcon = ({ _id, className, isFavourite, name, serviceType }: { _id: string; className?: string, isFavourite: boolean, name: string, serviceType: string }) => {
   const [liked, setLiked] = useState(isFavourite);
   const [loading, setLoading] = useState(false);
   const hasToken =
@@ -37,7 +37,7 @@ export const LikeIcon = ({ _id, className, isFavourite, name }: { _id: string; c
       return;
     }
 
-    mutate({ id: _id, liked });
+    mutate({ id: _id, liked, serviceType });
   };
 
   return (
@@ -108,16 +108,18 @@ export const useLogout = () => {
 export const toggleLike = async ({
   id,
   liked,
+  serviceType
 }: {
   id: string;
   liked: boolean;
+  serviceType: string;
 }) => {
   const token = localStorage.getItem("accessToken");
   if (!token) throw new Error("Unauthorized");
 
   // Dispatch background job to Inngest via our Next.js API route
   // We don't await the backend response, only the dispatch
-  const res = await dotoggleLike(id);
+  const res = await dotoggleLike(id, serviceType);
 
 
 

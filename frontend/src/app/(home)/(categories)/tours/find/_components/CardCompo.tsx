@@ -70,12 +70,12 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
                 {duration}
               </div>
             )}
-            <LikeIcon
+            {/* <LikeIcon
               _id={serviceId}
               isFavourite={favourite || false}
               name="card"
               className="absolute right-2.5 top-2.5 h-7 w-7 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-sm"
-            />
+            /> */}
           </div>
         </ImagePreview>
 
@@ -195,12 +195,12 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
               {duration}
             </div>
           )}
-          <LikeIcon
+          {/* <LikeIcon
             _id={serviceId}
             isFavourite={favourite || false}
             name="card"
             className="absolute right-3 top-3 h-9 w-9 rounded-full bg-transparent backdrop-blur-sm flex items-center justify-center hover:bg-white shadow-sm"
-          />
+          /> */}
         </div>
       </ImagePreview>
 

@@ -39,7 +39,7 @@ export const useLogin = ({ refetch }: { refetch: () => void }) => {
           RouterPush(navigate, nextRoute);
           localStorage.removeItem("nextRoute");
         } else if (like) {
-          await dotoggleLike(like);
+          const result = await dotoggleLike(like, "hotel");
           localStorage.removeItem("like");
           window.location.reload();
         } else {
