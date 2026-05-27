@@ -93,16 +93,17 @@ const Hotel: React.FC<AdventuresFramePageProps> = ({ className }) => {
 
 
             <AdventureSection />
+            <AdventureSection />
+            <AdventureSection />
 
-
-            <AdventureFramePage
+            {/* <AdventureFramePage
               // popularTrends={HotelPopularCites}
               type="adventures"
 
 
 
 
-            />
+            /> */}
           </div>
         </Suspense>
       </ErrorBoundary>

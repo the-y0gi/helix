@@ -2,7 +2,7 @@
 import { cn } from '@/lib/utils'
 import React, { Suspense, useEffect, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
-import MainFramePage from '../../../../components/frame-pages/HotelFramePage'
+import MainFramePage from '../../../../components/frame-pages/CabsFramePage'
 import type { CityTrends } from '@/types'
 import { MessageModal } from '@/components/messagemodal'
 import { PageSkeleton } from '@/components/loader/skeleton'
@@ -133,7 +133,7 @@ const Cabs = ({ className }: { className?: string }) => {
 
             <MainFramePage
               type="cabs"
-              popularTrends={HotelPopularCites}
+            // popularTrends={HotelPopularCites}
             />
           </div>
         </Suspense>

@@ -291,6 +291,10 @@ exports.getPropertyDetail = async (vendorId) => {
         submittedAt: vendor.submittedAt,
 
         serviceType: vendor.serviceType,
+
+        rejectedSteps: vendor.rejectedSteps || [],
+
+        rejectionReasons: vendor.rejectionReasons || {},
       },
 
       user: {
