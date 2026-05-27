@@ -257,7 +257,6 @@ exports.getBikeServiceDetails = async (id, userId = null) => {
     const service = await BikeService.findOne({
       _id: id,
       isActive: true,
-      verificationStatus: "verified",
     }).lean();
 
     if (!service) {

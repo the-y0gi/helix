@@ -263,7 +263,6 @@ exports.getCabServiceDetails = async (id, userId = null) => {
     const service = await CabService.findOne({
       _id: id,
       isActive: true,
-      verificationStatus: "verified",
     }).lean();
 
     if (!service) {

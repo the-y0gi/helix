@@ -241,7 +241,6 @@ exports.getTourServiceDetails = async (id, userId = null) => {
     const service = await TourService.findOne({
       _id: id,
       isActive: true,
-      verificationStatus: "verified",
     }).lean();
 
     if (!service) {
