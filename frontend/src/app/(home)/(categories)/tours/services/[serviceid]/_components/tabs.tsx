@@ -109,14 +109,14 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
   const router = useRouter();
 
   return (
-    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[32px] overflow-hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm p-1 transition-colors duration-300">
+    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[32px] overflow-hidden bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm p-1 transition-colors duration-300">
       <CardContent className="pt-5 px-5 space-y-5">
         <div className="flex justify-between items-center">
           <div className="space-y-0.5">
-            <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50">
+            <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900 dark:text-zinc-400">
               {data?.service?.title || "Tour Package"}
             </h2>
-            <div className="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-slate-500 dark:text-slate-400">
+            <div className="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-slate-500 dark:text-zinc-500">
               <Compass className="w-4 h-4 text-orange-500" />
               <span>
                 {/* {data?.service?.duration?.days || "0"} Days •{" "}
@@ -128,26 +128,26 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3 pt-2">
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-zinc-800/50 border border-slate-100 dark:border-slate-800">
               <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">
+                <span className="text-[9px] font-bold text-slate-400 dark:text-zinc-500 uppercase">
                   Period
                 </span>
-                <span className="text-[11px] font-bold text-slate-900 dark:text-slate-200">
+                <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-200">
                   {date?.from ? format(date.from, "dd/MM/yyyy") : "Start"} -{" "}
                   {date?.to ? format(date.to, "dd/MM/yyyy") : "End"}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-zinc-800/50 border border-slate-100 dark:border-slate-800">
               <User className="w-4 h-4 text-slate-400 dark:text-slate-500" />
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">
+                <span className="text-[9px] font-bold text-slate-400 dark:text-zinc-500 uppercase">
                   Guests
                 </span>
-                <span className="text-[11px] font-bold text-slate-900 dark:text-slate-200">
+                <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-200">
                   {guests.adults + guests.children} Guest(s)
                 </span>
               </div>
@@ -162,9 +162,9 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
                 <p className="text-[10px] font-bold text-orange-400 dark:text-orange-500 uppercase tracking-widest">
                   Price
                 </p>
-                <p className="text-xl font-black text-slate-900 dark:text-slate-50">
+                <p className="text-xl font-black text-slate-900 dark:text-zinc-400">
                   ₹{data.service.totalPriceWithTax}{" "}
-                  <span className="text-sm font-bold text-slate-500 dark:text-slate-400">
+                  <span className="text-sm font-bold text-slate-500 dark:text-zinc-500">
                     /person
                   </span>
                 </p>
@@ -193,7 +193,7 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
               }
             );
           }}
-          className="w-full bg-[#EA580C] hover:bg-[#C2410C] text-white text-md font-bold h-14 rounded-2xl shadow-lg group active:scale-[0.98] transition-all"
+          className="w-full bg-primary text-white text-md font-bold h-14 rounded-2xl shadow-lg group active:scale-[0.98] transition-all"
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Book Now"}
           <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
