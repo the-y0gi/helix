@@ -23,7 +23,6 @@ exports.getServiceDetails = async (id, userId = null) => {
     const service = await Service.findOne({
       _id: id,
       isActive: true,
-      verificationStatus: "verified",
     })
       .populate({
         path: "adventure",
