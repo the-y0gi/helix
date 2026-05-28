@@ -25,6 +25,7 @@ import {
 import { useCurrentUser } from "@/services/hotel/querys";
 import { PageSkeleton } from "@/components/loader/skeleton";
 import { MessageModal } from "@/components/messagemodal";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function UserProfileFields({
   currUser,
@@ -34,6 +35,7 @@ export function UserProfileFields({
   refetch: () => void;
 }) {
   const { updateUser } = useAuthStore();
+  const { t } = useTranslation();
   // console.log(currUser);
 
   const [loading, setLoading] = React.useState(false);
@@ -100,10 +102,10 @@ export function UserProfileFields({
             <FieldGroup className="flex flex-grid">
               <div className="flex flex-col md:flex-row justify-between items-center gap-5">
                 <Field>
-                  <FieldLabel>First name</FieldLabel>
+                  <FieldLabel>{t("personal.firstName")}</FieldLabel>
                   <Input
                     {...register("firstName")}
-                    placeholder="Enter first name"
+                    placeholder={t("personal.enterFirstName")}
                   />
                   {errors.firstName && (
                     <span className="text-destructive text-xs">
@@ -112,10 +114,10 @@ export function UserProfileFields({
                   )}
                 </Field>
                 <Field>
-                  <FieldLabel>Last name</FieldLabel>
+                  <FieldLabel>{t("personal.lastName")}</FieldLabel>
                   <Input
                     {...register("lastName")}
-                    placeholder="Enter last name"
+                    placeholder={t("personal.enterLastName")}
                   />
                   {errors.lastName && (
                     <span className="text-destructive text-xs">
@@ -126,10 +128,10 @@ export function UserProfileFields({
               </div>
               <div className="flex flex-col md:flex-row justify-between items-center gap-5">
                 <Field>
-                  <FieldLabel>Email Address</FieldLabel>
+                  <FieldLabel>{t("personal.email")}</FieldLabel>
                   <Input
                     {...register("email")}
-                    placeholder="enter email"
+                    placeholder={t("personal.enterEmail")}
                     className="bg-background   "
                   />
                   {errors.email && (
@@ -139,7 +141,7 @@ export function UserProfileFields({
                   )}
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="phone">Phone Number</FieldLabel>
+                  <FieldLabel htmlFor="phone">{t("personal.phone")}</FieldLabel>
                   <Input
                     disabled
                     value={currUser?.data?.phoneNumber || ""}
@@ -152,7 +154,7 @@ export function UserProfileFields({
               </div>
               <div className="flex flex-col md:flex-row justify-between items-center gap-5">
                 <Field>
-                  <FieldLabel>Gender</FieldLabel>
+                  <FieldLabel>{t("personal.gender")}</FieldLabel>
                   <Controller
                     control={control}
                     name="gender"
@@ -162,19 +164,19 @@ export function UserProfileFields({
                         value={field.value}
                       >
                         <SelectTrigger className="bg-background">
-                          <SelectValue placeholder="Choose gender" />
+                          <SelectValue placeholder={t("personal.chooseGender")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="female">Female</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
+                          <SelectItem value="male">{t("personal.male")}</SelectItem>
+                          <SelectItem value="female">{t("personal.female")}</SelectItem>
+                          <SelectItem value="other">{t("personal.other")}</SelectItem>
                         </SelectContent>
                       </Select>
                     )}
                   />
                 </Field>
                 <Field>
-                  <FieldLabel>Country</FieldLabel>
+                  <FieldLabel>{t("personal.country")}</FieldLabel>
                   <Controller
                     control={control}
                     name="country"
@@ -184,7 +186,7 @@ export function UserProfileFields({
                         value={field.value}
                       >
                         <SelectTrigger className="bg-background">
-                          <SelectValue placeholder="Select Country" />
+                          <SelectValue placeholder={t("personal.selectCountry")} />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="India">India</SelectItem>
@@ -205,17 +207,17 @@ export function UserProfileFields({
               </div>
               <div className="flex flex-col md:flex-row justify-between items-center gap-5">
                 <Field>
-                  <FieldLabel>Address</FieldLabel>
+                  <FieldLabel>{t("personal.address")}</FieldLabel>
                   <Input
                     {...register("address")}
-                    placeholder="Enter your address"
+                    placeholder={t("personal.enterAddress")}
                   />
                 </Field>
                 <Field>
-                  <FieldLabel>zip code</FieldLabel>
+                  <FieldLabel>{t("personal.zipCode")}</FieldLabel>
                   <Input
                     {...register("zipcCode")}
-                    placeholder="Enter your zip code"
+                    placeholder={t("personal.enterZipCode")}
                   />
                 </Field>
               </div>
@@ -225,10 +227,10 @@ export function UserProfileFields({
 
           <Field orientation="horizontal" className="md:flex justify-end gap-2">
             <Button variant="outline" type="button" onClick={() => reset()}>
-              Discard
+              {t("personal.discard")}
             </Button>
             <Button type="submit" variant={"secondary"} disabled={loading}>
-              {loading ? "Saving..." : "Save changes"}
+              {loading ? t("personal.saving") : t("personal.saveChanges")}
             </Button>
           </Field>
         </FieldGroup>
@@ -259,13 +261,14 @@ export const PersonProfilePersonalData = ({
   className?: string;
 }) => {
   const { data: currUser, isLoading, isError, refetch } = useCurrentUser();
+  const { t } = useTranslation();
 
   if (isLoading) {
     return <PageSkeleton />;
   }
 
   if (isError) {
-    return <MessageModal title="Unauthorized" description="Please login to continue" />;
+    return <MessageModal title={t("auth.unauthorized")} description={t("auth.loginToContinue")} />;
   }
 
   return (
@@ -316,6 +319,7 @@ const ProfileAvatar = ({
   refetch: () => void;
 }) => {
   const { uploadFile, updateUser } = useAuthStore();
+  const { t } = useTranslation();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = React.useState(false);
 
@@ -372,7 +376,7 @@ const ProfileAvatar = ({
         {!uploading && (
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             <span className="bg-black/50 text-white text-xs px-2 py-1 rounded">
-              Update
+              {t("personal.update")}
             </span>
           </div>
         )}
@@ -389,7 +393,7 @@ const ProfileAvatar = ({
           {currUser
             ? `${currUser.data.firstName || ""} ${currUser.data.lastName || ""}`.trim() ||
             currUser.data.email
-            : "Guest User"}
+            : t("auth.guestUser")}
         </p>
         <p className="text-lg text-muted-foreground">
           {currUser?.data?.role || "User"}

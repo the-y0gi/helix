@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { useGetFavouriteSummary } from "@/services/personal/queryes"
+import { useTranslation } from "@/hooks/useTranslation"
 export interface WishListCardProps {
     id: string
     title: string
@@ -47,6 +48,7 @@ export const wishlistData: WishListCardProps[] = [
 
 export function WishlistSection() {
     const { data: mytrips, isLoading } = useGetFavouriteSummary()
+    const { t } = useTranslation()
 
 
 
@@ -65,9 +67,9 @@ export function WishlistSection() {
         <div className="rounded-xl  shadow-sm md:p-8 p-3 md:space-y-8 space-y-3 bg-background pb-50">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-semibold">Wish Lists</h2>
+                    <h2 className="text-xl font-semibold">{t("wishlist.title")}</h2>
                     <p className="text-sm text-muted-foreground">
-                        Explore and save your favorite destinations here.
+                        {t("wishlist.subtitle")}
                     </p>
                 </div>
 
@@ -162,7 +164,7 @@ export function WishlistCard({
                 <div>
                     <h3 className="font-medium">{title}</h3>
                     <p className="text-sm text-muted-foreground">
-                        {savedCount} Saved
+                        {savedCount} {useTranslation().t("wishlist.saved")}
                     </p>
                 </div>
             </div>

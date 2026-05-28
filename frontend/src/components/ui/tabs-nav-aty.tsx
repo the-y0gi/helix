@@ -11,6 +11,7 @@ import Image from "next/image";
 import { RouterPush } from "../RouterPush";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export const TabsNav = ({
   tabs: propTabs,
@@ -29,6 +30,7 @@ export const TabsNav = ({
   const navigate = useRouter();
   const location = usePathname();
   const ismobile = useIsMobile();
+  const { t } = useTranslation();
 
   const [isVisible, setIsVisible] = useState(true);
   const imgsize = ismobile ? 28 : 34;
@@ -145,7 +147,12 @@ export const TabsNav = ({
                           tab.iconUrl === active?.iconUrl && "scale-100"
                         )}
                         src={tab.iconUrl}
-                        alt={tab.title}
+                        alt={(() => {
+                          const cleanKey = tab.title.replace(/\s+/g, "");
+                          const finalKey = `nav.${cleanKey.charAt(0).toLowerCase()}${cleanKey.slice(1)}`;
+                          const trans = t(finalKey);
+                          return trans !== finalKey ? trans : tab.title;
+                        })()}
                         width={imgsize}
                         height={imgsize}
                         priority
@@ -154,7 +161,12 @@ export const TabsNav = ({
                   )}
                   {(
                     <span className="hidden xl:block text-xs sm:text-sm">
-                      {tab.title}
+                      {(() => {
+                        const cleanKey = tab.title.replace(/\s+/g, "");
+                        const finalKey = `nav.${cleanKey.charAt(0).toLowerCase()}${cleanKey.slice(1)}`;
+                        const trans = t(finalKey);
+                        return trans !== finalKey ? trans : tab.title;
+                      })()}
                     </span>
                   )}
                 </span>
