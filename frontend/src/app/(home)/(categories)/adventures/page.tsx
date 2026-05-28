@@ -18,6 +18,7 @@ import { Calendar, MapPin, PersonStanding } from "lucide-react";
 import SearchInput from "@/constants/search-box-components/search-input";
 import { useAdventureStore } from "@/store/adventure.store";
 import HotelCalendern from '@/components/navbar/filter-nav-bar/calander05'
+import { ImagesSliderDemo } from "@/components/addimage/middle-ads-image";
 export type AdventuresFramePageProps = {
   className?: string;
   type: Categories;
@@ -93,6 +94,13 @@ const Hotel: React.FC<AdventuresFramePageProps> = ({ className }) => {
 
 
             <AdventureSection />
+            {(
+              <div className="px-2 md:px-0">
+                <ImagesSliderDemo images={
+                  ['/adventures/ads1.jpg', '/adventures/ads2.jpg', '/adventures/ads3.jpg']
+                } title="Discover Asia" subtitle="Book now" description="Book your next adventure now" link="/adventures/find" />
+              </div>
+            )}
             <AdventureSection />
             <AdventureSection />
 

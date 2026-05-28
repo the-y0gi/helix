@@ -161,6 +161,9 @@ import { IconLogout, IconQuestionMark } from "@tabler/icons-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Link from "next/link";
 import { RouterPush } from "./RouterPush";
+import { useLanguageStore, type Language } from "@/store/language.store";
+import { useTranslation } from "@/hooks/useTranslation";
+import { Globe } from "lucide-react";
 
 export function MenuBar() {
   const { data: user, isLoading, refetch } = useCurrentUser();
@@ -310,6 +313,8 @@ export function AppPrefrence() {
   const { data: user, isLoading, refetch } = useCurrentUser();
   const isMobile = useIsMobile()
   const isLoggedIn = !!user?.data;
+  const { language, setLanguage } = useLanguageStore();
+  const { t } = useTranslation();
 
   return (
     <DropdownMenu>
@@ -328,7 +333,7 @@ export function AppPrefrence() {
       >
         <DropdownMenuLabel className="px-2 py-1.5 sm:px-3 sm:py-2">
           <div className="flex flex-col space-y-0.5">
-            <p className="text-sm font-semibold leading-tight">Settings</p>
+            <p className="text-sm font-semibold leading-tight">{t("sidebar.settings")}</p>
             <p className="text-[10px] sm:text-xs leading-tight text-muted-foreground truncate">
               App preferences
             </p>
@@ -339,6 +344,38 @@ export function AppPrefrence() {
 
         <div className="px-2 py-1">
           <AnimatedThemeTogglerDemo />
+        </div>
+
+        {/* Language Switcher */}
+        <div className="px-2 py-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 opacity-70" />
+              <span className="text-sm font-medium">{t("settings.language")}</span>
+            </div>
+            <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
+              <button
+                onClick={(e) => { e.preventDefault(); setLanguage("en"); }}
+                className={`px-2 py-0.5 text-xs font-medium rounded-md transition-all duration-200 ${
+                  language === "en"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                EN
+              </button>
+              <button
+                onClick={(e) => { e.preventDefault(); setLanguage("hi"); }}
+                className={`px-2 py-0.5 text-xs font-medium rounded-md transition-all duration-200 ${
+                  language === "hi"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                हि
+              </button>
+            </div>
+          </div>
         </div>
 
         <DropdownMenuSeparator className="my-1 sm:my-2" />

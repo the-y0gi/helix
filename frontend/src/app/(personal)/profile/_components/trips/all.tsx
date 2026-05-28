@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useMyBookingsQuery } from "@/services/hotel/querys";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import { useState } from "react";
 import ReservationDetailsPage from "./details-trips";
@@ -58,8 +59,9 @@ export function AllReservations({
     id: "",
     open: false,
   });
+  const { t } = useTranslation();
   if (isLoading) return <Skel />;
-  if (!tripsdata) return <p>no bookings</p>;
+  if (!tripsdata) return <p>{t("trips.noBookings")}</p>;
 
   if (details.open)
     return <ReservationDetailsPage setDetails={setDetails} id={details.id} />;
@@ -68,9 +70,9 @@ export function AllReservations({
   return (
     <div className="rounded-xl shadow-sm  p-8 space-y-6  max-h-screen overflow-y-scroll">
       <div>
-        <h2 className="text-xl font-semibold">All Reservations</h2>
+        <h2 className="text-xl font-semibold">{t("trips.allReservations")}</h2>
         <p className="text-sm text-muted-foreground">
-          View and manage your current bookings here.
+          {t("trips.manageBookings")}
         </p>
       </div>
 
@@ -171,7 +173,7 @@ export function ReservationCard({
 
               <div className="grid grid-cols-1 sm:flex sm:flex-wrap sm:gap-6 gap-2 text-sm text-muted-foreground">
                 <p>
-                  <span className="font-medium text-foreground">Check-in:</span>{" "}
+                  <span className="font-medium text-foreground">{useTranslation().t("trips.checkIn")}</span>{" "}
                   {new Date(checkIn).toLocaleDateString("en-IN", {
                     day: "numeric",
                     month: "short",
@@ -179,7 +181,7 @@ export function ReservationCard({
                   })}
                 </p>
                 <p>
-                  <span className="font-medium text-foreground">Check-out:</span>{" "}
+                  <span className="font-medium text-foreground">{useTranslation().t("trips.checkOut")}</span>{" "}
                   {new Date(checkOut).toLocaleDateString("en-IN", {
                     day: "numeric",
                     month: "short",
@@ -187,9 +189,9 @@ export function ReservationCard({
                   })}
                 </p>
                 <p>
-                  <span className="font-medium text-foreground">Guests:</span>{" "}
+                  <span className="font-medium text-foreground">{useTranslation().t("trips.guests")}</span>{" "}
                   {guests.adults + guests.children}
-                  {guests.adults + guests.children === 1 ? " person" : " people"}
+                  {guests.adults + guests.children === 1 ? ` ${useTranslation().t("trips.person")}` : ` ${useTranslation().t("trips.people")}`}
                 </p>
               </div>
             </div>
@@ -207,7 +209,7 @@ export function ReservationCard({
                     : "border-amber-500/70 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400"
                 )}
               >
-                {isConfirmed ? "Confirmed" : status.charAt(0).toUpperCase() + status.slice(1)}
+                {isConfirmed ? useTranslation().t("trips.confirmed") : status.charAt(0).toUpperCase() + status.slice(1)}
               </Badge>
 
               <span className="text-xs sm:text-sm text-muted-foreground font-mono">
@@ -221,7 +223,7 @@ export function ReservationCard({
               className="px-6 sm:px-0 sm:w-auto w-full sm:text-base"
               onClick={onCheckDetails}
             >
-              Details
+              {useTranslation().t("trips.details")}
             </Button>
           </div>
         </div>

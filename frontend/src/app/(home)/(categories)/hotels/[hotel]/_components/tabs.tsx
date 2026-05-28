@@ -29,6 +29,7 @@ import { CometCard } from "@/components/ui/comet-card";
 import { cn } from "@/lib/utils";
 import { Decription } from "../../../_componentsRoot_categories/description";
 import { LayoutGridDemo } from "../../../_componentsRoot_categories/imsges";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type TabKey =
   | "overview"
@@ -49,6 +50,7 @@ export function TabsLine({
   isBookingMode: boolean;
   isAvailabilityLoading: boolean;
 }) {
+  const { t } = useTranslation();
 
 
   const hotelId = hotel._id;
@@ -128,7 +130,7 @@ export function TabsLine({
                 requestAnimationFrame(animation);
               }}
             >
-              {tab.title}
+              {t(`hotel.${tab.title}`)}
             </a>
           ))}
         </div>
@@ -136,7 +138,7 @@ export function TabsLine({
       <div className="flex flex-col lg:flex-row lg:gap-6 mb-5">
         <main className="flex-1 space-y-5 border-b-1 mb-4">
           <section id="description" className=" py-2 gap-2">
-            <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">Description</h3>
+            <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">{t("hotel.description")}</h3>
             {content.description}
           </section>
           <section
@@ -170,9 +172,9 @@ export function TabsLine({
         className="scroll-mt-24 border-t md:pt-16 pt-6 md:mb-16 mb-5 w-full"
       >
         <div className="mb-8 text-left">
-          <h3 className="text-2xl font-bold">Available Rooms</h3>
+          <h3 className="text-2xl font-bold">{t("hotel.availableRooms")}</h3>
           <p className="text-slate-500 text-sm">
-            Choose the best room that fits your needs
+            {t("hotel.chooseBestRoom")}
           </p>
         </div>
         <SliderIfNotChooseDate handleClick={handleClick}>
@@ -198,6 +200,7 @@ function BookingCard({
   isLoading: boolean;
 }) {
   const { date, guests } = useHotelStore();
+  const { t } = useTranslation();
   const [showCalendar, setShowCalendar] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { FetchRoomTypes, rooms, setFetch } = useHotelContext();
@@ -250,10 +253,10 @@ function BookingCard({
             onClick={handleToggleCalendar}
           >
             <span className="text-[10px] uppercase font-black text-muted-foreground block mb-1">
-              Check-in
+              {t("hotel.checkIn")}
             </span>
             <p className="text-xs md:text-sm font-bold text-foreground">
-              {date?.from ? format(date.from, "dd/MM/yyyy") : "Add date"}
+              {date?.from ? format(date.from, "dd/MM/yyyy") : t("hotel.addDate")}
             </p>
           </div>
           <div
@@ -261,10 +264,10 @@ function BookingCard({
             onClick={handleToggleCalendar}
           >
             <span className="text-[10px] uppercase font-black text-muted-foreground block mb-1">
-              Check-out
+              {t("hotel.checkOut")}
             </span>
             <p className="text-xs md:text-sm font-bold text-foreground">
-              {date?.to ? format(date.to, "dd/MM/yyyy") : "Add date"}
+              {date?.to ? format(date.to, "dd/MM/yyyy") : t("hotel.addDate")}
             </p>
           </div>
           {showCalendar && (
@@ -285,13 +288,13 @@ function BookingCard({
         </div>
         <div className="py-2">
           <p className="text-xs text-muted-foreground font-bold uppercase mb-1">
-            Prices
+            {t("hotel.prices")}
           </p>
           {isLoading ? (
             <div className="animate-pulse h-8 w-32 bg-muted rounded" />
           ) : (
             <p className="text-2xl font-black text-foreground">
-              {minPrice > 0 ? `₹${minPrice} to ₹${maxPrice}` : "Select dates"}
+              {minPrice > 0 ? `₹${minPrice} to ₹${maxPrice}` : t("hotel.selectDates")}
             </p>
           )}
         </div>
@@ -305,10 +308,10 @@ function BookingCard({
             setFetch(true);
           }}
         >
-          Show Rooms
+          {t("hotel.showRooms")}
         </Button>
         <p className="text-[11px] text-center text-muted-foreground font-medium italic">
-          Best price guaranteed • No hidden fees
+          {t("hotel.bestPriceGuaranteed")}
         </p>
       </CardContent>
     </Card>
@@ -322,6 +325,7 @@ export function VisitorsMembers({
   showCalendar: boolean;
   methods?: UseFormReturn<PaymentProps>;
 }) {
+  const { t } = useTranslation();
   return (
     <Accordion
       type="single"
@@ -330,7 +334,7 @@ export function VisitorsMembers({
       style={{ display: showCalendar ? "none" : "block" }}
     >
       <AccordionItem value="rooms and guests">
-        <AccordionTrigger>rooms and guests</AccordionTrigger>
+        <AccordionTrigger>{t("hotel.roomsAndGuests")}</AccordionTrigger>
         <AccordionContent>
           <GuestSelector />
           {/* <HotelVisitorsCounters

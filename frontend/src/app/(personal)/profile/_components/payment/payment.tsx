@@ -9,42 +9,45 @@ import { Separator } from "@/components/ui/separator";
 
 import { Switch } from "@/components/ui/switch";
 import { AlertOverlay } from "@/components/ui/alert-dialouge";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function PaymentPage() {
+  const { t } = useTranslation();
+
   return (
       <Card className="rounded-xl shadow-sm bg-background">
         <CardHeader>
           <CardTitle className="text-xl">
-            Payment Methods
+            {t("payment.title")}
           </CardTitle>
           <CardDescription>
-            Securly add or remove payment methods to make it easier when you book 
+            {t("payment.subtitle")}
           </CardDescription>
         </CardHeader>
         <Separator />
 
         <CardContent className="space-y-6">
           <SettingRow
-            title="Payment Methods"
-            description="Add a payment method using a secure payment system. "
+            title={t("payment.title")}
+            description={t("payment.addMethod")}
           >
-           <div>add</div>
+           <div>{t("payment.add")}</div>
           </SettingRow>
 
           <Separator />
 
           <SettingRow
-            title="Tripto gift credit"
-            description="Add a gift credit to your account to make it easier when you book."
+            title={t("payment.giftCredit")}
+            description={t("payment.giftCreditDesc")}
           >
-            <p>Add a gift card</p>
+            <p>{t("payment.addGiftCard")}</p>
           </SettingRow>
 
           <Separator />
 
           <SettingRow
-            title="Personalized recommendations"
-            description="We personalize recommendations based on your activity. You can opt out anytime."
+            title={t("settings.recommendations")}
+            description={t("settings.recommendationsDesc")}
           >
             <Switch defaultChecked />
           </SettingRow>
@@ -81,17 +84,18 @@ function SettingRow({
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 export const DeleteProfile = () => {
+  const { t } = useTranslation();
   const handelDeleteProfile = () => {
   };
   return (
     <AlertOverlay
-      trigger="Delete profile"
+      trigger={t("settings.deleteProfile")}
       variant="destructive"
       handelSumbit={handelDeleteProfile}
-      title="Delete profile"
-      description="Are you sure to delete your profile"
-      continueTitle="Delete"
-      canecelTitle="cancel"
+      title={t("settings.deleteProfile")}
+      description={t("settings.deleteProfileConfirm")}
+      continueTitle={t("settings.delete")}
+      canecelTitle={t("settings.cancel")}
     />
   );
 };

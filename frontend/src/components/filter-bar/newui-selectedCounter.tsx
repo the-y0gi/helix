@@ -3,11 +3,42 @@
 import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useHotelStore } from "@/store/hotel.store";
+import { useBikesStore } from "@/store/bikes.store";
+import { useCabsStore } from "@/store/cabs.store";
+import { useToursStore } from "@/store/tours.store";
+import { useAdventureStore } from "@/store/adventure.store";
+import { usePathname } from "next/navigation";
 
 type GuestType = "adults" | "children";
 
 export default function GuestSelector() {
-  const { guests, setGuests } = useHotelStore();
+  const hotelStore = useHotelStore();
+  const bikesStore = useBikesStore();
+  const cabsStore = useCabsStore();
+  const toursStore = useToursStore();
+  const adventureStore = useAdventureStore();
+
+  const pathname = usePathname();
+
+  const activeCategory = (() => {
+    if (pathname.includes("/hotels")) return "hotels";
+    if (pathname.includes("/bikes")) return "bikes";
+    if (pathname.includes("/cabs")) return "cabs";
+    if (pathname.includes("/tours")) return "tours";
+    if (pathname.includes("/adventures")) return "adventures";
+    return "hotels";
+  })();
+
+  const activeStore = {
+    hotels: hotelStore,
+    bikes: bikesStore,
+    cabs: cabsStore,
+    tours: toursStore,
+    adventures: adventureStore,
+  }[activeCategory];
+
+  const guests = activeStore?.guests || { adults: 1, children: 0 };
+  const setGuests = activeStore?.setGuests || (() => {});
 
   const handleChange = (type: GuestType, operation: "inc" | "dec") => {
     const value = guests[type];
