@@ -60,8 +60,36 @@ export function WishlistSection() {
             label: "wishlists"
         })
 
+    // Sync browser history with wishlist details open/close
+    React.useEffect(() => {
+        if (!wishListOpen.open) return;
+
+        // Push a history entry so the browser back button can close the details
+        window.history.pushState({ wishlistDetails: true }, "");
+
+        const handlePopState = () => {
+            setWishListOpen({ open: false, id: "", label: "favourites" });
+        };
+
+        window.addEventListener("popstate", handlePopState);
+
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, [wishListOpen.open]);
+
+    // When closing via the Back button in the UI, remove the extra history entry
+    const handleCloseDetails = React.useCallback(() => {
+        // Go back to pop the dummy history entry we pushed
+        if (window.history.state?.wishlistDetails) {
+            window.history.back();
+        } else {
+            setWishListOpen({ open: false, id: "", label: "favourites" });
+        }
+    }, []);
+
     if (wishListOpen.open) {
-        return <SavedTripsSection setDetails={setWishListOpen} label={wishListOpen.label} />
+        return <SavedTripsSection setDetails={setWishListOpen} label={wishListOpen.label} onClose={handleCloseDetails} />
     }
     return (
         <div className="rounded-xl  shadow-sm md:p-8 p-3 md:space-y-8 space-y-3 bg-background pb-50">
