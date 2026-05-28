@@ -26,6 +26,7 @@ interface Company {
   images: string[];
   features: string[];
   rentalPolicies: RentalPolicies;
+  isFavorite: boolean;
 }
 
 interface RentalPolicies {

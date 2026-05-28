@@ -25,6 +25,7 @@ export interface Company {
   reviews: number;
   images: string[];
   features: string[];
+  isFavorite: boolean;
 }
 
 export interface TourService {
