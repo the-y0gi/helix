@@ -32,7 +32,6 @@ const BikeDetails = ({ className }: { className?: string }) => {
 
   const { data: bikeDetailsData, isLoading } =
     useBilesCompanyDetailsQuery(bikeId);
-  console.log("bikeDetailsData", bikeDetailsData);
 
 
   if (!bikeDetailsData || !bikeDetailsData.data?.company || isLoading) {

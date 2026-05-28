@@ -420,6 +420,7 @@ exports.getVendorTourServices = async (query = {}, vendorId) => {
 
     const filter = {
       tour: { $in: tourIds },
+      
     };
  
     if (tourId) {
