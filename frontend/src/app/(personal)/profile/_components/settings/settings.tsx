@@ -27,6 +27,8 @@ import { ResetPassword, SignInForm, SignupForm } from "@/components/auth/_compon
 import { cn } from "@/lib/utils";
 import { useLanguageStore, type Language } from "@/store/language.store";
 import { useTranslation } from "@/hooks/useTranslation";
+import { DeleteRequest } from "@/services/personal/profile.service";
+import { toast } from "sonner";
 
 
 export default function SettingsPage() {

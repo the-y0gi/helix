@@ -64,7 +64,7 @@ export const useResetPassword = () => {
       const result = await verifyForgotPasswordOTP({
         phone: phone,
         otp: otp,
-        endpoint: "/auth/otp-verify",
+        endpoint: "/auth/verify-forgot-password-otp",
       });
       if (result.success) {
         onNext((prev) => prev + 1);

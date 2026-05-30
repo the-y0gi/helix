@@ -120,7 +120,7 @@ export function WishlistSection() {
                             onCheckDetails={() => setWishListOpen({ id: "1", open: true, label: "favourites" })}
                         />
                 }
-                {
+                {/* {
                     isLoading ? [...Array(2)].map((_, i) => {
                         return (
                             <WishlistCardSkeleton key={i} large={true} />
@@ -140,7 +140,7 @@ export function WishlistSection() {
                             )
                         })
                     )
-                }
+                } */}
             </div>
         </div>
     )

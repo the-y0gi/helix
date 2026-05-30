@@ -88,7 +88,10 @@ export const PopLogin = ({
 
                             ) : (
 
-                                <LofinFormFields />
+                                <LofinFormFields handelClose={() => {
+                                    setHasDismissed(true);
+                                    setShowAdPopup(false);
+                                }} />
                             )}
 
                         </div>

@@ -36,7 +36,6 @@ const MapLocation = ({ address, cordinates }: LocationProps) => {
               <MapLeaf cordinates={cordinates} height="100%" showRouting={showRouting} />
             </Suspense>
           </div>
-
           <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
             <HotelFilterBar
               renderContent={(isOpen) =>
