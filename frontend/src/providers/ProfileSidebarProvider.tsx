@@ -65,12 +65,12 @@ function useTranslatedSidebarData(): SidebarContextValue {
         icon: IconDashboard,
         content: <p>{t("sidebar.personalData")}</p>,
       },
-      {
-        name: t("sidebar.paymentAccount"),
-        value: "payment",
-        icon: IconListDetails,
-        content: <p>{t("sidebar.paymentAccount")}</p>,
-      },
+      // {
+      //   name: t("sidebar.paymentAccount"),
+      //   value: "payment",
+      //   icon: IconListDetails,
+      //   content: <p>{t("sidebar.paymentAccount")}</p>,
+      // },
       {
         name: t("sidebar.bookings"),
         value: "bookings",

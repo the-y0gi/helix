@@ -103,7 +103,7 @@ export const useAuthStore = create<AuthStates>()((set) => ({
   }) => {
     set({ isSiging: true });
     try {
-      const res = await axiosApi.patch("/auth/reset-password", data);
+      const res = await axiosApi.patch("/auth/reset-password-whatsapp", data);
       return { success: res.data.success, message: res.data.message };
     } catch (error) {
       const err = error as { response?: { data?: { message?: string } } };
@@ -118,7 +118,7 @@ export const useAuthStore = create<AuthStates>()((set) => ({
   forgotPassword: async (data: ForgotPassword_Data) => {
     set({ isSiging: true });
     try {
-      const res = await axiosApi.post("/auth/forgot-password", data);
+      const res = await axiosApi.post("/auth/forgot-password-whatsapp", data);
       return { success: res.data.success, message: res.data.message };
     } catch (error) {
       const err = error as { response?: { data?: { message?: string } } };

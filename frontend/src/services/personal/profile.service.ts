@@ -1,12 +1,23 @@
 import { axiosApi } from "@/lib/axios";
 import { toast } from "sonner";
-
+export const DeleteRequest = async ({ reason }: { reason: string }) => {
+  try {
+    const res = await axiosApi.post(`/users/delete-account-request`, {
+      params: {
+        reason: reason,
+      },
+    });
+    return res.data;
+  } catch (error: any) {
+    toast.error(error?.message);
+  }
+};
 export const getReviews = async (id: string) => {
   try {
     const response = await axiosApi.get(`/reviews/hotel/${id}`);
     return response.data;
   } catch (error) {
-    toast.error( "Failed to get reviews");
+    toast.error("Failed to get reviews");
     throw error;
   }
 };

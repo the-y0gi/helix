@@ -6,6 +6,7 @@ import { BookingForm } from "./_components/paymentform";
 import { PageSkeleton } from "@/components/loader/skeleton";
 import { MessageModal } from "@/components/messagemodal";
 import { hooksSupplier } from "@/components/navbar/filter-nav-bar/calander05";
+import NotAuthorise from "./notAuthorise";
 
 // Map plural URL category names → singular API serviceType
 const serviceTypeMap: Record<string, string> = {
@@ -25,25 +26,26 @@ const page = async ({
     const { slug } = await params;
     const { categories, date, guests } = await searchParams;
 
-    // hookname must match a key in hooksSupplier (tours, bikes, adventures, cabs, hotels)
-    const hookname = (categories as keyof typeof hooksSupplier) || "tours";
+    const hookname = (categories as keyof typeof hooksSupplier)
 
-    // API serviceType is the singular form (tour, bike, adventure, cab)
-    const serviceType = serviceTypeMap[hookname] || "tour";
+    const serviceType = serviceTypeMap[hookname]
 
     return (
         <div className={cn("w-full", className)}>
             <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
                 <Suspense fallback={<PageSkeleton />}>
-                    <PaymentsContextProvider>
-                        <BookingForm
-                            slug={slug}
-                            hookname={hookname}
-                            serviceType={serviceType}
-                            initialDate={date}
-                            initialGuests={guests}
-                        />
-                    </PaymentsContextProvider>
+                    <NotAuthorise title="Not Authorised" description="You are not authorised to access this page">
+
+                        <PaymentsContextProvider>
+                            <BookingForm
+                                slug={slug}
+                                hookname={hookname}
+                                serviceType={serviceType}
+                                initialDate={date}
+                                initialGuests={guests}
+                            />
+                        </PaymentsContextProvider>
+                    </NotAuthorise>
                 </Suspense>
             </ErrorBoundary>
         </div>
@@ -51,3 +53,5 @@ const page = async ({
 };
 
 export default page;
+
+

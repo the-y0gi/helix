@@ -14,6 +14,7 @@ import { ReviewList } from "./_components/reviews/my-reviews"
 import { MessageModal } from "@/components/messagemodal"
 import { PageSkeleton } from "@/components/loader/skeleton"
 import { ProfileLayoutSkeleton } from "./layout"
+import Support from "./_components/support/Support"
 // import { ActiveReservations, AllReservations, CancelledReservations, CompletedReservations } from "./_components/trips/all"
 
 type ProfileTabKey =
@@ -32,10 +33,9 @@ const content: Record<ProfileTabKey, React.ReactNode> = {
   personal_data: <PersonProfilePersonalData />,
   payment: <PaymentPage />,
   wishlist: <WishlistSection />,
-  support: <div className="border border-border rounded-2xl p-6">
-    {/* <RaiseTicketForm /> */}
-    <p>support</p>
-  </div>,
+  support:
+    <Support />
+  ,
   reviews: <ReviewList />,
   settings: <Settings />,
   all: <AllReservations variant={"all"} />,

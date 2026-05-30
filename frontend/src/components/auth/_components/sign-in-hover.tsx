@@ -19,7 +19,7 @@ import {
   IconBrandFacebookFilled,
   IconBrandGoogleFilled,
 } from "@tabler/icons-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import {
   FormField,
@@ -367,10 +367,16 @@ export function SignInForm({ setTag, className }: {
   );
 }
 
-export const LofinFormFields = () => {
+export const LofinFormFields = ({ handelClose }: { handelClose?: () => void }) => {
   const [showPassword, setShowPassword] = useState(false);
   const { refetch } = useCurrentUser();
   const { loading, methods, onHandleSubmit } = useLogin({ refetch });
+  useEffect(() => {
+    const f = localStorage.getItem("accessToken");
+    if (f) {
+      handelClose && handelClose()
+    }
+  }, [loading])
   return (
     <Form {...methods}>
       <form onSubmit={onHandleSubmit}>
