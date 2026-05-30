@@ -1,3 +1,6 @@
+'use client';
+
+import { useCallback, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,15 +12,47 @@ import {
 type Props = {
   children: React.ReactNode;
   content?: React.ReactNode;
+  renderContent?: (isOpen: boolean) => React.ReactNode;
   tagline?: string;
   type?: "filter" | "home";
 };
 
 // components/filter-bar/HotelFilterBar.tsx
 
-const HotelFilterBar = ({ children, content, tagline }: Props) => {
+const HotelFilterBar = ({ children, content, renderContent, tagline }: Props) => {
+  const [open, setOpen] = useState(false);
+
+  // Sync browser history with dialog open/close
+  useEffect(() => {
+    if (!open) return;
+
+    // Push a history entry so the browser back button can close the dialog
+    window.history.pushState({ mapDialog: true }, "");
+
+    const handlePopState = () => {
+      setOpen(false);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [open]);
+
+  // When closing via UI (X button, overlay click), pop the dummy history entry
+  const handleOpenChange = useCallback((nextOpen: boolean) => {
+    if (!nextOpen && window.history.state?.mapDialog) {
+      window.history.back();
+    } else {
+      setOpen(nextOpen);
+    }
+  }, []);
+
+  const dialogContent = renderContent ? renderContent(open) : content;
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       {/* 1. Added asChild so the Trigger doesn't act like a button */}
       <DialogTrigger asChild>
         {children}
@@ -29,7 +64,7 @@ const HotelFilterBar = ({ children, content, tagline }: Props) => {
           </DialogTitle>
         </DialogHeader>
 
-        {content || <div className="text-center">No content available</div>}
+        {dialogContent || <div className="text-center">No content available</div>}
       </DialogContent>
     </Dialog>
   );

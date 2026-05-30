@@ -1,7 +1,7 @@
 'use client'
 import UnderConstruction from '@/components/blankpages/contruction'
 import FilterBox from '@/components/filter-bar/fiter_box'
-import MainFramePage from '@/components/frame-pages/HotelFramePage'
+import MainFramePage from '@/components/frame-pages/ToursFramePage'
 import { PageSkeleton } from '@/components/loader/skeleton'
 import { MessageModal } from '@/components/messagemodal'
 import { Search_box_values, Tours_Box_FilterBarValues } from '@/constants/constants'

@@ -6,6 +6,7 @@ import { TabsLine } from "./tabs";
 import { cn } from "@/lib/utils";
 import { ShareModal } from "../../../_componentsRoot_categories/shareComponent";
 import { CabData } from "../_providers_context/CabsDetailsContextProvider";
+import { LikeIcon } from "@/services/dailyfunctions";
 
 
 type HotelItemsProps = {
@@ -51,9 +52,9 @@ const BikeDetailsItems = ({
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0 pt-1">
-            {/* <div className="flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-full border border-border bg-background shadow-sm active:scale-90 transition-transform">
-              <LikeIcon _id={hotel._id} isFavourite={hotel.isFavorite} name={hotel.name} />
-            </div> */}
+            <div className="flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-full border border-border bg-background shadow-sm active:scale-90 transition-transform">
+              <LikeIcon _id={data?.company?.companyId} isFavourite={data.company.isFavorite} name={"card"} serviceType={"cab"} />
+            </div>
 
             {/* <button
               onClick={handleCopy}

@@ -2,27 +2,30 @@
 
 import { RouterPush } from "@/components/RouterPush";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function EmptyBookings({ variant }: { variant: string }) {
   const router = useRouter();
+  const { t } = useTranslation();
+
   const value = [{
     variant: "active",
-    text: "You haven’t booked any stays yet.",
+    text: t("trips.noActiveBookings"),
 
   }, {
     variant: "pending",
-    text: "there is no pending bookings.",
+    text: t("trips.noPendingBookings"),
   }, {
     variant: "all",
-    text: "there is no  bookings.",
+    text: t("trips.noAllBookings"),
   }, {
     variant: "cancelled",
-    text: "there is no cancelled bookings.",
+    text: t("trips.noCancelledBookings"),
   }, {
     variant: "completed",
-    text: "there is no completed bookings.",
+    text: t("trips.noCompletedBookings"),
   }]
 
   return (
@@ -55,7 +58,7 @@ export default function EmptyBookings({ variant }: { variant: string }) {
           onClick={() => { RouterPush(router, "/") }}
         >
           <Search className="mr-2 h-4 w-4" />
-          Start searching
+          {t("trips.startSearching")}
         </Button>
 
         {/* Text */}
@@ -64,7 +67,7 @@ export default function EmptyBookings({ variant }: { variant: string }) {
         </h2>
 
         <p className="text-muted-foreground mt-2">
-          Discover and book your next getaway now!
+          {t("trips.discoverNext")}
         </p>
       </div>
     </div>

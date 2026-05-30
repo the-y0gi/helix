@@ -498,9 +498,10 @@ type Props = {
   tagline?: string;
   items: Item[];
   isLoading?: boolean;
+  icon?: React.ReactNode;
 };
 
-export const OnlyCarousel = ({ type, tagline, items, isLoading }: Props) => {
+export const OnlyCarousel = ({ type, tagline, items, isLoading, icon }: Props) => {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
@@ -596,6 +597,7 @@ export const OnlyCarousel = ({ type, tagline, items, isLoading }: Props) => {
           <>
             {items.map((item, i) => (
               <Card
+                icon
                 key={`${item.title}-${i}`}
                 item={item}
                 onClick={() => RouterPush(router, item.href)}
@@ -633,7 +635,7 @@ const CarouselButton = ({ onClick, disabled, icon }: { onClick: () => void; disa
   </button>
 );
 
-const Card = React.memo(({ item, onClick }: { item: Item; onClick: () => void }) => {
+const Card = React.memo(({ item, onClick, icon }: { item: Item, icon: React.ReactNode; onClick: () => void }) => {
   return (
     <div onClick={onClick} className="pl-1 w-[170px] md:w-[216px] flex-none snap-start cursor-pointer group/card">
       <div className="aspect-[4/3] overflow-hidden rounded-xl bg-card border border-border shadow-sm max-h-[155px]">

@@ -186,7 +186,7 @@ const CarBookingCard = ({ data }: { data: CabDetailData }) => {
 
   const router = useRouter()
   return (
-    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[16px] overflow-hidden bg-card/90 dark:bg-card/80 backdrop-blur-sm p-1">
+    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[16px] overflow-hidden bg-card/90 dark:bg-zinc-800/80 backdrop-blur-sm p-1">
       <CardContent className="pt-5 px-5 space-y-5">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -216,7 +216,7 @@ const CarBookingCard = ({ data }: { data: CabDetailData }) => {
 
             {/* Pickup */}
             <div className="flex gap-4 relative">
-              <div className="z-10 p-2 bg-rose-50 dark:bg-rose-950/30 rounded-full h-fit ring-4 ring-card">
+              <div className="z-10 p-2 bg-rose-50 dark:bg-zinc-950/30 rounded-full h-fit ring-4 ring-card">
                 <MapPin className="w-4 h-4 text-rose-600 fill-rose-600 dark:text-rose-500 dark:fill-rose-500" />
               </div>
               <div className="flex flex-col">
@@ -227,7 +227,7 @@ const CarBookingCard = ({ data }: { data: CabDetailData }) => {
 
             {/* Drop */}
             <div className="flex gap-4 relative">
-              <div className="z-10 p-2 bg-rose-50 dark:bg-rose-950/30 rounded-full h-fit ring-4 ring-card">
+              <div className="z-10 p-2 bg-rose-50 dark:bg-zinc-950/30 rounded-full h-fit ring-4 ring-card">
                 <MapPin className="w-4 h-4 text-rose-600 fill-rose-600 dark:text-rose-500 dark:fill-rose-500" />
               </div>
               <div className="flex flex-col">

@@ -178,14 +178,14 @@ export const CabsFilterBarValues: FilterBarValues[] = [
     value: "Pickup Location",
     description: "Enter Pickup point",
     element: (
-      <LocationSuggestionDropdown items={items} onSelect={(item) => { }} />
+      <LocationSuggestionDropdown items={items} onSelect={(item) => { }} type="pickup" />
     ),
     tagline: "Where do you want to go?",
   },
   {
     value: "Drop Location",
     description: "Enter Destination",
-    element: <LocationSuggestionDropdown items={items} onSelect={(item) => { }} />,
+    element: <LocationSuggestionDropdown items={items} onSelect={(item) => { }} type="dropoff" />,
     tagline: "Choose your REST plans",
   },
   {

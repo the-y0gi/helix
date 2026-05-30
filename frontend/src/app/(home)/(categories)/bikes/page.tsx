@@ -70,7 +70,7 @@ const page = () => {
 
             <MainFramePage
               type="bikes"
-              popularTrends={HotelPopularCites}
+            // popularTrends={HotelPopularCites}
             />
           </div>
         </Suspense>

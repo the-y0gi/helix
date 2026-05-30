@@ -17,6 +17,7 @@ import React, { useMemo } from "react"
 import { useGetReviewsQuery } from "@/services/personal/queryes"
 import { useMyBookingsQuery } from "@/services/hotel/querys"
 import { ReservationCardProps } from "../trips/all"
+import { useTranslation } from "@/hooks/useTranslation"
 type ReviewStatus = "posted" | "rejected" | "pending"
 
 interface Review {
@@ -43,7 +44,7 @@ const reviews: Review[] = [
         status: "posted",
         title: "Poor",
         comment:
-            "It doesn’t have any daily cleaning or towel changing. It doesn’t have any liquid soap; it was empty.",
+            "It doesn't have any daily cleaning or towel changing. It doesn't have any liquid soap; it was empty.",
         helpfulCount: 2,
         propertyResponse:
             "Thank you for your feedback. Our property is a short-let house, not a hotel...",
@@ -103,6 +104,7 @@ export function ReviewList({ id }: { id?: string }) {
 }
 const Noreviews = () => {
     const navigate = useRouter()
+    const { t } = useTranslation()
     return (
 
 
@@ -118,15 +120,15 @@ const Noreviews = () => {
             </div>
 
             <h2 className="text-xl font-semibold mb-2">
-                You haven’t reviewed any stays yet
+                {t("reviews.noReviewsTitle")}
             </h2>
 
             <p className="text-muted-foreground max-w-md mb-6">
-                After you complete a stay, you will be invited to leave a review here.
+                {t("reviews.noReviewsDesc")}
             </p>
 
             <Button variant="outline" onClick={() => navigate.push('/hotels')}>
-                Explore stays
+                {t("reviews.exploreStays")}
             </Button>
         </div>
 
@@ -136,6 +138,7 @@ const Noreviews = () => {
 }
 
 export function ReviewCard({ review }: ReviewCardProps) {
+    const { t } = useTranslation()
     const statusStyles = {
         posted: "bg-green-100 text-green-700 border-green-300",
         rejected: "bg-red-100 text-red-700 border-red-300",
@@ -162,13 +165,13 @@ export function ReviewCard({ review }: ReviewCardProps) {
                                     variant="outline"
                                     className={statusStyles[review.status]}
                                 >
-                                    {review.status === "posted" && "Review posted"}
-                                    {review.status === "rejected" && "Review rejected"}
-                                    {review.status === "pending" && "Review pending"}
+                                    {review.status === "posted" && t("reviews.reviewPosted")}
+                                    {review.status === "rejected" && t("reviews.reviewRejected")}
+                                    {review.status === "pending" && t("reviews.reviewPending")}
                                 </Badge>
 
                                 <p className="text-sm">
-                                    You reviewed{" "}
+                                    {t("reviews.youReviewed")}{" "}
                                     <span className="text-blue-600 underline cursor-pointer">
                                         {review.hotelName}
                                     </span>
@@ -200,7 +203,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
 
                                 <ThumbsUp size={14} />
-                                {review.helpfulCount} people found this review helpful
+                                {review.helpfulCount} {t("reviews.peopleFoundHelpful")}
                             </div>
                         )}
 
@@ -215,7 +218,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
                                             className="object-contain"
                                         />
                                     </div>
-                                    <p className="font-medium">Property response</p>
+                                    <p className="font-medium">{t("reviews.propertyResponse")}</p>
                                 </div>
                                 <p className="text-muted-foreground">
                                     {review.propertyResponse}

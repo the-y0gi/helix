@@ -6,18 +6,20 @@ import { cn } from "@/lib/utils"
 import { Item, OnlyCarousel } from "./onlyColursel"
 import { destinations } from "@/constants/constants"
 import { useHotelsQuery } from "@/services/hotel/querys"
+import { MapPin } from "lucide-react";
 
 type TabItem = {
   name: string
 }
 
-type Props = {
+export type CarouselProps = {
   name?: string
   tagline: string
   tabs?: TabItem[]
   type: "cabs" | "adventures" | "tours" | "bikes" | "hotels"
   items: Item[]
   isLoading?: boolean
+  icon?: React.ReactNode
 }
 
 export function PopularDestinationCarousel({
@@ -25,8 +27,9 @@ export function PopularDestinationCarousel({
   tabs,
   type,
   items,
-  isLoading
-}: Props) {
+  isLoading,
+  icon = <MapPin className="h-3 w-3 shrink-0" />,
+}: CarouselProps) {
   const [active, setActive] = useState(tabs?.[0]?.name ?? "")
   const [activeIndex, setActiveIndex] = useState(0)
 
@@ -51,7 +54,7 @@ export function PopularDestinationCarousel({
 
   if (!tabs) {
     return (
-      <OnlyCarousel type={type} tagline={tagline} items={items} isLoading={isLoading} />
+      <OnlyCarousel type={type} tagline={tagline} items={items} isLoading={isLoading} icon={icon} />
     )
   }
 
@@ -105,7 +108,7 @@ export function PopularDestinationCarousel({
 
       {/* Content */}
       <div className="mt-2 min-h-[190px] sm:min-h-[260px]">
-        <OnlyCarousel key={active} type={type} items={items} isLoading={isLoading} />
+        <OnlyCarousel key={active} type={type} items={items} isLoading={isLoading} icon={icon} />
       </div>
     </div>
   )
