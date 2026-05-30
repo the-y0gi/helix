@@ -60,6 +60,19 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
 
+    deleteRequest: {
+      status: {
+        type: String,
+        enum: ["none", "pending"],
+        default: "none",
+      },
+      requestedAt: Date,
+      reason: {
+        type: String,
+        trim: true,
+      },
+    },
+
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true },
