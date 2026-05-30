@@ -43,7 +43,7 @@ const adminPaymentRoutes = require("./modules/admin/payment/payment.routes");
 const adminSupportRoutes = require("./modules/admin/support/support.routes");
 const adminDashboardRoutes = require("./modules/admin/dashboard/dashboard.routes");
 const adminTaxRoutes = require("./modules/admin/tax/tax.routes");
-
+const adminAccountDeactivateRoutes = require("./modules/admin/account-deactivate/account.routes");
 const { errorHandler } = require("./shared/middlewares/errorHandler");
 require("./shared/config/passport");
 
@@ -142,6 +142,7 @@ app.use("/api/v1/admin/reviews", adminReviewRoutes);
 app.use("/api/v1/admin/payments", adminPaymentRoutes);
 app.use("/api/v1/admin/supports", adminSupportRoutes);
 app.use("/api/v1/admin/tax", adminTaxRoutes);
+app.use("/api/v1/admin/account-deactivate", adminAccountDeactivateRoutes);
 
 app.use(errorHandler);
 

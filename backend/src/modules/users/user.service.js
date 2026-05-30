@@ -19,3 +19,39 @@ exports.updateUserProfile = async (userId, updateData) => {
 
   return updatedUser;
 };
+
+exports.deleteAccountRequest = async (userId, body) => {
+  try {
+    const { reason } = body;
+
+    const user = await User.findOne({
+      _id: userId,
+      role: "user",
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.deleteRequest?.status === "pending") {
+      throw new Error("Account deletion request already submitted");
+    }
+
+    user.deleteRequest = {
+      status: "pending",
+      requestedAt: new Date(),
+      reason: reason || "",
+    };
+
+    await user.save();
+
+    return {
+      success: true,
+      message: "Account deletion request submitted successfully",
+    };
+  } catch (error) {
+    logger.error("Service Error: deleteAccountRequest", error);
+
+    throw error;
+  }
+};

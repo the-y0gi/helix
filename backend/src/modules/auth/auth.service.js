@@ -149,6 +149,112 @@ exports.whatsappLogin = async (phone, password) => {
   }
 };
 
+exports.forgotPasswordWhatsapp = async (phone) => {
+  if (!phone) {
+    throw new Error("Phone number is required");
+  }
+
+  const phoneNumber = normalizePhone(phone);
+
+  const user = await User.findOne({ phoneNumber });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (!user.providers.local.isVerified) {
+    throw new Error("Account not verified");
+  }
+
+  const { otp, otpExpires } = await generateOTP();
+
+  user.otp = otp;
+  user.otpExpires = otpExpires;
+  user.otpAttempts = 0;
+
+  await user.save();
+
+  await sendWhatsAppOTP(phoneNumber, otp);
+
+  return {
+    message: "Password reset OTP sent on WhatsApp",
+  };
+};
+
+exports.verifyForgotPasswordOtp = async (phone, inputOTP) => {
+  if (!phone) {
+    throw new Error("Phone number is required");
+  }
+
+  const phoneNumber = normalizePhone(phone);
+
+  const user = await User.findOne({
+    phoneNumber,
+  }).select("+otp +otpExpires +otpAttempts");
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (!user.otpExpires || Date.now() > user.otpExpires) {
+    throw new Error("OTP expired");
+  }
+
+  if (String(user.otp) !== String(inputOTP)) {
+    user.otpAttempts += 1;
+    await user.save();
+
+    throw new Error("Invalid OTP");
+  }
+
+  return {
+    message: "OTP verified successfully",
+  };
+};
+
+exports.resetPasswordWhatsapp = async (phone, inputOTP, newPassword) => {
+  if (!phone) {
+    throw new Error("Phone number is required");
+  }
+
+  if (!newPassword) {
+    throw new Error("New password is required");
+  }
+
+  const phoneNumber = normalizePhone(phone);
+
+  const user = await User.findOne({
+    phoneNumber,
+  }).select("+otp +otpExpires +password +otpAttempts");
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (!user.otpExpires || Date.now() > user.otpExpires) {
+    throw new Error("OTP expired");
+  }
+
+  if (String(user.otp) !== String(inputOTP)) {
+    user.otpAttempts += 1;
+    await user.save();
+
+    throw new Error("Invalid OTP");
+  }
+
+  user.password = newPassword;
+
+  user.otp = undefined;
+  user.otpExpires = undefined;
+  user.otpAttempts = 0;
+
+  await user.save();
+
+  return {
+    message: "Password reset successful",
+  };
+};
+
 exports.signup = async (email, password, role) => {
   try {
     const allowedRoles = ["user", "vendor", "admin"];

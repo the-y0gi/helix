@@ -429,3 +429,61 @@ exports.whatsappLogin = async (req, res) => {
     });
   }
 };
+
+exports.forgotPasswordWhatsapp = async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    const result = await authService.forgotPasswordWhatsapp(phone);
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.verifyForgotPasswordOtp = async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+
+    const result = await authService.verifyForgotPasswordOtp(phone, otp);
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.resetPasswordWhatsapp = async (req, res) => {
+  try {
+    const { phone, otp, newPassword } = req.body;
+
+    const result = await authService.resetPasswordWhatsapp(
+      phone,
+      otp,
+      newPassword,
+    );
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

@@ -33,6 +33,24 @@ router.post("/whatsapp-signup", authLimiter, authController.whatsappSignup);
 router.post("/whatsapp-verify", authLimiter, authController.whatsappVerify);
 router.post("/whatsapp-login", authLimiter, authController.whatsappLogin);
 
+router.post(
+  "/forgot-password-whatsapp",
+  authLimiter,
+  authController.forgotPasswordWhatsapp,
+);
+
+router.post(
+  "/verify-forgot-password-otp",
+  authLimiter,
+  authController.verifyForgotPasswordOtp,
+);
+
+router.post(
+  "/reset-password-whatsapp",
+  authLimiter,
+  authController.resetPasswordWhatsapp,
+);
+
 // Applied Routes
 router.post("/resend-otp", otpLimiter, authController.resendOTP);
 router.post("/verify-otp", authLimiter, authController.verifyOTP);
