@@ -1,153 +1,94 @@
 const mongoose = require("mongoose");
 const Review = require("./review.model");
-const Booking = require("../bookings/booking.model");
-const Hotel = require("../hotels/hotel.model");
-const logger = require("../../shared/utils/logger");
 
-//review card, comment and vendor reply
-exports.getUserReviewBookings = async (userId, query) => {
+const Hotel = require("../hotels/hotel.model");
+const Booking = require("../bookings/booking.model");
+
+const Adventure = require("../adventure/category/adventure.model");
+const AdventureService = require("../adventure/service/service.model");
+
+const BikeCompany = require("../bike/company/bike.model");
+const BikeService = require("../bike/service/bikeService.model");
+
+const CabCompany = require("../cab/company/cab.model");
+const CabService = require("../cab/service/cabService.model");
+
+const TourCompany = require("../tour/company/tour.model");
+const TourService = require("../tour/service/tourService.model");
+
+const GenericBooking = require("../multiServiceBookings/booking.model");
+
+const logger = require("../../shared/utils/logger");
+const { updateCompanyRating } = require("./helpers/updateCompanyRating");
+
+exports.getCompanyReviews = async (companyType, companyId, query) => {
   try {
-    const { page = 1, limit = 10 } = query;
+    const allowedTypes = ["hotel", "adventure", "tour", "cab", "bike"];
+
+    if (!allowedTypes.includes(companyType)) {
+      throw new Error("Invalid company type");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      throw new Error("Invalid company id");
+    }
+
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+
     const skip = (page - 1) * limit;
 
-    const pipeline = [
-      {
-        $match: {
-          userId: new mongoose.Types.ObjectId(userId),
-          status: "completed",
-          checkOut: { $lt: new Date() },
-        },
-      },
+    const [reviews, total, stats] = await Promise.all([
+      Review.find({
+        companyType,
+        companyId,
+      })
+        .populate("userId", "firstName lastName avatar")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
 
-      // HOTEL
-      {
-        $lookup: {
-          from: "hotels",
-          localField: "hotelId",
-          foreignField: "_id",
-          as: "hotel",
-        },
-      },
-      {
-        $unwind: {
-          path: "$hotel",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
+      Review.countDocuments({
+        companyType,
+        companyId,
+      }),
 
-      // REVIEW JOIN
-      // {
-      //   $lookup: {
-      //     from: "reviews",
-      //     let: { hotelId: "$hotelId", userId: "$userId" },
-      //     pipeline: [
-      //       {
-      //         $match: {
-      //           $expr: {
-      //             $and: [
-      //               { $eq: ["$hotelId", "$$hotelId"] },
-      //               { $eq: ["$userId", "$$userId"] },
-      //             ],
-      //           },
-      //         },
-      //       },
-      //     ],
-      //     as: "reviewData",
-      //   },
-      // },
-      {
-        $lookup: {
-          from: "reviews",
-          let: { hotelId: "$hotelId", userId: "$userId" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    {
-                      $eq: ["$hotelId", "$$hotelId"],
-                    },
-                    {
-                      $eq: ["$userId", "$$userId"],
-                    },
-                  ],
-                },
-              },
+      Review.aggregate([
+        {
+          $match: {
+            companyType,
+            companyId: new mongoose.Types.ObjectId(companyId),
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            averageRating: {
+              $avg: "$rating",
             },
-          ],
-          as: "reviewData",
-        },
-      },
-      {
-        $unwind: {
-          path: "$reviewData",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-
-      {
-        $project: {
-          _id: 1,
-          bookingReference: 1,
-          hotelId: 1,
-
-          hotelName: {
-            $ifNull: ["$hotel.name", "N/A"],
-          },
-
-          city: {
-            $ifNull: ["$hotel.city", "N/A"],
-          },
-
-          image: {
-            $arrayElemAt: ["$hotel.images.url", 0],
-          },
-
-          checkIn: 1,
-          checkOut: 1,
-          totalAmount: 1,
-
-          hasReviewed: {
-            $cond: [{ $ifNull: ["$reviewData._id", false] }, true, false],
-          },
-
-          review: {
-            rating: "$reviewData.rating",
-            comment: "$reviewData.comment",
-            breakdown: "$reviewData.breakdown",
-            createdAt: "$reviewData.createdAt",
-          },
-
-          vendorReply: {
-            message: "$reviewData.vendorReply.message",
-            repliedAt: "$reviewData.vendorReply.repliedAt",
+            totalReviews: {
+              $sum: 1,
+            },
           },
         },
-      },
-
-      {
-        $sort: { checkOut: -1 },
-      },
-
-      {
-        $facet: {
-          data: [{ $skip: skip }, { $limit: Number(limit) }],
-          totalCount: [{ $count: "count" }],
-        },
-      },
-    ];
-
-    const result = await Booking.aggregate(pipeline);
-
-    const bookings = result[0].data;
-    const total = result[0].totalCount[0]?.count || 0;
+      ]),
+    ]);
 
     return {
-      bookings,
+      reviews,
+
+      summary: {
+        averageRating: stats[0]?.averageRating?.toFixed(1) || 0,
+
+        totalReviews: stats[0]?.totalReviews || 0,
+      },
+
       pagination: {
-        page: Number(page),
-        limit: Number(limit),
+        page,
+        limit,
         total,
+        pages: Math.ceil(total / limit),
       },
     };
   } catch (error) {
@@ -155,202 +96,415 @@ exports.getUserReviewBookings = async (userId, query) => {
   }
 };
 
-// Create Review (only after completed booking)
-exports.createReview = async (data) => {
+exports.getUserReviews = async (userId) => {
   try {
-    const { userId, hotelId, rating, breakdown, comment } = data;
+    // Already submitted reviews
+    const submittedReviews = await Review.find({
+      userId,
+    })
+      .sort({ createdAt: -1 })
+      .lean();
 
-    if (!hotelId) {
-      throw new Error("Hotel ID is required");
+    const reviewedBookingIds = submittedReviews.map((review) =>
+      review.bookingId.toString(),
+    );
+
+    // Hotel bookings
+    const hotelBookings = await Booking.find({
+      userId,
+      status: "completed",
+    })
+      .populate("hotelId", "name images rating")
+      .lean();
+
+    // Generic bookings
+    const genericBookings = await GenericBooking.find({
+      userId,
+      status: "completed",
+    }).lean();
+
+    const pendingHotelReviews = hotelBookings
+      .filter((booking) => !reviewedBookingIds.includes(booking._id.toString()))
+      .map((booking) => ({
+        bookingId: booking._id,
+
+        companyId: booking.hotelId?._id,
+
+        companyType: "hotel",
+
+        companyName: booking.hotelId?.name || "",
+
+        bookingReference: booking.bookingReference,
+
+        bookingDate: booking.createdAt,
+      }));
+
+    const pendingGenericReviews = genericBookings
+      .filter((booking) => !reviewedBookingIds.includes(booking._id.toString()))
+      .map((booking) => ({
+        bookingId: booking._id,
+
+        companyId: booking.serviceId,
+
+        companyType: booking.serviceType,
+
+        bookingReference: booking.bookingReference,
+
+        bookingDate: booking.bookingDate,
+      }));
+
+    return {
+      pendingReviews: [...pendingHotelReviews, ...pendingGenericReviews],
+
+      submittedReviews,
+    };
+  } catch (error) {
+    logger.error("Service Error: getUserReviews", error);
+
+    throw error;
+  }
+};
+
+exports.createReview = async (userId, body) => {
+  try {
+    const { bookingId, rating, comment } = body;
+
+    if (!bookingId) {
+      throw new Error("Booking ID is required");
     }
 
     if (!rating || rating < 1 || rating > 5) {
       throw new Error("Rating must be between 1 and 5");
     }
 
-    const hasBooking = await Booking.findOne({
-      userId,
-      hotelId,
-      status: "completed",
-      checkOut: { $lt: new Date() }, // ensure stay completed
-    });
-
-    if (!hasBooking) {
-      throw new Error("You can review only after completing a stay");
+    if (!comment?.trim()) {
+      throw new Error("Comment is required");
     }
 
-    const existingReview = await Review.findOne({ userId, hotelId });
+    const existingReview = await Review.findOne({
+      bookingId,
+    });
 
     if (existingReview) {
-      throw new Error("You have already reviewed this hotel");
+      throw new Error("Review already submitted");
+    }
+
+    // HOTEL BOOKING
+    const hotelBooking = await Booking.findOne({
+      _id: bookingId,
+      userId,
+      status: "completed",
+    });
+
+    if (hotelBooking) {
+      const hotel = await Hotel.findById(hotelBooking.hotelId);
+
+      if (!hotel) {
+        throw new Error("Hotel not found");
+      }
+
+      const review = await Review.create({
+        userId,
+
+        bookingId,
+
+        companyId: hotel._id,
+        companyName: hotel.name,
+        companyType: "hotel",
+
+        vendorId: hotel.vendorId,
+
+        rating,
+
+        comment,
+      });
+
+      await updateCompanyRating("hotel", hotel._id);
+
+      return {
+        message: "Review submitted successfully",
+        review,
+      };
+    }
+
+    // GENERIC BOOKING
+    const booking = await GenericBooking.findOne({
+      _id: bookingId,
+      userId,
+      status: "completed",
+    });
+
+    if (!booking) {
+      throw new Error("Completed booking not found");
+    }
+
+    let companyId;
+    let vendorId;
+    let companyName;
+
+    switch (booking.serviceType) {
+      case "adventure": {
+        const service = await AdventureService.findById(booking.serviceId);
+
+        if (!service) {
+          throw new Error("Adventure service not found");
+        }
+
+        const adventure = await Adventure.findById(service.adventure);
+
+        if (!adventure) {
+          throw new Error("Adventure company not found");
+        }
+
+        companyId = adventure._id;
+        companyName = adventure.name;
+        vendorId = adventure.vendorId;
+
+        break;
+      }
+
+      case "bike": {
+        const service = await BikeService.findById(booking.serviceId);
+
+        if (!service) {
+          throw new Error("Bike service not found");
+        }
+
+        const bike = await BikeCompany.findById(service.bike);
+
+        if (!bike) {
+          throw new Error("Bike company not found");
+        }
+
+        companyId = bike._id;
+        companyName = bike.name;
+        vendorId = bike.vendorId;
+
+        break;
+      }
+
+      case "cab": {
+        const service = await CabService.findById(booking.serviceId);
+
+        if (!service) {
+          throw new Error("Cab service not found");
+        }
+
+        const cab = await CabCompany.findById(service.cab);
+
+        if (!cab) {
+          throw new Error("Cab company not found");
+        }
+
+        companyId = cab._id;
+        companyName = cab.name;
+        vendorId = cab.vendorId;
+
+        break;
+      }
+
+      case "tour": {
+        const service = await TourService.findById(booking.serviceId);
+
+        if (!service) {
+          throw new Error("Tour service not found");
+        }
+
+        const tour = await TourCompany.findById(service.tour);
+
+        if (!tour) {
+          throw new Error("Tour company not found");
+        }
+
+        companyId = tour._id;
+        companyName = tour.name;
+        vendorId = tour.vendorId;
+
+        break;
+      }
+
+      default:
+        throw new Error("Invalid service type");
     }
 
     const review = await Review.create({
       userId,
-      hotelId,
+
+      bookingId,
+
+      companyId,
+
+      companyName,
+
+      companyType: booking.serviceType,
+
+      vendorId,
+
       rating,
-      breakdown: breakdown || {},
-      comment: comment?.trim() || "",
+
+      comment,
     });
 
-    const stats = await Review.aggregate([
-      { $match: { hotelId } },
-      {
-        $group: {
-          _id: "$hotelId",
-          avgRating: { $avg: "$rating" },
-          count: { $sum: 1 },
-        },
-      },
-    ]);
-
-    if (stats.length) {
-      await Hotel.findByIdAndUpdate(hotelId, {
-        rating: Number(stats[0].avgRating.toFixed(1)),
-        numReviews: stats[0].count,
-      });
-    }
-
-    return review;
-  } catch (error) {
-    logger.error("Service Error: createReview", error);
-    throw error;
-  }
-};
-
-//Get reviews of a hotel
-exports.getHotelReviews = async (hotelId) => {
-  try {
-    return await Review.find({ hotelId })
-      .populate("userId", "firstName lastName avatar")
-      .sort("-createdAt")
-      .lean();
-  } catch (error) {
-    logger.error("Service Error: getHotelReviews", error);
-    throw error;
-  }
-};
-
-//Get vendor hotel reviews
-exports.getVendorReviews = async (vendorId) => {
-  try {
-    const hotels = await Hotel.find({ vendorId }).select("_id");
-
-    const hotelIds = hotels.map((h) => h._id);
-
-    const stats = await Review.aggregate([
-      {
-        $match: {
-          hotelId: {
-            $in: hotelIds.map((id) => new mongoose.Types.ObjectId(id)),
-          },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          avgRating: { $avg: "$rating" },
-          totalReviews: { $sum: 1 },
-        },
-      },
-    ]);
-
-    const comments = await Review.find({
-      hotelId: { $in: hotelIds },
-      comment: { $exists: true, $ne: "" },
-    })
-      .populate("userId", "firstName lastName avatar")
-      .populate("hotelId", "name")
-      .sort("-createdAt")
-      .limit(20)
-      .lean();
+    await updateCompanyRating(booking.serviceType, companyId);
 
     return {
-      averageRating: stats.length ? Number(stats[0].avgRating.toFixed(1)) : 0,
-      totalReviews: stats.length ? stats[0].totalReviews : 0,
-      comments,
+      message: "Review submitted successfully",
+      review,
     };
   } catch (error) {
-    logger.error("Service Error: getVendorReviews", error);
+    logger.error("Service Error: createReview", error);
+
     throw error;
   }
 };
 
-//review delete by vendor
-exports.deleteReview = async (reviewId, vendorId) => {
+exports.updateReview = async (userId, reviewId, body) => {
   try {
-    const review = await Review.findById(reviewId);
+    const { rating, comment } = body;
+
+    const review = await Review.findOne({
+      _id: reviewId,
+      userId,
+    });
 
     if (!review) {
       throw new Error("Review not found");
     }
 
-    const hotel = await Hotel.findById(review.hotelId);
-
-    if (!hotel || hotel.vendorId.toString() !== vendorId.toString()) {
-      throw new Error("Not authorized to delete this review");
+    if (review.vendorReply?.message) {
+      throw new Error("Review cannot be updated after vendor reply");
     }
 
-    await review.deleteOne();
-
-    return true;
-  } catch (error) {
-    logger.error("Service Error: deleteReview", error);
-    throw error;
-  }
-};
-
-//review update
-exports.updateReview = async (reviewId, userId, data) => {
-  try {
-    const review = await Review.findById(reviewId);
-
-    if (!review) {
-      throw new Error("Review not found");
+    if (rating !== undefined && (rating < 1 || rating > 5)) {
+      throw new Error("Rating must be between 1 and 5");
     }
 
-    if (review.userId.toString() !== userId.toString()) {
-      throw new Error("Not authorized to edit this review");
+    if (comment !== undefined && (!comment || !comment.trim())) {
+      throw new Error("Comment cannot be empty");
     }
 
-    review.rating = data.rating ?? review.rating;
-    review.comment = data.comment ?? review.comment;
-    review.breakdown = data.breakdown ?? review.breakdown;
+    if (rating) {
+      review.rating = rating;
+    }
+
+    if (comment !== undefined) {
+      review.comment = comment;
+    }
 
     await review.save();
 
-    return review;
+    await updateCompanyRating(review.companyType, review.companyId);
+
+    return {
+      message: "Review updated successfully",
+      review,
+    };
   } catch (error) {
     logger.error("Service Error: updateReview", error);
+
     throw error;
   }
 };
 
-//vendor reply to user
-exports.vendorReply = async (reviewId, vendorId, message) => {
+exports.getVendorReviews = async (vendorId, query) => {
   try {
-    const review = await Review.findById(reviewId);
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const [reviews, total, stats] = await Promise.all([
+      Review.find({
+        vendorId,
+      })
+        .populate("userId", "firstName lastName avatar")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+
+      Review.countDocuments({
+        vendorId,
+      }),
+
+      Review.aggregate([
+        {
+          $match: {
+            vendorId,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            averageRating: {
+              $avg: "$rating",
+            },
+            totalReviews: {
+              $sum: 1,
+            },
+          },
+        },
+      ]),
+    ]);
+
+    return {
+      summary: {
+        totalReviews: stats[0]?.totalReviews || 0,
+
+        averageRating: Number((stats[0]?.averageRating || 0).toFixed(1)),
+      },
+
+      reviews,
+
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    };
+  } catch (error) {
+    logger.error("Service Error: getVendorReviews", error);
+
+    throw error;
+  }
+};
+
+exports.vendorReply = async (vendorId, reviewId, body) => {
+  try {
+    const { message } = body;
+
+    if (!message?.trim()) {
+      throw new Error("Reply message is required");
+    }
+
+    const review = await Review.findOne({
+      _id: reviewId,
+      vendorId,
+    });
 
     if (!review) {
       throw new Error("Review not found");
     }
 
-    const hotel = await Hotel.findById(review.hotelId);
-
-    if (!hotel || hotel.vendorId.toString() !== vendorId.toString()) {
-      throw new Error("Not authorized");
+    if (review.vendorReply?.message) {
+      throw new Error("Reply already submitted");
     }
 
     review.vendorReply = {
-      message,
+      message: message.trim(),
       repliedAt: new Date(),
     };
 
     await review.save();
 
-    return review;
+    return {
+      message: "Reply submitted successfully",
+      review,
+    };
   } catch (error) {
     logger.error("Service Error: vendorReply", error);
+
     throw error;
   }
 };

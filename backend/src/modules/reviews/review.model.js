@@ -8,9 +8,31 @@ const reviewSchema = new mongoose.Schema(
       required: true,
     },
 
-    hotelId: {
+    bookingId: {
       type: mongoose.Schema.ObjectId,
-      ref: "Hotel",
+      required: true,
+      unique: true,
+    },
+
+    companyId: {
+      type: mongoose.Schema.ObjectId,
+      required: true,
+    },
+    companyName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    companyType: {
+      type: String,
+      enum: ["hotel", "adventure", "tour", "cab", "bike"],
+      required: true,
+    },
+
+    vendorId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Vendor",
       required: true,
     },
 
@@ -21,17 +43,18 @@ const reviewSchema = new mongoose.Schema(
       max: 5,
     },
 
-    breakdown: {
-      cleanliness: Number,
-      communication: Number,
-      location: Number,
-      value: Number,
+    comment: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
     },
 
-    comment: String,
-
     vendorReply: {
-      message: String,
+      message: {
+        type: String,
+        trim: true,
+        maxlength: 1000,
+      },
       repliedAt: Date,
     },
 
@@ -43,11 +66,19 @@ const reviewSchema = new mongoose.Schema(
     flagReason: {
       type: String,
       default: "",
+      trim: true,
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
-reviewSchema.index({ userId: 1, hotelId: 1 }, { unique: true });
+reviewSchema.index({ bookingId: 1 }, { unique: true });
+
+reviewSchema.index({
+  companyType: 1,
+  companyId: 1,
+});
 
 module.exports = mongoose.model("Review", reviewSchema);
