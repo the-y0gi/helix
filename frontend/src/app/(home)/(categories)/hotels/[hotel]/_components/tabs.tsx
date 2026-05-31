@@ -67,7 +67,7 @@ export function TabsLine({
       />
     ),
     amenities: <AmenitiesValues amenities={hotel.amenities} />,
-    reviews: <ReviewsMain />,
+    reviews: <ReviewsMain companyId={hotelId} CompanyType='hotel' />,
     rooms: (
       <RoomsMain
         hotelId={hotelId}
@@ -199,16 +199,19 @@ function BookingCard({
   isBookingMode: boolean;
   isLoading: boolean;
 }) {
-  const { date, guests } = useHotelStore();
+  const rawDate = useHotelStore((s) => s.date);
+  const guests = useHotelStore((s) => s.guests);
+  const date = React.useMemo(() => {
+    if (!rawDate) return undefined;
+    return {
+      from: rawDate.from ? new Date(rawDate.from) : undefined,
+      to: rawDate.to ? new Date(rawDate.to) : undefined,
+    };
+  }, [rawDate]);
   const { t } = useTranslation();
   const [showCalendar, setShowCalendar] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { FetchRoomTypes, rooms, setFetch } = useHotelContext();
-  useEffect(() => {
-    if (date?.from && date?.to) {
-      setFetch(true)
-    }
-  }, [date?.from, date?.to])
+  const { rooms, setFetch } = useHotelContext();
 
   const validPrices = rooms
     .map((r: RoomType) => r.finalPrice || r.displayPrice || r.totalPrice)
@@ -222,11 +225,6 @@ function BookingCard({
     e.stopPropagation();
     setShowCalendar((prev) => !prev);
   };
-  useEffect(() => {
-    if (date?.from && date?.to) {
-      setFetch(true)
-    }
-  }, [date])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

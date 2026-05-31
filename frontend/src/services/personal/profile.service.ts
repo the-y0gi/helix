@@ -21,6 +21,48 @@ export const getReviews = async (id: string) => {
     throw error;
   }
 };
+
+export const getUserReviewBookings = async () => {
+  try {
+    const response = await axiosApi.get("/reviews");
+    return response.data;
+  } catch (error) {
+    toast.error("Failed to get your review bookings");
+    throw error;
+  }
+};
+
+export interface CreateReviewData {
+  hotelId: string;
+  rating: number;
+  breakdown: {
+    cleanliness: number;
+    communication: number;
+    location: number;
+    value: number;
+  };
+  comment: string;
+}
+
+export const createReview = async (data: CreateReviewData) => {
+  try {
+    const response = await axiosApi.post("/reviews", data);
+    return response.data;
+  } catch (error: any) {
+    toast.error(error?.response?.data?.message || "Failed to submit review");
+    throw error;
+  }
+};
+
+export const updateReview = async (reviewId: string, data: Partial<CreateReviewData>) => {
+  try {
+    const response = await axiosApi.put(`/reviews/${reviewId}`, data);
+    return response.data;
+  } catch (error: any) {
+    toast.error(error?.response?.data?.message || "Failed to update review");
+    throw error;
+  }
+};
 export const getFavouriteSummary = async () => {
   try {
     const res = await axiosApi.get(`/favorites/summary`);

@@ -42,7 +42,7 @@ export function TabsLine({
       "_id": "69b805d08eceb263ce97ccc0"
     }]} />,
     description: <Decription data={{ name: data.company.name, description: data.company.description }} />,
-    reviews: <ReviewsMain />,
+    reviews: <ReviewsMain CompanyType="cab" companyId={companyId} />,
 
     amenities: <AmenitiesValues amenities={data.service.features} title="" />
 

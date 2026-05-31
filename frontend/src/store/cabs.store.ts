@@ -62,8 +62,8 @@ export const useCabsStore = create<CabsStoreProps>()(
   persist(
     (set) => ({
       payments: {} as Payment,
-      PickupCity: "indore",
-      DropoffCity: "rishikesh",
+      PickupCity: "Indore",
+      DropoffCity: "Rishikesh",
       wrap: false,
 
       guests: {

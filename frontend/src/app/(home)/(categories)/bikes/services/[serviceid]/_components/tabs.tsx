@@ -44,7 +44,7 @@ export function TabsLine({
     description: <Decription data={{ name: data.company.name, description: data.company.description }} />,
 
     amenities: <AmenitiesValues amenities={data.service.features} title="" />,
-    reviews: <ReviewsMain />
+    reviews: <ReviewsMain companyId={companyId} CompanyType="bike" />
 
   };
 

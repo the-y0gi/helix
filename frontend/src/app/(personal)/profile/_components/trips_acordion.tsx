@@ -11,7 +11,7 @@ import { Icon } from "@tabler/icons-react";
 
 export default function TripsAccordion({content , Icon}:{content: React.ReactNode , Icon?: Icon}) {
   return (
-    <Accordion className=" w-full " collapsible type="single">
+    <Accordion className="w-full" collapsible type="single">
         <AccordionItem value={"bookings"}>
           <AccordionTrigger className="flex text-bold text-sm px-3 py-1.5 justify-start items-center">
             {/* {Icon && <Icon className="h-5 w-5 bg-transparent" />} */}

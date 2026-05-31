@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from "react";
@@ -12,12 +11,47 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetHotelReviews } from "@/services/hotel/querys";
 import RattingBadge from "./badge";
-import { Hotel } from "@/types";
+import { format } from "date-fns";
+import { CornerDownRight } from "lucide-react";
 
+export type CompanyType = "hotel" | "cab" | "bike" | "adventure" | "tour";
 
+interface ReviewsMainProps {
+    companyId: string;
+    CompanyType: CompanyType;
+}
 
-const ReviewsMain = () => {
-    // Note: Assuming useGetHotelReviews is defined in your query files
+const ReviewsMain = ({ companyId, CompanyType }: ReviewsMainProps) => {
+    if (!companyId) return null;
+
+    const { data: response, isLoading } = useGetHotelReviews(companyId, CompanyType);
+
+    if (isLoading) {
+        return (
+            <Card className="w-full bg-transparent border-none shadow-none p-0 animate-pulse">
+                <CardHeader className="space-y-2 px-0">
+                    <div className="h-8 w-32 bg-muted rounded" />
+                    <div className="h-5 w-48 bg-muted rounded" />
+                </CardHeader>
+                <CardContent className="space-y-10 px-0 pt-4">
+                    <div className="h-32 bg-muted rounded-2xl w-full" />
+                </CardContent>
+            </Card>
+        );
+    }
+
+    const comments = response?.data?.reviews || [];
+    const summary = response?.data?.summary || {};
+    const averageRating = Number(summary.averageRating) || 0.0;
+    const totalReviews = Number(summary.totalReviews) || 0;
+
+    let ratingText = "Excellent";
+    if (averageRating >= 4.5) ratingText = "Excellent";
+    else if (averageRating >= 4.0) ratingText = "Very Good";
+    else if (averageRating >= 3.0) ratingText = "Good";
+    else if (averageRating >= 2.0) ratingText = "Fair";
+    else if (averageRating > 0) ratingText = "Poor";
+    else ratingText = "No Reviews";
 
     return (
         <Card className="w-full bg-transparent border-none shadow-none p-0">
@@ -25,24 +59,45 @@ const ReviewsMain = () => {
                 <h3 className="text-2xl font-bold dark:text-zinc-400 text-zinc-800">Reviews</h3>
                 <div className="flex items-center gap-2 text-sm">
                     <Badge className="bg-primary/80 text-white hover:bg-primary px-2 py-0">
-                        5.0
+                        {averageRating.toFixed(1)}
                     </Badge>
-                    <span className="font-semibold text-primary">Excellent</span>
+                    <span className="font-semibold text-primary">{ratingText}</span>
                     <Separator orientation="vertical" className="h-4" />
-                    <span className="text-muted-foreground font-medium">1,260 reviews</span>
+                    <span className="text-muted-foreground font-medium">
+                        {totalReviews} {totalReviews === 1 ? "review" : "reviews"}
+                    </span>
                 </div>
             </CardHeader>
 
             <CardContent className="space-y-10 px-0 pt-4">
-                <ReviewsRanges />
-                <ReviewsComments />
+                <ReviewsRanges comments={comments} averageRating={averageRating} />
+                <ReviewsComments comments={comments} />
             </CardContent>
         </Card>
     );
 };
 
-export const ReviewsRanges = () => {
-    const categories = ["Amenities", "Cleanliness", "Communication", "Location", "Value"];
+export const ReviewsRanges = ({ comments = [], averageRating = 0.0 }: { comments: any[]; averageRating: number }) => {
+    const categories = ["Cleanliness", "Communication", "Location", "Value"];
+
+    // Count star distributions (5, 4, 3, 2, 1)
+    const starCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+
+    comments.forEach((review: any) => {
+        const r = Math.round(review.rating) as 5 | 4 | 3 | 2 | 1;
+        if (starCounts[r] !== undefined) {
+            starCounts[r]++;
+        }
+    });
+
+    const averages = {
+        Cleanliness: averageRating ? averageRating.toFixed(1) : "0.0",
+        Communication: averageRating ? averageRating.toFixed(1) : "0.0",
+        Location: averageRating ? averageRating.toFixed(1) : "0.0",
+        Value: averageRating ? averageRating.toFixed(1) : "0.0",
+    };
+
+    const totalCount = comments.length || 1; // avoid division by zero
 
     return (
         <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 w-full">
@@ -54,37 +109,23 @@ export const ReviewsRanges = () => {
                     {[5, 4, 3, 2, 1].map((star) => (
                         <div key={star} className="flex items-center gap-3">
                             <span className="text-xs font-bold w-3">{star}</span>
-                            <Progress value={star === 5 ? 85 : star === 4 ? 15 : 0} className="h-1.5 flex-1" />
+                            <Progress
+                                value={((starCounts[star as 5 | 4 | 3 | 2 | 1] || 0) / totalCount) * 100}
+                                className="h-1.5 flex-1"
+                            />
                         </div>
                     ))}
                 </div>
             </div>
 
             <Separator orientation="vertical" className="h-32 hidden lg:block" />
-            {/* <div className="w-full overflow-x-auto no-scrollbar ">
-                <div className="flex lg:flex-wrap items-center md:gap-4 gap-1 lg:gap-0 lg:divide-x divide-border pb-2 lg:pb-0 ">
-                     {categories.map((item) => (
-                         <div
-                             key={item}
-                             className="flex flex-col items-center justify-center px-2 md:px-4 lg:px-8 shrink-0 lg:shrink"
-                         >
-                             <div className="bg-muted rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-medium whitespace-nowrap">
-                                 {item}
-                             </div>
-                             <span className="mt-1 md:mt-2 text-xs md:text-sm font-bold">5.0</span>
-                         </div>
-                     ))}
-                 </div>
-             </div> */}
-
-
 
             <div className="w-full overflow-x-auto no-scrollbar pb-2">
-                <div className="flex lg:grid lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                <div className="flex lg:grid lg:grid-cols-2 xl:grid-cols-4 gap-4">
                     {categories.map((item) => (
                         <div key={item} className="flex flex-col items-center lg:items-start p-3 bg-muted/30 rounded-xl min-w-[120px] lg:min-w-0">
                             <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">{item}</span>
-                            <span className="text-lg font-bold">5.0</span>
+                            <span className="text-lg font-bold">{averages[item as keyof typeof averages] || "0.0"}</span>
                         </div>
                     ))}
                 </div>
@@ -93,77 +134,87 @@ export const ReviewsRanges = () => {
     );
 };
 
-const ReviewsComments = () => {
-    const comments = [
-        { name: "July Kaly", date: "12 Mar 2025", review: "The truth of the stay with Simo was very comfortable, he welcomed us but we did not see him again..." },
-        { name: "John Wick", date: "12 Mar 2025", review: "Léonor is very responsive, and the accommodation perfectly matches our expectations. Highly recommended" },
-        { name: "Jack Fure", date: "12 Mar 2025", review: "Simo is very attentive and kind, the apartment was nice, the bed comfortable and very close to metro." },
-        { name: "Sara Smith", date: "10 Mar 2025", review: "Great location and very clean apartment. Would stay again!" },
-    ];
+const ReviewsComments = ({ comments = [] }: { comments: any[] }) => {
+    const visibleComments = comments.slice(0, 6); // Preview up to 6 comments in horizontal scroll
 
-    const isMobile = useIsMobile();
-    const INITIAL_COUNT = isMobile ? 100 : 3; // On mobile we show trigger to sheet, on desktop we show 3
-    const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
-    const visibleComments = comments.slice(0, 3); // Preview only 3 in the horizontal scroll
+    if (comments.length === 0) {
+        return (
+            <div className="text-center py-6 text-sm text-muted-foreground border border-dashed rounded-2xl">
+                No reviews yet for this business.
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
             {/* Horizontal Scroll for desktop/mobile preview */}
             <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-4 px-4 md:mx-0 md:px-0">
-                {visibleComments.map((comment, index) => (
-                    <ReviewCard key={index} {...comment} />
+                {visibleComments.map((comment: any) => (
+                    <ReviewCard key={comment._id} comment={comment} />
                 ))}
             </div>
 
             <div className="flex justify-start">
-                {isMobile ? (
-                    <MoreReviewsSideSheet
-                        comments={comments}
-                        trigger={
-                            <Button variant="outline" className="rounded-full font-semibold">
-                                Show all reviews
-                            </Button>
-                        }
-                    />
-                ) : (
-                    <MoreReviewsSideSheet
-                        comments={comments}
-                        trigger={
-                            <Button variant="outline" className="rounded-full font-semibold">
-                                Show all reviews
-                            </Button>
-                        }
-                    />
-                )}
+                <MoreReviewsSideSheet
+                    comments={comments}
+                    trigger={
+                        <Button variant="outline" className="rounded-full font-semibold">
+                            Show all {comments.length} reviews
+                        </Button>
+                    }
+                />
             </div>
         </div>
     );
 };
 
-const ReviewCard = ({ name, date, review }: { name: string; date: string; review: string }) => {
+const ReviewCard = ({ comment }: { comment: any }) => {
+    const name = comment.userId
+        ? `${comment.userId.firstName} ${comment.userId.lastName}`
+        : "Guest";
+
+    const formattedDate = comment.createdAt
+        ? format(new Date(comment.createdAt), "dd MMM yyyy")
+        : "";
+
     return (
         <Card className="rounded-2xl border border-border p-5 min-w-[280px] md:min-w-[350px] max-w-[400px] flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Avatar className="w-10 h-10 border">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`} />
+                        <AvatarImage src={comment.userId?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`} />
                         <AvatarFallback>{name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
                         <p className="font-bold text-sm leading-none mb-1">{name}</p>
-                        <p className="text-[11px] text-muted-foreground">{date}</p>
+                        <p className="text-[11px] text-muted-foreground">{formattedDate}</p>
                     </div>
                 </div>
-                <RattingBadge rating={5} variant="left" className="w-6 h-6 scale-90" />
+                <RattingBadge rating={comment.rating} variant="left" className="w-6 h-6 scale-90" />
             </div>
-            <p className="text-sm text-zinc-600 leading-relaxed line-clamp-3">
-                {review}
-            </p>
+
+            <div className="flex-1 flex flex-col justify-between gap-3">
+                <p className="text-sm text-zinc-600 leading-relaxed line-clamp-4">
+                    &quot;{comment.comment || "No comment left."}&quot;
+                </p>
+
+                {comment.vendorReply?.message && (
+                    <div className="mt-2 pl-3 border-l-2 border-primary/40 bg-zinc-50/50 p-2.5 rounded-r-xl space-y-1">
+                        <div className="flex items-center gap-1 text-[10px] font-bold text-primary">
+                            <CornerDownRight className="h-3 w-3" />
+                            Response from host
+                        </div>
+                        <p className="text-xs text-zinc-500 italic leading-relaxed">
+                            {comment.vendorReply.message}
+                        </p>
+                    </div>
+                )}
+            </div>
         </Card>
     );
 };
 
-export function MoreReviewsSideSheet({ comments, trigger }: { comments: any[], trigger: React.ReactNode }) {
+export function MoreReviewsSideSheet({ comments, trigger }: { comments: any[]; trigger: React.ReactNode }) {
     return (
         <Sheet>
             <SheetTrigger asChild>{trigger}</SheetTrigger>
@@ -173,8 +224,10 @@ export function MoreReviewsSideSheet({ comments, trigger }: { comments: any[], t
                     <SheetDescription>What people are saying about their stay</SheetDescription>
                 </SheetHeader>
                 <div className="flex-1 overflow-y-auto p-6 space-y-4 pb-20">
-                    {comments.map((comment, index) => (
-                        <ReviewCard key={index} {...comment} />
+                    {comments.map((comment: any) => (
+                        <div key={comment._id} className="border-b pb-4 last:border-0 last:pb-0">
+                            <ReviewCard comment={comment} />
+                        </div>
                     ))}
                 </div>
             </SheetContent>

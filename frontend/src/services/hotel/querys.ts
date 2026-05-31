@@ -14,6 +14,7 @@ import {
 } from "./hotel.service";
 import { getBookingById, getMyBookings } from "../booking/booking.service";
 import { Filters } from "@/context/NuqsContentProvider";
+import { CompanyType } from "@/app/(home)/(categories)/_componentsRoot_categories/reviews";
 
 export const useSearchCity = (query: string) => {
   return useQuery({
@@ -40,15 +41,19 @@ export const useGetNewHotels = () => {
   });
 };
 
-export const useGetHotelReviews = (id: string) => {
+export const useGetHotelReviews = (
+  companyId: string,
+  CompanyType: CompanyType,
+) => {
   return useQuery({
-    queryKey: ["hotel_reviews", id],
-    queryFn: () => getHotelReviews(id),
+    queryKey: ["hotel_reviews", companyId, CompanyType],
+    queryFn: () => getHotelReviews(companyId, CompanyType),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,
     retry: false, // optional
+    enabled: !!companyId && !!CompanyType,
   });
 };
 
@@ -218,18 +223,21 @@ export const useHotelAvailabilityQuery = (
     queryKey: [
       "hotel-availability",
       params.hotelId,
-      params.checkIn,
-      params.checkOut,
+      params.checkIn?.toString(),
+      params.checkOut?.toString(),
       params.adults,
       params.children,
     ],
-    queryFn: () => {
-      const res = getHotelAvailability(params);
-      setFetch(false);
-      return res;
+    queryFn: async () => {
+      try {
+        const res = await getHotelAvailability(params);
+        return res;
+      } finally {
+        setFetch(false);
+      }
     },
     enabled: fetch && !!params.checkIn && !!params.checkOut,
-    staleTime: 300000,
+    staleTime: 0,
   });
 };
 

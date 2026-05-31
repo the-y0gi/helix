@@ -51,7 +51,7 @@ export function TabsLine({
     //   />
     // ),
     amenities: <AmenitiesValues amenities={data.company.features} title="" />,
-    reviews: <ReviewsMain />
+    reviews: <ReviewsMain companyId={companyId} CompanyType='bike' />
     ,
     rooms: (
       <BikesMain
