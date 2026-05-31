@@ -14,5 +14,6 @@ router.post(
   controller.createRoomTypeWithAutoRooms
 );
 router.patch("/:id", authorize("vendor"), controller.updateRoomType);
+router.delete("/:id", authorize("vendor"), controller.deleteRoomType);
 
 module.exports = router;

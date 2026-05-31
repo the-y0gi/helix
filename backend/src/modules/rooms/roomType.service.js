@@ -297,3 +297,26 @@ exports.getVendorRoomTypeDetail = async (roomTypeId, vendorId) => {
     images: roomType.images || [],
   };
 };
+
+exports.deleteRoomType = async (roomTypeId, vendorId) => {
+  const roomType = await RoomType.findById(roomTypeId);
+  if (!roomType) throw new Error("Room type not found");
+
+  const hotel = await Hotel.findOne({ _id: roomType.hotelId, vendorId });
+  if (!hotel) throw new Error("Unauthorized room type access");
+
+  if (roomType.images?.length > 0) {
+    for (const img of roomType.images) {
+      if (img.public_id) {
+        await cloudinary.uploader.destroy(img.public_id, {
+          resource_type: img.resource_type || "image",
+        });
+      }
+    }
+  }
+
+  const Room = require("./room.model");
+  await Room.deleteMany({ roomTypeId });
+  await Availability.deleteMany({ roomTypeId });
+  await RoomType.findByIdAndDelete(roomTypeId);
+};
