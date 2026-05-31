@@ -255,7 +255,7 @@ exports.resetPasswordWhatsapp = async (phone, inputOTP, newPassword) => {
   };
 };
 
-exports.signup = async (email, password, role) => {
+exports.signup = async (email, password, role, firstName, lastName) => {
   try {
     const allowedRoles = ["user", "vendor", "admin"];
 
@@ -263,7 +263,6 @@ exports.signup = async (email, password, role) => {
       throw new Error("Invalid role");
     }
 
-    //delete old unverified user
     await User.deleteOne({
       email,
       "providers.local.isVerified": false,
@@ -277,7 +276,6 @@ exports.signup = async (email, password, role) => {
 
     const { otp, otpExpires } = await generateOTP();
 
-    //Signup expiry (5 min)
     const signupExpires = Date.now() + 5 * 60 * 1000;
 
     if (!user) {
@@ -285,6 +283,8 @@ exports.signup = async (email, password, role) => {
         email,
         password,
         role: role || "user",
+        firstName,
+        lastName,
         otp,
         otpExpires,
         signupExpires,
@@ -296,6 +296,8 @@ exports.signup = async (email, password, role) => {
       });
     } else {
       if (password) user.password = password;
+      user.firstName = firstName || user.firstName;
+      user.lastName = lastName || user.lastName;
 
       user.otp = otp;
       user.otpExpires = otpExpires;
@@ -307,7 +309,9 @@ exports.signup = async (email, password, role) => {
     await user.save();
     await sendOTPEmail(email, otp);
 
-    return { message: "OTP sent to your email for verification" };
+    return {
+      message: "OTP sent to your email for verification",
+    };
   } catch (error) {
     logger.error("Service Error: signup", error);
     throw error;
