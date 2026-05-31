@@ -139,3 +139,20 @@ exports.updateRoomType = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.deleteRoomType = async (req, res, next) => {
+  try {
+    const vendor = await Vendor.findOne({ userId: req.user._id });
+    if (!vendor) throw new Error("Vendor profile not found");
+
+    await roomTypeService.deleteRoomType(req.params.id, vendor._id);
+
+    res.status(200).json({
+      success: true,
+      message: "Room type deleted successfully",
+    });
+  } catch (error) {
+    logger.error("Controller Error: deleteRoomType", error);
+    next(error);
+  }
+};
