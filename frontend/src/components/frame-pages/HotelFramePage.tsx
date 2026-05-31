@@ -6,6 +6,7 @@ import { ImagesSliderDemo } from "../addimage/middle-ads-image";
 import { useGetNewHotels } from "@/services/hotel/querys";
 import type { Item } from "../carousel/onlyColursel";
 import { hoteldata, HotelFramePageProps } from "@/app/(home)/(categories)/hotels/page";
+import { MapPin } from "lucide-react";
 
 // No tabs in this design → so we pass tabs={undefined}
 type SectionConfig = {
@@ -72,6 +73,7 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
               type={type}
               items={items}
               isLoading={isLoading}
+              icon={<MapPin className="h-3 w-3 shrink-0" />}
             />
 
             {i === 1 && (

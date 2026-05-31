@@ -15,88 +15,105 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { AlertOverlay } from "@/components/ui/alert-dialouge";
+import {
+  Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader,
+  DialogOverlay, DialogPortal, DialogTitle, DialogTrigger
+} from "@/components/ui/dialog";
+import React from "react";
+import { VisuallyHidden } from "radix-ui";
+import AuthContextProvider from "@/context/auth/auth-form-provider";
+import ResetPasswordContextProvider from "@/context/auth/resetpasswordsteps";
+import { ResetPassword, SignInForm, SignupForm } from "@/components/auth/_components/sign-in-hover";
+import { cn } from "@/lib/utils";
+import { useLanguageStore, type Language } from "@/store/language.store";
+import { useTranslation } from "@/hooks/useTranslation";
+import { DeleteRequest } from "@/services/personal/profile.service";
+import { toast } from "sonner";
+
 
 export default function SettingsPage() {
+  const { language, setLanguage } = useLanguageStore();
+  const { t } = useTranslation();
+
   return (
-      <Card className="rounded-xl shadow-sm bg-background">
-        <CardHeader>
-          <CardTitle className="text-xl">
-            Customization preferences
-          </CardTitle>
-          
-        </CardHeader>
+    <Card className="rounded-xl shadow-sm bg-background">
+      <CardHeader>
+        <CardTitle className="text-xl">
+          {t("settings.title")}
+        </CardTitle>
+
+      </CardHeader>
+      <Separator />
+
+      <CardContent className="space-y-6">
+        <SettingRow
+          title={t("settings.currency")}
+          description={t("settings.currencyDesc")}
+        >
+          <Select defaultValue="usd">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="usd">U.S. Dollar</SelectItem>
+              <SelectItem value="eur">Euro</SelectItem>
+              <SelectItem value="inr">Indian Rupee</SelectItem>
+            </SelectContent>
+          </Select>
+        </SettingRow>
+
         <Separator />
 
-        <CardContent className="space-y-6">
-          <SettingRow
-            title="Currency"
-            description="Select your desired currency for transactions and price display, simplifying international use."
-          >
-            <Select defaultValue="usd">
-              <SelectTrigger className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="usd">U.S. Dollar</SelectItem>
-                <SelectItem value="eur">Euro</SelectItem>
-                <SelectItem value="inr">Indian Rupee</SelectItem>
-              </SelectContent>
-            </Select>
-          </SettingRow>
+        <SettingRow
+          title={t("settings.language")}
+          description={t("settings.languageDesc")}
+        >
+          <Select value={language} onValueChange={(val) => setLanguage(val as Language)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">English (US)</SelectItem>
+              <SelectItem value="hi">हिंदी (Hindi)</SelectItem>
+            </SelectContent>
+          </Select>
+        </SettingRow>
 
-          <Separator />
+        <Separator />
 
-          <SettingRow
-            title="Language"
-            description="Choose your preferred language for app display, enhancing your user experience."
-          >
-            <Select defaultValue="en">
-              <SelectTrigger className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">English (US)</SelectItem>
-                <SelectItem value="hi">Hindi</SelectItem>
-                <SelectItem value="fr">French</SelectItem>
-              </SelectContent>
-            </Select>
-          </SettingRow>
+        <SettingRow
+          title={t("settings.recommendations")}
+          description={t("settings.recommendationsDesc")}
+        >
+          <Switch defaultChecked />
+        </SettingRow>
 
-          <Separator />
+        <Separator />
+
+        <div className="pt-4">
+          <h3 className="text-lg font-semibold mb-1">{t("settings.security")}</h3>
+          <p className="text-sm text-muted-foreground mb-6">
+            {t("settings.securityDesc")}
+          </p>
 
           <SettingRow
-            title="Personalized recommendations"
-            description="We personalize recommendations based on your activity. You can opt out anytime."
+            title={t("settings.password")}
+            description={t("settings.passwordDesc")}
           >
-            <Switch defaultChecked />
+            <ResetPasswordDialog tag="ResetPassword" />
           </SettingRow>
 
-          <Separator />
+          <Separator className="my-6" />
 
-          <div className="pt-4">
-            <h3 className="text-lg font-semibold mb-1">Security</h3>
-            <p className="text-sm text-muted-foreground mb-6">
-              Manage your account security settings.
-            </p>
-
-            <SettingRow
-              title="Password"
-              description="Easily update your password in settings to maintain account security and ensure privacy."
-            >
-              <Button variant="outline">Set password</Button>
-            </SettingRow>
-
-            <Separator className="my-6" />
-
-            <SettingRow
-              title="Remove account"
-              description="Delete your account through settings for complete removal of your data from the system."
-            >
-              <DeleteProfile/>
-            </SettingRow>
-          </div>
-        </CardContent>
-      </Card>
+          <SettingRow
+            title={t("settings.removeAccount")}
+            description={t("settings.removeAccountDesc")}
+          >
+            <DeleteProfile />
+          </SettingRow>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -123,17 +140,65 @@ function SettingRow({
   );
 }
 const DeleteProfile = () => {
+  const { t } = useTranslation();
   const handelDeleteProfile = () => {
   };
   return (
     <AlertOverlay
-      trigger="Delete profile"
+      trigger={t("settings.deleteProfile")}
       variant="destructive"
       handelSumbit={handelDeleteProfile}
-      title="Delete profile"
-      description="Are you sure to delete your profile"
-      continueTitle="Delete"
-      canecelTitle="cancel"
+      title={t("settings.deleteProfile")}
+      description={t("settings.deleteProfileConfirm")}
+      continueTitle={t("settings.delete")}
+      canecelTitle={t("settings.cancel")}
     />
   );
 };
+
+
+export function ResetPasswordDialog({
+  forLike,
+  tag: tg,
+  variant,
+  className
+}: {
+  forLike?: {
+    content: React.ReactNode;
+    id?: string;
+    type: string;
+    do: string;
+  }
+  className?: string;
+  tag: "Log-in" | "Sign-up" | "ResetPassword";
+  variant?:
+  | "link"
+  | "default"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost";
+}) {
+  // console.log("trigger menu");
+  const [tag, setTag] = React.useState<"Log-in" | "Sign-up" | "ResetPassword">(tg);
+  const { type: t, do: d } = forLike || {};
+
+
+  return (
+    <Dialog >
+      <DialogTrigger asChild >
+
+        <Button variant={variant} className={cn("w-full flex justify-start", className)}>{tg}</Button>
+      </DialogTrigger>
+      <DialogContent className="md:w-[500px]  p-0 rounded-2xl overflow-hidden pb-4 w-[340px] z-65">
+        <DialogTitle className="sr-only hidden">Login</DialogTitle>
+
+
+        <ResetPasswordContextProvider>
+          <ResetPassword setTag={setTag} hideTag={true} />
+        </ResetPasswordContextProvider>
+
+      </DialogContent>
+    </Dialog>
+  );
+}

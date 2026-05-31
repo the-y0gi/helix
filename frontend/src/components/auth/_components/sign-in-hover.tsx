@@ -19,7 +19,7 @@ import {
   IconBrandFacebookFilled,
   IconBrandGoogleFilled,
 } from "@tabler/icons-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import {
   FormField,
@@ -367,10 +367,16 @@ export function SignInForm({ setTag, className }: {
   );
 }
 
-export const LofinFormFields = () => {
+export const LofinFormFields = ({ handelClose }: { handelClose?: () => void }) => {
   const [showPassword, setShowPassword] = useState(false);
   const { refetch } = useCurrentUser();
   const { loading, methods, onHandleSubmit } = useLogin({ refetch });
+  useEffect(() => {
+    const f = localStorage.getItem("accessToken");
+    if (f) {
+      handelClose && handelClose()
+    }
+  }, [loading])
   return (
     <Form {...methods}>
       <form onSubmit={onHandleSubmit}>
@@ -443,9 +449,10 @@ export const LofinFormFields = () => {
     </Form>
   )
 }
-export function ResetPassword({ setTag, className }: {
+export function ResetPassword({ setTag, className, hideTag = false }: {
   setTag: React.Dispatch<React.SetStateAction<"Log-in" | "Sign-up" | "ResetPassword">>
   className?: string
+  hideTag?: boolean
 }) {
   const { currentStep, setCurrentStep } = useResetPasswordForm();
   const { loading, methods, onHandleSubmit } = useResetPassword();
@@ -529,11 +536,14 @@ export function ResetPassword({ setTag, className }: {
                     Already have an account? <a href="/login" className="text-primary font-bold cursor-pointer">Back to Login</a>
                   </FieldDescription>
                 </div> */}
-                <div className="flex flex-col items-center gap-2 text-center   font-bold text-primary">
-                  <FieldDescription>
-                    Already have an account? <span onClick={() => setTag("Log-in")} className="text-primary font-bold cursor-pointer">Back to Login</span>
-                  </FieldDescription>
-                </div>
+                {!hideTag && (
+
+                  <div className="flex flex-col items-center gap-2 text-center   font-bold text-primary">
+                    <FieldDescription>
+                      Already have an account? <span onClick={() => setTag("Log-in")} className="text-primary font-bold cursor-pointer">Back to Login</span>
+                    </FieldDescription>
+                  </div>
+                )}
                 <br />
 
                 <FieldDescription className="px-6 text-center">

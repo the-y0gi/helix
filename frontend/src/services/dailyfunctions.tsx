@@ -2,9 +2,10 @@
 import { Sign_in_hover } from "@/components/auth/_components/sign-in-hover";
 import { cn } from "@/lib/utils";
 import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
-import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { dotoggleLike } from "./hotel/hotel.service";
 
 
 export const handleRefresh = (queryClient: any, queryKey: string[]) => {
@@ -17,14 +18,106 @@ export const handleRefresh = (queryClient: any, queryKey: string[]) => {
 export const LikeIcon = ({ _id, className, isFavourite, name, serviceType }: { _id: string; className?: string, isFavourite: boolean, name: string, serviceType: string }) => {
   const [liked, setLiked] = useState(isFavourite);
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
   const hasToken =
     typeof window !== "undefined" && localStorage.getItem("accessToken");
+
+  useEffect(() => {
+    setLiked(isFavourite);
+  }, [isFavourite]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: toggleLike,
     onSuccess: (data) => {
       setLiked(data.liked);
       toast.success(data.liked ? "Liked " + name : "Disliked " + name);
+
+      // Optimistic / Immediate Query Cache updates
+      if (serviceType === "adventure") {
+        queryClient.setQueryData(["getAdventureCompanyDetails", _id], (oldData: any) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              adventure: {
+                ...oldData.data?.adventure,
+                isFavorite: data.liked,
+                isFavourite: data.liked,
+              }
+            }
+          };
+        });
+      } else if (serviceType === "bike") {
+        queryClient.setQueryData(["BilesCompanyDetailsQuery", _id], (oldData: any) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              company: {
+                ...oldData.data?.company,
+                isFavorite: data.liked,
+                isFavourite: data.liked,
+              }
+            }
+          };
+        });
+      } else if (serviceType === "cab") {
+        queryClient.setQueryData(["getCabCompanyDetails", _id], (oldData: any) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              company: {
+                ...oldData.data?.company,
+                isFavorite: data.liked,
+                isFavourite: data.liked,
+              }
+            }
+          };
+        });
+      } else if (serviceType === "hotel") {
+        // Also update getAdventureCompanyDetails in case the user meant adventure (since they wrote serviceType = hotel for getAdventureCompanyDetails)
+        queryClient.setQueryData(["getAdventureCompanyDetails", _id], (oldData: any) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              adventure: {
+                ...oldData.data?.adventure,
+                isFavorite: data.liked,
+                isFavourite: data.liked,
+              }
+            }
+          };
+        });
+        queryClient.setQueryData(["hotel_details", _id], (oldData: any) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            isFavorite: data.liked,
+            isFavourite: data.liked,
+          };
+        });
+      } else if (serviceType === "tour") {
+        queryClient.setQueryData(["getTourDetails", _id], (oldData: any) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              company: {
+                ...oldData.data?.company,
+                isFavorite: data.liked,
+                isFavourite: data.liked,
+              }
+            }
+          };
+        });
+      }
     },
     onError: () => {
       toast.error("Action failed!");
@@ -79,8 +172,6 @@ export const LikeIcon = ({ _id, className, isFavourite, name, serviceType }: { _
     </button>
   );
 };
-import { useQueryClient } from "@tanstack/react-query";
-import { dotoggleLike } from "./hotel/hotel.service";
 // export const 
 export const useLogout = () => {
   try {

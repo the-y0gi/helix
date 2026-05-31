@@ -24,6 +24,7 @@ export interface Adventure {
   rating: number;
   reviews: number;
   images: string[];
+  isFavorite: boolean;
 }
 
 export interface AdventureService {

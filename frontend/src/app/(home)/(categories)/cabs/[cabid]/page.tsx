@@ -29,7 +29,6 @@ const BikeDetails = ({ className }: { className?: string }) => {
 
   const { data: bikeDetailsData, isLoading } =
     usegetCabCompanyDetails(bikeId);
-  console.log("bikeDetailsData", bikeDetailsData);
 
 
   if (!bikeDetailsData || !bikeDetailsData.data?.company || isLoading) {

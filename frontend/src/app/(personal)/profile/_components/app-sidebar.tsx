@@ -13,11 +13,13 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCurrentUser } from "@/services/hotel/querys";
 import { useAuthStore } from "@/store/auth.store";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function ProfileSidebar({ className }: { className?: string }) {
   const { navMain, user } = useProfileSidebar();
   const { data: currUser, refetch } = useCurrentUser();
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <aside
@@ -36,7 +38,7 @@ export function ProfileSidebar({ className }: { className?: string }) {
         />
         <div>
           <p className="text-sm font-medium">{currUser?.data?.firstName}</p>
-          <p className="text-xs text-muted-foreground">Customer Operations</p>
+          <p className="text-xs text-muted-foreground">{t("sidebar.customerOps")}</p>
         </div>
       </div>
 
@@ -68,7 +70,7 @@ export function ProfileSidebar({ className }: { className?: string }) {
         <div className="my-2 h-px bg-border" />
         <TabsTrigger className="py-2 px-3 justify-start rounded-full md:rounded-lg hover:bg-muted/50 transition-colors data-[state=active]:bg-muted data-[state=active]:font-medium" value="settings">
           <IconSettings className="h-5 w-5 mr-3 text-muted-foreground" />
-          <span className="text-sm">Settings</span>
+          <span className="text-sm">{t("sidebar.settings")}</span>
         </TabsTrigger>
       </nav>
 
@@ -85,6 +87,7 @@ export function ProfileSidebar({ className }: { className?: string }) {
 export const Logout = ({ refetch }: { refetch: () => void }) => {
   const queryClient = useQueryClient();
   const currentUser = useAuthStore();
+  const { t } = useTranslation();
 
   const navigate = useRouter();
   const handleLogout = () => {
@@ -99,13 +102,13 @@ export const Logout = ({ refetch }: { refetch: () => void }) => {
   };
   return (
     <AlertOverlay
-      trigger="Log out"
+      trigger={t("auth.logout")}
       variant="ghost"
       handelSumbit={handleLogout}
-      title="Logout"
-      description="Are you sure to log-out"
-      continueTitle="log-out"
-      canecelTitle="cancel"
+      title={t("auth.logout")}
+      description={t("auth.logoutConfirm")}
+      continueTitle={t("auth.logout")}
+      canecelTitle={t("settings.cancel")}
     />
   );
 };

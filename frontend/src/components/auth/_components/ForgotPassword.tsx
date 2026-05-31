@@ -32,7 +32,7 @@ type OTPFormProps = React.ComponentProps<typeof Card> & {
     onOTP: string;
     methods: UseFormReturn<ResetPasswordProps>;
     setOnOTP: React.Dispatch<React.SetStateAction<string>>;
-    className?:string
+    className?: string
 };
 
 const OTP_LENGTH = 4;
@@ -47,7 +47,7 @@ export function ForgotPasswordOTPForm({ onOTP, methods, setOnOTP, ...props }: OT
     }, [onOTP, setValue]);
 
     return (
-        <Card {...props} className={cn("w-full w-70 sm:w-80 md:w-90 lg:w-100 xl:w-110    rounded-2xl shadow-sm" , "bg-transparent border-none")}>
+        <Card {...props} className={cn("w-full w-70 sm:w-80 md:w-90 lg:w-100 xl:w-110  shadow-none  rounded-2xl", "bg-transparent border-none")}>
             <CardHeader className="text-center space-y-2">
                 <CardTitle className="text-xl font-semibold">
                     Enter verification code
@@ -57,7 +57,7 @@ export function ForgotPasswordOTPForm({ onOTP, methods, setOnOTP, ...props }: OT
                 </CardDescription>
             </CardHeader>
 
-            <CardContent className="w-full">
+            <CardContent className="w-full shadow-none">
                 <FieldGroup className="space-y-6 w-full">
                     <Field>
                         <FieldLabel htmlFor="otp" className="sr-only">

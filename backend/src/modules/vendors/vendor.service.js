@@ -257,7 +257,7 @@ exports.getVendorMe = async (userId) => {
           }
         : null,
 
-      // serviceDetails,
+      serviceDetails,
     };
 
     // APPROVED DATA
@@ -273,6 +273,11 @@ exports.getVendorMe = async (userId) => {
         serviceType: vendor.serviceType,
 
         companyId: serviceData?._id || null,
+        hotelId: serviceData?._id || null,
+        cabId: serviceData?._id || null,
+        bikeId: serviceData?._id || null,
+        tourId: serviceData?._id || null,
+        adventureId: serviceData?._id || null,
         serviceName: serviceData?.name || null,
       };
     }

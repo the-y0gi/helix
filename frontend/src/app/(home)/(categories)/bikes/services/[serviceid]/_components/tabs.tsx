@@ -187,16 +187,16 @@ const CarBookingCard = ({ data }: { data?: RentalData }) => {
   const router = useRouter();
 
   return (
-    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[32px] overflow-hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm p-1 transition-colors duration-300">
+    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[32px] overflow-hidden bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm p-1 transition-colors duration-300">
       <CardContent className="pt-5 px-5 space-y-5">
 
         {/* Header */}
         <div className="flex justify-between items-center">
           <div className="space-y-0.5">
-            <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50">
+            <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900 dark:text-zinc-400">
               {data?.service?.bikeName || "Bike Rental"}
             </h2>
-            <div className="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-slate-500 dark:text-slate-400">
+            <div className="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-slate-500 dark:text-zinc-500">
               <Fuel className="w-4 h-4 text-rose-500" />
               <span>{data?.service?.mileage || "—"} • {data?.service?.fuelType || "Petrol"}</span>
             </div>
@@ -214,12 +214,12 @@ const CarBookingCard = ({ data }: { data?: RentalData }) => {
           {/* Location */}
           <div className="relative space-y-4">
             <div className="flex gap-4 relative">
-              <div className="z-10 p-2 bg-rose-50 dark:bg-rose-950/30 rounded-full h-fit ring-4 ring-white dark:ring-slate-900">
+              <div className="z-10 p-2 bg-rose-50 dark:bg-rose-950/30 rounded-full h-fit ring-4 ring-white dark:ring-zinc-800">
                 <MapPin className="w-4 h-4 text-rose-600 fill-rose-600 dark:text-rose-500 dark:fill-rose-500" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500">Location</span>
-                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{city || "Select location"}</span>
+                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-zinc-500">Location</span>
+                <span className="text-sm font-bold text-slate-800 dark:text-zinc-200">{city || "Select location"}</span>
               </div>
             </div>
           </div>
@@ -227,10 +227,10 @@ const CarBookingCard = ({ data }: { data?: RentalData }) => {
           <div className="grid grid-cols-2 gap-3 pt-2">
             {/* Date */}
             <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-              <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+              <Calendar className="w-4 h-4 text-slate-400 dark:text-zinc-500" />
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">Period</span>
-                <span className="text-[11px] font-bold text-slate-900 dark:text-slate-200">
+                <span className="text-[9px] font-bold text-slate-400 dark:text-zinc-500 uppercase">Period</span>
+                <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-200">
                   {date?.from ? format(date.from, "dd/MM/yyyy") : "Start"} - {date?.to ? format(date.to, "dd/MM/yyyy") : "End"}
                 </span>
               </div>
@@ -238,10 +238,10 @@ const CarBookingCard = ({ data }: { data?: RentalData }) => {
 
             {/* Guests */}
             <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-              <User className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+              <User className="w-4 h-4 text-slate-400 dark:text-zinc-500" />
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">Riders</span>
-                <span className="text-[11px] font-bold text-slate-900 dark:text-slate-200">
+                <span className="text-[9px] font-bold text-slate-400 dark:text-zinc-500 uppercase">Riders</span>
+                <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-200">
                   {guests.adults + guests.children} Rider(s)
                 </span>
               </div>
@@ -251,15 +251,15 @@ const CarBookingCard = ({ data }: { data?: RentalData }) => {
 
         {/* Pricing Box */}
         {data?.service?.pricePerDay && (
-          <div className="bg-gradient-to-r from-rose-50 to-orange-50 dark:from-slate-800 dark:to-slate-800/50 p-4 rounded-2xl border border-rose-100/50 dark:border-slate-700">
+          <div className="bg-gradient-to-r from-rose-50 to-orange-50 dark:from-slate-800 dark:to-zinc-800/50 p-4 rounded-2xl border border-rose-100/50 dark:border-slate-700">
             <div className="flex justify-between items-end">
               <div>
                 <p className="text-[10px] font-bold text-rose-400 dark:text-rose-500 uppercase tracking-widest">Price</p>
-                <p className="text-xl font-black text-slate-900 dark:text-slate-50">
-                  ₹{data.service.totalPriceWithTax} <span className="text-sm font-bold text-slate-500 dark:text-slate-400">/day</span>
+                <p className="text-xl font-black text-slate-900 dark:text-zinc-400">
+                  ₹{data.service.totalPriceWithTax} <span className="text-sm font-bold text-slate-500 dark:text-zinc-500">/day</span>
                 </p>
               </div>
-              <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 pb-1">after Taxes & Fees</p>
+              <p className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 pb-1">after Taxes & Fees</p>
             </div>
           </div>
         )}
@@ -277,7 +277,7 @@ const CarBookingCard = ({ data }: { data?: RentalData }) => {
               "categories": "bikes"
             });
           }}
-          className="w-full bg-[#FF3B30] hover:bg-[#E0352B] dark:bg-rose-600 dark:hover:bg-rose-700 text-white text-md font-bold h-14 rounded-2xl shadow-lg shadow-rose-200 dark:shadow-none group active:scale-[0.98] transition-all"
+          className="w-full bg-primary hover:bg-primary/80 text-white text-md font-bold h-14 rounded-2xl shadow-lg shadow-rose-200 dark:shadow-none group active:scale-[0.98] transition-all"
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Book Now"}
           <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />

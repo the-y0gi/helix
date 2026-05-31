@@ -95,11 +95,11 @@ const AdventureBookingCard = ({ data }: { data?: TrekDetailData }) => {
   const router = useRouter();
 
   return (
-    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[32px] overflow-hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm p-1 transition-colors duration-300">
+    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[32px] overflow-hidden bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm p-1 transition-colors duration-300">
       <CardContent className="pt-5 px-5 space-y-5">
         <div className="flex justify-between items-center">
           <div className="space-y-0.5">
-            <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50">
+            <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900 dark:text-zinc-400">
               {data?.adventure?.name || "Adventure Activity"}
             </h2>
             <div className="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-slate-500 dark:text-slate-400">
@@ -115,7 +115,7 @@ const AdventureBookingCard = ({ data }: { data?: TrekDetailData }) => {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3 pt-2">
             <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-              <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+              <Calendar className="w-4 h-4 text-slate-400 dark:text-zinc-500" />
               <div className="flex flex-col">
                 <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">
                   Date

@@ -68,7 +68,6 @@ export const Content = ({ className }: { className: string }) => {
   const { wrap } = useNuqsContext();
   const isMobile = useIsMobile()
   const { bikes, isLoading, page, setPage, total } = useBikeContext()
-  console.log(bikes, "this is S");
 
 
   if (isLoading) {

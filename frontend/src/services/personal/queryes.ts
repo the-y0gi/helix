@@ -1,5 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { getFavouriteSummary, getMyTrip, getMyTripME, getReviews } from "./profile.service";
+import {
+  getFavouriteSummary,
+  getMyTrip,
+  getMyTripME,
+  getReviews,
+} from "./profile.service";
+import { getMyTickets, getTicketDetail, Ticket, TicketsResponse } from "./support.service";
 export const useGetReviewsQuery = (id: string) => {
   return useQuery({
     queryKey: ["getReviews"],
@@ -11,7 +17,7 @@ export const useGetReviewsQuery = (id: string) => {
     retry: false, // optional
   });
 };
-export const useGetFavouriteSummary = ()=>{
+export const useGetFavouriteSummary = () => {
   return useQuery({
     queryKey: ["favourite_summary"],
     queryFn: () => getFavouriteSummary(),
@@ -20,9 +26,9 @@ export const useGetFavouriteSummary = ()=>{
     refetchOnMount: false,
     refetchOnReconnect: true,
     retry: false, // optional
-  })
-}
-export const useGetMyTrips = ()=>{
+  });
+};
+export const useGetMyTrips = () => {
   return useQuery({
     queryKey: ["my-trips"],
     queryFn: () => getMyTrip(),
@@ -31,10 +37,10 @@ export const useGetMyTrips = ()=>{
     refetchOnMount: false,
     refetchOnReconnect: true,
     retry: false, // optional
-  })
-}
+  });
+};
 
-export const useGetMyTripME = ()=>{
+export const useGetMyTripME = () => {
   return useQuery({
     queryKey: ["my-trip-me"],
     queryFn: () => getMyTripME(),
@@ -43,5 +49,31 @@ export const useGetMyTripME = ()=>{
     refetchOnMount: false,
     refetchOnReconnect: true,
     retry: false, // optional
-  })
-}
+  });
+};
+
+export const useGetMyTicketsQuery = (status?: string) => {
+  return useQuery<TicketsResponse | null>({
+    queryKey: ["support_tickets", status],
+    queryFn: () => getMyTickets({ status }),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: true,
+    retry: false,
+  });
+};
+
+export const useGetTicketDetailQuery = (ticketId: string | null) => {
+  return useQuery<Ticket | null>({
+    queryKey: ["support_ticket_detail", ticketId],
+    queryFn: () => getTicketDetail(ticketId!),
+    enabled: !!ticketId,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: true,
+    retry: false,
+  });
+};
+

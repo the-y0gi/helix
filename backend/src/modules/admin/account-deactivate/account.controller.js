@@ -33,7 +33,7 @@ exports.approveDeleteRequest = async (req, res, next) => {
 
 exports.rejectDeleteRequest = async (req, res, next) => {
   try {
-    const result = await userService.rejectDeleteRequest(req.params.userId);
+    const result = await accountService.rejectDeleteRequest(req.params.userId);
 
     res.status(200).json({
       success: true,

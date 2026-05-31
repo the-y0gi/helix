@@ -67,7 +67,6 @@ export const Content = ({ className }: { className: string }) => {
   const { wrap } = useNuqsContext();
   const isMobile = useIsMobile()
   const { adventures, isLoading } = useAdventureContext()
-  console.log(adventures, "this is S");
 
 
   if (isLoading) {

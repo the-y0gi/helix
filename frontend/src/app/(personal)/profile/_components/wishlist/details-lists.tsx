@@ -13,9 +13,10 @@ import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { RouterPush } from "@/components/RouterPush"
 export type labelType = "favourites" | "wishlists"
-export function SavedTripsSection({ setDetails, label }: {
+export function SavedTripsSection({ setDetails, label, onClose }: {
     label: labelType,
-    setDetails: React.Dispatch<React.SetStateAction<{ open: boolean; id: string; label: labelType }>>
+    setDetails: React.Dispatch<React.SetStateAction<{ open: boolean; id: string; label: labelType }>>,
+    onClose?: () => void
 }) {
     // const {data:myTripdata_useGetMyTrips} = useGetMyTrips()
     //   console.log("myTripdata_useGetMyTrips",myTripdata_useGetMyTrips)
@@ -30,7 +31,7 @@ export function SavedTripsSection({ setDetails, label }: {
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold px-2">My next trip</h2>
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => setDetails({ open: false, id: "", label: "favourites" })}>
+                    <Button variant="ghost" size="icon" onClick={() => onClose ? onClose() : setDetails({ open: false, id: "", label: "favourites" })}>
                         Back
                     </Button>
                 </div>
@@ -59,6 +60,7 @@ export function SavedTripsSection({ setDetails, label }: {
                                 rating={val.rating}
                                 distance="23"
                                 key={val._id}
+                                itemType={val.itemType}
                             />
                         )
                     })
@@ -83,6 +85,7 @@ interface SavedPropertyCardProps {
     isFavorite: boolean
     numReviews: number
     rating: number
+    itemType: string
 }
 
 export function SavedPropertyCard({
@@ -94,17 +97,18 @@ export function SavedPropertyCard({
     isFavorite,
     numReviews,
     rating,
+    itemType,
     _id
 }: SavedPropertyCardProps) {
     const router = useRouter()
     return (
         <Card onClick={() => {
-            RouterPush(router, `/hotels/${_id}`);
+            RouterPush(router, `/${itemType}s/${_id}`);
         }} className="group relative rounded-none md:rounded-xl min-w-[150px] overflow-hidden shadow-sm transition bg-background border-none py-0">
             {/* Image Container - Height stays fixed or aspect-ratio */}
             <div className="relative h-64 md:h-56 w-full">
                 <Image
-                    src={thumbnail || "/hotels/room1.png"}
+                    src={thumbnail.length > 50 ? thumbnail : "/noimage.png"}
                     alt={title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -114,12 +118,13 @@ export function SavedPropertyCard({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent md:hidden" />
 
                 {/* Favorite Icon */}
-                {/* <LikeIcon
+                <LikeIcon
+                    serviceType={itemType}
                     _id={_id}
                     isFavourite={isFavorite || false}
                     name="card"
                     className="absolute right-3 top-3 h-8 w-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center z-10"
-                /> */}
+                />
             </div>
 
             {/* Content Container */}
@@ -133,7 +138,7 @@ export function SavedPropertyCard({
                 {/* Review/Rating Row */}
                 <div className="flex items-center gap-2">
                     <Badge className="bg-primary text-white border-none px-1.5 py-0 text-[10px] md:text-xs">
-                        {rating}
+                        {/* {rating} */}
                     </Badge>
                     <span className="text-primary/50 md:text-primary font-medium text-[10px] md:text-xs">
                         Excellent

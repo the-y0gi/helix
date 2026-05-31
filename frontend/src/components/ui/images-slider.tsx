@@ -142,16 +142,25 @@ export const ImagesSlider = ({
   useEffect(() => {
     const loadPromises = images.map(
       (image) =>
-        new Promise<string>((resolve, reject) => {
+        new Promise<string | null>((resolve) => {
           const img = new Image();
           img.src = image;
           img.onload = () => resolve(image);
-          img.onerror = reject;
+          img.onerror = () => {
+            console.warn(`Failed to load image: ${image}`);
+            resolve(null);
+          };
         })
     );
     Promise.all(loadPromises)
-      .then((loaded) => setLoadedImages(loaded))
-      .catch((err) => console.error("Failed to load images", err));
+      .then((results) => {
+        const loaded = results.filter((img): img is string => img !== null);
+        if (loaded.length > 0) {
+          setLoadedImages(loaded);
+        } else {
+          console.error("Failed to load any images from standard list", images);
+        }
+      });
   }, [images]);
 
   // Keyboard navigation
@@ -215,6 +224,24 @@ export const ImagesSlider = ({
             />
           </motion.div>
         </AnimatePresence>
+      )}
+
+      {/* Loader layout skeleton when images are loading */}
+      {!areImagesLoaded && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-800/90 dark:bg-zinc-950/90 px-6 text-center animate-pulse z-40 transition-all duration-300">
+          {/* Title Placeholder */}
+          <div className="h-8 sm:h-12 w-[60%] max-w-md bg-white/20 rounded-xl mb-4" />
+          
+          {/* Line Separator Placeholder */}
+          <div className="h-[2px] w-32 md:w-48 bg-white/15 my-4" />
+          
+          {/* Description Placeholder */}
+          <div className="h-4 sm:h-5 w-[80%] max-w-md bg-white/15 rounded-lg mb-2" />
+          <div className="h-4 sm:h-5 w-[50%] max-w-xs bg-white/15 rounded-lg mb-8" />
+          
+          {/* CTA Button Placeholder */}
+          <div className="h-10 sm:h-12 w-32 sm:w-40 bg-white/20 rounded-full" />
+        </div>
       )}
 
       {/* Multi-layer overlay for depth */}
