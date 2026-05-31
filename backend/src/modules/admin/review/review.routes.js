@@ -2,48 +2,43 @@ const express = require("express");
 const router = express.Router();
 
 const reviewController = require("./review.controller");
+
 const { protect } = require("../../../shared/middlewares/verifyToken");
 const { authorize } = require("../../../shared/middlewares/roleMiddleware");
 
-
-// Get review stats
+// Review Dashboard Stats
 router.get(
   "/stats",
   protect,
   authorize("admin"),
-  reviewController.getReviewStats
+  reviewController.getReviewStats,
 );
 
-// Get all reviews (admin)
-router.get(
-  "/",
-  protect,
-  authorize("admin"),
-  reviewController.getAllReviews
-);
+// All Reviews
+router.get("/", protect, authorize("admin"), reviewController.getAllReviews);
 
-// Get review detail
+// Review Detail
 router.get(
   "/:reviewId",
   protect,
   authorize("admin"),
-  reviewController.getReviewDetail
+  reviewController.getReviewDetail,
 );
 
-// Delete review
+// Delete Review
 router.delete(
   "/:reviewId",
   protect,
   authorize("admin"),
-  reviewController.deleteReview
+  reviewController.deleteReview,
 );
 
-// Flag review
+// Flag / Unflag Review
 router.patch(
   "/:reviewId/flag",
   protect,
   authorize("admin"),
-  reviewController.flagReview
+  reviewController.flagReview,
 );
 
 module.exports = router;

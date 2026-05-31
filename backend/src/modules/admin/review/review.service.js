@@ -1,348 +1,30 @@
 const mongoose = require("mongoose");
 const Review = require("../../reviews/review.model");
-
-exports.getAllReviews = async (query) => {
-  try {
-    const {
-      page = 1,
-      limit = 10,
-      search,
-      rating,
-      serviceType,
-      hasReply,
-    } = query;
-
-    const skip = (page - 1) * limit;
-
-    const matchStage = {};
-
-    // Rating filter
-    if (rating) {
-      matchStage.rating = Number(rating);
-    }
-
-    // Has reply filter
-    if (hasReply === "true") {
-      matchStage["vendorReply.message"] = { $exists: true, $ne: "" };
-    }
-    if (hasReply === "false") {
-      matchStage["vendorReply.message"] = { $in: [null, ""] };
-    }
-
-    const pipeline = [
-      {
-        $match: matchStage,
-      },
-
-      // USER
-      {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "user",
-        },
-      },
-      { $unwind: "$user" },
-
-      // HOTEL (current service)
-      {
-        $lookup: {
-          from: "hotels",
-          localField: "hotelId",
-          foreignField: "_id",
-          as: "hotel",
-        },
-      },
-      {
-        $unwind: {
-          path: "$hotel",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-
-      // VENDOR
-      {
-        $lookup: {
-          from: "vendors",
-          localField: "hotel.vendorId",
-          foreignField: "_id",
-          as: "vendor",
-        },
-      },
-      {
-        $unwind: {
-          path: "$vendor",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-
-      // SEARCH
-      ...(search
-        ? [
-            {
-              $match: {
-                $or: [
-                  { "user.firstName": { $regex: search, $options: "i" } },
-                  { "user.lastName": { $regex: search, $options: "i" } },
-                  { "hotel.name": { $regex: search, $options: "i" } },
-                  { "vendor.businessName": { $regex: search, $options: "i" } },
-                  { "hotel.city": { $regex: search, $options: "i" } },
-                ],
-              },
-            },
-          ]
-        : []),
-
-      // FINAL RESPONSE
-      {
-        $project: {
-          _id: 1,
-
-          reviewId: "$_id",
-
-          userName: {
-            $trim: {
-              input: {
-                $concat: [
-                  { $ifNull: ["$user.firstName", ""] },
-                  " ",
-                  { $ifNull: ["$user.lastName", ""] },
-                ],
-              },
-            },
-          },
-
-          serviceType: {
-            $literal: "hotel", // future extendable
-          },
-
-          serviceName: {
-            $ifNull: ["$hotel.name", "N/A"],
-          },
-
-          vendorName: {
-            $ifNull: ["$vendor.businessName", "N/A"],
-          },
-
-          city: {
-            $ifNull: ["$hotel.city", "N/A"],
-          },
-
-          rating: 1,
-
-          comment: {
-            $substr: ["$comment", 0, 80],
-          },
-
-          hasReply: {
-            $cond: [
-              { $ifNull: ["$vendorReply.message", false] },
-              true,
-              false,
-            ],
-          },
-
-          createdAt: 1,
-        },
-      },
-
-      {
-        $sort: { createdAt: -1 },
-      },
-
-      {
-        $facet: {
-          data: [{ $skip: skip }, { $limit: Number(limit) }],
-          totalCount: [{ $count: "count" }],
-        },
-      },
-    ];
-
-    const result = await Review.aggregate(pipeline);
-
-    const reviews = result[0].data;
-    const total = result[0].totalCount[0]?.count || 0;
-
-    return {
-      reviews,
-      pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total,
-      },
-    };
-  } catch (error) {
-    throw error;
-  }
-};
-
-
-
-exports.getReviewDetail = async (reviewId) => {
-  try {
-    const pipeline = [
-      {
-        $match: {
-          _id: new mongoose.Types.ObjectId(reviewId),
-        },
-      },
-
-      // USER
-      {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "user",
-        },
-      },
-      { $unwind: "$user" },
-
-      // HOTEL
-      {
-        $lookup: {
-          from: "hotels",
-          localField: "hotelId",
-          foreignField: "_id",
-          as: "hotel",
-        },
-      },
-      { $unwind: "$hotel" },
-
-      // VENDOR
-      {
-        $lookup: {
-          from: "vendors",
-          localField: "hotel.vendorId",
-          foreignField: "_id",
-          as: "vendor",
-        },
-      },
-      {
-        $unwind: {
-          path: "$vendor",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-
-      // FINAL RESPONSE
-      {
-        $project: {
-          //  REVIEW 
-          review: {
-            reviewId: "$_id",
-            rating: "$rating",
-            breakdown: "$breakdown",
-            comment: "$comment",
-            createdAt: "$createdAt",
-          },
-
-          // USER
-          user: {
-            _id: "$user._id",
-            name: {
-              $trim: {
-                input: {
-                  $concat: [
-                    { $ifNull: ["$user.firstName", ""] },
-                    " ",
-                    { $ifNull: ["$user.lastName", ""] },
-                  ],
-                },
-              },
-            },
-            email: "$user.email",
-            phoneNumber: "$user.phoneNumber",
-          },
-
-          // SERVICE 
-          service: {
-            type: "hotel",
-
-            hotel: {
-              _id: "$hotel._id",
-              name: "$hotel.name",
-              city: "$hotel.city",
-              address: "$hotel.address",
-              rating: "$hotel.rating",
-              numReviews: "$hotel.numReviews",
-              image: { $arrayElemAt: ["$hotel.images.url", 0] },
-            },
-          },
-
-          //VENDOR
-          vendor: {
-            _id: "$vendor._id",
-            businessName: "$vendor.businessName",
-            businessEmail: "$vendor.businessEmail",
-            businessPhone: "$vendor.businessPhone",
-            city: "$vendor.city",
-            status: "$vendor.status",
-          },
-
-          //VENDOR REPLY
-          vendorReply: {
-            message: "$vendorReply.message",
-            repliedAt: "$vendorReply.repliedAt",
-          },
-        },
-      },
-    ];
-
-    const result = await Review.aggregate(pipeline);
-
-    if (!result.length) {
-      throw new Error("Review not found");
-    }
-
-    return result[0];
-  } catch (error) {
-    throw error;
-  }
-};
-
-exports.deleteReview = async (reviewId) => {
-  try {
-    const review = await Review.findByIdAndDelete(reviewId);
-
-    if (!review) {
-      throw new Error("Review not found");
-    }
-
-    return {
-      message: "Review deleted successfully",
-    };
-  } catch (error) {
-    throw error;
-  }
-};
-
-
+const { updateCompanyRating } = require("../../reviews/helpers/updateCompanyRating");
+const logger = require("../../../shared/utils/logger");
 
 exports.getReviewStats = async () => {
   try {
-    const pipeline = [
+    const result = await Review.aggregate([
       {
         $facet: {
-          //Total Reviews
           totalReviews: [
             {
               $count: "count",
             },
           ],
 
-          //Average Rating
           avgRating: [
             {
               $group: {
                 _id: null,
-                avg: { $avg: "$rating" },
+                avg: {
+                  $avg: "$rating",
+                },
               },
             },
           ],
 
-          //Low Ratings (1 & 2)
           lowRatings: [
             {
               $match: {
@@ -354,14 +36,28 @@ exports.getReviewStats = async () => {
             },
           ],
 
-          //No Reply Reviews
           noReply: [
             {
               $match: {
                 $or: [
-                  { "vendorReply.message": null },
-                  { "vendorReply.message": "" },
+                  {
+                    "vendorReply.message": null,
+                  },
+                  {
+                    "vendorReply.message": "",
+                  },
                 ],
+              },
+            },
+            {
+              $count: "count",
+            },
+          ],
+
+          flaggedReviews: [
+            {
+              $match: {
+                isFlagged: true,
               },
             },
             {
@@ -370,47 +66,272 @@ exports.getReviewStats = async () => {
           ],
         },
       },
-    ];
-
-    const result = await Review.aggregate(pipeline);
+    ]);
 
     const stats = result[0];
 
     return {
       totalReviews: stats.totalReviews[0]?.count || 0,
+
       avgRating: Number(stats.avgRating[0]?.avg?.toFixed(1)) || 0,
+
       lowRatings: stats.lowRatings[0]?.count || 0,
+
       noReply: stats.noReply[0]?.count || 0,
+
+      flaggedReviews: stats.flaggedReviews[0]?.count || 0,
     };
   } catch (error) {
+    logger.error("Service Error: getReviewStats", error);
+
     throw error;
   }
 };
 
-exports.flagReview = async (reviewId, body) => {
+exports.getAllReviews = async (query) => {
   try {
-    const { isFlagged = true, reason } = body;
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
 
-    const review = await Review.findByIdAndUpdate(
-      reviewId,
-      {
-        isFlagged,
-        flagReason: reason || "Flagged by admin",
+    const skip = (page - 1) * limit;
+
+    const filter = {};
+
+    if (query.companyType) {
+      filter.companyType = query.companyType;
+    }
+
+    if (query.rating) {
+      filter.rating = Number(query.rating);
+    }
+
+    if (query.isFlagged !== undefined) {
+      filter.isFlagged = query.isFlagged === "true";
+    }
+
+    if (query.hasReply === "true") {
+      filter["vendorReply.message"] = {
+        $exists: true,
+        $ne: "",
+      };
+    }
+
+    if (query.hasReply === "false") {
+      filter.$or = [
+        { "vendorReply.message": { $exists: false } },
+        { "vendorReply.message": "" },
+      ];
+    }
+
+    let reviews = await Review.find(filter)
+      .populate("userId", "firstName lastName email avatar")
+      .populate("vendorId", "businessName")
+      .sort({
+        createdAt: -1,
+      })
+      .lean();
+
+    // Search
+    if (query.search?.trim()) {
+      const search = query.search.trim().toLowerCase();
+
+      reviews = reviews.filter((review) => {
+        const companyName = review.companyName?.toLowerCase() || "";
+
+        const vendorName = review.vendorId?.businessName?.toLowerCase() || "";
+
+        const userName = `${review.userId?.firstName || ""} ${
+          review.userId?.lastName || ""
+        }`.toLowerCase();
+
+        return (
+          companyName.includes(search) ||
+          vendorName.includes(search) ||
+          userName.includes(search)
+        );
+      });
+    }
+
+    const total = reviews.length;
+
+    const paginatedReviews = reviews.slice(skip, skip + limit);
+
+    return {
+      reviews: paginatedReviews.map((review) => ({
+        reviewId: review._id,
+
+        userName: `${review.userId?.firstName || ""} ${
+          review.userId?.lastName || ""
+        }`.trim(),
+
+        companyName: review.companyName,
+
+        companyType: review.companyType,
+
+        vendorName: review.vendorId?.businessName || "",
+
+        rating: review.rating,
+
+        comment:
+          review.comment?.length > 80
+            ? `${review.comment.substring(0, 80)}...`
+            : review.comment,
+
+        hasReply: Boolean(review.vendorReply?.message),
+
+        isFlagged: review.isFlagged,
+
+        createdAt: review.createdAt,
+      })),
+
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
       },
-      { new: true }
-    );
+    };
+  } catch (error) {
+    logger.error("Service Error: getAllReviews", error);
+
+    throw error;
+  }
+};
+
+exports.getReviewDetail = async (reviewId) => {
+  try {
+    const review = await Review.findById(reviewId)
+      .populate("userId", "firstName lastName email phoneNumber avatar")
+      .populate("vendorId", "businessName businessEmail businessPhone")
+      .lean();
 
     if (!review) {
       throw new Error("Review not found");
     }
 
     return {
+      reviewId: review._id,
+
+      rating: review.rating,
+
+      comment: review.comment,
+
+      createdAt: review.createdAt,
+
+      user: {
+        id: review.userId?._id,
+
+        firstName: review.userId?.firstName,
+
+        lastName: review.userId?.lastName,
+
+        email: review.userId?.email,
+
+        phoneNumber: review.userId?.phoneNumber,
+
+        avatar: review.userId?.avatar,
+      },
+
+      company: {
+        id: review.companyId,
+
+        name: review.companyName,
+
+        type: review.companyType,
+      },
+
+      vendor: {
+        id: review.vendorId?._id,
+
+        businessName: review.vendorId?.businessName,
+
+        businessEmail: review.vendorId?.businessEmail,
+
+        businessPhone: review.vendorId?.businessPhone,
+      },
+
+      vendorReply: {
+        message: review.vendorReply?.message || "",
+
+        repliedAt: review.vendorReply?.repliedAt || null,
+      },
+
+      moderation: {
+        isFlagged: review.isFlagged,
+
+        flagReason: review.flagReason || "",
+      },
+    };
+  } catch (error) {
+    logger.error("Service Error: getReviewDetail", error);
+
+    throw error;
+  }
+};
+
+exports.flagReview = async (reviewId, body) => {
+  try {
+    const { isFlagged, flagReason } = body;
+
+    if (typeof isFlagged !== "boolean") {
+      throw new Error("isFlagged must be true or false");
+    }
+
+    const review = await Review.findById(reviewId);
+
+    if (!review) {
+      throw new Error("Review not found");
+    }
+
+    review.isFlagged = isFlagged;
+
+    if (isFlagged) {
+      if (!flagReason?.trim()) {
+        throw new Error("Flag reason is required");
+      }
+
+      review.flagReason = flagReason.trim();
+    } else {
+      review.flagReason = "";
+    }
+
+    await review.save();
+
+    return {
       message: isFlagged
         ? "Review flagged successfully"
         : "Review unflagged successfully",
+
       review,
     };
   } catch (error) {
+    logger.error("Service Error: flagReview", error);
+
+    throw error;
+  }
+};
+
+exports.deleteReview = async (reviewId) => {
+  try {
+    const review = await Review.findById(reviewId);
+
+    if (!review) {
+      throw new Error("Review not found");
+    }
+
+    const companyType = review.companyType;
+    const companyId = review.companyId;
+
+    await review.deleteOne();
+
+    await updateCompanyRating(companyType, companyId);
+
+    return {
+      message: "Review deleted successfully",
+    };
+  } catch (error) {
+    logger.error("Service Error: deleteReview", error);
+
     throw error;
   }
 };
