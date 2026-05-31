@@ -85,7 +85,7 @@ const AdventureDetailsItems = ({
             { title: "rooms", id: 5 },
             // { title: "amenities", id: 3 },
             // { title: "location", id: 4 },
-            // { title: "reviews", id: 6 },
+            { title: "reviews", id: 6 },
           ]}
         />
       </div>

@@ -42,7 +42,7 @@ export function PaymentSuccess({ payment }: { payment: any }) {
             <Card className="w-full overflow-hidden hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 hover:scale-101 border-none ring-1 ring-black/5 dark:ring-white/10">
 
                 {/* Modern Success Header */}
-                <div className="relative bg-primary text-primary-foreground p-8 md:p-12 text-center overflow-hidden ">
+                <div className="relative bg-green-600 text-primary-foreground p-8 md:p-12 text-center overflow-hidden ">
                     {/* Decorative background elements */}
                     <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
                         <div className="absolute -top-12 -left-12 w-18 h-18 sm:w-24 sm:h-24 md:w-48 md:h-48 rounded-full bg-white blur-3xl" />

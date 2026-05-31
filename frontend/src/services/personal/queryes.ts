@@ -1,11 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getFavouriteSummary,
   getMyTrip,
   getMyTripME,
   getReviews,
+  getUserReviewBookings,
+  createReview,
+  updateReview,
+  CreateReviewData,
 } from "./profile.service";
 import { getMyTickets, getTicketDetail, Ticket, TicketsResponse } from "./support.service";
+
 export const useGetReviewsQuery = (id: string) => {
   return useQuery({
     queryKey: ["getReviews"],
@@ -15,6 +20,39 @@ export const useGetReviewsQuery = (id: string) => {
     refetchOnMount: false,
     refetchOnReconnect: true,
     retry: false, // optional
+  });
+};
+
+export const useGetUserReviewBookingsQuery = () => {
+  return useQuery({
+    queryKey: ["userReviewBookings"],
+    queryFn: () => getUserReviewBookings(),
+    staleTime: 10000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    retry: false,
+  });
+};
+
+export const useCreateReviewMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateReviewData) => createReview(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userReviewBookings"] });
+    },
+  });
+};
+
+export const useUpdateReviewMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ reviewId, data }: { reviewId: string; data: Partial<CreateReviewData> }) =>
+      updateReview(reviewId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userReviewBookings"] });
+    },
   });
 };
 export const useGetFavouriteSummary = () => {

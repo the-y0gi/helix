@@ -1,10 +1,14 @@
 import { axiosApi } from "@/lib/axios";
 import { Hotel } from "@/types";
+import { CompanyType } from "@/app/(home)/(categories)/_componentsRoot_categories/reviews";
 import { toast } from "sonner";
 
-export const getHotelReviews = async (id: string) => {
+export const getHotelReviews = async (
+  companyId: string,
+  CompanyType: CompanyType,
+) => {
   try {
-    const res = await axiosApi.get(`/reviews/hotel/${id}`);
+    const res = await axiosApi.get(`/reviews/${CompanyType}/${companyId}`);
     return res.data;
   } catch (error) {
     console.error(error);

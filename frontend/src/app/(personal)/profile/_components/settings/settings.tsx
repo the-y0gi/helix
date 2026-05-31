@@ -46,7 +46,7 @@ export default function SettingsPage() {
       <Separator />
 
       <CardContent className="space-y-6">
-        <SettingRow
+        {/* <SettingRow
           title={t("settings.currency")}
           description={t("settings.currencyDesc")}
         >
@@ -60,9 +60,9 @@ export default function SettingsPage() {
               <SelectItem value="inr">Indian Rupee</SelectItem>
             </SelectContent>
           </Select>
-        </SettingRow>
+        </SettingRow> */}
 
-        <Separator />
+        {/* <Separator /> */}
 
         <SettingRow
           title={t("settings.language")}
@@ -79,14 +79,14 @@ export default function SettingsPage() {
           </Select>
         </SettingRow>
 
-        <Separator />
+        {/* <Separator />
 
         <SettingRow
           title={t("settings.recommendations")}
           description={t("settings.recommendationsDesc")}
         >
           <Switch defaultChecked />
-        </SettingRow>
+        </SettingRow> */}
 
         <Separator />
 

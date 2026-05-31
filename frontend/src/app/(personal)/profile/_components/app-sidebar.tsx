@@ -1,25 +1,31 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useProfileSidebar } from "../../../../providers/ProfileSidebarProvider";
 import { cn } from "@/lib/utils";
-import { IconLogout, IconSettings } from "@tabler/icons-react";
-import { AlertOverlay } from "@/components/ui/alert-dialouge";
+import { IconSettings } from "@tabler/icons-react";
 import { TabsTrigger } from "@/components/ui/tabscn";
-import TripsAccordion from "./trips_acordion";
-import { useLogout } from "@/services/dailyfunctions";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
 import { useCurrentUser } from "@/services/hotel/querys";
-import { useAuthStore } from "@/store/auth.store";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useQueryState } from "nuqs";
+import React from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/store/auth.store";
+import { AlertOverlay } from "@/components/ui/alert-dialouge";
 
 export function ProfileSidebar({ className }: { className?: string }) {
   const { navMain, user } = useProfileSidebar();
-  const { data: currUser, refetch } = useCurrentUser();
-  const router = useRouter();
+  const { data: currUser } = useCurrentUser();
   const { t } = useTranslation();
+
+  const [tab] = useQueryState("tab", {
+    defaultValue: "personal_data",
+    shallow: true,
+  });
+
+  const isBookingTab = ["all", "active", "completed", "cancelled"].includes(tab || "");
+  const bookingValue = isBookingTab ? (tab || "all") : "all";
 
   return (
     <aside
@@ -44,62 +50,93 @@ export function ProfileSidebar({ className }: { className?: string }) {
 
       <div className="my-3 h-px bg-border hidden md:block" />
 
-      <nav className="md:flex-col flex overflow-x-auto md:gap-2 -mx-4 md:mx-0 px-5 md:px-0 ">
+      {/* Mobile-only horizontal navigation (Accordion-free, using a flat bookings trigger) */}
+      <nav className="flex md:hidden overflow-x-auto gap-2 -mx-4 px-5 pb-2 scrollbar-hide">
+        {navMain.map((item) => {
+          if (item.value === "settings") return null;
+          const Icon = item.icon;
+          if (item.value === "bookings") {
+            return (
+              <TabsTrigger
+                className="py-2 px-4 rounded-full justify-start hover:bg-muted/50 transition-colors data-[state=active]:bg-muted data-[state=active]:font-medium whitespace-nowrap flex items-center border border-border"
+                key={item.value}
+                value={bookingValue}
+              >
+                {Icon && <Icon className="h-5 w-5 mr-2 text-muted-foreground shrink-0" />}
+                <span className="text-sm">{t("sidebar.bookings")}</span>
+              </TabsTrigger>
+            );
+          }
+          return (
+            <TabsTrigger
+              className="py-2 px-4 rounded-full justify-start hover:bg-muted/50 transition-colors data-[state=active]:bg-muted data-[state=active]:font-medium whitespace-nowrap flex items-center border border-border"
+              key={item.name}
+              value={item.value}
+            >
+              {Icon && <Icon className="h-5 w-5 mr-2 text-muted-foreground shrink-0" />}
+              <span className="text-sm">{item.content}</span>
+            </TabsTrigger>
+          );
+        })}
+        <TabsTrigger 
+          className="py-2 px-4 rounded-full justify-start hover:bg-muted/50 transition-colors data-[state=active]:bg-muted data-[state=active]:font-medium whitespace-nowrap flex items-center border border-border" 
+          value="settings"
+        >
+          <IconSettings className="h-5 w-5 mr-2 text-muted-foreground shrink-0" />
+          <span className="text-sm">{t("sidebar.settings")}</span>
+        </TabsTrigger>
+      </nav>
+
+      {/* Desktop-only vertical navigation (with accordion) */}
+      <nav className="hidden md:flex flex-col gap-2">
         {navMain.map((item) => {
           if (item.value === "settings") return null;
           const Icon = item.icon;
           if (item.value === "bookings") {
             return (
               <div key={item.value} className="flex py-2 px-3 cursor-pointer items-center rounded-lg hover:bg-muted/50 transition-colors">
-                {Icon && <Icon className="h-5 w-5 mr-3 text-muted-foreground" />}
-                <span className="text-sm font-medium">{item.content}</span>
+                {Icon && <Icon className="h-5 w-5 mr-3 text-muted-foreground shrink-0" />}
+                <span className="text-sm font-medium w-full">{item.content}</span>
               </div>
             );
           }
           return (
             <TabsTrigger
-              className="py-2 md:px-3  rounded-full md:rounded-lg justify-start hover:bg-muted/50 transition-colors data-[state=active]:bg-muted data-[state=active]:font-medium"
+              className="py-2 px-3 rounded-lg justify-start hover:bg-muted/50 transition-colors data-[state=active]:bg-muted data-[state=active]:font-medium flex items-center"
               key={item.name}
               value={item.value}
             >
-              {Icon && <Icon className="h-5 w-5 mr-3 text-muted-foreground" />}
+              {Icon && <Icon className="h-5 w-5 mr-3 text-muted-foreground shrink-0" />}
               <span className="text-sm">{item.content}</span>
             </TabsTrigger>
           );
         })}
         <div className="my-2 h-px bg-border" />
-        <TabsTrigger className="py-2 px-3 justify-start rounded-full md:rounded-lg hover:bg-muted/50 transition-colors data-[state=active]:bg-muted data-[state=active]:font-medium" value="settings">
-          <IconSettings className="h-5 w-5 mr-3 text-muted-foreground" />
+        <TabsTrigger 
+          className="py-2 px-3 justify-start rounded-lg hover:bg-muted/50 transition-colors data-[state=active]:bg-muted data-[state=active]:font-medium flex items-center" 
+          value="settings"
+        >
+          <IconSettings className="h-5 w-5 mr-3 text-muted-foreground shrink-0" />
           <span className="text-sm">{t("sidebar.settings")}</span>
         </TabsTrigger>
       </nav>
-
-      {/* <div className="mt-auto md:pt-4">
-        <div className="cursor-pointer rounded-lg px-3 md:py-2 py-1 flex items-center gap-3 transition-colors">
-          <IconLogout className="h-5 w-5" />
-          <Logout refetch={refetch} />
-        </div>
-      </div> */}
     </aside>
   );
 }
 
 export const Logout = ({ refetch }: { refetch: () => void }) => {
   const queryClient = useQueryClient();
-  const currentUser = useAuthStore();
   const { t } = useTranslation();
 
-  const navigate = useRouter();
   const handleLogout = () => {
-
     localStorage.removeItem("accessToken");
     localStorage.removeItem("nextRoute");
 
     queryClient.removeQueries({ queryKey: ["current_user"] });
     refetch();
     window.location.reload();
-    // navigate.push("/");
   };
+
   return (
     <AlertOverlay
       trigger={t("auth.logout")}

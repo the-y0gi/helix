@@ -8,14 +8,15 @@ import SliderIfNotChooseDate from "../_providers_context/SliderIfNotChooseDate";
 // import { RentalData } from "../_providers_context/AdventureDetailsContextProvider";
 import Policies from "./policies";
 import { AdventureData } from "../_providers_context/AdventureDetailsContextProvider";
+import ReviewsMain from "../../../_componentsRoot_categories/reviews";
 
 type TabKey =
   | "overview"
   | "description"
   // | "location" 
   | "rooms"
-// | "amenities"
-// | "reviews";
+  // | "amenities"
+  | "reviews";
 
 export function TabsLine({
   values,
@@ -50,8 +51,9 @@ export function TabsLine({
     //   />
     // ),
     // amenities: <AmenitiesValues amenities={hotel.amenities} />,
-    // reviews: <ReviewsMain hotel={hotel} />,
-    ,
+
+    , reviews: <ReviewsMain companyId={companyId} CompanyType='adventure' />,
+
     rooms: (
       <BikesMain
         services={data.services}
@@ -164,12 +166,12 @@ export function TabsLine({
           {content.rooms}
         </SliderIfNotChooseDate>
       </section>
-      {/* <section
+      <section
         id="reviews"
         className="py-5 border-t md:pt-5 pt-6 md:mb- mb-5"
       >
         {content.reviews}
-      </section> */}
+      </section>
       <Policies id={companyId} />
     </div>
   );

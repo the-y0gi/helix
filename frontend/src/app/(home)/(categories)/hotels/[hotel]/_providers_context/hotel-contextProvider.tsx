@@ -24,9 +24,25 @@ const HotelContext = React.createContext<{
 const HotelContextProvider = ({ hotelId, children }: Props) => {
   const [fetch, setFetch] = useState(false);
   // ✅ Zustand selectors (IMPORTANT)
-  const date = useHotelStore((s) => s.date);
+  const rawDate = useHotelStore((s) => s.date);
   const guests = useHotelStore((s) => s.guests);
   const isBookingMode = useHotelStore((s) => s.isBookingMode);
+
+  // ✅ Normalize dates (localStorage persist stores them as strings)
+  const date = React.useMemo(() => {
+    if (!rawDate) return undefined;
+    return {
+      from: rawDate.from ? new Date(rawDate.from) : undefined,
+      to: rawDate.to ? new Date(rawDate.to) : undefined,
+    };
+  }, [rawDate]);
+
+  // ✅ Auto-fetch availability when dates are available (including on mount)
+  useEffect(() => {
+    if (date?.from && date?.to) {
+      setFetch(true);
+    }
+  }, [date?.from, date?.to]);
 
   // ✅ Memoize params
   const availabilityParams = React.useMemo(
