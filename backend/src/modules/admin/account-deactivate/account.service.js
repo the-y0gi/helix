@@ -4,6 +4,13 @@ const Booking = require("../../bookings/booking.model");
 const GenericBooking = require("../../multiServiceBookings/booking.model");
 const logger = require("../../../shared/utils/logger");
 
+const {
+  sendAccountDeletionApprovedEmail,
+  sendAccountDeletionApprovedWhatsApp,
+  sendAccountDeletionRejectedEmail,
+  sendAccountDeletionRejectedWhatsApp,
+} = require("../../../shared/utils/sendEmail");
+
 exports.getDeleteRequests = async (query) => {
   try {
     const { page = 1, limit = 10, search } = query;
@@ -149,6 +156,10 @@ exports.approveDeleteRequest = async (userId) => {
       throw new Error("Pending account deletion request not found");
     }
 
+    const email = user.email;
+    const phone = user.phoneNumber;
+    const firstName = user.firstName;
+
     // Remove user reference from hotel bookings
     await Booking.updateMany(
       {
@@ -191,6 +202,17 @@ exports.approveDeleteRequest = async (userId) => {
 
     await session.commitTransaction();
 
+    // Send notifications after successful commit
+    Promise.allSettled([
+      sendAccountDeletionApprovedEmail(email, firstName),
+      sendAccountDeletionApprovedWhatsApp(phone, firstName),
+    ]).catch((err) => {
+      logger.error(
+        "Failed to send account deletion approval notifications",
+        err,
+      );
+    });
+
     return {
       success: true,
       message: "User account deleted successfully",
@@ -229,6 +251,16 @@ exports.rejectDeleteRequest = async (userId) => {
     };
 
     await user.save();
+
+    Promise.allSettled([
+      sendAccountDeletionRejectedEmail(user.email, user.firstName),
+      sendAccountDeletionRejectedWhatsApp(user.phoneNumber, user.firstName),
+    ]).catch((err) => {
+      logger.error(
+        "Failed to send account deletion rejection notifications",
+        err,
+      );
+    });
 
     return {
       success: true,

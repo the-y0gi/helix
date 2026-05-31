@@ -256,6 +256,129 @@ const sendVendorRejectionEmail = async (vendor) => {
   }
 };
 
+const sendAccountDeletionApprovedEmail = async (email, firstName) => {
+  try {
+    const mailOptions = {
+      from: `"Helixa Support" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Account Deletion Request Approved",
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>Account Deleted Successfully</h2>
+
+          <p>Hello ${firstName},</p>
+
+          <p>Your account deletion request has been reviewed and approved.</p>
+
+          <p>Your account and associated personal information have been permanently removed from our platform.</p>
+
+          <p>Thank you for being a part of Helix.</p>
+
+          <br />
+          <p>— Team Helixa</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    logger.error("Account deletion approved email failed:", err.message);
+    throw err;
+  }
+};
+
+const sendAccountDeletionRejectedEmail = async (email, firstName) => {
+  try {
+    const mailOptions = {
+      from: `"Helixa Support" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Account Deletion Request Rejected",
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>Account Deletion Request Update</h2>
+
+          <p>Hello ${firstName},</p>
+
+          <p>We have reviewed your account deletion request.</p>
+
+          <p>Your request could not be approved at this time.</p>
+
+          <p>Your account remains active and accessible.</p>
+
+          <br />
+          <p>— Team Helixa</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    logger.error("Account deletion rejected email failed:", err.message);
+    throw err;
+  }
+};
+
+const sendAccountDeletionApprovedWhatsApp = async (phone, firstName) => {
+  try {
+    const cleanNumber = phone.replace("+91", "");
+
+    await axios.post(
+      "https://api.interakt.ai/v1/public/message/",
+      {
+        countryCode: "91",
+        phoneNumber: cleanNumber,
+        type: "Template",
+        template: {
+          name: "account_delete_approved",
+          languageCode: "en",
+          bodyValues: [firstName],
+        },
+      },
+      {
+        headers: {
+          Authorization: `Basic ${process.env.INTERAKT_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  } catch (error) {
+    logger.error(
+      "Account deletion approved WhatsApp failed:",
+      error.response?.data || error.message,
+    );
+  }
+};
+
+const sendAccountDeletionRejectedWhatsApp = async (phone, firstName) => {
+  try {
+    const cleanNumber = phone.replace("+91", "");
+
+    await axios.post(
+      "https://api.interakt.ai/v1/public/message/",
+      {
+        countryCode: "91",
+        phoneNumber: cleanNumber,
+        type: "Template",
+        template: {
+          name: "account_delete_rejected",
+          languageCode: "en",
+          bodyValues: [firstName],
+        },
+      },
+      {
+        headers: {
+          Authorization: `Basic ${process.env.INTERAKT_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  } catch (error) {
+    logger.error(
+      "Account deletion rejected WhatsApp failed:",
+      error.response?.data || error.message,
+    );
+  }
+};
 module.exports = {
   sendWhatsAppOTP,
   sendOTPEmail,
@@ -264,4 +387,8 @@ module.exports = {
   sendVendorSubmissionConfirmationEmail,
   sendVendorApprovalEmail,
   sendVendorRejectionEmail,
+  sendAccountDeletionApprovedEmail,
+  sendAccountDeletionApprovedWhatsApp,
+  sendAccountDeletionRejectedEmail,
+  sendAccountDeletionRejectedWhatsApp,
 };
