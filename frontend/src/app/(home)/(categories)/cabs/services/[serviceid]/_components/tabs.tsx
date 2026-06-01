@@ -35,12 +35,7 @@ export function TabsLine({
   if (!data) return null;
 
   const content: Record<TabKey, React.ReactNode> = {
-    overview: <LayoutGridDemo v="base4" images={[{
-      "url": "https://res.cloudinary.com/dwfolqpht/image/upload/v1771828289/general/xrdjhqvzflmxoimk5qol.jpg",
-      "public_id": "general/sample",
-      "resource_type": "image",
-      "_id": "69b805d08eceb263ce97ccc0"
-    }]} />,
+    overview: <LayoutGridDemo v="base4" images={data.company.images} />,
     description: <Decription data={{ name: data.company.name, description: data.company.description }} />,
     reviews: <ReviewsMain CompanyType="cab" companyId={companyId} />,
 

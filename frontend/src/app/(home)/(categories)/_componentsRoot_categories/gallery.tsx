@@ -18,6 +18,7 @@ const Gallery = ({
   sections: GallerySection[]
   variant?: GalleryVariant
 }) => {
+  console.log("sections", sections)
   return (
     <DrawerDemo
       sections={sections}
@@ -27,11 +28,7 @@ const Gallery = ({
             {/* Main Image */}
             <div className="relative w-full aspect-[16/9] overflow-hidden">
               <img
-                src={
-                  sections?.[0]?.images?.[0]?.src?.length > 50
-                    ? sections[0].images[0].src
-                    : "/hotels/roomIdeal.png"
-                }
+                src={sections?.[0]?.images?.[0]?.src || "/hotels/roomIdeal.png"}
                 alt={sections?.[0]?.images?.[0]?.alt || ""}
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -53,11 +50,7 @@ const Gallery = ({
                     className="relative aspect-video overflow-hidden rounded-md"
                   >
                     <img
-                      src={
-                        image.src.length > 50
-                          ? image.src
-                          : "/hotels/roomIdeal.png"
-                      }
+                      src={image.src || "/hotels/roomIdeal.png"}
                       alt={image.alt}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
@@ -84,7 +77,7 @@ const Gallery = ({
                     className="relative w-full h-full overflow-hidden"
                   >
                     <img
-                      src={image.src.length > 50 ? image.src : "/hotels/roomIdeal.png"}
+                      src={image.src || "/hotels/roomIdeal.png"}
                       alt={image.alt}
                       className='absolute inset-0 w-full h-full object-cover hover:grayscale-60 '
                     />
