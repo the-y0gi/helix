@@ -26,8 +26,15 @@ export interface Company {
   name: string;
   city: string;
   rating: number;
-  images: string[];
+  images: HotelImage[];
   description: string;
+}
+
+export interface HotelImage {
+  url: string;
+  public_id: string;
+  resource_type: string;
+  _id: string;
 }
 
 export interface TourService {
@@ -39,7 +46,7 @@ export interface TourService {
   price: number;
   totalPriceWithTax: number;
   taxPercentage: number;
-  images: string[];
+  images: HotelImage[];
   features: string[];
   maxPeople: number;
   meta: TourMeta;

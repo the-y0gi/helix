@@ -1,4 +1,6 @@
+import { HotelImage } from "@/types";
 import React, { useEffect, useState } from "react";
+
 
 
 type Props = {
@@ -23,7 +25,7 @@ interface Company {
   state: string;
   rating: number;
   reviews: number;
-  images: string[];
+  images: HotelImage[];
   features: string[];
   rentalPolicies: RentalPolicies;
   isFavorite: boolean;

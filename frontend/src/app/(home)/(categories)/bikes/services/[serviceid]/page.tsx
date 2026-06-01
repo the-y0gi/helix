@@ -16,6 +16,8 @@ import { usegetBikeServiceDetails } from "@/services/bikes/bikes.queries";
 import { ScrollToTop } from "../../../../../../../scrolltoto";
 import BikeDetailsItems from "./_components/HotelItems";
 import { useParam } from "@/services/dailyfunctions";
+
+import { HotelImage } from "@/types";
 export interface BikeRentalResponse {
     success: boolean;
     data: RentalData;
@@ -31,7 +33,7 @@ export interface Company {
     name: string;
     city: string;
     rating: number;
-    images: string[];
+    images: HotelImage[];
     description: string;
     rentalPolicies: RentalPolicies;
 }
@@ -56,7 +58,7 @@ export interface BikeService {
     totalPriceWithTax: number;
     taxPercentage: number;
     maxDurationDays: number;
-    images: string[];
+    images: HotelImage[];
     features: string[];
 }
 const BikeDetails = ({ className }: { className?: string }) => {

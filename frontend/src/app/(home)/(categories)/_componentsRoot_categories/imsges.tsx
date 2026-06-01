@@ -3,45 +3,21 @@
 import Gallery from "@/app/(home)/(categories)/_componentsRoot_categories/gallery";
 import { HotelImage } from "@/types";
 import React, { Suspense } from "react";
-const images = [
-  {
-    "url": "https://res.cloudinary.com/dwfolqpht/image/upload/v1771828468/general/p7pppjdfgwu6ewqtu9fh.jpg",
-    "public_id": "general/sample",
-    "resource_type": "image",
-    "_id": "69b805d08eceb263ce97ccbd"
-  },
-  {
-    "url": "https://res.cloudinary.com/dwfolqpht/image/upload/v1771828285/general/cfyshlynt5bbyyc0vvnv.jpg",
-    "public_id": "general/sample",
-    "resource_type": "image",
-    "_id": "69b805d08eceb263ce97ccbe"
-  },
-  {
-    "url": "https://res.cloudinary.com/dwfolqpht/image/upload/v1771828293/general/bjuj0gebkd7lhot7y7bj.jpg",
-    "public_id": "general/sample",
-    "resource_type": "image",
-    "_id": "69b805d08eceb263ce97ccbf"
-  },
-  {
-    "url": "https://res.cloudinary.com/dwfolqpht/image/upload/v1771828289/general/xrdjhqvzflmxoimk5qol.jpg",
-    "public_id": "general/sample",
-    "resource_type": "image",
-    "_id": "69b805d08eceb263ce97ccc0"
-  }
-];
+
 
 export function LayoutGridDemo({ images: imagelist, v = "default" }: { images: HotelImage[], v?: "base4" | "default" }) {
-  if (!images || images.length === 0) {
+  if (!imagelist || imagelist.length === 0) {
     return (
       <div className="w-full py-8 text-center text-muted-foreground">
-        No hotel images available
+        No tour images available
       </div>
     );
   }
-  const imagesb = imagelist.length > 1 ? imagelist : images;
-  const imageUrls = imagesb.map((img) =>
-    typeof img === "string" ? img : img.url
-  );
+  console.log("imagelist", imagelist)
+
+  const imageUrls = imagelist
+    ?.map((img) => img?.url)
+    ?.filter(Boolean);
 
   const featuredImage = imageUrls[0];
 

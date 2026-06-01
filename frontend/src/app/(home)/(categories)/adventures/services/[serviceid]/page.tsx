@@ -17,6 +17,7 @@ import { ScrollToTop } from "../../../../../../../scrolltoto";
 import BikeDetailsItems from "./_components/HotelItems";
 import { useParam } from "@/services/dailyfunctions";
 import { usegetAdventureServiceDetails } from "@/services/adventures/adventures.queries";
+import { HotelImage } from "@/types";
 export interface BikeRentalResponse {
     success: boolean;
     data: TrekDetailData;
@@ -36,7 +37,7 @@ export interface AdventureInfo {
     name: string;
     category: "trekking" | "camping" | string;
     city: string;
-    image: string;
+    images: HotelImage[];
     rating?: number;
 }
 

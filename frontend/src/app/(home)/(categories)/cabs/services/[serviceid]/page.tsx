@@ -17,6 +17,7 @@ import { ScrollToTop } from "../../../../../../../scrolltoto";
 import BikeDetailsItems from "./_components/HotelItems";
 import { useParam } from "@/services/dailyfunctions";
 import { usegetCabServiceDetails } from "@/services/cabs/cabs.queries";
+import { HotelImage } from "@/types";
 export interface BikeRentalResponse {
     success: boolean;
     data: CabDetailData;
@@ -36,7 +37,7 @@ export interface Company {
     name: string;
     city: string;
     rating: number;
-    images: string[];
+    images: HotelImage[];
     description: string;
 }
 
@@ -53,7 +54,7 @@ export interface CabDetailService {
     price: number;
     totalPriceWithTax: number;
     taxPercentage: number;
-    images: string[];
+    images: HotelImage[];
     features: string[];
     carNumber: string;
 }
